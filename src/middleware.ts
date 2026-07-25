@@ -1,9 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { isSupabaseConfigured } from "@/lib/env";
+import { decodeDemoSession, DEMO_COOKIE } from "@/lib/demo-session";
 
-const DEMO_COOKIE = "leadunlock_demo_user";
-const protectedPrefixes = ["/search", "/contacts", "/billing"];
+const protectedPrefixes = ["/search", "/companies", "/contacts", "/billing"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -55,17 +55,16 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // Demo-mode auth gate
-  const demoUser = request.cookies.get(DEMO_COOKIE)?.value;
+  const session = decodeDemoSession(request.cookies.get(DEMO_COOKIE)?.value);
 
-  if (isProtected && !demoUser) {
+  if (isProtected && !session) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (pathname === "/login" && demoUser) {
+  if (pathname === "/login" && session) {
     const searchUrl = request.nextUrl.clone();
     searchUrl.pathname = "/search";
     return NextResponse.redirect(searchUrl);

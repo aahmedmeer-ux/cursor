@@ -32,7 +32,9 @@ create table if not exists public.unlocked_contacts (
   job_title text,
   company text,
   email text not null,
+  phone text,
   linkedin_url text,
+  location text,
   unlocked_at timestamptz not null default now()
 );
 
@@ -77,7 +79,9 @@ create or replace function public.unlock_contact_transaction(
   p_job_title text,
   p_company text,
   p_email text,
-  p_linkedin_url text
+  p_linkedin_url text,
+  p_phone text default null,
+  p_location text default null
 )
 returns public.unlocked_contacts
 language plpgsql
@@ -112,10 +116,10 @@ begin
   where user_id = v_user_id;
 
   insert into public.unlocked_contacts (
-    user_id, person_name, job_title, company, email, linkedin_url
+    user_id, person_name, job_title, company, email, phone, linkedin_url, location
   )
   values (
-    v_user_id, p_person_name, p_job_title, p_company, p_email, p_linkedin_url
+    v_user_id, p_person_name, p_job_title, p_company, p_email, p_phone, p_linkedin_url, p_location
   )
   returning * into v_contact;
 
@@ -123,7 +127,7 @@ begin
 end;
 $$;
 
-grant execute on function public.unlock_contact_transaction(text, text, text, text, text)
+grant execute on function public.unlock_contact_transaction(text, text, text, text, text, text, text)
   to authenticated;
 
 -- ---------------------------------------------------------------------------

@@ -1,68 +1,58 @@
 # LeadUnlock
 
-B2B contact search and enrichment SaaS (RocketReach-style). Search professionals by job title, company, or industry, then unlock verified emails with a credit system.
+RocketReach / SignalHire-style B2B contact search and enrichment SaaS.
+
+Search professionals with advanced filters, unlock verified email + phone with credits, browse companies, bulk unlock selections, and export CSV lead lists.
 
 ## Tech Stack
 
-- **Frontend & Backend:** Next.js (App Router), React, TypeScript
-- **Styling:** Tailwind CSS v4, Shadcn UI
-- **Database & Auth:** Supabase (PostgreSQL + Magic Link Auth)
-- **External APIs:** People Data Labs / Apollo.io (search), Hunter.io / Dropcontact (email enrichment)
-- **Fallbacks:** Mock people + email data when external keys are missing; file-backed demo auth when Supabase is not configured
+- Next.js App Router, React, TypeScript
+- Tailwind CSS v4 + Shadcn UI
+- Supabase (PostgreSQL + Magic Link Auth)
+- People Data Labs / Apollo.io (search)
+- Hunter.io / Dropcontact (email enrichment)
+- Full demo mode when keys are missing
 
 ## Features
 
-- Magic Link auth (Supabase) + one-click demo login
-- Dashboard with sidebar (Search, Saved Contacts, Billing) and live credit balance
-- People search with title / company domain / industry filters
-- Masked emails + **Unlock Contact (1 Credit)** enrichment flow
-- Saved contacts list with **Export to CSV**
-- Simulated credit packages on Billing
+- Advanced people search: name, title, seniority, department, company, domain, industry, location, company size, skills
+- Masked email + phone with confidence score until unlock
+- Bulk unlock selected profiles
+- Company search with drill-down into people at that domain
+- Saved contacts + CSV export (email, phone, LinkedIn, location)
+- Billing credit packages (simulated)
+- Magic Link auth + demo workspace (25 credits)
 
-## Getting Started
+## Getting Started (Windows / macOS / Linux)
 
 ```bash
 npm install
-cp .env.example .env.local
+copy .env.example .env.local   # Windows
+# cp .env.example .env.local   # macOS/Linux
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) → **Continue with demo account**.
+If port 3000 is busy:
 
-### Environment variables
+```bash
+npm run dev -- -p 3001
+```
 
-See `.env.example`:
+Open the app → **Continue with demo account**.
 
-| Variable | Purpose |
-|----------|---------|
-| `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase project |
-| `PDL_API_KEY` or `APOLLO_API_KEY` | People search |
-| `HUNTER_API_KEY` or `DROPCONTACT_API_KEY` | Email enrichment |
+## Supabase setup (optional for production)
 
-Without these keys, the app runs fully in **demo/mock mode**.
-
-### Supabase setup
-
-1. Create a Supabase project
-2. Run `supabase/migrations/001_initial_schema.sql` in the SQL Editor
-3. Enable Email (Magic Link) auth
-4. Add env vars and set Site URL / redirect URL to `/auth/callback`
-
-## Scripts
-
-- `npm run dev` — development server
-- `npm run build` — production build
-- `npm run start` — production server
-- `npm run lint` — ESLint
+1. Run `supabase/migrations/001_initial_schema.sql`
+2. Enable Email magic-link auth
+3. Set env vars from `.env.example`
+4. Add redirect URL `/auth/callback`
 
 ## API Routes
 
 | Route | Description |
 |-------|-------------|
-| `GET /api/search` | Search people |
-| `POST /api/unlock-contact` | Enrich email, deduct credit, save contact |
-| `GET /api/contacts` | List unlocked contacts |
-| `GET/POST /api/credits` | Read balance / add credits |
-| `POST /api/auth/demo` | Demo session |
-| `POST /api/auth/magic-link` | Supabase OTP |
-| `POST /api/auth/signout` | Sign out |
+| `GET /api/search` | Advanced people search |
+| `POST /api/unlock-contact` | Unlock one or many contacts |
+| `GET /api/companies` | Company search |
+| `GET /api/contacts` | Saved unlocked contacts |
+| `GET/POST /api/credits` | Balance / top-up |

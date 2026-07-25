@@ -1,5 +1,5 @@
 import { hasDropcontactKey, hasHunterKey } from "@/lib/env";
-import { getMockEmail } from "@/lib/mock-people";
+import { getMockEmail, getMockPhone } from "@/lib/mock-people";
 
 type EnrichInput = {
   firstName: string;
@@ -10,6 +10,7 @@ type EnrichInput = {
 
 type EnrichResult = {
   email: string;
+  phone: string;
   source: "hunter" | "dropcontact" | "mock";
   confidence?: number;
 };
@@ -31,7 +32,7 @@ async function enrichWithHunter(input: EnrichInput): Promise<EnrichResult> {
   }
 
   const data = (await response.json()) as {
-    data?: { email?: string; score?: number };
+    data?: { email?: string; score?: number; phone_number?: string };
   };
 
   if (!data.data?.email) {
@@ -40,6 +41,7 @@ async function enrichWithHunter(input: EnrichInput): Promise<EnrichResult> {
 
   return {
     email: data.data.email,
+    phone: data.data.phone_number ?? getMockPhone(input),
     source: "hunter",
     confidence: data.data.score,
   };
@@ -71,7 +73,10 @@ async function enrichWithDropcontact(input: EnrichInput): Promise<EnrichResult> 
   }
 
   const data = (await response.json()) as {
-    data?: Array<{ email?: Array<{ email?: string }> }>;
+    data?: Array<{
+      email?: Array<{ email?: string }>;
+      phone?: string;
+    }>;
   };
 
   const email = data.data?.[0]?.email?.[0]?.email;
@@ -79,7 +84,11 @@ async function enrichWithDropcontact(input: EnrichInput): Promise<EnrichResult> 
     throw new Error("Dropcontact did not return an email");
   }
 
-  return { email, source: "dropcontact" };
+  return {
+    email,
+    phone: data.data?.[0]?.phone ?? getMockPhone(input),
+    source: "dropcontact",
+  };
 }
 
 export async function enrichEmail(input: EnrichInput): Promise<EnrichResult> {
@@ -101,6 +110,7 @@ export async function enrichEmail(input: EnrichInput): Promise<EnrichResult> {
 
   return {
     email: getMockEmail(input),
+    phone: getMockPhone(input),
     source: "mock",
     confidence: 85,
   };

@@ -13,7 +13,9 @@ export function contactsToCsv(contacts: UnlockedContact[]) {
     "Job Title",
     "Company",
     "Email",
+    "Phone",
     "LinkedIn",
+    "Location",
     "Unlocked At",
   ];
 
@@ -23,7 +25,9 @@ export function contactsToCsv(contacts: UnlockedContact[]) {
       c.job_title ?? "",
       c.company ?? "",
       c.email,
+      c.phone ?? "",
       c.linkedin_url ?? "",
+      c.location ?? "",
       c.unlocked_at,
     ]
       .map((v) => escapeCsv(String(v)))

@@ -17,7 +17,7 @@ type DemoStore = {
   users: Record<string, DemoUser>;
 };
 
-const DEFAULT_BALANCE = 10;
+const DEFAULT_BALANCE = 25;
 
 async function ensureStore(): Promise<DemoStore> {
   try {
@@ -36,15 +36,22 @@ async function saveStore(store: DemoStore) {
   await fs.writeFile(STORE_PATH, JSON.stringify(store, null, 2));
 }
 
-export async function getOrCreateDemoUser(email: string): Promise<DemoUser> {
+export async function getOrCreateDemoUser(
+  email: string,
+  preferredId?: string
+): Promise<DemoUser> {
   const store = await ensureStore();
   const existing = Object.values(store.users).find(
     (u) => u.email.toLowerCase() === email.toLowerCase()
   );
   if (existing) return existing;
 
+  if (preferredId && store.users[preferredId]) {
+    return store.users[preferredId];
+  }
+
   const user: DemoUser = {
-    id: randomUUID(),
+    id: preferredId ?? randomUUID(),
     email: email.toLowerCase(),
     created_at: new Date().toISOString(),
     balance: DEFAULT_BALANCE,
@@ -60,9 +67,13 @@ export async function getDemoUser(userId: string): Promise<DemoUser | null> {
   return store.users[userId] ?? null;
 }
 
-export async function getDemoCredits(userId: string): Promise<number> {
-  const user = await getDemoUser(userId);
-  return user?.balance ?? 0;
+export async function ensureDemoUser(session: {
+  id: string;
+  email: string;
+}): Promise<DemoUser> {
+  const existing = await getDemoUser(session.id);
+  if (existing) return existing;
+  return getOrCreateDemoUser(session.email, session.id);
 }
 
 export async function listDemoContacts(userId: string): Promise<UnlockedContact[]> {
@@ -81,7 +92,9 @@ export async function unlockDemoContact(
     job_title: string | null;
     company: string | null;
     email: string;
+    phone: string | null;
     linkedin_url: string | null;
+    location: string | null;
   }
 ): Promise<{ contact: UnlockedContact; balance: number }> {
   const store = await ensureStore();
@@ -107,7 +120,9 @@ export async function unlockDemoContact(
     job_title: data.job_title,
     company: data.company,
     email: data.email,
+    phone: data.phone,
     linkedin_url: data.linkedin_url,
+    location: data.location,
     unlocked_at: new Date().toISOString(),
   };
   user.contacts.push(contact);

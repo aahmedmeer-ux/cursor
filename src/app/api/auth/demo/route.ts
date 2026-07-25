@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getOrCreateDemoUser } from "@/lib/demo-store";
-import { DEMO_COOKIE } from "@/lib/auth";
+import { DEMO_COOKIE, encodeDemoSession } from "@/lib/demo-session";
 import { isSupabaseConfigured } from "@/lib/env";
 
 const bodySchema = z.object({
@@ -33,12 +33,16 @@ export async function POST(request: Request) {
     },
   });
 
-  response.cookies.set(DEMO_COOKIE, user.id, {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 30,
-  });
+  response.cookies.set(
+    DEMO_COOKIE,
+    encodeDemoSession({ id: user.id, email: user.email }),
+    {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30,
+    }
+  );
 
   return response;
 }

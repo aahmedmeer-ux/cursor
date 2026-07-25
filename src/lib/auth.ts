@@ -1,10 +1,11 @@
 import { cookies } from "next/headers";
 import { isSupabaseConfigured } from "@/lib/env";
-import { getDemoUser } from "@/lib/demo-store";
+import { ensureDemoUser } from "@/lib/demo-store";
+import { decodeDemoSession, DEMO_COOKIE } from "@/lib/demo-session";
 import { createClient } from "@/lib/supabase/server";
 import type { UserProfile } from "@/types";
 
-export const DEMO_COOKIE = "leadunlock_demo_user";
+export { DEMO_COOKIE };
 
 export async function getCurrentUser(): Promise<UserProfile | null> {
   if (isSupabaseConfigured()) {
@@ -35,11 +36,10 @@ export async function getCurrentUser(): Promise<UserProfile | null> {
   }
 
   const cookieStore = await cookies();
-  const demoUserId = cookieStore.get(DEMO_COOKIE)?.value;
-  if (!demoUserId) return null;
+  const session = decodeDemoSession(cookieStore.get(DEMO_COOKIE)?.value);
+  if (!session) return null;
 
-  const demoUser = await getDemoUser(demoUserId);
-  if (!demoUser) return null;
+  const demoUser = await ensureDemoUser(session);
 
   return {
     id: demoUser.id,

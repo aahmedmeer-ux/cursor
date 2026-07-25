@@ -84,8 +84,8 @@ export function LoginForm() {
         </Link>
         <CardTitle>Sign in</CardTitle>
         <CardDescription>
-          Use a magic link with Supabase Auth, or continue in demo mode with
-          mock data when API keys are not set.
+          Sign in with a magic link, or launch the full demo workspace with 25
+          credits, advanced people search, company intel, and bulk unlock.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -121,8 +121,8 @@ export function LoginForm() {
           Continue with demo account
         </Button>
         <p className="text-center text-xs text-muted-foreground">
-          Demo starts with 10 credits and uses mock people/email data when
-          PDL/Hunter keys are missing.
+          Demo includes 25 credits and a full prospecting database when
+          PDL/Hunter keys are not configured.
         </p>
       </CardContent>
     </Card>

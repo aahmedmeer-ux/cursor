@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JT Brew — Real Estate Built on Trust</title>
+  <meta name="description" content="JT Brew is a real estate venture backed by a proven network of operating businesses across hospitality, commerce, and industry." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Syne:wght@500;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brew: {
+              ink: '#14100D',
+              espresso: '#2A1A12',
+              roast: '#4A2C1A',
+              cream: '#F3EBE0',
+              foam: '#FAF7F2',
+              ember: '#B42318',
+              mist: '#C9B8A4',
+            }
+          },
+          fontFamily: {
+            display: ['Syne', 'sans-serif'],
+            serif: ['Instrument Serif', 'serif'],
+            sans: ['Outfit', 'sans-serif'],
+          },
+          letterSpacing: {
+            tighter2: '-0.04em',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --ink: #14100D;
+      --espresso: #2A1A12;
+      --cream: #F3EBE0;
+      --foam: #FAF7F2;
+      --ember: #B42318;
+    }
+    html { scroll-behavior: auto; }
+    body {
+      font-family: Outfit, sans-serif;
+      background: var(--foam);
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+    .font-display { font-family: Syne, sans-serif; }
+    .font-serif { font-family: 'Instrument Serif', serif; }
+    .grain {
+      background-image:
+        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(180, 35, 24, 0.08), transparent 55%),
+        radial-gradient(ellipse 60% 40% at 90% 20%, rgba(74, 44, 26, 0.12), transparent 50%),
+        linear-gradient(180deg, #FAF7F2 0%, #F3EBE0 48%, #EDE3D6 100%);
+    }
+    .hero-veil {
+      background:
+        linear-gradient(105deg, rgba(20, 16, 13, 0.82) 0%, rgba(20, 16, 13, 0.55) 45%, rgba(20, 16, 13, 0.28) 100%),
+        linear-gradient(0deg, rgba(20, 16, 13, 0.55) 0%, transparent 42%);
+    }
+    .nav-blur {
+      backdrop-filter: blur(14px);
+      background: rgba(250, 247, 242, 0.78);
+      border: 1px solid rgba(20, 16, 13, 0.08);
+    }
+    .line-mask { overflow: hidden; display: block; }
+    .reveal { opacity: 0; transform: translateY(40px); }
+    .project-card img {
+      transition: transform 1.1s cubic-bezier(0.22, 1, 0.36, 1), filter 0.6s ease;
+      filter: saturate(0.92) contrast(1.02);
+    }
+    .project-card:hover img {
+      transform: scale(1.06);
+      filter: saturate(1.05) contrast(1.05);
+    }
+    .project-card .meta {
+      transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .project-card:hover .meta { transform: translateY(-4px); }
+    .marquee {
+      animation: marquee 32s linear infinite;
+      width: max-content;
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(20,16,13,0.18), transparent);
+    }
+    .cursor-dot {
+      width: 10px; height: 10px; border-radius: 9999px;
+      background: var(--ember);
+      position: fixed; pointer-events: none; z-index: 100;
+      mix-blend-mode: multiply;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+    }
+    @media (hover: none) { .cursor-dot { display: none; } }
+  </style>
+</head>
+<body class="antialiased">
+  <div class="cursor-dot" id="cursorDot"></div>
+
+  <!-- Header -->
+  <header class="fixed top-0 inset-x-0 z-50 px-4 md:px-8 pt-4">
+    <div class="nav-blur mx-auto max-w-7xl rounded-full px-4 md:px-6 py-3 flex items-center justify-between">
+      <a href="#top" class="flex items-center gap-3 group">
+        <img src="assets/jt-brew-logo.png" alt="JT Brew" class="h-10 w-10 rounded-full object-cover ring-1 ring-brew-ink/10" />
+        <span class="font-display font-bold text-lg tracking-tight text-brew-ink">JT Brew</span>
+      </a>
+      <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-brew-ink/70">
+        <a href="#about" class="hover:text-brew-ink transition-colors">About</a>
+        <a href="#portfolio" class="hover:text-brew-ink transition-colors">Businesses</a>
+        <a href="#trust" class="hover:text-brew-ink transition-colors">Trust</a>
+        <a href="#contact" class="hover:text-brew-ink transition-colors">Contact</a>
+      </nav>
+      <a href="#contact" class="inline-flex items-center gap-2 rounded-full bg-brew-ink text-brew-foam px-4 py-2 text-sm font-medium hover:bg-brew-espresso transition-colors">
+        Let’s talk
+        <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- Hero -->
+    <section class="relative min-h-[100svh] overflow-hidden">
+      <div class="absolute inset-0">
+        <img src="assets/hero-estate.jpg" alt="JT Brew real estate property" class="h-full w-full object-cover scale-105" id="heroImg" />
+        <div class="absolute inset-0 hero-veil"></div>
+      </div>
+      <div class="relative z-10 mx-auto max-w-7xl px-6 md:px-8 pt-36 pb-20 min-h-[100svh] flex flex-col justify-end">
+        <p class="hero-eyebrow font-sans text-brew-cream/80 tracking-[0.22em] uppercase text-xs md:text-sm mb-6">Real Estate · Built on Operating Proof</p>
+        <h1 class="font-display font-extrabold text-brew-foam leading-[0.92] tracking-tighter2 text-[clamp(3rem,10vw,7.5rem)] max-w-5xl">
+          <span class="line-mask"><span class="hero-line inline-block">Trust,</span></span>
+          <span class="line-mask"><span class="hero-line inline-block">proven by</span></span>
+          <span class="line-mask"><span class="hero-line inline-block italic font-serif font-normal text-brew-cream">running businesses.</span></span>
+        </h1>
+        <div class="mt-8 md:mt-10 flex flex-col md:flex-row md:items-end gap-8 md:gap-16">
+          <p class="hero-copy max-w-xl text-brew-cream/85 text-base md:text-lg leading-relaxed font-light">
+            JT Brew is the real estate hub of a diversified enterprise network—hospitality, logistics, watercraft, and estates—so partners can invest with confidence earned, not claimed.
+          </p>
+          <div class="hero-cta flex gap-3">
+            <a href="#portfolio" class="rounded-full bg-brew-ember text-white px-6 py-3 text-sm font-semibold hover:brightness-110 transition">View Portfolio</a>
+            <a href="#about" class="rounded-full border border-brew-cream/40 text-brew-cream px-6 py-3 text-sm font-medium hover:bg-white/10 transition">Our Story</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Marquee -->
+    <div class="border-y border-brew-ink/10 bg-brew-cream overflow-hidden py-4">
+      <div class="marquee flex gap-10 text-sm md:text-base font-display font-semibold tracking-wide text-brew-ink/70 uppercase">
+        <span>JT Corporate California</span><span class="text-brew-ember">•</span>
+        <span>JT Lodge Campus</span><span class="text-brew-ember">•</span>
+        <span>JT Warehouse Center</span><span class="text-brew-ember">•</span>
+        <span>Jettribe Asia</span><span class="text-brew-ember">•</span>
+        <span>JT Shores</span><span class="text-brew-ember">•</span>
+        <span>JT Grand Estates</span><span class="text-brew-ember">•</span>
+        <span>JT Pattaya</span><span class="text-brew-ember">•</span>
+        <span>JT Rotorcrafts</span><span class="text-brew-ember">•</span>
+        <span>JT Corporate California</span><span class="text-brew-ember">•</span>
+        <span>JT Lodge Campus</span><span class="text-brew-ember">•</span>
+        <span>JT Warehouse Center</span><span class="text-brew-ember">•</span>
+        <span>Jettribe Asia</span><span class="text-brew-ember">•</span>
+        <span>JT Shores</span><span class="text-brew-ember">•</span>
+        <span>JT Grand Estates</span><span class="text-brew-ember">•</span>
+        <span>JT Pattaya</span><span class="text-brew-ember">•</span>
+        <span>JT Rotorcrafts</span><span class="text-brew-ember">•</span>
+      </div>
+    </div>
+
+    <!-- About / Broad Overview -->
+    <section id="about" class="grain relative py-24 md:py-32">
+      <div class="mx-auto max-w-7xl px-6 md:px-8">
+        <div class="grid lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+          <div class="lg:col-span-4">
+            <p class="reveal font-display text-sm tracking-[0.2em] uppercase text-brew-ember mb-4">About Us</p>
+            <h2 class="reveal font-display font-bold text-4xl md:text-5xl tracking-tighter2 leading-tight text-brew-ink">
+              A network that<br />
+              <span class="font-serif italic font-normal text-brew-roast">already works.</span>
+            </h2>
+          </div>
+          <div class="lg:col-span-8 space-y-6 text-lg md:text-xl leading-relaxed text-brew-ink/80 font-light">
+            <p class="reveal">
+              JT Brew exists for one reason: to bring our real estate vision to partners who need more than promises. Behind this brand sits a living portfolio of companies we operate today—across California, Texas, Oklahoma, Vietnam, and Thailand.
+            </p>
+            <p class="reveal">
+              From Jettribe’s global watercraft commerce and the JT Warehouse Center that moves product at scale, to hospitality destinations like JT Lodge Campus, JT Shores, JT Grand Estates, and JT Pattaya—our footprint is operational, not theoretical. Corporate offices in Temecula and rotorcraft operations in Sulphur Springs complete a diversified base of cash-flowing, place-based enterprises.
+            </p>
+            <p class="reveal">
+              That diversification is our real estate foundation. We understand land, logistics, guest experience, and asset stewardship because we live them every day. When you work with JT Brew, you’re partnering with operators who have already built trust—business by business, market by market.
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-6">
+          <div class="reveal border-t border-brew-ink/15 pt-6">
+            <p class="font-display text-4xl md:text-5xl font-bold text-brew-ink">08</p>
+            <p class="mt-2 text-sm text-brew-ink/60 uppercase tracking-wider">Operating entities</p>
+          </div>
+          <div class="reveal border-t border-brew-ink/15 pt-6">
+            <p class="font-display text-4xl md:text-5xl font-bold text-brew-ink">05</p>
+            <p class="mt-2 text-sm text-brew-ink/60 uppercase tracking-wider">Countries &amp; states</p>
+          </div>
+          <div class="reveal border-t border-brew-ink/15 pt-6">
+            <p class="font-display text-4xl md:text-5xl font-bold text-brew-ink">HQ</p>
+            <p class="mt-2 text-sm text-brew-ink/60 uppercase tracking-wider">Temecula · Sulphur Springs</p>
+          </div>
+          <div class="reveal border-t border-brew-ink/15 pt-6">
+            <p class="font-display text-4xl md:text-5xl font-bold text-brew-ink">∞</p>
+            <p class="mt-2 text-sm text-brew-ink/60 uppercase tracking-wider">Trust before transactions</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Trust narrative -->
+    <section id="trust" class="bg-brew-espresso text-brew-cream py-24 md:py-32 relative overflow-hidden">
+      <div class="absolute inset-0 opacity-30 pointer-events-none" style="background: radial-gradient(circle at 20% 20%, #B42318 0%, transparent 35%), radial-gradient(circle at 80% 80%, #4A2C1A 0%, transparent 40%);"></div>
+      <div class="relative mx-auto max-w-7xl px-6 md:px-8">
+        <div class="max-w-4xl">
+          <p class="reveal font-display text-sm tracking-[0.2em] uppercase text-brew-mist mb-6">The JT Brew Thesis</p>
+          <h2 class="reveal font-display font-bold text-[clamp(2.4rem,6vw,4.5rem)] leading-[1.05] tracking-tighter2">
+            Real estate clients don’t need another pitch deck.
+            <span class="font-serif italic font-normal text-brew-cream/90"> They need proof.</span>
+          </h2>
+          <p class="reveal mt-8 text-lg md:text-xl text-brew-cream/75 font-light leading-relaxed max-w-2xl">
+            Explore the businesses below. Visit the ones that are live online. Then decide if we’re the partner you want for your next property project.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Portfolio -->
+    <section id="portfolio" class="bg-brew-foam py-24 md:py-32">
+      <div class="mx-auto max-w-7xl px-6 md:px-8">
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
+          <div>
+            <p class="reveal font-display text-sm tracking-[0.2em] uppercase text-brew-ember mb-4">Portfolio</p>
+            <h2 class="reveal font-display font-bold text-4xl md:text-6xl tracking-tighter2 leading-none">
+              Running businesses.
+            </h2>
+          </div>
+          <p class="reveal max-w-md text-brew-ink/65 text-base md:text-lg font-light">
+            A selection of operating companies across hospitality, commerce, logistics, and specialty aviation—our living case for trust in real estate.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-x-8 gap-y-14">
+          <!-- 01 Jettribe -->
+          <a href="https://www.jettribe.com/" target="_blank" rel="noopener" class="project-card group reveal block">
+            <div class="relative overflow-hidden rounded-sm aspect-[16/11] bg-brew-ink">
+              <img src="assets/jettribe-banner.jpg" alt="Jettribe watercraft" class="h-full w-full object-cover" />
+              <div class="absolute top-4 left-4 flex items-center gap-2">
+                <span class="rounded-full bg-black/50 text-white text-xs px-3 py-1 backdrop-blur">01</span>
+                <img src="assets/jettribe-logo.png" alt="" class="h-5 opacity-90" />
+              </div>
+            </div>
+            <div class="meta mt-5 flex items-start justify-between gap-4">
+              <div>
+                <h3 class="font-display font-bold text-2xl text-brew-ink">Jettribe</h3>
+                <p class="text-brew-ink/55 mt-1 text-sm">PWC gear · Global commerce · <span class="text-brew-ember">jettribe.com</span></p>
+              </div>
+              <span class="text-brew-ink/40 group-hover:text-brew-ember transition">↗</span>
+            </div>
+          </a>
+
+          <!-- 02 Corporate -->
+          <article class="project-card reveal">
+            <div class="relative overflow-hidden rounded-sm aspect-[16/11] bg-brew-ink">
+              <img src="assets/corporate.jpg" alt="JT Corporate California" class="h-full w-full object-cover" />
+              <span class="absolute top-4 left-4 rounded-full bg-black/50 text-white text-xs px-3 py-1 backdrop-blur">02</span>
+            </div>
+            <div class="meta mt-5">
+              <h3 class="font-display font-bold text-2xl text-brew-ink">JT Corporate California</h3>
+              <p class="text-brew-ink/55 mt-1 text-sm">43460 Ridge Park Dr., Temecula, California 92590 USA</p>
+            </div>
+          </article>
+
+          <!-- 03 Lodge -->
+          <article class="project-card reveal">
+            <div class="relative overflow-hidden rounded-sm aspect-[16/11] bg-brew-ink">
+              <img src="assets/lodge.jpg" alt="JT Lodge Campus" class="h-full w-full object-cover" />
+              <span class="absolute top-4 left-4 rounded-full bg-black/50 text-white text-xs px-3 py-1 backdrop-blur">03</span>
+            </div>
+            <div class="meta mt-5">
+              <h3 class="font-display font-bold text-2xl text-brew-ink">JT Lodge Campus</h3>
+              <p class="text-brew-ink/55 mt-1 text-sm">1026 Interstate Hwy 30 E., Sulphur Springs, Texas 75482 USA</p>
+            </div>
+          </article>
+
+          <!-- 04 Warehouse -->
+          <article class="project-card reveal">
+            <div class="relative overflow-hidden rounded-sm aspect-[16/11] bg-brew-ink">
+              <img src="assets/warehouse.jpg" alt="JT Warehouse Center" class="h-full w-full object-cover" />
+              <span class="absolute top-4 left-4 rounded-full bg-black/50 text-white text-xs px-3 py-1 backdrop-blur">04</span>
+            </div>
+            <div class="meta mt-5">
+              <h3 class="font-display font-bold text-2xl text-brew-ink">JT Warehouse Center</h3>
+              <p class="text-brew-ink/55 mt-1 text-sm">1120 Como Street South, Sulphur Springs, Texas 75482 USA</p>
+            </div>
+          </article>
+
+          <!-- 05 Asia -->
+          <article class="project-card reveal">
+            <div class="relative overflow-hidden rounded-sm aspect-[16/11] bg-brew-ink">
+              <img src="assets/jettribe-action.jpg" alt="Jettribe Asia Division" class="h-full w-full object-cover" />
+              <span class="absolute top-4 left-4 rounded-full bg-black/50 text-white text-xs px-3 py-1 backdrop-blur">05</span>
+            </div>
+            <div class="meta mt-5">
+              <h3 class="font-display font-bold text-2xl text-brew-ink">Jettribe Asia Division</h3>
+              <p class="text-brew-ink/55 mt-1 text-sm">76/28/9 Le Van Phan Street, Hoa Ward, Tan Phu District, Saigon, Vietnam</p>
+            </div>
+          </article>
+
+          <!-- 06 Shores -->
+          <article class="project-card reveal">
+            <div class="relative overflow-hidden rounded-sm aspect-[16/11] bg-brew-ink">
+              <img src="assets/shores.jpg" alt="JT Shores" class="h-full w-full object-cover" />
+              <span class="absolute top-4 left-4 rounded-full bg-black/50 text-white text-xs px-3 py-1 backdrop-blur">06</span>
+            </div>
+            <div class="meta mt-5">
+              <h3 class="font-display font-bold text-2xl text-brew-ink">JT Shores</h3>
+              <p class="text-brew-ink/55 mt-1 text-sm">12 E. Highway 9, Eufaula, Oklahoma 74432 USA</p>
+            </div>
+          </article>
+
+          <!-- 07 Estates -->
+          <article class="project-card reveal">
+            <div class="relative overflow-hidden rounded-sm aspect-[16/11] bg-brew-ink">
+              <img src="assets/estates.jpg" alt="JT Grand Estates" class="h-full w-full object-cover" />
+              <span class="absolute top-4 left-4 rounded-full bg-black/50 text-white text-xs px-3 py-1 backdrop-blur">07</span>
+            </div>
+            <div class="meta mt-5">
+              <h3 class="font-display font-bold text-2xl text-brew-ink">JT Grand Estates</h3>
+              <p class="text-brew-ink/55 mt-1 text-sm">1394 Interstate Hwy 30 E., Sulphur Springs, Texas 75482 USA</p>
+            </div>
+          </article>
+
+          <!-- 08 Pattaya -->
+          <article class="project-card reveal">
+            <div class="relative overflow-hidden rounded-sm aspect-[16/11] bg-brew-ink">
+              <img src="assets/pattaya.jpg" alt="JT Pattaya" class="h-full w-full object-cover" />
+              <span class="absolute top-4 left-4 rounded-full bg-black/50 text-white text-xs px-3 py-1 backdrop-blur">08</span>
+            </div>
+            <div class="meta mt-5">
+              <h3 class="font-display font-bold text-2xl text-brew-ink">JT Pattaya</h3>
+              <p class="text-brew-ink/55 mt-1 text-sm">165/529 Laguna Beach Resort, Unit B740, Banglamung, Chonburi 20150, Pattaya, Thailand</p>
+            </div>
+          </article>
+
+          <!-- 09 Rotorcrafts - full width on md -->
+          <article class="project-card reveal md:col-span-2">
+            <div class="relative overflow-hidden rounded-sm aspect-[21/9] md:aspect-[21/8] bg-brew-ink">
+              <img src="assets/rotorcraft.jpg" alt="JT Rotorcrafts" class="h-full w-full object-cover" />
+              <span class="absolute top-4 left-4 rounded-full bg-black/50 text-white text-xs px-3 py-1 backdrop-blur">09</span>
+            </div>
+            <div class="meta mt-5 flex flex-col md:flex-row md:items-end md:justify-between gap-2">
+              <div>
+                <h3 class="font-display font-bold text-2xl md:text-3xl text-brew-ink">JT Rotorcrafts</h3>
+                <p class="text-brew-ink/55 mt-1 text-sm">1200 Enterprise Drive, Sulphur Springs, Texas 75482 USA</p>
+              </div>
+              <p class="text-sm text-brew-ink/40 uppercase tracking-wider">Specialty aviation · Texas</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="relative py-28 md:py-36 overflow-hidden">
+      <div class="absolute inset-0">
+        <img src="assets/corporate-alt.jpg" alt="" class="h-full w-full object-cover" />
+        <div class="absolute inset-0 bg-brew-ink/75"></div>
+      </div>
+      <div class="relative mx-auto max-w-4xl px-6 text-center text-brew-foam">
+        <h2 class="reveal font-display font-bold text-[clamp(2.5rem,7vw,5rem)] tracking-tighter2 leading-[1.05]">
+          Ready to build<br />
+          <span class="font-serif italic font-normal">with operators you can trust?</span>
+        </h2>
+        <p class="reveal mt-6 text-brew-cream/80 text-lg font-light max-w-xl mx-auto">
+          Tell us about your property goals. We’ll share how the JT network can support the next chapter.
+        </p>
+        <a href="#contact" class="reveal inline-flex mt-10 rounded-full bg-brew-ember text-white px-8 py-4 text-sm font-semibold hover:brightness-110 transition">Start a Conversation</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer id="contact" class="bg-brew-ink text-brew-cream">
+    <div class="mx-auto max-w-7xl px-6 md:px-8 py-16 md:py-20">
+      <div class="grid md:grid-cols-12 gap-12">
+        <div class="md:col-span-5">
+          <div class="flex items-center gap-3 mb-6">
+            <img src="assets/jt-brew-logo.png" alt="JT Brew" class="h-12 w-12 rounded-full object-cover" />
+            <span class="font-display font-bold text-2xl">JT Brew</span>
+          </div>
+          <p class="text-brew-cream/65 font-light leading-relaxed max-w-sm">
+            Real estate partnerships backed by a portfolio of proven, operating businesses.
+          </p>
+        </div>
+        <div class="md:col-span-3">
+          <p class="font-display text-xs tracking-[0.2em] uppercase text-brew-mist mb-4">Visit</p>
+          <p class="text-sm text-brew-cream/80 leading-relaxed">
+            43460 Ridge Park Dr.<br />
+            Temecula, California 92590<br />
+            USA
+          </p>
+        </div>
+        <div class="md:col-span-4">
+          <p class="font-display text-xs tracking-[0.2em] uppercase text-brew-mist mb-4">Contact</p>
+          <a href="mailto:hello@jtbrew.com" class="text-xl md:text-2xl font-display font-semibold hover:text-white transition">hello@jtbrew.com</a>
+          <p class="mt-4 text-sm text-brew-cream/55">Also: Jettribe Rider Support · 951.246.3147</p>
+        </div>
+      </div>
+      <div class="divider my-10"></div>
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 text-sm text-brew-cream/45">
+        <p>© <span id="year"></span> JT Brew. All rights reserved.</p>
+        <p>Crafted for trust · Real estate · Operating portfolio</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Hero entrance — Webflow / Nue-style staggered reveal
+    const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    heroTl
+      .from('.hero-eyebrow', { y: 24, opacity: 0, duration: 0.8 }, 0.15)
+      .from('.hero-line', { yPercent: 110, duration: 1.05, stagger: 0.12 }, 0.25)
+      .from('.hero-copy', { y: 28, opacity: 0, duration: 0.9 }, 0.75)
+      .from('.hero-cta', { y: 20, opacity: 0, duration: 0.8 }, 0.9)
+      .from('#heroImg', { scale: 1.18, duration: 1.6, ease: 'power2.out' }, 0);
+
+    // Parallax hero image
+    gsap.to('#heroImg', {
+      yPercent: 12,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#top',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: true,
+      }
+    });
+
+    // Scroll reveals
+    gsap.utils.toArray('.reveal').forEach((el) => {
+      gsap.fromTo(el,
+        { y: 48, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 88%',
+            toggleActions: 'play none none none',
+          }
+        }
+      );
+    });
+
+    // Soft cursor accent
+    const dot = document.getElementById('cursorDot');
+    if (window.matchMedia('(pointer:fine)').matches) {
+      window.addEventListener('mousemove', (e) => {
+        gsap.to(dot, { x: e.clientX, y: e.clientY, opacity: 0.85, duration: 0.35, ease: 'power3.out' });
+      });
+    }
+
+    // Smooth anchor scroll
+    document.querySelectorAll('a[href^="#"]').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        const id = a.getAttribute('href');
+        if (!id || id === '#') return;
+        const target = document.querySelector(id);
+        if (!target) return;
+        e.preventDefault();
+        const y = target.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      });
+    });
+  </script>
+</body>
+</html>

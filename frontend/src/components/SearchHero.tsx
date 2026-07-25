@@ -22,15 +22,15 @@ export function SearchHero({
         className="mt-4 font-display text-4xl font-semibold tracking-tight text-ink sm:text-5xl animate-fade-up"
         style={{ animationDelay: "80ms" }}
       >
-        Find decision-makers
-        <span className="block text-tide">behind the hiring signal.</span>
+        Find real job posts
+        <span className="block text-tide">then the people behind them.</span>
       </h1>
       <p
         className="mt-4 max-w-2xl text-base leading-relaxed text-muted sm:text-lg animate-fade-up"
         style={{ animationDelay: "140ms" }}
       >
-        Enter a job-related intent keyword. LeadHunt routes it through n8n to
-        scrape, enrich, and return verified CEOs and founders.
+        Free route: searches public boards (RemoteOK, Remotive, Arbeitnow), shows
+        job details first, then best-effort company/poster clues — no paid APIs.
       </p>
 
       <form
@@ -42,7 +42,7 @@ export function SearchHero({
         }}
       >
         <label htmlFor="intent-keyword" className="sr-only">
-          Intent keyword
+          Job search keyword
         </label>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
           <input
@@ -50,7 +50,7 @@ export function SearchHero({
             type="text"
             value={keyword}
             onChange={(event) => onKeywordChange(event.target.value)}
-            placeholder='e.g. "Amazon Seller Central"'
+            placeholder='e.g. "python developer" or "customer support"'
             disabled={loading}
             className="w-full border border-line bg-white/80 px-5 py-4 text-base text-ink shadow-[0_1px_0_rgba(19,32,51,0.04)] outline-none backdrop-blur transition focus:border-tide focus:ring-2 focus:ring-tide/25 disabled:opacity-70"
           />
@@ -59,7 +59,7 @@ export function SearchHero({
             disabled={loading || !keyword.trim()}
             className="shrink-0 bg-tide px-8 py-4 font-display text-base font-semibold tracking-wide text-white transition hover:bg-tideDark disabled:cursor-not-allowed disabled:opacity-55"
           >
-            {loading ? "Hunting…" : "Hunt Leads"}
+            {loading ? "Searching…" : "Find Jobs"}
           </button>
         </div>
       </form>

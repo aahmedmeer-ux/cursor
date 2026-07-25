@@ -1,7 +1,7 @@
 const STAGES = [
-  "Scraping hiring companies via Apify…",
-  "Enriching decision-makers with Proxycurl…",
-  "Verifying emails through Hunter…",
+  "Querying Remotive public jobs API…",
+  "Scanning RemoteOK listings…",
+  "Filtering Arbeitnow board results…",
 ];
 
 export function LoadingState() {
@@ -15,10 +15,10 @@ export function LoadingState() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="font-display text-lg font-semibold text-ink">
-              Enrichment in progress
+              Searching free job boards
             </p>
             <p className="mt-1 text-sm text-muted">
-              Scraping and verifying leads — this usually takes a few seconds.
+              Pulling live listings — this usually takes a few seconds.
             </p>
           </div>
           <div className="hidden h-10 w-10 items-center justify-center border border-tide/30 sm:flex">
@@ -31,12 +31,8 @@ export function LoadingState() {
         </div>
 
         <ul className="mt-6 space-y-2">
-          {STAGES.map((stage, index) => (
-            <li
-              key={stage}
-              className="flex items-center gap-3 text-sm text-muted"
-              style={{ animationDelay: `${index * 120}ms` }}
-            >
+          {STAGES.map((stage) => (
+            <li key={stage} className="flex items-center gap-3 text-sm text-muted">
               <span className="h-1.5 w-1.5 rounded-full bg-sand animate-pulse-soft" />
               {stage}
             </li>
@@ -45,15 +41,11 @@ export function LoadingState() {
 
         <div className="mt-8 space-y-3">
           {Array.from({ length: 5 }).map((_, index) => (
-            <div
-              key={index}
-              className="grid grid-cols-12 gap-3"
-              style={{ animationDelay: `${index * 80}ms` }}
-            >
-              <div className="skeleton col-span-3 h-10" />
+            <div key={index} className="grid grid-cols-12 gap-3">
+              <div className="skeleton col-span-4 h-10" />
               <div className="skeleton col-span-2 h-10" />
               <div className="skeleton col-span-2 h-10" />
-              <div className="skeleton col-span-3 h-10" />
+              <div className="skeleton col-span-2 h-10" />
               <div className="skeleton col-span-2 h-10" />
             </div>
           ))}

@@ -1,22 +1,25 @@
-# LeadHunt — B2B Lead Generation Engine
+# LeadHunt — Free-route job hunter
 
-LeadHunt accepts a job-related intent keyword (e.g. `"Amazon Seller Central"`), forwards it to an n8n webhook for Apify → Proxycurl → Hunter enrichment, and returns verified CEO/Founder leads in a clean dashboard.
+LeadHunt searches **real public job boards for free**, shows job details first, then tries to find company/poster clues from the job text and public company data.
+
+> This free route does **not** log into Upwork or Indeed. Those platforms block free scrapers. It uses open job APIs instead.
+
+## What it does
+
+1. **Find jobs** from free sources:
+   - [RemoteOK](https://remoteok.com/api)
+   - [Remotive](https://remotive.com/api/remote-jobs)
+   - [Arbeitnow](https://www.arbeitnow.com/api/job-board-api)
+2. **Show job details** (title, company, source, location, salary, link)
+3. **Find poster/company clues** (Clearbit company domain + emails/LinkedIn/names found in the job description)
+4. **Export jobs to CSV**
 
 ## Stack
 
-| Layer        | Tech                                      |
-|--------------|-------------------------------------------|
-| Backend      | Python, FastAPI, httpx, Pydantic          |
-| Frontend     | Next.js, React, Tailwind CSS              |
-| Orchestration| n8n webhook (built separately)            |
-
-## Project structure
-
-```
-backend/          FastAPI API
-frontend/         Next.js dashboard
-n8n-spec.md       Exact webhook request/response contract
-```
+| Layer    | Tech                         |
+|----------|------------------------------|
+| Backend  | Python, FastAPI, httpx       |
+| Frontend | Next.js, React, Tailwind CSS |
 
 ## Quick start
 
@@ -25,16 +28,13 @@ n8n-spec.md       Exact webhook request/response contract
 ```bash
 cd backend
 python3 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env   # already present with safe defaults
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-- Health: [http://localhost:8000/api/health](http://localhost:8000/api/health)
-- Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
-
-By default `USE_MOCK_LEADS=true`, so `/api/search` returns sample leads after a 5-second simulated enrichment delay. Set `USE_MOCK_LEADS=false` and a real `N8N_WEBHOOK_URL` to call n8n.
+- App API docs: http://localhost:8000/docs
+- Health: http://localhost:8000/api/health
 
 ### 2. Frontend
 
@@ -45,61 +45,41 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
-
-### 3. n8n
-
-See [`n8n-spec.md`](./n8n-spec.md) for the exact JSON payloads the backend sends and expects.
+Open **http://localhost:3000**
 
 ## API
 
-### `GET /api/health`
+### `POST /api/jobs/search`
 
 ```json
-{ "status": "ok", "service": "lead-generation-api" }
+{ "keyword": "python developer", "limit": 40 }
 ```
 
-### `POST /api/search`
+Returns normalized jobs from whichever free sources responded.
 
-Request:
-
-```json
-{ "keyword": "Amazon Seller Central" }
-```
-
-Response:
+### `POST /api/jobs/enrich`
 
 ```json
 {
-  "keyword": "Amazon Seller Central",
-  "source": "mock",
-  "count": 5,
-  "leads": [
-    {
-      "company_name": "Northwind Commerce",
-      "website_domain": "northwindcommerce.com",
-      "decision_maker_name": "Ava Chen",
-      "decision_maker_title": "CEO",
-      "verified_email": "ava.chen@northwindcommerce.com",
-      "linkedin_url": "https://www.linkedin.com/in/avachen"
-    }
-  ]
+  "company_name": "EverAI",
+  "job_title": "AI Video Editor",
+  "job_url": "https://remotive.com/...",
+  "description": "optional job text"
 }
 ```
 
-## Environment variables
+Returns company website hint + any emails / LinkedIn links / name mentions found in the text.
 
-### Backend (`backend/.env`)
+## Honest limits (free route)
 
-| Variable               | Description                                      |
-|------------------------|--------------------------------------------------|
-| `N8N_WEBHOOK_URL`      | n8n webhook endpoint                             |
-| `N8N_TIMEOUT_SECONDS`  | Max wait for n8n (default `60`)                  |
-| `USE_MOCK_LEADS`       | `true` = mock data + 5s delay                    |
-| `CORS_ORIGINS`         | Comma-separated frontend origins                 |
+| Works today | Does not work for free |
+|-------------|------------------------|
+| Real jobs from RemoteOK / Remotive / Arbeitnow | Private Upwork / Indeed account feeds |
+| Company website guess (Clearbit autocomplete) | Guaranteed CEO/Founder contact data |
+| Emails/LinkedIn if present in the job post | Hunter-style verified emails at scale |
 
-### Frontend (`frontend/.env.local`)
+For Upwork/Indeed-grade coverage you’ll need paid scrapers later (Apify etc.). See `n8n-spec.md` for the older paid-webhook contract if you go that route.
 
-| Variable                 | Description                |
-|--------------------------|----------------------------|
-| `NEXT_PUBLIC_API_URL`    | FastAPI base URL           |
+## Attribution
+
+Remotive asks that you link back to their job URL and mention Remotive as the source when displaying their listings — this UI does that via the job title link.

@@ -1,4 +1,4 @@
-import type { Lead } from "./types";
+import type { JobPosting } from "./types";
 
 function escapeCsv(value: string): string {
   if (/[",\n\r]/.test(value)) {
@@ -7,24 +7,32 @@ function escapeCsv(value: string): string {
   return value;
 }
 
-export function leadsToCsv(leads: Lead[]): string {
+export function jobsToCsv(jobs: JobPosting[]): string {
   const headers = [
-    "Company Name",
-    "Website Domain",
-    "Decision Maker Name",
     "Title",
-    "Verified Email",
-    "LinkedIn Profile",
+    "Company",
+    "Source",
+    "Location",
+    "Job Type",
+    "Salary",
+    "URL",
+    "Published",
+    "Tags",
+    "Snippet",
   ];
 
-  const rows = leads.map((lead) =>
+  const rows = jobs.map((job) =>
     [
-      lead.company_name,
-      lead.website_domain,
-      lead.decision_maker_name,
-      lead.decision_maker_title,
-      lead.verified_email ?? "",
-      lead.linkedin_url ?? "",
+      job.title,
+      job.company_name,
+      job.source,
+      job.location ?? "",
+      job.job_type ?? "",
+      job.salary ?? "",
+      job.url,
+      job.published_at ?? "",
+      job.tags.join("; "),
+      job.description_snippet ?? "",
     ]
       .map(escapeCsv)
       .join(","),
@@ -33,14 +41,17 @@ export function leadsToCsv(leads: Lead[]): string {
   return [headers.join(","), ...rows].join("\n");
 }
 
-export function downloadLeadsCsv(leads: Lead[], keyword: string): void {
-  const csv = leadsToCsv(leads);
+export function downloadJobsCsv(jobs: JobPosting[], keyword: string): void {
+  const csv = jobsToCsv(jobs);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
-  const safeKeyword = keyword.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase();
+  const safeKeyword = keyword
+    .replace(/[^a-z0-9]+/gi, "-")
+    .replace(/^-|-$/g, "")
+    .toLowerCase();
   link.href = url;
-  link.download = `leads-${safeKeyword || "export"}.csv`;
+  link.download = `jobs-${safeKeyword || "export"}.csv`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

@@ -15,9 +15,9 @@ const body = Source_Sans_3({
 });
 
 export const metadata: Metadata = {
-  title: "LeadHunt — B2B Lead Generation",
+  title: "LeadHunt — Free Job Hunter",
   description:
-    "Hunt verified CEOs and founders at companies hiring for your intent keyword.",
+    "Search free public job boards, then find company and poster clues behind each listing.",
 };
 
 export default function RootLayout({

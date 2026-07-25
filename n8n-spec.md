@@ -1,6 +1,8 @@
-# n8n Integration Spec — LeadHunt
+# n8n Integration Spec — LeadHunt (optional paid path)
 
-This document defines the contract between the FastAPI backend and your n8n webhook workflow (Apify → Proxycurl → Hunter).
+> **Current default:** LeadHunt runs the **free route** (`/api/jobs/search` + `/api/jobs/enrich`) using public job APIs. This n8n document is kept for a future paid Upwork/Indeed/enrichment waterfall.
+
+This document defines the contract between the FastAPI backend and an n8n webhook workflow (Apify → Proxycurl → Hunter).
 
 ## Overview
 

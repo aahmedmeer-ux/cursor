@@ -4,8 +4,16 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.models import ErrorResponse, HealthResponse, SearchRequest, SearchResponse
-from app.services.n8n_client import N8NWebhookError, fetch_leads_from_n8n
+from app.models import (
+    EnrichRequest,
+    EnrichResponse,
+    ErrorResponse,
+    HealthResponse,
+    JobsSearchResponse,
+    SearchRequest,
+)
+from app.services.enrichment import enrich_company
+from app.services.job_sources import search_free_jobs
 
 logging.basicConfig(
     level=logging.INFO,
@@ -16,12 +24,12 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 app = FastAPI(
-    title="B2B Lead Generation API",
+    title="LeadHunt API",
     description=(
-        "Accepts job-related intent keywords, forwards them to an n8n webhook "
-        "(Apify → Proxycurl → Hunter), and returns verified decision-maker leads."
+        "Free-route job hunter: aggregates public job APIs (RemoteOK, Remotive, Arbeitnow), "
+        "then best-effort company/poster enrichment without paid scrapers."
     ),
-    version="1.0.0",
+    version="2.0.0",
 )
 
 app.add_middleware(
@@ -35,51 +43,80 @@ app.add_middleware(
 
 @app.get("/api/health", response_model=HealthResponse, tags=["system"])
 async def health() -> HealthResponse:
-    """Basic health check confirming the API is running."""
-    return HealthResponse(status="ok")
+    return HealthResponse(status="ok", mode="free-job-sources")
 
 
 @app.post(
-    "/api/search",
-    response_model=SearchResponse,
-    responses={
-        400: {"model": ErrorResponse},
-        502: {"model": ErrorResponse},
-        504: {"model": ErrorResponse},
-    },
-    tags=["leads"],
+    "/api/jobs/search",
+    response_model=JobsSearchResponse,
+    responses={400: {"model": ErrorResponse}, 502: {"model": ErrorResponse}},
+    tags=["jobs"],
 )
-async def search_leads(body: SearchRequest) -> SearchResponse:
-    """
-    Forward a keyword to n8n and return a structured list of leads.
-
-    When `USE_MOCK_LEADS=true` (default for local development), returns
-    sample leads after a simulated 5-second enrichment delay.
-    """
+async def search_jobs(body: SearchRequest) -> JobsSearchResponse:
+    """Search free public job boards and return normalized job listings."""
     keyword = body.keyword.strip()
     if not keyword:
         raise HTTPException(status_code=400, detail="keyword must not be empty.")
 
-    logger.info("Search requested for keyword=%r", keyword)
+    logger.info("Free job search keyword=%r limit=%s", keyword, body.limit)
 
     try:
-        leads, source = await fetch_leads_from_n8n(keyword, settings)
-    except N8NWebhookError as exc:
-        status = exc.status_code or 502
-        logger.error("n8n integration error (%s): %s", status, exc)
-        raise HTTPException(status_code=status, detail=str(exc)) from exc
+        jobs, sources_queried, sources_ok = await search_free_jobs(keyword, body.limit)
     except Exception as exc:
-        logger.exception("Unexpected error during lead search")
+        logger.exception("Job search failed")
         raise HTTPException(
-            status_code=500,
-            detail="An unexpected error occurred while hunting leads.",
+            status_code=502,
+            detail=f"Failed to query free job sources: {exc}",
         ) from exc
 
-    return SearchResponse(
+    if not sources_ok:
+        raise HTTPException(
+            status_code=502,
+            detail="All free job sources failed. Try again in a moment.",
+        )
+
+    return JobsSearchResponse(
         keyword=keyword,
-        source=source,
-        count=len(leads),
-        leads=leads,
+        count=len(jobs),
+        sources_queried=sources_queried,
+        sources_ok=sources_ok,
+        jobs=jobs,
+    )
+
+
+@app.post(
+    "/api/search",
+    response_model=JobsSearchResponse,
+    responses={400: {"model": ErrorResponse}, 502: {"model": ErrorResponse}},
+    tags=["jobs"],
+    summary="Alias for /api/jobs/search",
+)
+async def search_jobs_alias(body: SearchRequest) -> JobsSearchResponse:
+    return await search_jobs(body)
+
+
+@app.post(
+    "/api/jobs/enrich",
+    response_model=EnrichResponse,
+    responses={400: {"model": ErrorResponse}},
+    tags=["enrichment"],
+)
+async def enrich_job_poster(body: EnrichRequest) -> EnrichResponse:
+    """
+    Best-effort free enrichment for the company / poster behind a job.
+
+    Uses Clearbit autocomplete for company domain + regex extraction of emails /
+    LinkedIn links / contact mentions from the job description.
+    """
+    company = body.company_name.strip()
+    if not company:
+        raise HTTPException(status_code=400, detail="company_name must not be empty.")
+
+    logger.info("Enriching company=%r", company)
+    return await enrich_company(
+        company_name=company,
+        description=body.description,
+        job_url=body.job_url,
     )
 
 
@@ -87,6 +124,9 @@ async def search_leads(body: SearchRequest) -> SearchResponse:
 async def root() -> dict[str, str]:
     return {
         "service": "lead-generation-api",
+        "mode": "free-job-sources",
         "docs": "/docs",
         "health": "/api/health",
+        "search": "/api/jobs/search",
+        "enrich": "/api/jobs/enrich",
     }

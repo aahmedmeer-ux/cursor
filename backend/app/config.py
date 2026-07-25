@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     n8n_webhook_url: str = "https://your-n8n-instance.example.com/webhook/lead-hunt"
     n8n_timeout_seconds: float = 60.0
     use_mock_leads: bool = True
-    cors_origins: str = "http://localhost:3000"
+    cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     host: str = "0.0.0.0"
     port: int = 8000
 

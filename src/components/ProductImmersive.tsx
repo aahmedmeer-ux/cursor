@@ -124,9 +124,9 @@ export function ProductImmersive({ product }: Props) {
           <div
             key={`word-${displayVariant.id}-${stage.phase}`}
             aria-hidden
-            className={`pointer-events-none absolute left-1/2 top-[46%] z-0 w-[140%] -translate-x-1/2 -translate-y-1/2 text-center font-display text-[clamp(7rem,28vw,17rem)] leading-none tracking-[0.06em] text-white/90 ${productMotion}`}
+            className={`pointer-events-none absolute left-1/2 top-[48%] z-0 w-[160%] -translate-x-1/2 -translate-y-1/2 select-none text-center font-display text-[clamp(8rem,32vw,20rem)] leading-none tracking-[0.08em] text-white ${productMotion}`}
             style={{
-              textShadow: "0 12px 48px rgba(0,0,0,0.25)",
+              textShadow: "0 18px 60px rgba(0,0,0,0.28)",
             }}
           >
             {displayVariant.word}
@@ -134,16 +134,16 @@ export function ProductImmersive({ product }: Props) {
 
           <div
             key={`product-${displayVariant.id}-${stage.phase}`}
-            className={`relative z-10 w-[min(68vw,440px)] ${productMotion}`}
+            className={`relative z-10 w-[min(52vw,340px)] ${productMotion}`}
           >
-            <div className="relative aspect-square rotate-[-14deg]">
+            <div className="relative aspect-[4/5] rotate-[-16deg]">
               <Image
                 src={displayVariant.images[0]}
                 alt={`${product.name} — ${displayVariant.name}`}
                 fill
                 priority
-                className="rounded-[28px] object-cover shadow-[0_35px_60px_rgba(0,0,0,0.45)]"
-                sizes="(max-width: 1024px) 70vw, 440px"
+                className="rounded-[26px] object-cover shadow-[0_35px_60px_rgba(0,0,0,0.45)]"
+                sizes="(max-width: 1024px) 55vw, 340px"
               />
             </div>
           </div>

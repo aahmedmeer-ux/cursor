@@ -3,6 +3,8 @@ export type ProductVariant = {
   name: string;
   color: string;
   swatch: string;
+  theme: string;
+  word: string;
   images: string[];
 };
 
@@ -144,6 +146,8 @@ export const products: Product[] = [
         name: "Green / White",
         color: "Green",
         swatch: "#2F9E44",
+        theme: "#1F8A3A",
+        word: "RACE",
         images: [
           img("products/2478/30660/25452GW-1__34114.1775847866.JPG"),
           img("products/2478/30666/25452GW-7__76747.1775847880.JPG"),
@@ -155,7 +159,9 @@ export const products: Product[] = [
         id: "deep-red-white",
         name: "Deep Red / White",
         color: "Red",
-        swatch: "#8B1E2D",
+        swatch: "#C41E3A",
+        theme: "#C2185B",
+        word: "BOLD",
         images: [
           img("products/2477/30677/25452RW-1__53051.1775848820.JPG"),
           img("products/2477/30678/25452RW-2__48435.1775848807.JPG"),
@@ -166,6 +172,8 @@ export const products: Product[] = [
         name: "Pink / Aqua",
         color: "Pink",
         swatch: "#E85A9B",
+        theme: "#D81B60",
+        word: "HYPE",
         images: [
           img("products/2474/30683/25452PA-1__50908.1775849232.JPG"),
         ],
@@ -175,6 +183,8 @@ export const products: Product[] = [
         name: "Orange / Pale Aqua",
         color: "Orange",
         swatch: "#F07820",
+        theme: "#E85D04",
+        word: "RIDE",
         images: [
           img("products/2475/30668/25452OA-1__02393.1775848281.JPG"),
         ],
@@ -183,7 +193,9 @@ export const products: Product[] = [
         id: "white-aqua",
         name: "White / Pale Aqua",
         color: "Aqua",
-        swatch: "#7EC8C8",
+        swatch: "#2EC4B6",
+        theme: "#0D9488",
+        word: "SURF",
         images: [
           img("products/2476/30416/AD6V1673__22083.1775501114.JPG"),
           img("products/2476/30415/AD6V1686__39743.1775501111.JPG"),
@@ -223,6 +235,8 @@ export const products: Product[] = [
         name: "Orange / Pale Aqua",
         color: "Orange",
         swatch: "#F07820",
+        theme: "#E85D04",
+        word: "RIDE",
         images: [
           "https://cdn11.bigcommerce.com/s-09242/images/stencil/1280x1280/products/2487/30794/IMGL0468__33793.1778170695.JPG",
           "https://cdn11.bigcommerce.com/s-09242/images/stencil/1280x1280/products/2487/30589/IMGL0469__16197.1775806251.JPG",
@@ -262,6 +276,8 @@ export const products: Product[] = [
         name: "Orange / Blue",
         color: "Orange",
         swatch: "#E85D04",
+        theme: "#E85D04",
+        word: "RACE",
         images: [
           "https://cdn11.bigcommerce.com/s-09242/images/stencil/1280x1280/products/2392/30237/JTR_USCG_UR20_VESTS_BLUE_ORANGE_front3__59826.1773767339.jpg",
           "https://cdn11.bigcommerce.com/s-09242/images/stencil/1280x1280/products/2392/30238/JTR_USCG_UR20_VESTS_BLUE_ORANGE_front2__05684.1773767339.jpg",
@@ -272,6 +288,8 @@ export const products: Product[] = [
         name: "Black",
         color: "Black",
         swatch: "#1A1A1A",
+        theme: "#1F2937",
+        word: "DARK",
         images: [
           "https://cdn11.bigcommerce.com/s-09242/images/stencil/1280x1280/products/2390/30176/JTR_USCG_UR20_VESTS_Black_Front1__48936.1777700780.jpg",
           "https://cdn11.bigcommerce.com/s-09242/images/stencil/1280x1280/products/2390/30179/JTR_USCG_UR20_VESTS_Black_back__47294.1772231713.jpg",
@@ -282,6 +300,8 @@ export const products: Product[] = [
         name: "Pink / Aqua",
         color: "Pink",
         swatch: "#E85A9B",
+        theme: "#DB2777",
+        word: "HYPE",
         images: [
           "https://cdn11.bigcommerce.com/s-09242/images/stencil/1280x1280/products/2389/30159/JTR_USCG_UR20_VESTS_Pink_Aqua_Front2__63314.1772230463.jpg",
           "https://cdn11.bigcommerce.com/s-09242/images/stencil/1280x1280/products/2389/30156/JTR_USCG_UR20_VESTS_Pink_Aqua_back__21217.1772230462.jpg",
@@ -292,6 +312,8 @@ export const products: Product[] = [
         name: "Aqua / Red",
         color: "Aqua",
         swatch: "#2EC4B6",
+        theme: "#0D9488",
+        word: "SURF",
         images: [
           "https://cdn11.bigcommerce.com/s-09242/images/stencil/1280x1280/products/2387/30165/JTR_USCG_UR20_VESTS_Aqua_Red_Front1__57330.1772231007.jpg",
           "https://cdn11.bigcommerce.com/s-09242/images/stencil/1280x1280/products/2387/30169/JTR_USCG_UR20_VESTS_Aqua_Red_back__01517.1772231014.jpg",
@@ -331,6 +353,8 @@ export const products: Product[] = [
         name: "Black / Grey",
         color: "Black",
         swatch: "#2B2B2B",
+        theme: "#374151",
+        word: "GEAR",
         images: [catImg("Rashguard%202021.jpg")],
       },
     ],
@@ -367,6 +391,8 @@ export const products: Product[] = [
         name: "Design A",
         color: "Multi",
         swatch: "#1B4965",
+        theme: "#1D4E89",
+        word: "WAVE",
         images: [
           "https://cdn11.bigcommerce.com/s-09242/images/stencil/1280x1280/products/2497/30855/JTA_25378A_towel_square__11989.1779382231.jpg",
         ],
@@ -376,6 +402,8 @@ export const products: Product[] = [
         name: "Design B",
         color: "Multi",
         swatch: "#D83232",
+        theme: "#B91C1C",
+        word: "DOCK",
         images: [
           "https://cdn11.bigcommerce.com/s-09242/images/stencil/1280x1280/products/2498/30837/JTA_25378B_towel_crop__17123.1779308949.jpg",
         ],
@@ -414,6 +442,8 @@ export const products: Product[] = [
         name: "Black",
         color: "Black",
         swatch: "#111111",
+        theme: "#111827",
+        word: "COMP",
         images: [
           "https://cdn11.bigcommerce.com/s-09242/images/stencil/1280x1280/products/261/23841/jettribe-rs-16-side-entry-black-life-vest-or-impact-chest-protection-or-comp-race-vest__46970.1729841969.jpg",
           "https://cdn11.bigcommerce.com/s-09242/images/stencil/1280x1280/products/261/24496/jettribe-rs-16-side-entry-black-life-vest-or-impact-chest-protection-or-comp-race-vest__63455.1729841969.jpg",

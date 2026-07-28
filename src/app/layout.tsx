@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Outfit } from "next/font/google";
-import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -33,9 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${outfit.variable} ${bebas.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-bg text-ink antialiased">
-        <SiteHeader />
-        <main className="flex-1">{children}</main>
-        <SiteFooter />
+        {children}
       </body>
     </html>
   );

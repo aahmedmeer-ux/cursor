@@ -194,6 +194,69 @@ img {
   }
 }
 
+/* Immersive product zoom-through (Drive reference) */
+.imm-splatter {
+  background-image:
+    radial-gradient(circle at 18% 30%, rgba(0, 0, 0, 0.35) 0 2px, transparent 3px),
+    radial-gradient(circle at 72% 28%, rgba(0, 0, 0, 0.28) 0 3px, transparent 4px),
+    radial-gradient(circle at 40% 68%, rgba(0, 0, 0, 0.3) 0 2px, transparent 3px),
+    radial-gradient(circle at 82% 62%, rgba(0, 0, 0, 0.25) 0 4px, transparent 5px),
+    radial-gradient(circle at 55% 18%, rgba(0, 0, 0, 0.2) 0 2px, transparent 3px),
+    radial-gradient(circle at 28% 78%, rgba(0, 0, 0, 0.22) 0 3px, transparent 4px);
+  background-size: 100% 100%;
+  filter: contrast(1.2);
+}
+
+.imm-idle {
+  animation: imm-settle 0.01s linear both;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.imm-out {
+  animation: imm-zoom-out 0.32s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.imm-in {
+  animation: imm-zoom-in 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes imm-zoom-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.2);
+  }
+}
+
+@keyframes imm-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(1.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes imm-settle {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .imm-out,
+  .imm-in {
+    animation-duration: 0.01ms !important;
+  }
+}
+
 .progress-bar {
   height: 3px;
   background: rgba(18, 18, 18, 0.12);

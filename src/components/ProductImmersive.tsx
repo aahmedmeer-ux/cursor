@@ -36,8 +36,8 @@ export function ProductImmersive({ product }: Props) {
       window.setTimeout(() => {
         setStage({ index: next, phase: "idle" });
         locked.current = false;
-      }, 650);
-    }, 320);
+      }, 820);
+    }, 420);
   }
 
   const productMotion =
@@ -49,7 +49,7 @@ export function ProductImmersive({ product }: Props) {
 
   return (
     <section
-      className="relative min-h-[100svh] overflow-hidden text-white transition-[background-color] duration-700 ease-out"
+      className="relative min-h-[100svh] overflow-x-hidden overflow-y-hidden text-white transition-[background-color] duration-700 ease-out"
       style={{
         background: `radial-gradient(circle at 50% 42%, rgba(255,255,255,0.18), transparent 42%), ${variant.theme}`,
       }}
@@ -120,13 +120,13 @@ export function ProductImmersive({ product }: Props) {
           </p>
         </div>
 
-        <div className="relative z-10 flex min-h-[360px] items-center justify-center py-8 lg:min-h-0 lg:py-0">
+        <div className="relative z-10 flex min-h-[420px] items-center justify-center overflow-visible py-6 lg:min-h-0 lg:py-0">
           <div
             key={`word-${displayVariant.id}-${stage.phase}`}
-            className={`pointer-events-none absolute inset-x-[-8%] top-1/2 z-0 -translate-y-1/2 text-center font-display text-[clamp(5.5rem,22vw,14rem)] leading-none tracking-[0.04em] text-white/95 ${productMotion}`}
+            aria-hidden
+            className={`pointer-events-none absolute left-1/2 top-[46%] z-0 w-[140%] -translate-x-1/2 -translate-y-1/2 text-center font-display text-[clamp(7rem,28vw,17rem)] leading-none tracking-[0.06em] text-white/90 ${productMotion}`}
             style={{
-              textShadow: "0 10px 40px rgba(0,0,0,0.18)",
-              WebkitTextStroke: "1px rgba(255,255,255,0.15)",
+              textShadow: "0 12px 48px rgba(0,0,0,0.25)",
             }}
           >
             {displayVariant.word}
@@ -134,16 +134,16 @@ export function ProductImmersive({ product }: Props) {
 
           <div
             key={`product-${displayVariant.id}-${stage.phase}`}
-            className={`relative z-10 w-[min(78vw,520px)] ${productMotion}`}
+            className={`relative z-10 w-[min(68vw,440px)] ${productMotion}`}
           >
-            <div className="relative aspect-square rotate-[-12deg]">
+            <div className="relative aspect-square rotate-[-14deg]">
               <Image
                 src={displayVariant.images[0]}
                 alt={`${product.name} — ${displayVariant.name}`}
                 fill
                 priority
-                className="object-contain drop-shadow-[0_30px_50px_rgba(0,0,0,0.45)]"
-                sizes="(max-width: 1024px) 80vw, 520px"
+                className="rounded-[28px] object-cover shadow-[0_35px_60px_rgba(0,0,0,0.45)]"
+                sizes="(max-width: 1024px) 70vw, 440px"
               />
             </div>
           </div>

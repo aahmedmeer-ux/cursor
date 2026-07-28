@@ -1,0 +1,208 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f6f4f0;
+  --bg-elevated: #ffffff;
+  --bg-muted: #ebe8e2;
+  --bg-soft: #e4e0d8;
+  --ink: #121212;
+  --ink-muted: #5c5c5c;
+  --ink-faint: #8a8a8a;
+  --line: #d8d4cc;
+  --accent: #0b3d5c;
+  --accent-soft: #1a6a8a;
+  --signal: #c43c2c;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --shadow-soft: 0 12px 40px rgba(18, 18, 18, 0.08);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-muted: var(--bg-muted);
+  --color-bg-soft: var(--bg-soft);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-signal: var(--signal);
+  --font-sans: var(--font-outfit);
+  --font-display: var(--font-bebas);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-outfit), "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+.font-display {
+  font-family: var(--font-bebas), Impact, sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.container-page {
+  width: min(1440px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+  border-block: 1px solid var(--line);
+  background: var(--bg-elevated);
+}
+
+.marquee-track {
+  display: inline-flex;
+  gap: 3rem;
+  padding: 0.7rem 0;
+  animation: marquee 28s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.7s ease both;
+}
+
+.animate-fade-up-delay {
+  animation: fade-up 0.8s ease 0.12s both;
+}
+
+.animate-fade-up-delay-2 {
+  animation: fade-up 0.85s ease 0.22s both;
+}
+
+.variant-stage {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--bg-muted);
+}
+
+.variant-layer {
+  position: absolute;
+  inset: 0;
+  transition:
+    clip-path 0.65s cubic-bezier(0.65, 0, 0.35, 1),
+    opacity 0.35s ease;
+}
+
+.variant-layer.is-active {
+  position: relative;
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
+  z-index: 2;
+}
+
+.variant-layer.is-outgoing {
+  opacity: 1;
+  z-index: 1;
+}
+
+.variant-cursor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.7);
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.variant-cursor.is-on {
+  opacity: 1;
+  animation: cursor-sweep 0.65s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+@keyframes cursor-sweep {
+  from {
+    left: 0%;
+  }
+  to {
+    left: 100%;
+  }
+}
+
+.progress-bar {
+  height: 3px;
+  background: rgba(18, 18, 18, 0.12);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+  animation: progress 4.5s linear infinite;
+}
+
+@keyframes progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}

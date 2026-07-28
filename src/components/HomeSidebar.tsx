@@ -42,7 +42,7 @@ export function HomeSidebar() {
           <h3 className="mt-1 font-display text-3xl tracking-[0.03em]">Race Essentials</h3>
           <Link
             href="/product/rs-25p-fade-impact-vest"
-            className="mt-4 inline-flex rounded-md bg-white px-4 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-ink transition hover:bg-bg-muted"
+            className="mt-4 inline-flex rounded-md bg-white px-4 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-[#121212] transition hover:bg-bg-muted"
           >
             Shop Now
           </Link>

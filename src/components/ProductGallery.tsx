@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Product, ProductVariant } from "@/data/products";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type Props = {
   product: Product;
@@ -11,12 +11,11 @@ type Props = {
 export function ProductGallery({ product }: Props) {
   const [variantIndex, setVariantIndex] = useState(0);
   const [imageIndex, setImageIndex] = useState(0);
-  const [outgoing, setOutgoing] = useState<{
-    src: string;
-    clip: string;
-  } | null>(null);
+  const [outgoingSrc, setOutgoingSrc] = useState<string | null>(null);
+  const [outgoingClip, setOutgoingClip] = useState("inset(0 0 0 0)");
+  const [wipeDirection, setWipeDirection] = useState<"right" | "left">("right");
   const [cursorOn, setCursorOn] = useState(false);
-  const [liked, setLiked] = useState(false);
+  const animating = useRef(false);
 
   const variant = product.variants[variantIndex];
   const images = variant.images;
@@ -27,29 +26,38 @@ export function ProductGallery({ product }: Props) {
   }, [variantIndex]);
 
   useEffect(() => {
-    if (images.length < 2) return;
+    if (images.length < 2 || animating.current) return;
     const id = window.setInterval(() => {
+      if (animating.current) return;
       setImageIndex((i) => (i + 1) % images.length);
     }, 4500);
     return () => window.clearInterval(id);
   }, [images.length, variantIndex]);
 
   function selectVariant(nextIndex: number) {
-    if (nextIndex === variantIndex) return;
+    if (nextIndex === variantIndex || animating.current) return;
+    animating.current = true;
     const direction = nextIndex > variantIndex ? "right" : "left";
-    setOutgoing({
-      src: activeSrc,
-      clip:
-        direction === "right"
-          ? "inset(0 100% 0 0)"
-          : "inset(0 0 0 100%)",
-    });
+    setWipeDirection(direction);
+    setOutgoingSrc(activeSrc);
+    setOutgoingClip("inset(0 0 0 0)");
     setCursorOn(true);
     setVariantIndex(nextIndex);
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setOutgoingClip(
+          direction === "right" ? "inset(0 0 0 100%)" : "inset(0 100% 0 0)",
+        );
+      });
+    });
+
     window.setTimeout(() => {
-      setOutgoing(null);
+      setOutgoingSrc(null);
+      setOutgoingClip("inset(0 0 0 0)");
       setCursorOn(false);
-    }, 700);
+      animating.current = false;
+    }, 720);
   }
 
   const thumbs = useMemo(() => {
@@ -71,22 +79,7 @@ export function ProductGallery({ product }: Props) {
           <span key={`${variantIndex}-${imageIndex}`} />
         </div>
 
-        {outgoing ? (
-          <div
-            className="variant-layer is-outgoing"
-            style={{ clipPath: outgoing.clip }}
-          >
-            <Image
-              src={outgoing.src}
-              alt=""
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
-          </div>
-        ) : null}
-
-        <div className="variant-layer is-active" key={`${variant.id}-${activeSrc}`}>
+        <div className="variant-layer is-active">
           <Image
             src={activeSrc}
             alt={`${product.name} — ${variant.name}`}
@@ -97,7 +90,29 @@ export function ProductGallery({ product }: Props) {
           />
         </div>
 
-        <div className={`variant-cursor ${cursorOn ? "is-on" : ""}`} />
+        {outgoingSrc ? (
+          <div
+            className="variant-layer is-outgoing"
+            style={{ clipPath: outgoingClip }}
+          >
+            <Image
+              src={outgoingSrc}
+              alt=""
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+            />
+          </div>
+        ) : null}
+
+        <div
+          className={`variant-cursor ${cursorOn ? "is-on" : ""}`}
+          style={
+            wipeDirection === "left"
+              ? { animationName: "cursor-sweep-reverse" }
+              : undefined
+          }
+        />
 
         <div className="absolute bottom-4 left-4 z-10 rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-semibold tracking-[0.12em] uppercase backdrop-blur">
           {variant.name}
@@ -127,15 +142,6 @@ export function ProductGallery({ product }: Props) {
           if (idx >= 0) selectVariant(idx);
         }}
       />
-
-      <button
-        type="button"
-        aria-label="Wishlist"
-        onClick={() => setLiked((v) => !v)}
-        className="sr-only"
-      >
-        {liked ? "Liked" : "Like"}
-      </button>
     </div>
   );
 }
@@ -165,8 +171,8 @@ function VariantSwatches({
               type="button"
               title={variant.name}
               onClick={() => onSelect(variant.id)}
-              className={`group relative h-10 w-10 rounded-full border-2 transition ${
-                active ? "border-ink scale-110" : "border-transparent hover:scale-105"
+              className={`relative h-11 w-11 rounded-full border-2 transition ${
+                active ? "border-ink scale-110" : "border-white ring-1 ring-line hover:scale-105"
               }`}
               style={{ backgroundColor: variant.swatch }}
             >
@@ -176,7 +182,7 @@ function VariantSwatches({
         })}
       </div>
       <p className="mt-2 text-xs text-ink-faint">
-        Hover or tap a swatch for the cursor wipe animation between colorways.
+        Tap a swatch to wipe between colorways.
       </p>
     </div>
   );

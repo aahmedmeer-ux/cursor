@@ -140,39 +140,41 @@ img {
 .variant-layer {
   position: absolute;
   inset: 0;
-  transition:
-    clip-path 0.65s cubic-bezier(0.65, 0, 0.35, 1),
-    opacity 0.35s ease;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
 }
 
 .variant-layer.is-active {
-  position: relative;
   opacity: 1;
-  clip-path: inset(0 0 0 0);
+  pointer-events: auto;
   z-index: 2;
 }
 
 .variant-layer.is-outgoing {
   opacity: 1;
-  z-index: 1;
+  z-index: 3;
+  transition: clip-path 0.7s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .variant-cursor {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 2px;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 0 18px rgba(255, 255, 255, 0.7);
-  z-index: 5;
+  width: 3px;
+  margin-left: -1px;
+  background: #fff;
+  box-shadow:
+    0 0 0 1px rgba(18, 18, 18, 0.15),
+    0 0 24px rgba(255, 255, 255, 0.95);
+  z-index: 6;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.2s ease;
 }
 
 .variant-cursor.is-on {
   opacity: 1;
-  animation: cursor-sweep 0.65s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  animation: cursor-sweep 0.7s cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 
 @keyframes cursor-sweep {
@@ -181,6 +183,15 @@ img {
   }
   to {
     left: 100%;
+  }
+}
+
+@keyframes cursor-sweep-reverse {
+  from {
+    left: 100%;
+  }
+  to {
+    left: 0%;
   }
 }
 

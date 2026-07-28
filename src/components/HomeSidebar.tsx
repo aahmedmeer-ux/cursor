@@ -30,18 +30,19 @@ export function HomeSidebar() {
 
   return (
     <aside className="space-y-5">
-      <div className="overflow-hidden rounded-[var(--radius)] border border-line bg-bg-elevated">
+      <div className="overflow-hidden rounded-[var(--radius)] border border-line bg-[#1a1a1a] text-white">
         <div className="relative aspect-[4/3]">
-          <Image src={promoImage} alt="Urban essentials promo" fill className="object-cover" />
+          <Image src={promoImage} alt="Race essentials promo" fill className="object-cover opacity-90" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
         </div>
         <div className="p-4">
-          <p className="text-[11px] font-semibold tracking-[0.16em] uppercase text-ink-muted">
+          <p className="text-[11px] font-semibold tracking-[0.16em] uppercase text-white/65">
             New Collection
           </p>
           <h3 className="mt-1 font-display text-3xl tracking-[0.03em]">Race Essentials</h3>
           <Link
             href="/product/rs-25p-fade-impact-vest"
-            className="mt-4 inline-flex rounded-md bg-ink px-4 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-white transition hover:bg-accent"
+            className="mt-4 inline-flex rounded-md bg-white px-4 py-2.5 text-xs font-semibold tracking-[0.12em] uppercase text-ink transition hover:bg-bg-muted"
           >
             Shop Now
           </Link>

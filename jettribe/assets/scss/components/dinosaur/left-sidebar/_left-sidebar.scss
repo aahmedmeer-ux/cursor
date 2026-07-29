@@ -13,7 +13,13 @@
             text-transform: stencilString("section-heading-transform");
         }
 
+        .beautify__customerReviews,
+        .beautify__customerReviews[data-test-theme],
         .beautify__customerReviews[data-test-theme="beautify_furniture"] {
+            display: none !important; // removed from storefront
+        }
+
+        .beautify__customerReviews[data-test-theme="beautify_furniture"]--legacy {
             .slick-arrow {
                 display: none !important;
             }

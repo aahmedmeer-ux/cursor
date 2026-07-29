@@ -1592,7 +1592,23 @@ $mobileSpacing: remCalc(30);
 
 // Homepage Customer Reviews (PapaThemes Page Builder widget) removed from storefront
 div.beautify__customerReviews,
-.beautify__customerReviews {
+.beautify__customerReviews,
+.beautify__customerReviews[data-test-theme],
+[class*="beautify__customerReviews"] {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+}
+
+// Homepage "Explore Popular Articles" / recent blog section removed
+.dinosaur__recentBlog,
+.beautify__section.dinosaur__recentBlog,
+.beautify__recentBlog {
     display: none !important;
 }
 

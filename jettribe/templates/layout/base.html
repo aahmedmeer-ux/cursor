@@ -339,12 +339,56 @@
             {{/if}}
         {{/if}}
 
-        {{!-- Third-party widgets advanced settings --}}
-        <script nonce="{{nonce}}">
-            if (typeof window.PapaThemesWidgetCustomerReviewsExtraSettings !== 'object') {
-                window.PapaThemesWidgetCustomerReviewsExtraSettings = {};
+        {{!-- Customer Reviews + Explore Popular Articles removed from storefront --}}
+        <style nonce="{{nonce}}">
+            .beautify__customerReviews,
+            [class*="beautify__customerReviews"],
+            .dinosaur__recentBlog,
+            .beautify__section.dinosaur__recentBlog,
+            .beautify__recentBlog {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                max-height: 0 !important;
+                overflow: hidden !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
-            window.PapaThemesWidgetCustomerReviewsExtraSettings.slidesToShow = {{{theme_settings.widget_reviews_slides}}};
+        </style>
+        <script nonce="{{nonce}}">
+            (function () {
+                function removeUnwantedSections() {
+                    document.querySelectorAll(
+                        '.beautify__customerReviews, [class*="beautify__customerReviews"], .dinosaur__recentBlog, .beautify__section.dinosaur__recentBlog, .beautify__recentBlog'
+                    ).forEach(function (el) {
+                        el.remove();
+                    });
+
+                    // Remove Page Builder / HTML widgets whose only visible heading is CUSTOMER REVIEWS
+                    document.querySelectorAll('h1, h2, h3, .page-heading').forEach(function (heading) {
+                        var text = (heading.textContent || '').replace(/\s+/g, ' ').trim().toUpperCase();
+                        if (text === 'CUSTOMER REVIEWS' || text === 'EXPLORE POPULAR ARTICLES') {
+                            var block = heading.closest('[data-content-region] > *, .beautify__section, section, .widget, [data-widget-id], [data-layout-name]') || heading.parentElement;
+                            if (block) {
+                                block.remove();
+                            } else {
+                                heading.remove();
+                            }
+                        }
+                    });
+                }
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', removeUnwantedSections);
+                } else {
+                    removeUnwantedSections();
+                }
+
+                // PapaThemes widgets can mount asynchronously after first paint
+                var observer = new MutationObserver(removeUnwantedSections);
+                observer.observe(document.documentElement, { childList: true, subtree: true });
+                setTimeout(function () { observer.disconnect(); }, 15000);
+            })();
         </script>
 
         {{#if theme_settings.csspreload '===' 'speedtest'}}

@@ -6,9 +6,7 @@
     {{/if}}
 
 {{else if section '===' 'blog_recent'}}
-    {{#if theme_settings.homepage_blog_posts_count '>' 0}}
-    {{> components/beautify/recent-blog posts=(limit blog.recent_posts theme_settings.homepage_blog_posts_count) index=index}}
-    {{/if}}
+    {{!-- Explore Popular Articles / recent blog removed from homepage --}}
 
 {{else if section '===' 'top_categories'}}
     {{> components/beautify/top-categories index=index}}

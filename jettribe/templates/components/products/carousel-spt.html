@@ -1,0 +1,95 @@
+{{#if (toInt theme_settings.spt_init_count) '>' 5}}
+    <section class="productCarousel productCarousel--responsiveCol _product-spt"
+        {{#if settings.data_tag_enabled}} data-list-name="{{list}}"{{/if}}
+        data-slick='{
+            "dots": true,
+            "arrows": false,
+            "infinite": true,
+            "mobileFirst": true,
+            "slidesToShow": {{ theme_settings.product_col_sm }},
+            "slidesToScroll": {{ theme_settings.product_col_sm }},
+            "touchThreshold": 10,
+            "autoplay": false,
+            "autoplaySpeed": 3000,
+            "responsive": [
+                {
+                    "breakpoint": 800,
+                    "settings": {
+                        "dots": false,
+                        "arrows": true,
+                        "slidesToShow": 5,
+                        "slidesToScroll": 5
+                    }
+                },
+                {
+                    "breakpoint": 550,
+                    "settings": {
+                        "slidesToShow": {{ theme_settings.product_col_md }},
+                        "slidesToScroll": {{ theme_settings.product_col_md }}
+                    }
+                }
+            ]
+        }'
+    >
+        {{#if is_placeholder}}
+            {{#for 1 theme_settings.product_col}}
+            <div class="productCarousel-slide">
+                {{> components/products/card-placeholder settings=../settings show_rating=../settings.show_product_rating theme_settings=../theme_settings customer=../customer event="list" position=(add @index 1)}}
+                </div>
+            {{/for}}
+        {{else}}
+            {{#each products}}
+            <div class="productCarousel-slide" data-product-id="{{id}}">
+                {{> components/products/card settings=../settings show_rating=../settings.show_product_rating theme_settings=../theme_settings customer=../customer event="list" position=(add @index 1)}}
+            </div>
+            {{/each}}
+        {{/if}}
+    </section>
+{{else}}
+    <section class="productCarousel productCarousel--responsiveCol _product-spt"
+        {{#if settings.data_tag_enabled}} data-list-name="{{list}}"{{/if}}
+        data-slick='{
+            "dots": true,
+            "arrows": false,
+            "infinite": true,
+            "mobileFirst": true,
+            "slidesToShow": {{ theme_settings.product_col_sm }},
+            "slidesToScroll": {{ theme_settings.product_col_sm }},
+            "touchThreshold": 10,
+            "autoplay": false,
+            "autoplaySpeed": 3000,
+            "responsive": [
+                {
+                    "breakpoint": 800,
+                    "settings": {
+                        "dots": false,
+                        "arrows": true,
+                        "slidesToShow": {{ theme_settings.spt_init_count }},
+                        "slidesToScroll": {{ theme_settings.spt_init_count }}
+                    }
+                },
+                {
+                    "breakpoint": 550,
+                    "settings": {
+                        "slidesToShow": {{ theme_settings.product_col_md }},
+                        "slidesToScroll": {{ theme_settings.product_col_md }}
+                    }
+                }
+            ]
+        }'
+    >
+        {{#if is_placeholder}}
+            {{#for 1 theme_settings.product_col}}
+            <div class="productCarousel-slide">
+                {{> components/products/card-placeholder settings=../settings show_rating=../settings.show_product_rating theme_settings=../theme_settings customer=../customer event="list" position=(add @index 1)}}
+                </div>
+            {{/for}}
+        {{else}}
+            {{#each products}}
+            <div class="productCarousel-slide" data-product-id="{{id}}">
+                {{> components/products/card settings=../settings show_rating=../settings.show_product_rating theme_settings=../theme_settings customer=../customer event="list" position=(add @index 1)}}
+            </div>
+            {{/each}}
+        {{/if}}
+    </section>
+{{/if}}

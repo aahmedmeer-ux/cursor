@@ -1,0 +1,369 @@
+// ------------------------------------------------------------------------------------------------
+// Category Tree on the left sidebar of all pages
+// ------------------------------------------------------------------------------------------------
+
+.body-sidebar {
+    margin: spacing("single") 0;
+
+    .sidebarBlock {
+        margin-bottom: spacing("single");
+    }
+
+    .page-sidebar {
+        @include breakpoint("medium") {
+            width: 100%;    
+        }
+    }
+
+    @media (max-width: screenSize("medium") - 1px) {
+        position: relative;
+        margin: 0;
+
+        .page-sidebar--top.beautify__filters {
+            z-index: zIndex("higher") + 5;
+        }
+
+        .page-sidebar--top.beautify__filters {
+            z-index: zIndex("higher") + 5;
+        }
+    }
+    
+    .navPages-action {
+        &:hover,
+        &:focus {
+            &::before {
+                opacity: 0;
+            }
+        }
+    }
+
+    .categoryTree {
+        .navPage-subMenu-item {
+            .navPage-subMenu-action,
+            .navPage-childList-action {
+                &:hover,
+                &:focus {
+                    color: stencilColor("navPages-subMenu-color-hover");
+                }
+            }
+        }
+    }
+    
+}
+
+
+.sidebarBlock--categoryTree {
+    @media (max-width: screenSize("medium") - 1px) {
+        display: none;
+    }
+}
+
+
+.categoryTree {
+    @include breakpoint("medium") {
+        .navPages-list {
+            border-radius: $container-border-radius;
+            padding: spacing("half");
+            background-color: transparent;
+            border: 5px solid rgba(stencilColor("color-primary"), 0.6);
+            padding-right: spacing("base");
+        }
+
+        .navPages-item {
+            display: block;
+
+            > .navPages-action {
+                padding-top: spacing("third");
+                padding-bottom: spacing("third");
+                padding-right: spacing("double");
+            }
+
+            &:hover,
+            &:focus {
+                > .navPages-action {
+                    color: unset;
+                }
+
+                > .navPages-action-toggle-desktop .icon {
+                    fill: stencilColor("color-textHeading");
+                }
+            }
+
+            &:has(.navPages-action-toggle-desktop.is-open) {
+                .navPages-action.has-subMenu {
+                    color: $color-textLink;
+                }
+            }
+        }
+
+        .navPages-item {
+            .navPages-action {
+                font-size: fontSize("large");
+                color: stencilColor("color-textHeading");
+
+                &:hover,
+                &:active,
+                &:focus {
+                    color: $color-textLink;
+                }
+
+                &.active {
+                    color: $color-textLink;
+                }
+            }
+        }
+
+        .navPages-item:hover > .navPages-action::before {
+            content: unset;
+        }
+
+        .navPages-action {
+            margin: 0;
+        }
+
+        .navPages-action.has-subMenu {
+            &::before {
+                content: unset;
+            }
+        }
+
+        .navPages-action-toggle-desktop {
+            top: 23px;
+            padding: spacing("third");
+            height: 35px;
+            width: 35px;
+            z-index: zIndex("high") - 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: $global-radius;
+
+            .toggleLink-text--off {
+                vertical-align: top;
+            }
+
+            .icon {
+                fill: stencilColor("color-textHeading");
+                opacity: 0.4;
+            }
+
+            &:hover {
+                background-color: rgba(stencilColor("color-textHeading"), 0.1);
+
+                .icon {
+                    opacity: 1;
+                    fill: $color-textLink !important;
+                }
+            }
+        }
+
+        .navPages-action-toggle-desktop.is-open {
+            .icon {
+                opacity: 0.4;
+            }
+
+            &:hover {
+                .icon {
+                    opacity: 1;
+                }
+            }
+
+            .toggleLink-text--on {
+                display: block;
+            }
+
+            .toggleLink-text--off {
+                display: none;
+            }
+        }
+
+        .navPage-subMenu {
+            position: unset;
+            padding: 0;
+            transform: unset;
+        }
+
+        .navPage-subMenu:not(.is-open) {
+            display: none;
+        }
+
+        .navPage-subMenu-list {
+            border: unset;
+            border-radius: unset;
+            display: block;
+            padding: 0;
+            background-color: transparent;
+            box-shadow: unset;
+            margin-left: spacing("base");
+        }
+
+        .navPage-subMenu-item {
+            width: 100%;
+            padding: 0;
+            position: relative;
+
+            &:hover,
+            &:active {
+                > .navPage-subMenu-action {
+                    color: unset;
+                }
+
+                > .navPages-action-toggle-desktop {
+                    .icon {
+                        fill: unset;
+                    }
+                }
+            }
+
+            &:has(.navPages-action-toggle-desktop.is-open) {
+                .navPage-subMenu-action.has-subMenu {
+                    color: $color-textLink;
+                }
+            }
+        }
+
+        .navPage-subMenu .navPages-action-toggle-desktop {
+            &:hover {
+                .icon {
+                    opacity: 1;
+                }
+            }
+        }
+
+        .navPage-subMenu-item {
+            .navPage-subMenu-action {
+                font-size: fontSize("small");
+                padding: spacing("third") spacing("single") spacing("half") spacing("base");
+                margin-bottom: 0;
+                color: stencilColor("color-textHeading");
+
+                &:hover,
+                &:active {
+                    color: $color-textLink;
+                }
+
+                &.active {
+                    color: $color-textLink;
+                }
+            }
+        }
+
+        .navPage-childList {
+            margin: 0;
+            display: none;
+            margin-left: spacing("single");
+        }
+
+        .navPage-childList.is-open {
+            display: block;
+        }
+
+        .navPage-subMenu-item > .navPage-childList > .navPage-childList-item {
+            &:hover {
+                &::before,
+                &::after {
+                    content: unset;
+                }
+            }
+        }
+
+        .navPage-childList-action {
+            font-size: fontSize("small");
+            padding: spacing("third") 0 spacing("third") spacing("single");
+            color: stencilColor("color-textHeading");
+            margin-bottom: spacing("eighth");
+
+            &:hover {
+                &::before {
+                    content: unset;
+                }
+                color: $color-textLink !important;
+            }
+
+            &.active {
+                color: $color-textLink;
+            }
+        }
+
+        .navPage-childList-action::before {
+            content: unset;
+        }
+
+        .navPage-childList-item:has(.navPage-childList) > .navPage-childList-action.has-subMenu + .navPages-action-toggle-desktop {
+            padding: spacing("base");
+            z-index: zIndex("high") - 10;
+            opacity: 1;
+            pointer-events: unset;
+            transform: rotate(0);
+
+            &:hover,
+            &:active {
+                opacity: 1;
+
+                .icon {
+                    opacity: 1;
+                }
+            }
+        }
+
+        .navPage-childList-item:has(.navPage-childList) .navPage-childList-action.has-subMenu + .navPages-action-toggle-desktop:focus .icon {
+            fill: stencilColor("color-textHeading");
+        }
+
+        .navPage-childList-item:has(.navPage-childList) .navPage-childList-action.has-subMenu + .navPages-action-toggle-desktop:hover .icon {
+            fill: $color-textLink;
+        }
+
+        .navPage-childList-item:has(.navPage-childList):hover > .navPage-childList-action.has-subMenu + .navPages-action-toggle-desktop .icon {
+            fill: stencilColor("color-textHeading");
+        }
+
+        .navPage-childList-item {
+            background-color: transparent;
+
+            &:hover {
+                > .navPage-childList-action {
+                    color: stencilColor("color-textHeading");
+                }
+            }
+
+            &:has(.navPages-action-toggle-desktop.is-open) {
+                > .navPage-childList-action.has-subMenu {
+                    color: $color-textLink;
+                }
+            }
+
+            &:has(.navPage-childList) {
+                display: block;
+
+                .navPage-childList {
+                    position: static;
+                    visibility: unset;
+                    box-shadow: unset;
+                    background-color: transparent;
+                    border-radius: unset;
+                    border: unset;
+                    min-width: unset;
+                    padding: 0;
+                    width: calc(100% - 1.5rem);
+                }
+
+                .navPage-childList-item {
+                    padding: 0;
+
+                    .navPage-childList-action {
+                        padding-left: spacing("half");
+                    }
+                }
+
+                .navPage-childList-action.has-subMenu + .navPages-action-toggle-desktop {
+                    top: 2px;
+                }
+            }
+        }
+
+        .navPages-action-toggle-desktop .icon {
+            @include square(12);
+        }
+    }
+}

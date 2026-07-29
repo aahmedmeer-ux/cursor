@@ -1,0 +1,87 @@
+<nav>
+    {{#if category.faceted_search_enabled}}
+        {{> components/faceted-search/index
+            category
+            collapsed=collapsed
+            layout=theme_settings.categorypage_layout
+            show_subcategories=true
+            currency_token=settings.money.currency_token
+            show_price_slider=(if theme_settings.show_shop_by_price '==' 'slider')
+            categorypage_search=theme_settings.categorypage_search
+        }}
+    {{else}}
+        <div id="noFacetedSearch" class="facetedSearch">
+            {{#if category.subcategories}}
+                {{#if theme_settings.categorypage_layout '===' 'fullwidth'}}
+                    <div class="kitchenary-categoryPage-sidebar">
+                        {{#if (merge category start_collapsed=false)}}
+                            <div class="_accordion-block">
+                                <div
+                                    class="_accordion-navigation toggleLink {{#if category.start_collapsed }} is-open {{/if}}"
+                                    role="button"
+                                    tabindex="0"
+                                    data-collapsible="#facetedSearch-content--category">
+                                    <h4 class="_accordion-title">
+                                        <span class="_toggle-cats">
+                                            <svg class="icon"><use href="#icon-arrow-filter-down"></use></svg>
+                                        </span>
+                                        {{lang 'category.label'}}
+                                    </h4>
+                                </div>
+                                <div id="facetedSearch-content--category" class="_accordion-content {{#if category.start_collapsed }} is-open {{/if}}" >
+                                    <div class="kitchenary-categoryPage-subCategories">
+                                        <ul class="subCategories-list">
+                                            {{#each category.subcategories}}
+                                                <li class="subCategories-item">
+                                                    <a class="subCategories-item-action" data-instantload href="{{url}}" title="{{name}}" aria-label="{{name}}">{{name}}</a>
+                                                </li>
+                                            {{/each}}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        {{/if}}
+                    </div>
+                {{else}}
+                    <div class="kitchenary-categoryPage-sidebar">
+                        {{#if (merge category start_collapsed=true)}}
+                            <div class="_accordion-block">
+                                <div
+                                    class="sidebarBlock sidebarBlock--navList sidebarBlock--mobileCollapsible">
+                                    <h4 class="sidebarBlock-heading is-open" href="#" data-collapsible="#facetedSearch-content--category" tabindex="0" aria-expanded="true">
+                                        <span class="_toggle-cats">
+                                            <svg class="icon"><use href="#icon-arrow-filter-down"></use></svg>
+                                        </span>
+                                        {{lang 'category.label'}}
+                                    </h4>
+                                </div>
+                                <div id="facetedSearch-content--category" class="beautify__navList is-open" aria-hidden="false">
+                                    <div class="kitchenary-categoryPage-subCategories">
+                                        <ul class="subCategories-list">
+                                            {{#each category.subcategories}}
+                                                <li class="subCategories-item">
+                                                    <a class="subCategories-item-action" data-instantload href="{{url}}" title="{{name}}" aria-label="{{name}}">{{name}}</a>
+                                                </li>
+                                            {{/each}}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        {{/if}}
+                    </div>
+                {{/if}}
+            {{/if}}
+            {{#if shop_by_brand}}
+                {{#if theme_settings.sidebar_shop_by_brand '>' 9}}
+                    {{> components/supermarket/sidebar/brands
+                        layout=theme_settings.categorypage_layout
+                        collapsed=false
+                    }}
+                {{/if}}
+            {{/if}}
+            {{#if theme_settings.show_shop_by_price '!=' 'hide'}}
+                {{> components/category/shop-by-price shop_by_price=category.shop_by_price category_url=category.url layout=theme_settings.categorypage_layout collapsed=false}}
+            {{/if}}
+        </div>
+    {{/if}}
+</nav>

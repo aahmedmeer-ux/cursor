@@ -1,0 +1,94 @@
+.footer-info {
+    padding: spacing("single") * 2.5 0 (spacing("single") + spacing("half"));
+
+    article {
+        padding-left: 0;
+        padding-right: 0;
+        @include breakpoint("medium") {
+            padding-left: remCalc(12);
+            padding-right: remCalc(12);
+        }
+        @include breakpoint("large") {
+            margin-left: 0;
+            margin-right: auto;
+        }
+    }
+
+    .footer-info--contact-us {
+        padding-left: 0;
+    }
+
+    .beautify__newsletter {
+        padding-right: 0;
+    }
+}
+
+.footer-info--list {
+    display: flex;
+}
+
+// papathemes-beautify edited
+
+
+// ----------------------------------------------------------------------------
+// Block About Us
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// Brands Carousel on footer
+// ----------------------------------------------------------------------------
+.papathemes-brandCarousel-container {
+    text-align: center;
+    font-size: fontSize("base");
+}
+
+.papathemes-brandCarousel {
+    margin-bottom: 0;
+}
+
+
+.papathemes-brandCarousel-slide {
+    text-transform: uppercase;
+    text-align: center;
+    padding: 0 spacing("half");
+    display: inline-block;
+
+    a {
+        font-size: fontSize("large");
+        text-decoration: none;
+        display: block;
+        white-space: nowrap;
+
+        &:hover img,
+        &:focus img {
+            opacity: 0.5;
+        }
+    }
+
+    img {
+        opacity: 1;
+        margin: 0 auto;
+
+        &.lazyload {
+            height: 0;
+        }
+    }
+}
+
+.papathemes-brandCarousel .slick-track {
+    margin: 0 auto;
+}
+
+@media (max-width: (screenSize("medium") - 1px)) {
+    .footer-info--list {
+        flex-direction: column;
+    }
+
+    .footer-info {
+        padding: spacing("base") * 2 0;
+    }
+
+    .footer-info-list li a,
+    .footer-copyright {
+        font-size: fontSize("smaller");
+    }
+}

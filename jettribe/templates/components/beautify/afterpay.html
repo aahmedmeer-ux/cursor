@@ -1,0 +1,63 @@
+<!-- Begin Afterpay Stencil Snippet for BigCommerce v3.1.0 -->
+<script nonce="{{nonce}}">
+    {{#or (if page_type '===' 'product') (if page_type '===' 'cart')}}
+        (function(){
+        {{#if page_type '===' 'product'}}
+            let targetSelector = '.productView .productView-price';
+        {{#if product.price.with_tax}}
+            let priceSelector = '.productView-price .price--withTax';
+            let cachedAmount = '{{product.price.with_tax.value}}';
+        {{else}}
+            let priceSelector = '.productView-price .price--withoutTax';
+            let cachedAmount = '{{product.price.without_tax.value}}';
+        {{/if}}
+        {{else if page_type '===' 'cart'}}
+            let targetSelector = 'ul.cart-totals li.cart-total:last-child';
+            let priceSelector = '.cart-total-grandTotal';
+            let cachedAmount = '{{cart.grand_total.value}}';
+        {{/if}}
+            const locales = {
+                AUD: 'en_AU',
+                NZD: 'en_NZ',
+                USD: 'en_US',
+            };
+            const init = function(){
+                Afterpay.createPlacements({
+                    targetSelector: targetSelector,
+                    attributes: {
+                        locale: locales['{{currency_selector.active_currency_code}}'],
+                        currency: '{{currency_selector.active_currency_code}}',
+                        amount: cachedAmount,
+                        size: Afterpay.size.SM,
+                        logoType: Afterpay.logoType.LOCKUP,
+                        lockupTheme: Afterpay.theme.lockup.BLACK
+                    }
+                });
+            };
+            const script = document.createElement('script');
+            script.src = "https://js.afterpay.com/afterpay-1.x.js";
+            script.nonce = "{{nonce}}";
+            script.dataset.min = "1.00";
+        {{#if currency_selector.active_currency_code "==" "USD"}}
+            script.dataset.max = "1000.00";
+        {{else}}
+            script.dataset.max = "2000.00";
+        {{/if}}
+            script.onload = function () {
+                init();
+                setInterval(() => {
+                    if (cachedAmount != document.querySelector(priceSelector).innerText) {
+                       cachedAmount = document.querySelector(priceSelector).innerText;
+                       if (document.querySelector('afterpay-placement')) {
+                           document.querySelector('afterpay-placement').dataset.amount = cachedAmount;
+                       } else {
+                           init();
+                       }
+                    }
+                }, 400);
+            };
+            document.head.appendChild(script);
+        })();
+    {{/or}}
+</script>
+<!-- End Afterpay Stencil Snippet for BigCommerce v3.1.0 -->

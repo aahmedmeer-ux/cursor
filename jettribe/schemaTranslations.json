@@ -1,0 +1,656 @@
+{
+  "i18n.CommonDarkBackground": {
+    "default": "Common dark background",
+    "fr": "Arrière-plan sombre commun",
+    "it": "Sfondo scuro comune",
+    "uk": "Загальний темний фон",
+    "zh": "常见的黑色背景"
+  },
+  "i18n.AlertPopupBoxBackground": {
+    "default": "Alert popup box background",
+    "fr": "Arrière-plan du popup d’alerte",
+    "it": "Sfondo della finestra popup di avviso",
+    "uk": "Спливаюче вікно попередження фону",
+    "zh": "警报弹出框背景"
+  },
+  "i18n.Headings": {
+    "default": "Headings",
+    "fr": "En-têtes",
+    "it": "Intestazioni",
+    "uk": "Заголовки",
+    "zh": "头"
+  },
+  "i18n.ImageLoading": {
+    "default": "Image Loading",
+    "fr": "Téléchargement de l’image",
+    "it": "Caricamento immagine",
+    "uk": "Завантаження зображень",
+    "zh": "图片加载"
+  },
+  "i18n.LazyloadingMode": {
+    "default": "Lazyloading Mode",
+    "fr": "Mode de chargement lent",
+    "it": "Modalità Lazyload",
+    "uk": "Режим відкладеного завантаження",
+    "zh": "延迟加载模式"
+  },
+  "i18n.Lazyload": {
+    "default": "Lazyload",
+    "fr": "Chargement lent",
+    "it": "Lazyload",
+    "uk": "Відкладене завантаження",
+    "zh": "延迟加载"
+  },
+  "i18n.LazyloadWithLQIP": {
+    "default": "Lazyload with LQIP",
+    "fr": "Chargement lent avec LQIP",
+    "it": "Lazyload con LQIP",
+    "uk": "Відкладене завантаження з LQIP",
+    "zh": "使用LQIP延迟加载"
+  },
+  "i18n.Disabled": {
+    "default": "Disabled",
+    "fr": "Désactivé",
+    "it": "Disabilitato",
+    "uk": "Вимкнено",
+    "zh": "禁用"
+  },
+  "i18n.Products": {
+    "default": "Products",
+    "fr": "Produits",
+    "it": "Prodotti",
+    "uk": "Продукція",
+    "zh": "产品"
+  },
+  "i18n.Blog": {
+    "default": "Blog",
+    "fr": "Blog",
+    "it": "Blog",
+    "uk": "Блог",
+    "zh": "博客"
+  },
+  "i18n.OptimizedForTheme": {
+    "default": "Optimized for theme",
+    "fr": "Optimisé pour le thème",
+    "it": "Ottimizzato per il tema",
+    "uk": "Оптимізовано під тему",
+    "zh": "优化主题"
+  },
+  "i18n.SpecifyDimensions": {
+    "default": "Specify dimensions",
+    "fr": "Spécifier les dimensions",
+    "it": "Specifica dimensioni",
+    "uk": "Вкажіть розміри",
+    "zh": "指定的尺寸"
+  },
+  "i18n.ShowPriceRangesForProducts": {
+    "default": "Show price ranges for products with variants. If disabled it will show the product price",
+    "fr": "Afficher les gammes de prix pour les produits avec variantes. S’il est désactivé, le prix du produit sera affiché",
+    "it": "Mostra range di prezzo per i prodotti con varianti. Se disabilitato sarà mostrato il prezzo del prodotto",
+    "uk": "Показати діапазони цін на продукти з варіантами. Якщо він відключений, він відображатиме ціну товару",
+    "zh": "当产品有属性选项时，显示价格范围。如果禁用将显示产品价格"
+  },
+  "i18n.Header": {
+    "default": "Header",
+    "fr": "En-tête",
+    "it": "Header",
+    "uk": "Заголовок",
+    "zh": "头部"
+  },
+  "i18n.Logo": {
+    "default": "Logo",
+    "fr": "Logo",
+    "it": "Logo",
+    "uk": "Логотип",
+    "zh": "Logo"
+  },
+  "i18n.Right": {
+    "default": "Right",
+    "fr": "Droite",
+    "it": "Destra",
+    "uk": "Право",
+    "zh": "右"
+  },
+  "i18n.Center": {
+    "default": "Center",
+    "fr": "Centre",
+    "it": "Centro",
+    "uk": "Центр",
+    "zh": "中间"
+  },
+  "i18n.Left": {
+    "default": "Left",
+    "fr": "Gauche",
+    "it": "Sinistra",
+    "uk": "Ліво",
+    "zh": "左"
+  },
+  "i18n.OriginalAsUploaded": {
+    "default": "Original (as uploaded)",
+    "fr": "Original (tel que téléchargé)",
+    "it": "Originale (come caricato)",
+    "uk": "Оригінал (завантажено)",
+    "zh": "原始(上传）"
+  },
+  "i18n.TextColor": {
+    "default": "Text color",
+    "fr": "Couleur du texte",
+    "it": "Colore testo",
+    "uk": "Колір тексту",
+    "zh": "文本颜色"
+  },
+  "i18n.TextHoverColor": {
+    "default": "Text hover color",
+    "fr": "Couleur du texte \" hover \"",
+    "it": "Colore testo all'hover",
+    "uk": "Колір наведення тексту",
+    "zh": "文本悬停颜色"
+  },
+  "i18n.MainNavigation": {
+    "default": "Main navigation",
+    "fr": "Navigation principale",
+    "it": "Navigazione principale",
+    "uk": "Основна навігація",
+    "zh": "主导航"
+  },
+  "i18n.None": {
+    "default": "None",
+    "fr": "Aucun",
+    "it": "Nessun",
+    "uk": "Нічого",
+    "zh": "无"
+  },
+  "i18n.Footer": {
+    "default": "Footer",
+    "fr": "Pied de page",
+    "it": "Footer",
+    "uk": "Колонтитул",
+    "zh": "页脚"
+  },
+  "i18n.ShowPoweredByBigCommerce": {
+    "default": "Show \"Powered by BigCommerce\"",
+    "fr": "Afficher \"Powered by BigCommerce\"",
+    "it": "Mostra \"Powered by BigCommerce\"",
+    "uk": "Показати \"Працює на BigCommerce\"",
+    "zh": "显示\"Powered by BigCommerce\""
+  },
+  "i18n.ShowCurrentYearAnd": {
+    "default": "Show \"&copy;\", current year and store name",
+    "fr": "Afficher \"&copy;\", l’année en cours et le nom de la boutique",
+    "it": "Mostra \"&copy;\", anno corrente e nome negozio",
+    "uk": "Показати \"&copy;\", рік та назву магазину",
+    "zh": "显示\"&copy;\", 当前年份和店铺名称"
+  },
+  "i18n.Medium": {
+    "default": "Medium",
+    "fr": "Moyen",
+    "it": "Medio",
+    "uk": "Середній",
+    "zh": "中"
+  },
+  "i18n.Small": {
+    "default": "Small",
+    "fr": "Petit",
+    "it": "Piccolo",
+    "uk": "Маленький",
+    "zh": "小"
+  },
+  "i18n.HomePage": {
+    "default": "Home Page",
+    "fr": "Page d'accueil",
+    "it": "Home Page",
+    "uk": "Домашня сторінка",
+    "zh": "首页"
+  },
+  "i18n.Carousel": {
+    "default": "Carousel",
+    "fr": "Carrousel",
+    "it": "Carosello",
+    "uk": "Карусель",
+    "zh": "轮播"
+  },
+  "i18n.ShowCarousel": {
+    "default": "Show carousel",
+    "fr": "Afficher le carrousel",
+    "it": "Mostra carosello",
+    "uk": "Показати карусель",
+    "zh": "显示轮播"
+  },
+  "i18n.Indicator": {
+    "default": "Indicator",
+    "fr": "Indicateur",
+    "it": "Indicatore",
+    "uk": "Індикатор",
+    "zh": "加载提示框"
+  },
+  "i18n.Disable": {
+    "default": "Disable",
+    "fr": "Désactiver",
+    "it": "Disattiva",
+    "uk": "Відключити",
+    "zh": "禁用"
+  },
+  "i18n.ProductSaleBadges": {
+    "default": "Product sale badges",
+    "fr": "Badges de vente de produits",
+    "it": "Distinvito vendita prodotto",
+    "uk": "Значки продажу товару",
+    "zh": "产品降价标志"
+  },
+  "i18n.ForTextureSwatchesMaxDimensions": {
+    "default": "*For texture swatches, max dimensions are 150x150.",
+    "fr": "* Pour les échantillons de texture, les dimensions maximales sont 150x150.",
+    "it": "*Le dimensioni massime dei campioni di trama sono 150x150.",
+    "uk": "* Для текстурних зразків максимальні розміри - 150х150.",
+    "zh": "*文本切换形式，最大尺寸150x150。"
+  },
+  "i18n.ShowProductWeight": {
+    "default": "Show product weight",
+    "fr": "Afficher le poids du produit",
+    "it": "Mostra peso prodotto",
+    "uk": "Показати вагу продукту",
+    "zh": "显示产品重量"
+  },
+  "i18n.ShowProductDimensions": {
+    "default": "Show product dimensions",
+    "fr": "Afficher les dimensions du produit",
+    "it": "Mostra dimensioni prodotto",
+    "uk": "Показати розміри продукту",
+    "zh": "显示产品尺寸"
+  },
+  "i18n.ProductCards": {
+    "default": "Product cards",
+    "fr": "Fiches produits",
+    "it": "Schede prodotto",
+    "uk": "Картки товарів",
+    "zh": "产品卡"
+  },
+  "i18n.BackgroundColor": {
+    "default": "Background color",
+    "fr": "Couleur de l'arrière-plan",
+    "it": "Colore sfondo",
+    "uk": "Колір фону",
+    "zh": "背景颜色"
+  },
+  "i18n.BorderColor": {
+    "default": "Border color",
+    "fr": "Couleur de la bordure",
+    "it": "Colore bordo",
+    "uk": "Колір межі",
+    "zh": "边框颜色"
+  },
+  "i18n.ImageSizes": {
+    "default": "Image sizes",
+    "fr": "Taille des images",
+    "it": "Dimensioni immagine",
+    "uk": "Розміри зображень",
+    "zh": "图片尺寸"
+  },
+  "i18n.PleaseSpecifyAMaximumImage": {
+    "default": "Please specify a maximum image size for desktop display. We'll automatically scale down the image for smaller devices.",
+    "fr": "Veuillez spécifier une taille d’image maximale pour l’affichage de bureau. Nous allons automatiquement réduire l’image pour les petits appareils.",
+    "it": "Indica per favore delle dimensioni massime per un'immagine per il display di un desktop. L'immagine sarà adattata in automatico per dispositivi più piccoli.",
+    "uk": "Укажіть максимальний розмір зображення для відображення на робочому столі. Ми зменшимо масштаб зображення для менших пристроїв.",
+    "zh": "请为电脑端指定最大图片尺寸。我们将自动缩小适应小屏幕设备。"
+  },
+  "i18n.MainProductImages": {
+    "default": "Main product images",
+    "fr": "Images principales du produit",
+    "it": "Immagine principale prodotto",
+    "uk": "Основні образи продукту",
+    "zh": "主产品图片"
+  },
+  "i18n.ZoomedImage": {
+    "default": "Zoomed image",
+    "fr": "Image zoomée",
+    "it": "Immagine ingrandita",
+    "uk": "Збільшене зображення",
+    "zh": "放大图像"
+  },
+  "i18n.ImageInGalleryView": {
+    "default": "Image in gallery view",
+    "fr": "Image en vue galerie",
+    "it": "Immagine in visualizzazione galleria",
+    "uk": "Зображення у поданні галереї",
+    "zh": "在图库查看图片"
+  },
+  "i18n.BrandImageInGalleryView": {
+    "default": "Brand image in gallery view",
+    "fr": "Image de marque en vue galerie",
+    "it": "Immagine brand in visualizzazione galleria",
+    "uk": "Зображення марки в поданні галереї",
+    "zh": "在图库查看品牌图片"
+  },
+  "i18n.DisabledButton": {
+    "default": "Disabled button",
+    "fr": "Bouton désactivé",
+    "it": "Bottone disattivato",
+    "uk": "Кнопка відключена",
+    "zh": "禁用按钮"
+  },
+  "i18n.1000X400pxRecommended": {
+    "default": "1000 x 400px recommended",
+    "fr": "1000 x 400px recommandé",
+    "it": "1000 x 400px consigliati",
+    "uk": "Рекомендовано 1000 х 400 пікс",
+    "zh": "推荐1000 x 400px"
+  },
+  "i18n.Text": {
+    "default": "Text",
+    "fr": "Texte",
+    "it": "Testo",
+    "uk": "Текст",
+    "zh": "文字"
+  },
+  "i18n.250X100pxRecommended": {
+    "default": "250 x 100px recommended",
+    "fr": "250 x 100px recommandé",
+    "it": "250 x 100px consigliati",
+    "uk": "Рекомендовано 250 х 100 пікс",
+    "zh": "推荐250 x 100px"
+  },
+  "i18n.DiscountBanner": {
+    "default": "Discount banner",
+    "fr": "Bannière de réduction",
+    "it": "Banner sconto",
+    "uk": "Знижка банер",
+    "zh": "折扣横幅"
+  },
+  "i18n.CheckoutSteps": {
+    "default": "Checkout steps",
+    "fr": "Étapes de paiement",
+    "it": "Passi checkout",
+    "uk": "Крок замовлення",
+    "zh": "结算步骤"
+  },
+  "i18n.Body": {
+    "default": "Body",
+    "fr": "Corps",
+    "it": "Corpo",
+    "uk": "Тіло",
+    "zh": "主体"
+  },
+  "i18n.FocusColor": {
+    "default": "Focus color",
+    "fr": "Couleur de mise au point",
+    "it": "Colore focus",
+    "uk": "Колір фокусу",
+    "zh": "中心颜色"
+  },
+  "i18n.FormChecklist": {
+    "default": "Form checklist",
+    "fr": "Checklist du formulaire",
+    "it": "Checklist modulo",
+    "uk": "Контрольний список форми",
+    "zh": "表单检查表"
+  },
+  "i18n.LoadingToaster": {
+    "default": "Loading toaster",
+    "fr": "Charger le toaster",
+    "it": "Caricamento toaster",
+    "uk": "Завантаження тостеру",
+    "zh": "加载toaster"
+  },
+  "i18n.PaymentButtons": {
+    "default": "Payment Buttons",
+    "fr": "Boutons de Paiement",
+    "it": "Bottoni Pagamento",
+    "uk": "Кнопки оплати",
+    "zh": "支付按钮"
+  },
+  "i18n.ButtonContainer": {
+    "default": "Button Container"
+  },
+  "i18n.ButtonColor": {
+    "default": "Button color",
+    "fr": "Couleur du bouton",
+    "it": "Colore bottone",
+    "uk": "Колір кнопки",
+    "zh": "按钮颜色"
+  },
+  "i18n.Gold": {
+    "default": "Gold",
+    "fr": "Or",
+    "it": "Oro",
+    "uk": "Золотий",
+    "zh": "金"
+  },
+  "i18n.Blue": {
+    "default": "Blue",
+    "fr": "Bleu",
+    "it": "Blu",
+    "uk": "Синій",
+    "zh": "蓝"
+  },
+  "i18n.Silver": {
+    "default": "Silver",
+    "fr": "Argent",
+    "it": "Argento",
+    "uk": "Срібний",
+    "zh": "银"
+  },
+  "i18n.White": {
+    "default": "White"
+  },
+  "i18n.Black": {
+    "default": "Black",
+    "fr": "Noir",
+    "it": "Nero",
+    "uk": "Чорний",
+    "zh": "黑"
+  },
+  "i18n.ButtonShape": {
+    "default": "Button shape",
+    "fr": "Forme du bouton",
+    "it": "Forma bottone",
+    "uk": "Форма кнопки",
+    "zh": "按钮形状"
+  },
+  "i18n.Pill": {
+    "default": "Pill",
+    "fr": "Cylindre",
+    "it": "Cerchio",
+    "uk": "Таблетки",
+    "zh": "Pill"
+  },
+  "i18n.Rectangle": {
+    "default": "Rectangle",
+    "fr": "Rectangle",
+    "it": "Rettangolo",
+    "uk": "Прямокутник",
+    "zh": "长方形"
+  },
+  "i18n.ButtonSize": {
+    "default": "Button size",
+    "fr": "Taille du bouton",
+    "it": "Dimensioni bottone",
+    "uk": "Розмір кнопки",
+    "zh": "按钮尺寸"
+  },
+  "i18n.Large": {
+    "default": "Large",
+    "fr": "Large",
+    "it": "Largo",
+    "uk": "Великий",
+    "zh": "大"
+  },
+  "i18n.ButtonContent": {
+    "default": "Button content",
+    "fr": "Contenu du bouton",
+    "it": "Contenuto bottone",
+    "uk": "Зміст кнопки",
+    "zh": "按钮内容"
+  },
+  "i18n.SmartPaypalButton": {
+    "default": "Paypal Button"
+  },
+  "i18n.PayPalCheckout": {
+    "default": "PayPal Checkout",
+    "fr": "Checkout de PayPal",
+    "it": "Checkout PayPal",
+    "uk": "Замовлення PayPal",
+    "zh": "PayPal 结算"
+  },
+  "i18n.PayWithPayPal": {
+    "default": "Pay with PayPal",
+    "fr": "Payer avec PayPal",
+    "it": "Paga con PayPal",
+    "uk": "Оплачуйте через PayPal",
+    "zh": "PayPal支付"
+  },
+  "i18n.BuyNow": {
+    "default": "Buy Now",
+    "fr": "Acheter maintenant",
+    "it": "Acquista Ora",
+    "uk": "Купити зараз",
+    "zh": "立即购买"
+  },
+  "i18n.PayPal": {
+    "default": "PayPal",
+    "fr": "PayPal",
+    "it": "PayPal",
+    "uk": "PayPal",
+    "zh": "PayPal"
+  },
+  "i18n.CheckoutPayPalButton": {
+    "default": "PayPal Button on checkout page"
+  },
+  "i18n.ProductPageBanner": {
+    "default": "Product page banner"
+  },
+  "i18n.BannerStyleColor": {
+    "default": "Banner style color"
+  },
+  "i18n.White-no-border": {
+    "default": "White no border"
+  },
+  "i18n.gray": {
+    "default": "Gray"
+  },
+  "i18n.monochrome": {
+    "default": "Monochrome"
+  },
+  "i18n.grayscale": {
+    "default": "Grayscale"
+  },
+  "i18n.BannerStyleRatio": {
+    "default": "Banner style ratio"
+  },
+  "i18n.8x1": {
+    "default": "8x1"
+  },
+  "i18n.20x1": {
+    "default": "20x1"
+  },
+  "i18n.HomePageBanner": {
+    "default": "Home page banner"
+  },
+  "i18n.BannerTextStyleColor": {
+    "default": "Banner text style color"
+  },
+  "i18n.BannerStyleLogoPosition": {
+    "default": "Banner style logo position"
+  },
+  "i18n.Top": {
+    "default": "Top"
+  },
+  "i18n.Show": {
+    "default": "Show"
+  },
+  "i18n.Hide": {
+    "default": "Hide"
+  },
+  "i18n.BannerStyleLogoType": {
+    "default": "Banner style logo type"
+  },
+  "i18n.inline": {
+    "default": "Inline"
+  },
+  "i18n.alternative": {
+    "default": "Alternative"
+  },
+  "i18n.PaymentBanners": {
+    "default": "Payment Banners"
+  },
+  "i18n.CartPageBanner": {
+    "default": "Cart page banner"
+  },
+  "i18n.primary": {
+    "default": "Primary"
+  },
+  "i18n.BannersMessaging": {
+    "default": "Please note that in order for the changes to apply, you need navigate to the PayPal Settings in BC Control Panel, disable an appropriate messaging banner(s), click \"Save\" button, enable the banner again and click \"Save\" button again"
+  },
+  "i18n.PaymentButtonsContainer": {
+    "default": "Buttons Container Size"
+  },
+  "i18n.ResponsiveMainProductImage": {
+    "default": "Responsive main product images (Disable to load faster for large size images or PNG format)"
+  },
+  "i18n.ImageLoadingDesc": {
+    "default": "Theme doesn't load most images until the user scrolls to them on the screen. Enable \"Lazyloading with LQIP\" below if you prefer to show a preview image and replace it with a better quality version as the user scrolls. Select \"Disabled\" below to fully turn off this feature."
+  },
+  "i18n.3rdPartyWidgets": {
+    "default": "Note: The settings below apply to the the third-party widgets. You can add these widgets by installing PapaThemes Widgets app in App Store."
+  },
+  "i18n.ParaTextPosition": {
+    "default": "Text position (applied for desktop screen only):"
+  },
+  "i18n.RedirectCart": {
+    "default": "Redirect to cart page after add to cart"
+  },
+  "i18n.AjaxAddToCart": {
+    "default": "Add to Cart without leaving page"
+  },
+  "i18n.AddToCartPopup": {
+    "default": "Popup after added to cart"
+  },
+  "i18n.ParaRegularPrice": {
+    "default": "* the 'Regular price' label is displayed when there is not a sale price."
+  },
+  "i18n.ProductCustomBadges": {
+    "default": "Enable custom badget from '__badge' custom field"
+  },
+  "i18n.ShowQuickPaymentButtons": {
+    "default": "Show quick payment buttons"
+  },
+  "i18n.QuickPaymentButtons": {
+    "default": "Quick payment buttons on product page"
+  },
+  "i18n.NumberOfButtonsAlwaysVisible": {
+    "default": "Number of buttons always visible"
+  },
+  "i18n.ProviderSortingOrderLabel": {
+    "default": "Sort Order"
+  },
+  "i18n.PayPalProviderSortingLabel": {
+    "default": "PayPal"
+  },
+  "i18n.PayPalCreditProviderSortingLabel": {
+    "default": "Pay Later"
+  },
+  "i18n.PayPalVenmoProviderSortingLabel": {
+    "default": "Venmo"
+  },
+  "i18n.PayPalSepaProviderSortingLabel": {
+    "default": "SEPA"
+  },
+  "i18n.GooglepayProviderSortingLabel": {
+    "default": "Google Pay"
+  },
+  "i18n.ApplepayProviderSortingLabel": {
+    "default": "Apple Pay"
+  },
+  "i18n.AfterpayProviderSortingLabel": {
+    "default": "After Pay"
+  },
+  "i18n.AmazonProviderSortingLabel": {
+    "default": "Amazon Pay"
+  },
+  "i18n.MasterpassProviderSortingLabel": {
+    "default": "Masterpass"
+  },
+  "i18n.BoltProviderSortingLabel": {
+    "default": "Bolt"
+  }
+}

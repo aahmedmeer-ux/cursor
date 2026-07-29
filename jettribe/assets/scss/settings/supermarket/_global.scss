@@ -1,0 +1,12 @@
+$theme-style: stencilString("style") or "default";
+$theme-layout: stencilString("layout");
+$theme-variant: stencilString("variant");
+
+// papathemes-beautify
+$theme-shifted-fonts: "Josefin Sans", "Josefin Slab";
+$theme-body-font-family: if(stencilFontFamily("webfont-body-font"), stencilFontFamily("webfont-body-font"), stencilFontFamily("body-font"));
+$theme-body-font-weight: if(stencilFontFamily("webfont-body-font"), stencilFontWeight("webfont-body-font"), stencilFontWeight("body-font"));
+$theme-body-font-baseline-shift: if(contains($theme-shifted-fonts, $theme-body-font-family), 0.2em, 0);
+$theme-header-font-family: if(stencilFontFamily("webfont-headings-font"), stencilFontFamily("webfont-headings-font"), stencilFontFamily("headings-font"));
+$theme-header-font-weight: if(stencilFontFamily("webfont-headings-font"), stencilFontWeight("webfont-headings-font"), stencilFontWeight("headings-font"));
+$theme-header-font-baseline-shift: if(contains($theme-shifted-fonts, $theme-header-font-family), 0.2em, 0);

@@ -1,0 +1,9 @@
+{{#or customer (unless settings.hide_price_from_guests)}}
+{{#if cart.additional_checkout_buttons}}
+    {{#each cart.additional_checkout_buttons}}
+        <div class="_item">
+            {{{this}}}
+        </div>
+    {{/each}}
+{{/if}}
+{{/or}}

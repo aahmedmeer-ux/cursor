@@ -1,0 +1,14 @@
+{{#if theme_settings.categorypage_layout '===' 'left-sidebar'}}
+    {{assignVar 'hideSubcategoriesSidebar' 1}}
+{{/if}}
+<div class="sidebarBlock sidebarBlock--categoryTree">
+    <nav class="categoryTree" id="categoryTree">
+        <ul class="navPages-list">
+            {{#each categories}}
+                <li class="navPages-item navPages-item--id-{{id}}">
+                    {{> components/mooncat/category-tree-list idSuffix='-categoryTree'}}
+                </li>
+            {{/each}}
+        </ul>
+    </nav>
+</div>

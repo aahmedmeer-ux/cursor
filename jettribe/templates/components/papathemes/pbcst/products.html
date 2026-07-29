@@ -1,0 +1,16 @@
+<div data-current-page="{{pagination.category.current}}" {{#if pagination.category.next}}data-has-next-page="true"{{/if}}
+    data-category-name="{{category.name}}"
+    data-category-url="{{category.url}}">
+    <ul class="productGrid productGrid--responsiveCol">
+        {{#each (limit category.products theme_settings.pbcst_products)}}
+            <li class="product {{#if @index '>=' ../theme_settings.product_col_md}}_hideOnTabletWhenNoBanner{{/if}}">
+                {{>components/products/card
+                    show_compare=false
+                    show_rating=../settings.show_product_rating
+                    theme_settings=../theme_settings
+                    settings=../settings
+                    customer=../customer}}
+            </li>
+        {{/each}}
+    </ul>
+</div>

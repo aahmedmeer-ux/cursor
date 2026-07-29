@@ -1,0 +1,91 @@
+// =============================================================================
+// Wishlist List (CSS)
+// =============================================================================
+
+.wishlists-table {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: layout("max");
+    
+    @media (max-width: (screenSize("medium") - 1px)) {
+        border: 0;
+        margin-top: spacing("base");
+        
+        .table-thead {
+            display: none;
+        }
+        
+        .table-tbody {
+            tr {
+                display: block;
+
+                + tr {
+                    margin-top: spacing("single");
+                }
+
+                td[data-label] {
+                    border-bottom: 1px solid #ddd;
+                    display: flex;
+                    text-align: right;
+                    padding-left: 0;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: spacing("half");
+
+                    &::before {
+                        content: attr(data-label);
+                    }
+
+                    &:last-child {
+                        margin: 0;
+                    }
+                }
+
+                @media (max-width: (screenSize("medium") - 1px)) {
+                    border-bottom: 0;
+                    margin-bottom: spacing("half");
+
+                    &:last-child {
+                        margin-bottom: 0;
+                    }
+                }
+
+                @media (max-width: (screenSize("small") - 1px)) {
+                    .table-actions {
+                        > form {
+                            flex: 0.6;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.wishlist-header {
+    display: none;
+    text-align: center;
+}
+
+.modal .wishlist-header {
+    display: block;
+}
+
+.wishlist-form {
+    @include grid-row();
+
+    margin-left: auto;
+    margin-right: auto;
+    max-width: remCalc(550px);
+
+    .form-field {
+        @include grid-column(12);
+    }
+}
+
+.share-wishlist {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: remCalc(650px);
+    text-align: center;
+}

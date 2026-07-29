@@ -1,0 +1,23 @@
+<div class="papathemes-specialProductsTabs-products">
+    {{#if products.featured}}
+        {{> components/products/featured
+            products=products.featured
+            hide_heading=true
+            show_categories=theme_settings.spt_show_cats
+            display_type=theme_settings.spt_type}}
+    {{/if}}
+    {{#if products.top_sellers}}
+        {{> components/products/top
+            products=products.top_sellers
+            hide_heading=true
+            show_categories=theme_settings.spt_show_cats
+            display_type=theme_settings.spt_type}}
+    {{/if}}
+    {{#if products.new}}
+        {{> components/products/new
+            products=products.new
+            hide_heading=true
+            show_categories=theme_settings.spt_show_cats
+            display_type=theme_settings.spt_type}}
+    {{/if}}
+</div>

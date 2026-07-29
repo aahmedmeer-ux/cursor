@@ -1,0 +1,69 @@
+.beautify__flexBanners {
+    ._banner {
+        ._heading {
+            line-height: 1.2;
+        }
+
+        ._description {
+            margin-top: 0;
+            margin-bottom: spacing("third");
+        }
+
+        ._buttonLine {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+    
+    }
+
+    &[data-test-theme="mooncat"] {
+        ._buttonLine {
+            .button--outline {
+                border-color: stencilColor("color-secondary");
+                color: stencilColor("color-secondary");
+
+                &:hover {
+                    background: rgba(stencilColor("color-secondary"), 0.1);
+                }
+            }
+        }
+    }
+}
+
+.beautify__flexBanners[data-test-theme="kitchenary"] {
+    ._heading {
+        font-size: inherit;
+        margin: spacing("third") 0 spacing("half");
+    }
+
+    ._description {
+        font-size: fontSize("smaller");
+
+        @include breakpoint("medium") {
+            font-size: inherit;
+        }
+    }
+
+    .button {
+        padding: spacing("half") spacing("base");
+    }
+
+    @include breakpoint("small") {
+        ._body {
+            position: static;
+        }
+    }
+    @media (min-width: screenSize("small") - 1px) and (max-width: screenSize("medium")) {
+        [data-index] ._body {
+            display: block;
+        }
+    }
+}
+
+[data-layout-name="BANNER-EDGE"] .beautify__flexBanners {
+    @media (max-width: screenSize("medium") - 1px) {
+        ._row {
+            margin: 0 (- spacing("base"));
+        }
+    }
+}

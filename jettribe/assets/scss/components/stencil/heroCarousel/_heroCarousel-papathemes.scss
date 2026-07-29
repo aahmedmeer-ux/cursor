@@ -1,0 +1,388 @@
+.heroCarousel-container {
+    display: flex;
+    flex-flow: row wrap;
+    width: 100%;
+}
+
+
+.heroCarousel {
+    margin-bottom: 0;
+    margin-top: 0;
+    width: 100%;
+
+    .js & {
+        opacity: 1;
+        max-height: none;
+        transition: none;
+    }
+
+    @media (max-width: screenSize("medium") - 1px) {
+        padding-bottom: spacing("single") + spacing("base");
+    }
+
+    @include breakpoint("medium") {
+        width: auto;
+        flex: 1 1 0;
+    }
+}
+
+.js {
+    .heroCarousel-slide:first-child {
+        display: block;
+    }
+
+    .heroCarousel-slide + .heroCarousel-slide {
+        opacity: 0;
+        max-height: 0;
+    }
+}
+
+.heroCarousel-slide {
+    .heroCarousel-image-wrapper {
+        max-height: none;
+    }
+
+    .heroCarousel-image {
+        max-height: none;
+    
+    }
+
+    a {
+        display: block;
+    }
+
+    // Fix ADA
+    &[aria-hidden="true"] {
+        * {
+            pointer-events: none !important;
+        }
+    }
+}
+
+.heroCarousel-image-box {
+    @include breakpoint("medium") {
+        border-radius: $container-border-radius;
+    }
+    border-radius: $container-border-radius;
+    max-width: 100%;
+    margin: 0 auto;
+    position: relative;
+    // overflow: hidden;
+
+    @media (max-width: (screenSize("small") - 1px)) {
+        border-radius: 0;
+        overflow: hidden;
+    }
+}
+
+.heroCarousel-image-box-padding {
+    height: 0;
+
+    @media (max-width: (screenSize("medium") - 1px)) {
+        &.heroCarousel-image-box-height {
+            height: stencilNumber("carousel-bgImg-height-mobile");
+            padding-bottom: unset !important;
+        }
+    }
+}
+
+.heroCarousel-image {
+    width: 100%;
+
+    &.lazyload,
+    &.lazyloading {
+        // width: auto; // comment out to fix error image smaller while loading http://prntscr.com/ukh8z8
+
+        .heroCarousel-image-wrapper:not(.heroCarousel-image-wrapper--sized) & + .heroCarousel-content {
+            opacity: 0;
+        }
+    }
+
+    @include breakpoint("medium") {
+        width: auto;
+    }
+}
+
+.heroCarousel-content {
+    background-color: rgba($carousel-bgColor, stencilNumber("carousel-bgColor-opacity", "") / 100);
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    @include breakpoint("medium") {
+        width: 100%;
+        padding: spacing("double");
+        @media (max-width: (screenSize("medium") - 1px)) {
+            left: 0%;
+        }
+    }
+    padding: spacing("base");
+    @media (max-width: (screenSize("medium") - 1px)) {
+        .heroCarousel-description {
+            display: none;
+        }
+    }
+    @media (max-width: (screenSize("small") - 1px)) {
+        .heroCarousel-action {
+            padding: (spacing("third") * 1.25) (spacing("base") * 1.125);
+        }
+    }
+}
+
+.heroCarousel-slide .heroCarousel-content {
+    @media (max-width: (screenSize("large") - 1px)) {
+        display: none;
+    }
+
+    &._desc-mobile {
+        @include breakpoint("large") {
+            display: none;
+        }
+        @media (max-width: (screenSize("large") - 1px)) {
+            width: 100%;
+            max-width: 100%;
+            display: block;
+            position: relative;
+            padding: (spacing("base") * 1.25) spacing("double");
+            transform: unset;
+            background-color: stencilColor("carousel-bgColor");
+
+            .heroCarousel-description {
+                display: block;
+                margin-bottom: 0;
+                text-align: center;
+                font-size: stencilNumber("carousel-description-fontSize-mobile");
+            }
+        }
+    }
+
+    &._head-button-mobile {
+        @include breakpoint("large") {
+            display: none;
+        }
+        @media (max-width: (screenSize("large") - 1px)) {
+            display: flex;
+            flex-direction: column;
+            padding: spacing("quarter");
+            max-height: calc(100% - 30px);
+            margin-top: -15px;
+            gap: spacing("half");
+            align-items: flex-start;
+
+            .heroCarousel-title {
+                overflow: hidden;
+                margin-bottom: 0;
+            }
+
+            .heroCarousel-action {
+                white-space: nowrap;
+                max-width: 100%;
+            }
+        }
+    }
+}
+
+
+//
+// Make position of carousel description text of each slide
+// to left or right depends on theme settings
+//
+@for $i from 0 through 4 {
+    @if stencilString("carousel-slide#{$i}-position") == "left" {
+        .heroCarousel-slide--#{$i} .heroCarousel-content, .heroCarousel-slide--#{$i} .heroCarousel-content.heroCarousel-content--empty {
+            text-align: left;
+            @if $theme-variant == "kid" {
+                text-align: center;
+            }
+            @media (max-width: (screenSize("medium") - 1px)) {
+                width: calc(100% - 20px);
+                left: 10px;
+                right: 10px;
+            }
+            @include breakpoint("medium") {
+                left: 10%;
+                right: 20%;
+                width: 70%;
+            }
+            // papathemes-beautify
+            @include breakpoint("large") {
+                max-width: 39rem;
+                right: 50%;
+            }
+            @include breakpoint("xxlarge") {
+                max-width: 41rem;
+            }
+        }
+        .heroCarousel-slide--#{$i} .heroCarousel-content._head-button-mobile {
+            align-items: flex-start;
+        }
+    }
+    @else if stencilString("carousel-slide#{$i}-position") == "right" {
+        .heroCarousel-slide--#{$i} .heroCarousel-content, .heroCarousel-slide--#{$i} .heroCarousel-content.heroCarousel-content--empty {
+            text-align: right;
+            @if $theme-variant == "kid" {
+                text-align: center;
+            }
+            @media (max-width: (screenSize("medium") - 1px)) {
+                width: calc(100% - 20px);
+                left: 10px;
+                right: 10px;
+            }
+            @include breakpoint("medium") {
+                left: 20%;
+                right: 10%;
+                width: 70%;
+            }
+            // papathemes-beautify
+            @include breakpoint("large") {
+                max-width: 39rem;
+                left: 50%;
+            }
+            @include breakpoint("xxlarge") {
+                max-width: 41rem;
+            }
+        }
+        .heroCarousel-slide--#{$i} .heroCarousel-content._head-button-mobile {
+            align-items: flex-end;
+        }
+    }
+    @else if stencilString("carousel-slide#{$i}-position") == "center" {
+        .heroCarousel-slide--#{$i} .heroCarousel-content, .heroCarousel-slide--#{$i} .heroCarousel-content.heroCarousel-content--empty {
+            text-align: center;
+            @media (max-width: (screenSize("medium") - 1px)) {
+                width: calc(100% - 20px);
+                left: 10px;
+                right: 10px;
+            }
+            @include breakpoint("medium") {
+                left: 15%;
+                right: 15%;
+                width: 70%;
+            }
+            // papathemes-beautify
+            @include breakpoint("large") {
+                max-width: 39rem;
+                left: 25%;
+                right: 25%;
+            }
+            @include breakpoint("xxlarge") {
+                max-width: 41rem;
+            }
+        }
+        .heroCarousel-slide--#{$i} .heroCarousel-content._head-button-mobile {
+            align-items: center;
+        }
+    }
+
+    .heroCarousel-slide--#{$i} .heroCarousel-content._desc-mobile {
+        left: 0;
+        right: 0;
+        height: 100%;
+    }
+}
+
+
+// papathemes-beautify edited
+.heroCarousel-title {
+    font-family: $header-font-family;
+    font-weight: $header-font-weight;
+    font-size: stencilNumber("carousel-title-fontSize-mobile");
+    line-height: 1.1;
+    margin-bottom: spacing("base")*2;
+    text-transform: stencilString("section-heading-transform");
+
+    @if $theme-variant == "man" {
+        text-shadow: 5px 5px 0 stencilColor("carousel-bgColor");
+    }
+    
+    @include breakpoint("large") {
+        font-size: stencilNumber("carousel-title-fontSize");
+        margin-bottom: spacing("base");
+    }
+}
+
+.heroCarousel-description {
+    font-size: stencilNumber("carousel-description-fontSize-mobile");
+    margin-bottom: spacing("half");
+    @include breakpoint("medium") {
+        font-size: stencilNumber("carousel-description-fontSize");
+        margin-bottom: spacing("base") * 2;
+    }
+    @include breakpoint("large") {
+        @if $theme-variant == "man" {
+            text-shadow: 5px 5px 0 stencilColor("carousel-bgColor");
+        }
+    }
+}
+
+.heroCarousel--boxed {
+    position: static;
+
+    &.heroCarousel.blaze-slider {
+        .blaze-prev {
+            left: spacing("base") * 5;
+        }
+
+        .blaze-next {
+            right: spacing("base") * 5;
+
+        }
+
+        // @media (min-width: 1840px) {
+        //     .blaze-prev {
+        //         left: -(spacing("single") * 2.5);
+        //     }
+
+        //     .blaze-next {
+        //         right: -(spacing("single") * 2.5);
+        //     }
+        // }
+
+        // @media (min-width: 1750px) and (max-width: 1839px) {
+        //     .blaze-prev {
+        //         left: -(spacing("third") * 3.25);
+        //     }
+
+        //     .blaze-next {
+        //         right: -(spacing("third") * 3.25);
+        //     }
+        // }
+
+        @media (max-width: (screenSize("large") - 1px)) {
+            .blaze-prev {
+                left: 16px;
+            }
+
+            .blaze-next {
+                right: 16px;
+
+            }
+        }
+
+        @media (max-width: (screenSize("medium") - 1px)) {
+            .blaze-prev {
+                left: 0;
+            }
+
+            .blaze-next {
+                right: 0;
+
+            }
+        }
+    }
+}
+
+.heroCarousel-content .button--outline {
+    color: stencilColor("button--outline-color");
+    border-color: stencilColor("button--outline-borderColor");
+
+    &:focus,
+    &:hover {
+        color: stencilColor("button--outline-colorHover");
+        border-color: stencilColor("button--outline-borderColorHover");
+    }
+}
+
+.heroCarousel {
+    padding-bottom: 0 !important;
+}

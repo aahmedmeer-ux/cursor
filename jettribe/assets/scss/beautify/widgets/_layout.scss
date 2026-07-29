@@ -1,0 +1,7 @@
+[data-layout-id] {
+    @if stencilNumber("widget-layout-maxWidth", "") != 0 {
+        max-width: stencilNumber("widget-layout-maxWidth");
+        margin-left: auto;
+        margin-right: auto;
+    }
+}

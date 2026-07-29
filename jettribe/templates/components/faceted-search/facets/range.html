@@ -1,0 +1,80 @@
+<div class="_accordion-block">
+    <div
+        class="_accordion-navigation toggleLink {{#unless start_collapsed }} is-open {{/unless}}"
+        role="button"
+        tabindex="0"
+        data-collapsible="#facetedSearch-content--{{dashcase facet }}">
+        <h4 class="_accordion-title">
+            <span class="_toggle-cats">
+                <svg class="icon"><use href="#icon-arrow-filter-down"></use></svg>
+            </span>
+            <span class="_accordion-label">
+                {{ title }}
+            </span>
+        </h4>
+        <div class="_accordion-navigation-actions">
+            <svg class="icon _accordion-indicator toggleLink-text toggleLink-text--off">
+                <use href="#icon-add" />
+            </svg>
+            <svg class="icon _accordion-indicator toggleLink-text toggleLink-text--on">
+                <use href="#icon-minus" />
+            </svg>
+            {{#if selected}}
+                <a href="{{ remove_url }}" class="facetedSearch-clearLink" data-faceted-search-facet>
+                    <span class="is-srOnly">{{lang 'search.faceted.clear'}}</span>
+                    <span class="facetedSearch-clearTitlte _clear-titlePrice">{{lang 'search.faceted.clear'}}</span><svg class="icon"><use href="#icon-close"></use></svg>
+                </a>
+            {{/if}}
+        </div>
+    </div>
+
+    <div id="facetedSearch-content--{{dashcase facet }}" class="_accordion-content {{#unless start_collapsed }}is-open{{/unless}}">
+        <form id="facet-range-form" class="form" method="get" data-faceted-search-range novalidate>
+            <input type="hidden" name="search_query" value="{{search_query}}">
+            {{#if this.sort}}
+                <input type="hidden" name="sort" value={{this.sort}}>
+            {{/if}}
+            <fieldset class="form-fieldset">
+                <div class="form-minMaxRow">
+                    <div class="form-field form-field--input">
+                        <input
+                            name="min_price"
+                            min="0"
+                            class="form-input form-input--small"
+                            required
+                            type="number"
+                            value="{{ min_price }}"
+                        /><span class="_currency">{{currency_token}}</span>
+                    </div>
+    
+                    <div class="form-field form-field--input">
+                        <input
+                            name="max_price"
+                            min="0"
+                            class="form-input form-input--small"
+                            required
+                            type="number"
+                            value="{{ max_price }}"
+                        /><span class="_currency">{{currency_token}}</span>
+                    </div>
+                </div>
+    
+                <div class="form-inlineMessage"></div>
+            </fieldset>
+            <div class="facetedSearch-range-head">
+                {{#if show_price_slider}}
+                    <div class="beautify__shopByPrice-slider" data-slider></div>
+                {{/if}}
+                <div class="form-field">
+                    <button class="button button--black button--small" type="submit">
+                        {{lang 'search.faceted.range.apply'}}
+                    </button>
+                </div>
+            </div>
+        </form>
+        <div class="navList-actions-inline">
+            <button class="navList-action" data-cancel style="display:none">{{lang 'common.cancel'}}</button>
+            <a href="{{remove_url}}" class="navList-action {{#unless show_price_slider}}u-hidden{{/unless}}" data-faceted-search-facet data-clear style="display:none">{{lang 'search.faceted.clear'}}<svg class="icon"><use href="#icon-close"></use></svg></a>
+        </div>
+    </div>
+</div>

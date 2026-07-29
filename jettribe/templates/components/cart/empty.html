@@ -1,0 +1,10 @@
+<div class="cart-emptyBody">
+    <div class="cart-emptyContent {{#unless customer}}_noCustomer{{/unless}}">
+        <h3 class="cart-emptyText">{{lang 'cart.checkout.empty_cart'}}</h3>
+        {{#unless customer}}
+            <span class="cart-notification">{{lang 'cart.checkout.notification'}}</span>
+            <a href="{{urls.auth.login}}" class="button">{{lang 'login.submit_value'}}</a>
+        {{/unless}}
+    </div>
+</div>
+{{{region name="cart_content_empty"}}}

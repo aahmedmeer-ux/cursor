@@ -1,0 +1,32 @@
+// =============================================================================
+// KEYWORD SUGGESTIONS
+// =============================================================================
+
+// Autocomplete overlay - displays inline suggestion in search input
+.beautify__quickSearch .form-field .supermarket__quickSearch-autocomplete {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    padding: 0;
+    padding-left: remCalc(45px); // Match .has-quickSearchOpen .form-input padding-left
+    padding-right: remCalc(60px); // Match .form-input padding-right (3.75rem)
+    border: 2px solid transparent; // Match input border width
+    color: rgba(stencilColor("quickSearch-text-color"), 0.5); // Match input text color but lighter
+    font-size: remCalc(16);
+    font-family: inherit;
+    line-height: inherit;
+    white-space: nowrap;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    background-color: transparent;
+
+    @include breakpoint("medium") {
+        font-size: fontSize("base");
+        padding-left: remCalc(45px);
+        padding-right: remCalc(60px);
+    }
+}

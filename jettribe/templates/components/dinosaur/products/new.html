@@ -1,0 +1,51 @@
+{{inject 'hasNewProducts' true}}
+<span class="page-header">
+    {{#unless hide_heading}}
+    <h2 class="page-heading">
+        {{theme_settings.product_new_heading}}
+    </h2>
+    <div class="navProducts-dropdown button--primary" data-dinosaur-category-collapsible role="button" tabindex="0">
+        All <svg class="icon"><use href="#icon-dropdown-arrow" /></svg>
+        {{#if show_categories}}
+            <div class="navProducts-rootMenu-list" data-dinosaur-category-list>
+                <ul class="navProducts-list">
+                    {{#each categories}}
+                    <li class="navProducts-item">
+                        <a class="navPages-action" href="{{url}}?sort=newest" data-instantload>{{name}}</a>
+                    </li>
+                    {{/each}}
+                </ul>
+            </div>
+        {{/if}}
+    </div>
+    {{/unless}}
+</span>
+
+{{#if region_name}}
+    {{{region name=region_name}}}
+{{/if}}
+
+<ul class="productGrid productGrid--responsiveCol" data-product-type="new" id="new-products{{#if index}}_index{{index}}{{/if}}" {{#if settings.data_tag_enabled}} data-list-name="New Products"{{/if}}>
+    {{#each products}}
+        <li class="product" data-product-id="{{id}}">
+            {{>components/products/card 
+                show_badges=../show_badges
+                show_compare=../theme_settings.card_show_compare
+                show_rating=../settings.show_product_rating
+                settings=../settings
+                theme_settings=../theme_settings 
+                customer=../customer
+                event="list" position=(add @index 1)}}
+        </li>
+    {{/each}}
+</ul>
+
+<div class="loading" style="display: none;display: block;"></div>
+<div class="actionGroup">
+    <a href="#" class="button button--small button--link loadMore" style="display: none;">
+        {{lang 'common.load_more'}}<svg class="icon"><use href="#icon-circle-arrow-right"></use></svg>
+    </a>
+    <a href="#" class="button button--small button--link collapse" style="display: none;">
+        {{lang 'common.collapse'}}
+    </a>
+</div>

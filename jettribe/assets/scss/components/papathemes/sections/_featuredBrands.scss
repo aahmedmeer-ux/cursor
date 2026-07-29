@@ -1,0 +1,169 @@
+
+////// FeaturedBrands Section //////
+.dinosaur__featuredBrands {
+    overflow: hidden;
+    @if(stencilString("section_bgColor10") != "#FFFFFF") {
+        h2.page-heading,
+        ._brand-img-wrapper ._brand-text > span {
+            color: $color-secondary;
+        }
+
+        .blaze-pagination {
+            background: rgba(stencilColor("input-bg-color"), 0.1);
+            border-radius: 10px;
+            padding: spacing("quarter") spacing("third");
+            width: fit-content;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+
+            button:not(.active) {
+                background-color: stencilColor("button--default-color");
+            }
+        }
+    }
+
+    .page-heading {
+        display: none;
+    }
+
+    .blaze-container .blaze-track-container {
+        padding: spacing("eighth") 0;
+    }
+
+    .blaze-pagination {
+        margin-top: spacing("base");
+        margin-bottom: 0;
+        @media (max-width: (screenSize("medium") - 1px)) { 
+            display: none;
+        }
+    }
+
+    .blaze-container .blaze-pagination button:not(.active) {
+        filter: brightness(0.9);
+    }
+
+    @media (max-width: (screenSize("medium") - 1px)) { 
+        .blaze-track-container {
+            padding: spacing("eighth") 0;
+        }
+    }
+
+    &.blaze-slider {
+        @include breakpoint("medium") {
+            --slide-gap: 15px !important;
+        }
+        --slide-gap: 10px !important;
+    }
+    $larger-item: 7;
+    $large-item: 5;
+    $medium-item: 3.2;
+    $small-item: 2.2;
+
+    @media (min-width: screenSize("medium")) and (max-width: screenSize("large") - 1px) {
+        &.blaze-slider {
+            --slides-to-show: #{$large-item} !important;
+        }
+    }
+    @media (max-width: (screenSize("medium") - 1px)) { 
+        &.blaze-slider {
+            --slides-to-show: #{$medium-item} !important;
+        }
+    }
+    @media (max-width: (screenSize("small") - 1px)) { 
+        &.blaze-slider {
+            --slides-to-show: #{$small-item} !important;
+        }
+    }
+
+    ._brand-item {
+        position: relative;
+        overflow: hidden;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: $color-textBase;
+
+        &:hover {
+            color: $color-textLink;
+
+            ._brand-logo,
+            ._brand-text {
+                outline: 1px solid $color-textLink;
+                outline-offset: -1px;
+            }
+        }
+
+        &:focus-visible {
+            outline-offset: -2px !important;
+        }
+    }
+
+    ._brand-img-wrapper {
+        @include lazy-loaded-padding("brand_size");
+        display: block;
+        position: relative;
+        max-width: get-width(stencilString("brand_size"));
+        width: 100%;
+    }
+
+    ._brand-logo,
+    ._brand-text {
+        @include lazy-loaded-img;
+        border: 0;
+        width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        display: none;
+    }
+
+    ._brand-text {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid stencilColor("container-border-global-color-base");
+        padding: spacing("base");
+
+        >span {
+            font-size: fontSize("base");
+            font-weight: fontWeight("semibold");
+            text-transform: uppercase;
+            text-align: center;
+
+            @media (max-width: (screenSize("medium") - 1px)) { 
+                font-size: fontSize("smaller");
+            }
+        }
+    }
+
+    .featuredBrands-list {
+        margin: 0;
+        text-align: center;
+        list-style-type: none;
+
+        .featuredBrands-item {
+            overflow: unset;
+            background: 0 0;
+
+            a {
+                text-decoration: unset;
+                color: $color-secondary;
+                display: block;
+                padding: remCalc(20) remCalc(18);
+                font-size: fontSize("small");
+                font-weight: $font-weight-bold;
+                background: darken(stencilColor("section_bgColor10"), 20);
+                border-radius: $global-radius;
+                text-transform: uppercase;
+                text-wrap: nowrap;
+
+                &:hover,
+                &:focus-visible {
+                    color: $color-textLink;
+                }
+            }
+        }
+    }
+}

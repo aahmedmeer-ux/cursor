@@ -1,0 +1,18 @@
+<div class="form-field" data-product-attribute="input-file">
+    <label class="form-label form-label--alternate form-label--inlineSmall" for="attribute_file_{{id}}">
+        {{ this.display_name }}:
+
+        {{#if required}}
+            <small class="_required" title="{{lang 'common.required'}}">{{lang 'common.required_symbol'}}</small>
+        {{/if}}
+    </label>
+    {{#if original_name}}
+        <span class="text-name-file">{{{lang 'products.file_option_set' url=file_url name=original_name}}}</span>
+        <input class="form-checkbox" type="checkbox" name="{{file_remove}}" id="{{file_remove}}">
+        <label class="form-label _form-remove-file" for="{{file_remove}}">{{lang 'cart.remove_file'}}</label>
+    {{/if}}
+    <button class="button--small button--black button-upload" type="button">{{{lang 'products.upload'}}}</button>
+    <input class="form-file" type="file" id="attribute_file_{{id}}" name="attribute[{{this.id}}]" {{#if required}}required{{/if}} data-pd-option-name="{{display_name}}" data-pd-file-url="{{file_url}}">
+    <p class="form-fileDescription">{{#if file_size}}{{lang 'products.max_filesize'}} <strong>{{file_size}}</strong>, {{/if}}{{#if file_types}}{{lang 'products.filetypes'}} <strong>{{file_types}}</strong>{{/if}}</p>
+    <p class="_filename"></p>
+</div>

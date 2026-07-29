@@ -1,0 +1,149 @@
+---
+brand:
+    products:
+        limit: {{theme_settings.brandpage_products_per_page}}
+shop_by_brand:
+    limit: {{theme_settings.sidebar_shop_by_brand}}
+---
+{{inject "brandProductsPerPage" theme_settings.brandpage_products_per_page}}
+{{#partial "head"}}
+    {{#if pagination.brand.previous}}
+        <link rel="prev" href="{{pagination.brand.previous}}">
+    {{/if}}
+    {{#if pagination.brand.next}}
+        <link rel="next" href="{{pagination.brand.next}}">
+    {{/if}}
+{{/partial}}
+
+{{#partial "page-sidebar"}}
+    {{#if theme_settings.categorypage_layout '!==' 'fullwidth'}}
+        <aside class="page-sidebar page-sidebar--top beautify__filters" id="sidebar-top">
+            <div class="_header">
+                <a href="#" class="_close" data-toggle="sidebar-top"><svg class="icon"><use href="#icon-close"></use></svg><span class="sr-only">{{lang 'common.close'}}</span></a>
+            </div>
+            <div class="_body" id="faceted-search-container">
+                {{{region name="brand_sidebar_top--global"}}}
+                {{{region name="brand_sidebar_top"}}}
+                <div class="_header _brand">
+                    <h2 class="_heading">{{lang 'search.faceted.filter_by'}}</h2>
+                </div>
+                {{> components/brand/sidebar}}
+                {{> components/supermarket/sidebar/recently-viewed-products}}
+                <div class="faceted-region">
+                    {{{region name="brand_sidebar_bottom--global"}}}
+                    {{{region name="brand_sidebar_bottom"}}}
+                </div>
+            </div>
+            {{!-- Refer the unminified script in templates/pages/category.html --}}
+            <script nonce="{{nonce}}">!function(){if(!window.previewSdk){var e=document.querySelector("#sidebar-top");if(e){var r=e.querySelector("[data-search-in-category]"),t=e.querySelector("nav > *"),a=e.querySelector("[data-content-region] > *");r||t||a||e.classList.add("_hide")}}}();</script>
+        </aside>
+    {{/if}}
+{{/partial}}
+
+{{#partial "page"}}
+
+{{> components/common/breadcrumbs breadcrumbs=breadcrumbs}}
+
+<div class="brand-header">
+    <div class="_main">
+        <h1 class="page-heading">{{brand.name}}</h1>
+        {{{region name="brand_below_header--global"}}}
+        {{{region name="brand_below_header"}}}
+    </div>
+    {{#if brand.image}}
+        <div class="_logo">
+            <div class="brand-image-container papathemes-brandPage-mainImage">
+                <img alt="{{brand.name}}" title="{{brand.name}}"
+                    {{#if theme_settings.lazyload_mode '===' 'disabled'}}
+                        src="{{getImage brand.image 'original'}}"
+                    {{else}}
+                        {{#if theme_settings.lazyload_mode '===' 'lazyload+lqip'}}
+                            src="{{getImageSrcset brand.image 1x='80w'}}"
+                        {{else}}
+                            src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                        {{/if}}
+                        data-src="{{getImage brand.image 'brand_main_size'}}" class="lazyload"
+                    {{/if}}
+                />
+            </div>
+        </div>
+    {{/if}}
+</div>
+
+<div class="page">
+    <div class="beautify__filters-overlay"></div>
+
+    {{#if theme_settings.layout '==' 'fullwidth'}}
+        {{#block "page-sidebar"}} {{/block}}
+    {{/if}}
+
+    <main class="page-content">
+        {{{region name="brand_above_products--global"}}}
+        {{{region name="brand_above_products"}}}
+
+        {{#if in_development}}
+            <p class="_brand-desc">Ensure you have everything in place to secure the most relaxing sleeping conditions for both baby and yourself.</p>
+        {{/if}}
+
+        {{#if theme_settings.categorypage_layout '===' 'fullwidth'}}
+            <div class="beautify__hozFilters _horizontal" id="faceted-search-container">
+                <span class="_category-icon">
+                    <svg class="icon"><use href="#icon-category-button"></use></svg>
+                </span>
+                <h2 class="_heading">{{lang 'search.faceted.filter_by'}}</h2>
+                {{> components/brand/sidebar collapsed=false}}
+            </div>
+
+            {{{region name="brand_below_filters--global"}}}
+            {{{region name="brand_below_filters"}}}
+        {{/if}}
+
+        <h2 class="is-srOnly">{{lang 'common.products_list_heading'}}</h2>
+        <div id="product-listing-container" class="
+            {{#if theme_settings.product_list_display_mode '===' 'grid2'}}mode-2
+            {{else if theme_settings.product_list_display_mode '===' 'grid3'}}mode-3
+            {{else if theme_settings.product_list_display_mode '===' 'grid5'}}mode-5
+            {{else if theme_settings.product_list_display_mode '===' 'list'}}mode-1
+            {{else if theme_settings.product_list_display_mode '===' 'listbo'}}mode-bo{{/if}}
+            {{#if theme_settings.categorypage_layout '===' 'fullwidth'}}_fullwidth{{/if}}
+            {{#if theme_settings.infiniteScroll '!==' 'no'}}infiniteScroll{{/if}}"
+            {{#if theme_settings.infiniteScroll '!==' 'no'}}data-brand-infinite-scroll="{{theme_settings.infiniteScroll}}"{{/if}}>
+
+            {{#if brand.products}}
+                {{> components/brand/product-listing}}
+            {{else}}
+                <p>{{lang 'brands.no_products'}}</p>
+            {{/if}}
+        </div>
+
+        {{{region name="brand_below_products--global"}}}
+        {{{region name="brand_below_products"}}}
+    </main>
+</div>
+
+<div class="page-bottom">
+        {{{region name="brand_above_description--global"}}}
+        {{{region name="brand_above_description"}}}
+
+        {{#if brand.description}}
+            <div class="supermarket-brandPage-description">
+                {{{brand.description}}}
+            </div>
+        {{/if}}
+
+        {{{region name="brand_below_content--global"}}}
+        {{{region name="brand_below_content"}}}
+
+        <div class="beautify__section beautify__section--recentlyViewedProducts _categoryPage beautify__section--displayType-{{theme_settings.product_recentviewed_type}}">
+            {{> components/products/recentviewed
+                display_type=theme_settings.product_recentviewed_type
+                show_more_in_screen_large=true}}
+        </div>
+</div>
+
+{{/partial}}
+{{#and theme_settings.instantload is_ajax}}
+    {{> layout/instantload-base}}
+{{else}}
+    {{> layout/base}}
+{{/and}}

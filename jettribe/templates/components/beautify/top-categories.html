@@ -1,0 +1,96 @@
+{{assignVar 'hasImage' 0}}
+{{#each categories}}
+    {{#if image}}
+        {{assignVar 'hasImage' 1}}
+    {{/if}}
+{{/each}}
+{{#if theme_settings.top_categories_buttonColor}}
+    {{assignVar 'totalColor' (length (split theme_settings.top_categories_buttonColor ","))}}
+{{/if}}
+
+{{#if (getVar 'hasImage')}}
+    <div class="beautify__section dinosaur__topCategories {{#if index}}beautify__section--index{{index}}{{/if}} productCarousel--responsiveCol blaze-slider {{#if theme_settings.top_categories_bgImg}}_has-backgroundImage{{/if}} _hasThumb"
+    {{#if settings.data_tag_enabled}} data-list-name="{{list}}"{{/if}}
+    data-blaze-slider='{
+        "all": {
+            "enableAutoplay": false,
+            "autoplayInterval": 5000,
+            "stopAutoplayOnInteraction": true,
+            "transitionDuration": 500,
+            "slidesToShow": 6,
+            "slidesToScroll": 6,
+            "slideGap": "30px",
+            "loop": true,
+            "pagination": true
+        },
+        "(max-width: 1260px)": {
+            "slidesToShow": 4,
+            "slidesToScroll": 4
+        },
+        "(max-width: 800px)": {
+            "slidesToShow": 4,
+            "slidesToScroll": 3,
+            "slideGap": "16px"
+        },
+        "(max-width: 550px)": {
+            "slidesToShow": 3,
+            "slidesToScroll": 2,
+            "slideGap": "8px"
+        }
+    }'
+    >
+    <div class="container">
+        {{#if theme_settings.top_categories_heading}}
+            <h2 class="page-heading">{{theme_settings.top_categories_heading}}</h2>
+        {{else}}
+            <h2 class="page-heading is-srOnly">{{lang 'papathemes.categories_list.heading'}}</h2>
+        {{/if}}
+        <div class="blaze-container">
+            <button class="blaze-button blaze-prev" aria-label="{{lang 'common.previous'}}"></button>
+            <div class="blaze-track-container">
+                <div class="blaze-track">
+                    {{#each categories}}
+                    <div class="topCategories-item" data-category-color="{{subtract @index (multiply (getVar 'totalColor') (floor (divide @index (getVar 'totalColor'))))}}">
+                        <a class="topCategories-thumb" href="{{url}}" aria-label="{{name}}">
+                            {{> components/common/responsive-img
+                                image=image
+                                fallback_size=theme_settings.categorythumb_size
+                                lazyload=theme_settings.lazyload_mode
+                                default_alt=name
+                                otherAttributes=(getVar 'categoryImageSizeAttrs')
+                                default_image=../theme_settings.default_image_product
+                            }}
+                        </a>
+                        <a href="{{url}}" class="topCategories-item-name">{{name}}</a>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+            <button class="blaze-button blaze-next" aria-label="{{lang 'common.next'}}"></button>
+            <div class="blaze-pagination"></div>
+        </div>
+    </div>
+    </div>
+{{else}}
+  <div class="beautify__section dinosaur__topCategories {{#if index}}beautify__section--index{{index}}{{/if}} productCarousel--responsiveCol blaze-slider {{#if theme_settings.top_categories_bgImg}}_has-backgroundImage{{/if}}"
+    {{#if settings.data_tag_enabled}} data-list-name="{{list}}"{{/if}}
+    >
+    <div class="container">
+        {{#if theme_settings.top_categories_heading}}
+            <h2 class="page-heading">{{theme_settings.top_categories_heading}}</h2>
+        {{else}}
+            <h2 class="page-heading is-srOnly">{{lang 'papathemes.categories_list.heading'}}</h2>
+        {{/if}}
+        <ul class="topCategories-list">
+            {{#each categories}}
+                <li class="topCategories-item" data-category-color="{{subtract @index (multiply (getVar 'totalColor') (floor (divide @index (getVar 'totalColor'))))}}">
+                    <a class="topCategories-item-name" href="{{url}}">{{name}}</a>
+                </li>
+            {{/each}}
+        </ul>
+    </div>
+    </div>
+{{/if}}
+
+
+

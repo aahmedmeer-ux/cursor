@@ -1,0 +1,38 @@
+// =============================================================================
+// GRID (CSS)
+// =============================================================================
+
+@mixin papathemes-container() {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: layout("max") + ($container-padding * 4);
+    padding: 0 container("padding") / 1.5;
+    position: relative;
+    width: layout("fixed");
+
+    @include breakpoint("medium") {
+        padding: 0 $container-padding;
+    }
+
+    @include breakpoint("large") {
+        padding: 0 $container-padding;
+    }
+}
+
+%papathemes-container {
+    @include papathemes-container();
+}
+
+.container {
+    @extend %papathemes-container;
+
+    .container {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+.container-fluid {
+    @include papathemes-container();
+    max-width: none;
+}

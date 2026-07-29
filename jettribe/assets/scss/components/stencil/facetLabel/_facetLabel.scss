@@ -1,0 +1,30 @@
+// =============================================================================
+// FACET LABEL (CSS)
+// =============================================================================
+
+.facetLabel {
+    color: $facetLabel-color;
+    background: $facetLabel-backgroundColor;
+    border: $facetLabel-border; // papathemes-beautify added
+    border-radius: $button-radius;
+    padding: spacing("eighth") spacing("third") spacing("eighth") (spacing("third") + spacing("eighth"));
+    text-decoration: none;
+
+    .icon {
+        @include square(8px);
+        display: inline-block;
+        fill: $facetLabel-removeIcon-color;
+        position: relative; // Vertical align the icon
+        top: 0; // Vertical align the icon
+    }
+
+    &:hover,
+    &:focus {
+        color: $facetLabel-backgroundColor;
+        background: $facetLabel-color;
+
+        .icon {
+            fill: $facetLabel-backgroundColor;
+        }
+    }
+}

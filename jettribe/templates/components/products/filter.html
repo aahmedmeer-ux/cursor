@@ -1,0 +1,30 @@
+<div class="papathemes-productsFilter {{#or category.faceted_search_enabled brand.faceted_search_enabled product_results.faceted_search_enabled}}papathemes-productsFilter--faceted{{/or}}">
+    <form class="actionBar {{#if category.subcategories}}_hasSubCategory{{/if}}" id="papathemes-productsFilter-form" method="get" data-sort-by>
+        {{> components/beautify/shop-by-price-horizontal shop_by_price=category.shop_by_price category_url=category.url}}
+        <div class="_actionBar-groupFilter">
+            <a href="#" class="_filters-toggle
+                {{#and (if theme_settings.show_shop_by_price '==' 'hide') (if theme_settings.sidebar_shop_by_brand '<=' 9)}}
+                    u-hidden
+                {{/and}}
+            " data-toggle="sidebar-top">
+                <span>
+                    <svg class="icon"><use href="#icon-category-button"></use></svg>
+                </span>
+                {{lang 'search.faceted.filters'}}
+            </a>
+            {{#if theme_settings.categorypage_layout '==' 'left-sidebar'}}
+                {{> components/category/sub-category}}
+            {{/if}}
+            {{#if results_count '!=' 0}}
+                {{> components/category/sort-box sort=sort}}
+            {{/if}}
+        </div>
+        {{#if theme_settings.categorypage_layout '==' 'fullwidth'}}
+                {{> components/category/sub-category}}
+        {{/if}}
+        {{#if results_count '!=' 0}}
+            {{> components/category/products-per-page products_per_page=products_per_page}}
+            {{> components/category/grid-list}}
+        {{/if}}
+    </form>
+</div>

@@ -1,0 +1,388 @@
+.supermarket-compareList-panel-wrapper {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    position: fixed;
+    right: spacing("third");
+    top: 50%;
+    transform: translateY(-50%);
+    height: 0;
+    z-index: zIndex("high") - 10;
+    animation-name: supermarket-compareList-show;
+    animation-timing-function: cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    animation-duration: 300ms;
+    animation-fill-mode: forwards;
+
+    &.is-closed {
+        z-index: zIndex("low");
+    }
+
+    .button {
+        margin: 0;
+
+        .supermarket-compareList-text {
+            transform: translate(-18%) rotate(-90deg);
+            color: stencilColor("color-black");
+            white-space: nowrap;
+            position: absolute;
+            top: (spacing("half") + spacing("third")) * 3.35;
+            left: 0;
+            font-weight: fontWeight("bold");
+            font-size: fontSize("smaller");
+        }
+
+        &.button--close {
+            background-color: stencilColor("color-white");
+            box-shadow: 0 3px 10px rgba(stencilColor("color-black"), 0.15);
+            border: container("border");
+            border-right: 0;
+            border-radius: unset;
+            border-top-left-radius: $button-radius;
+            border-bottom-left-radius: $button-radius;
+
+            &:focus-visible {
+                z-index: 2;
+            }
+        }
+    }
+
+    .button--close,
+    .button--open {
+        position: absolute;
+        top: 0;
+        left: -45px;
+        width: 46px;
+        height: (spacing("half") + spacing("third")) * 6.25;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0;
+        border: 0;
+        font-size: fontSize("base");
+        flex-direction: column;
+        z-index: 1;
+
+        &:hover {
+            .supermarket-compareList-icon {
+                > svg {
+                    fill: stencilColor("color-textLink");
+                }
+            }
+
+            .supermarket-compareList-text {
+                color: stencilColor("color-textLink");
+            }
+        }
+    }
+
+    .button--open {
+        display: none;
+    }
+
+    &.is-empty {
+        animation-name: supermarket-compareList-hide;
+        animation-timing-function: cubic-bezier(0.6, -0.28, 0.74, 0.05);
+    }
+
+    &.is-closed {
+        animation-name: supermarket-compareList-hide;
+
+        .supermarket-compareList-panel-body { 
+            .supermarket-compareList-actions {
+                &::before {
+                    display: none;
+                }
+            }
+        }
+
+        .button--close {
+            display: none;
+        }
+
+        .button--open {
+            display: flex;
+            top: auto;
+            border: container("border");
+            background-color: container("fill");
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .supermarket-compareList-panel-body {
+            height: 0;
+            overflow: hidden;
+            width: 100%;
+            border: 0;
+            padding: 0;
+        }
+    }
+}
+
+@keyframes supermarket-compareList-show {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: none;
+    }
+}
+@keyframes supermarket-compareList-hide {
+    from {
+        transform: none;
+    }
+    
+    to {
+        transform: translateX(100%);
+    }
+}
+
+.supermarket-compareList-panel {
+    position: relative;
+    width: auto;
+    max-width: 100%;
+    transform: translateY(50%);
+
+    .supermarket-compareList-icon {
+        margin: (spacing("half") * 1.25) auto (spacing("base") * 0.625) auto;
+
+        > svg {
+            fill: stencilColor("color-black");
+            width: spacing("half");
+            height: spacing("third") * 1.75;
+        }
+    }
+
+    .button--open {
+        transform: translateY(-50%);
+    }
+}
+
+.supermarket-compareList-panel-body {
+    width: auto;
+    background-color: container("fill");
+    padding: spacing("base") * 0.625;
+    border: container("border");
+    position: relative;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    display: flex;
+    gap: spacing("base") * 0.625;
+    align-items: center;
+    flex-direction: column;
+    border-radius: $button-radius;
+    border-top-left-radius: unset;
+    max-height: 80vh;
+    overflow: auto;
+
+    &::-webkit-scrollbar {
+        width: 3px;
+        background-color: stencilColor("color-white");
+        display: block;
+        transition: all 0.3s ease-in;
+    }
+
+    &:hover {
+        &::-webkit-scrollbar {
+            display: contents;
+        }
+    }
+
+    &::-webkit-scrollbar-thumb {
+        border-radius: $button-radius;
+        -webkit-box-shadow: inset 0 0 10px rgba(stencilColor("color-black"), 0.3);
+        background-color: stencilColor("color-greyLight");
+    }
+
+    &::after {
+        content: "";
+        position: fixed;
+        top: 2px;
+        bottom: 2px;
+        left: 0;
+        width: 14px;
+        background-color: stencilColor("color-white");
+        z-index: 1;
+        border-bottom-left-radius: $button-radius;
+    }
+
+    .supermarket-compareList-actions {
+        position: sticky;
+        bottom: 0;
+
+        &::before {
+            display: block;
+            content: "";
+            position: fixed;
+            background-color: stencilColor("color-white");
+            position: fixed;
+            right: spacing("third") * 0.125;
+            left: 0;
+            height: spacing("single") * 4.25;
+            bottom: 0;
+            border-bottom-left-radius: $button-radius;
+            border-bottom-right-radius: $button-radius;
+        }
+    }
+}
+
+.supermarket-compareList {
+    display: flex;
+    flex-wrap: wrap;
+    width: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-direction: column;
+    gap: spacing("base") * 0.625;
+}
+
+.supermarket-compareList-item {
+    @include square(120px);
+    position: relative;
+    margin: 0;
+    flex: 0 0 auto;
+    z-index: 2;
+
+    .quickview {
+        &:focus-visible {
+            border-radius: $button-radius;
+        }
+    }
+
+    .supermarket-compareList-img {
+        object-fit: contain;
+        width: 100%;
+        height: 100%;
+        border-top-right-radius: $button-radius;
+        cursor: pointer;
+
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+
+    @include breakpoint("medium") {
+        .supermarket-compareList-img {
+            border-top-right-radius: 0;
+        }
+
+        .supermarket-compareList-remove {
+            opacity: 0;
+        }
+
+        &:hover {
+            .supermarket-compareList-img {
+                border-top-right-radius: $button-radius;
+            }
+
+            .supermarket-compareList-remove {
+                opacity: 1;
+            }
+        }
+
+        .quickview:focus-visible {
+            .supermarket-compareList-img {
+                border-top-right-radius: 0;
+            }
+
+            +.supermarket-compareList-remove {
+                opacity: 1;
+            }
+        }
+
+        .supermarket-compareList-remove:focus-visible {
+            opacity: 1;
+        }
+    }
+
+    @media (max-width: (screenSize("small") - 1px)) { 
+        @include square(80px);
+    }
+}
+
+.supermarket-compareList-actions {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    z-index: 3;
+
+    .button {
+        width: spacing("double") * 2.5;
+        max-width: spacing("double") * 2.5;
+        padding-left: spacing("half");
+        padding-right: spacing("half");
+
+        @media (max-width: (screenSize("small") - 1px)) {
+            width: spacing("base") * 5;
+            max-width: spacing("base") * 5;
+            font-size: fontSize("smallest");
+            padding-left: spacing("third") * 0.5;
+            padding-right: spacing("third") * 0.5;
+        }
+    }
+
+    .button + .button {
+        margin-top: spacing("quarter");
+    }
+}
+
+.supermarket-compareList-remove {
+    @include square(36px);
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    border-radius: $button-radius;
+    background-color: container("fill", "dark");
+    padding: unset;
+
+    &:hover,
+    &:focus-visible {
+        background-color: stencilColor("button--primary-backgroundColor");
+
+        .icon {
+            fill: stencilColor("button--primary-color");
+            stroke: stencilColor("button--primary-color");
+        }
+    }
+
+    span:has(.icon) {
+        @include square(13px);
+        display: flex;
+    }
+
+    .icon {
+        fill: stencilColor("color-greyMedium");
+        stroke: stencilColor("color-greyMedium");
+        overflow: unset;
+        @include square(13px);
+    }
+
+    @media (max-width: (screenSize("small") - 1px)) {
+        background-color: transparent;
+
+        span:has(.icon) {
+            @include square(20px);
+            background-color: container("fill", "dark");
+            justify-content: center;
+            align-items: center;
+            border-radius: $button-radius;
+            position: absolute;
+            top: 0;
+            right: 0;
+
+            .icon {
+                @include square(12px);
+            }
+        }
+
+        &:hover,
+        &:focus-visible {
+            background-color: transparent;
+
+            span:has(.icon) {
+                background-color: stencilColor("button--primary-backgroundColor");
+            }
+        }
+    }
+}

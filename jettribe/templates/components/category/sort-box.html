@@ -1,0 +1,37 @@
+<fieldset class="form-fieldset actionBar-section actionBar-section--sort">
+    <div class="form-field">
+        <label class="form-label" for="sort{{id_prefix}}">{{lang 'common.sorter.sort_by'}}</label>
+        <select class="form-select" name="sort" id="sort{{id_prefix}}">
+            <option value="featured" {{#if sort '==' 'featured'}}selected{{/if}}>{{lang 'common.sorter.featured'}}</option>
+            <option value="newest" {{#if sort '==' 'newest'}}selected{{/if}}>{{lang 'common.sorter.newest'}}</option>
+            <option value="bestselling" {{#if sort '==' 'bestselling'}}selected{{/if}}>{{lang 'common.sorter.top_sellers'}}</option>
+            <option value="alphaasc" {{#if sort '==' 'alphaasc'}}selected{{/if}}>{{lang 'common.sorter.alpha_asc'}}</option>
+            <option value="alphadesc" {{#if sort '==' 'alphadesc'}}selected{{/if}}>{{lang 'common.sorter.alpha_desc'}}</option>
+            <option value="avgcustomerreview" {{#if sort '==' 'avgcustomerreview'}}selected{{/if}}>{{lang 'common.sorter.reviews'}}</option>
+            <option value="priceasc" {{#if sort '==' 'priceasc'}}selected{{/if}}>{{lang 'common.sorter.price_asc'}}</option>
+            <option value="pricedesc" {{#if sort '==' 'pricedesc'}}selected{{/if}}>{{lang 'common.sorter.price_desc'}}</option>
+            {{#if result_count}}
+                <option value="relevance" {{#if sort '==' 'relevance'}}selected{{/if}}>{{lang 'common.sorter.relevance'}}</option>
+            {{/if}}
+        </select>
+    </div>
+    <div class="beautify__actionBar-sortBy">
+        <p class="_heading">{{lang 'common.sorter.sort_by'}}</p>
+        <ul>
+            {{#if result_count}}
+                <li><button type="button" {{#if sort '==' 'relevance'}}disabled{{/if}} class="button" data-sort="relevance">{{lang 'common.sorter.relevance'}}</button>
+            {{/if}}
+            <li><button type="button" {{#if sort '==' 'featured'}}disabled{{/if}} class="button" data-sort="featured">{{lang 'common.sorter.featured'}}</button>
+            <li><button type="button" {{#if sort '==' 'newest'}}disabled{{/if}} class="button" data-sort="newest">{{lang 'common.sorter.newest'}}</button>
+            <li><button type="button" {{#if sort '==' 'bestselling'}}disabled{{/if}} class="button" data-sort="bestselling">{{lang 'common.sorter.top_sellers'}}</button>
+            <li><button type="button" {{#if sort '==' 'alphaasc'}}disabled{{/if}} class="button" data-sort="alphaasc">{{lang 'common.sorter.alpha_asc'}}</button>
+            <li><button type="button" {{#if sort '==' 'alphadesc'}}disabled{{/if}} class="button" data-sort="alphadesc">{{lang 'common.sorter.alpha_desc'}}</button>
+            <li><button type="button" {{#if sort '==' 'avgcustomerreview'}}disablx`ed{{/if}} class="button" data-sort="avgcustomerreview">{{lang 'common.sorter.reviews'}}</button>
+            <li><button type="button" {{#if sort '==' 'priceasc'}}disabled{{/if}} class="button" data-sort="priceasc" >{{{lang 'common.sorter.price_asc2'}}} 
+                <svg class="icon"><use href="#icon-arrow-sort-up" /></svg></button>
+            <li><button type="button" {{#if sort '==' 'pricedesc'}}disabled{{/if}} class="button" data-sort="pricedesc" >{{{lang 'common.sorter.price_desc2'}}} 
+                <svg class="icon"><use href="#icon-arrow-sort-down" /></svg></button>
+        </ul>
+    </div>
+</fieldset>
+

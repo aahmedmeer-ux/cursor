@@ -1,0 +1,76 @@
+{{#if items}}
+<div class="_accordion-block">
+    <div
+        class="_accordion-navigation toggleLink {{#unless start_collapsed }} is-open {{/unless}}"
+        role="button"
+        tabindex="0"
+        data-collapsible="#facetedSearch-content--{{dashcase facet }}">
+        <h4 class="_accordion-title">
+            <span class="_toggle-cats">
+                <svg class="icon"><use href="#icon-arrow-filter-down"></use></svg>
+            </span>
+            <span class="_accordion-label">
+                {{ title }}
+            </span>
+        </h4>
+
+        <div class="_accordion-navigation-actions">
+            <svg class="icon _accordion-indicator toggleLink-text toggleLink-text--off">
+                <use href="#icon-add" />
+            </svg>
+            <svg class="icon _accordion-indicator toggleLink-text toggleLink-text--on">
+                <use href="#icon-minus" />
+            </svg>
+            {{#if selected}}
+                <a href="{{ remove_url }}" class="facetedSearch-clearLink" data-faceted-search-facet>
+                    <span class="is-srOnly">{{lang 'search.faceted.clear'}}</span>
+                    <span class="facetedSearch-clearTitlte"></span><svg class="icon"><use href="#icon-close"></use></svg>
+                </a>
+            {{/if}}
+        </div>
+    </div>
+    {{#if selected}}
+        <a href="{{ remove_url }}" class="facetedSearch-clearLink" data-faceted-search-facet>
+            <span class="is-srOnly">{{lang 'search.faceted.clear'}}</span>
+            <span class="facetedSearch-clearTitlte">{{lang 'search.faceted.clear'}}</span><svg class="icon"><use href="#icon-close"></use></svg>
+        </a>
+    {{/if}}
+    <div id="facetedSearch-content--{{dashcase facet }}" class="_accordion-content {{#unless start_collapsed }} is-open {{/unless}}">
+        <div class="form-field facetedSearch-filterItems" id="facetedSearch-filterItems--{{dashcase facet }}">
+            <input class="form-input" type="text" placeholder="{{lang 'forms.search.search'}} {{ title }}...">
+        </div>
+        <ul id="facetedSearch-navList--{{dashcase facet }}" data-facet="{{facet}}" data-formfield="facetedSearch-filterItems--{{dashcase facet }}" data-count-item="{{items_count}}" data-load-result="off" class="navList" data-has-more-results="{{ has_more_results }}">
+            {{#each items}}
+                <li class="navList-item">
+                    <a
+                        href="{{ url }}"
+                        class="navList-action navList-action--checkbox {{#if selected }} is-selected {{/if}}"
+                        rel="nofollow"
+                        data-faceted-search-facet>
+                        {{{sanitize title}}}
+                        {{#if ../show_product_counts}}
+                            <span class="_count-item">{{ count }}</span>
+                        {{/if}}
+
+                        <span class="navList-action-close" aria-hidden="true">
+                            <svg class="icon">
+                                <use href="#icon-close"/>
+                            </svg>
+                        </span>
+                    </a>
+                </li>
+            {{/each}}
+        </ul>
+
+        {{#if show_more_toggle}}
+            <a href="#facetedSearch-navList--{{dashcase facet}}" role="button" class="toggleLink">
+                <svg class="icon">
+                    <use href="#icon-more" />
+                </svg>
+                <span class="toggleLink-text toggleLink-text--off">{{lang 'search.faceted.more'}}</span>
+            </a>
+        {{/if}}
+        <div class="blocker-dropdown" style="display: none;"></div>
+    </div>
+</div>
+{{/if}}

@@ -1,0 +1,131 @@
+<article class="card card--placeholder {{#if theme_settings.card_show_border}}_border{{/if}} {{#unless theme_settings.card_show_button}}_hideBtn{{/unless}}">
+    <figure class="card-figure">
+        <div class="card-img-container">
+            <img class="card-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" alt="loading" {{getVar 'productCardImageSizeAttrs'}} />
+        </div>
+        <figcaption class="card-figcaption">
+            <div class="card-figcaption-body">
+                <div class="card-buttons card-buttons--alt">
+                    {{#unless hide_product_quick_view}}
+                        {{#if theme_settings.show_product_quick_view}}
+                            <a class="button card-figcaption-button quickview" tabindex="-1"><svg class="icon"><use href="#icon-bs-search"></use></svg>{{lang 'products.quick_view'}}</a>
+                        {{/if}}
+                    {{/unless}}
+                    {{#if show_compare}}
+                        <button type="button" class="button card-figcaption-button _compare2" disabled><svg class="icon"><use href="#icon-compare"></use></svg>{{lang 'products.compare'}}</button>
+                    {{/if}}
+                </div>
+            </div>
+        </figcaption>
+    </figure>
+    <div class="card-body">
+        <h3 class="card-title">&nbsp;</h3>
+
+        {{#if show_rating}}
+            <p class="card-text card-text--rating" data-test-info-type="productRating">
+                <span class="rating--small"></span>
+            </p>
+        {{/if}}
+
+        {{#if theme_settings.card_show_sku}}
+            <div class="card-text card-text--sku" data-test-info-type="sku">&nbsp;</div>
+        {{/if}}
+
+        {{#if theme_settings.card_show_brand}}
+            <div class="card-text card-text--brand" data-test-info-type="brandName">&nbsp;</div>
+        {{/if}}
+
+        {{#if theme_settings.card_custom_fields '!==' ''}}
+            <div class="card-text card-text--info">
+                <div>
+                    <span class="card-info-name card-info-name">&nbsp;</span>
+                    <span class="card-info-value card-info-value">&nbsp;</span>
+                </div>
+            </div>
+        {{/if}}
+
+        {{#if theme_settings.card_show_swatches}}
+            <div class="card-text card-text--colorswatches"></div>
+        {{/if}}
+
+        <div class="card-text card-text--price" data-test-info-type="price">&nbsp;</div>
+
+        <div class="card-text card-text--summary" data-test-info-type="summary"></div>
+    </div>
+    <div class="card-footer{{#if theme_settings.card_show_button}} _show{{/if}}">
+        <div class="card-buttons">
+                {{#or customer (unless settings.hide_price_from_guests)}}
+                    {{#if show_cart_action}}
+                        <div class="_qtyAdd">
+                            <a class="button button--primary card-figcaption-button">{{lang 'products.add_to_cart'}}</a>
+                        </div>
+                    {{/if}}
+                {{/or}}
+
+                {{#if show_compare}}
+                    <button type="button" class="button card-figcaption-button _compare" disabled><svg class="icon"><use href="#icon-compare"></use></svg>{{lang 'products.compare'}}</button>
+                {{/if}}
+            </div>
+    </div>
+
+    {{#if show_bulk_order}}
+    <div class="card-bulkOrder">
+        <div class="card-bulkOrder-fieldRow card-bulkOrder-qtyInCart">
+            <span class="card-bulkOrder-label">{{lang 'bulk_order.qty_in_cart'}}: </span>
+            <span class="card-bulkOrder-value">0</span>
+        </div>
+        <div class="card-bulkOrder-fieldRow card-bulkOrder-qty">
+            {{#or customer (unless settings.hide_price_from_guests)}}
+                <div class="card-bulkOrder-label">{{lang 'bulk_order.qty'}}: </div>
+                <div class="card-bulkOrder-value">
+                    <div class="form-increment" data-quantity-change>
+                        <button class="button button--icon" data-action="dec" type="button" disabled>
+                            <i class="icon" aria-hidden="true">
+                                <svg>
+                                    <use href="#icon-minus"/>
+                                </svg>
+                            </i>
+                        </button>
+                        <input class="form-input form-input--incrementTotal"
+                            name=""
+                            type="tel"
+                            value="0"
+                            data-quantity-min="0"
+                            data-quantity-max="0"
+                            min="0"
+                            pattern="[0-9]*"
+                            aria-live="polite">
+                        <button class="button button--icon" data-action="inc" type="button" disabled>
+                            <i class="icon" aria-hidden="true">
+                                <svg>
+                                    <use href="#icon-add"/>
+                                </svg>
+                            </i>
+                        </button>
+                    </div>
+                </div>
+            {{/or}}
+        </div>
+        <div class="card-bulkOrder-fieldRow card-bulkOrder-price">
+            <div class="card-bulkOrder-label">{{lang 'bulk_order.price'}}: </div>
+            <div class="card-bulkOrder-value">
+                <div class="card-text card-text--price" data-test-info-type="price">
+                </div>
+            </div>
+        </div>
+        <div class="card-bulkOrder-fieldRow card-bulkOrder-subtotal">
+                <div class="card-bulkOrder-label">{{lang 'bulk_order.subtotal'}}: </div>
+                <div class="card-bulkOrder-value">
+                    <div class="card-text card-text--price">
+                        <span class="price price--main"></span>
+                    </div>
+                </div>
+        </div>
+        <div class="card-bulkOrder-action">
+            {{#if show_cart_action}}
+                <a class="button button--small button--primary card-figcaption-button">{{lang 'products.add_to_cart'}}</a>
+            {{/if}}
+        </div>
+    </div>
+    {{/if}}
+</article>

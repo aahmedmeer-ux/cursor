@@ -1,0 +1,90 @@
+.jstree-node {
+    + .jstree-node {
+        margin-top: 10px;
+    }
+
+    &:not(.jstree-leaf) {
+        > .jstree-icon {
+            &::after {
+                content: "+";
+                font-weight: bold;
+                font-size: fontSize("base");
+                font-style: normal;
+            }
+
+            &:hover::after {
+                color: stencilColor("color-textLink");
+            }
+        }
+    }
+
+    &.jstree-open {
+        > .jstree-icon {
+            &::after {
+                content: "-";
+            }
+        }
+    }
+}
+
+.jstree-default {
+    .jstree-hovered,
+    .jstree-clicked {
+        background-color: transparent;
+        box-shadow: unset;
+    }
+}
+
+.jstree-anchor {
+    + .jstree-children {
+        margin-top: 10px;
+    }
+
+    .jstree-icon {
+        background: none;
+        margin-right: 16px;
+        position: relative;
+
+        &::before {
+            content: "";
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            left: 0;
+            top: -4px;
+            margin-top: 3px;
+            border: 1px solid stencilColor("input-border-color");
+            background-color: stencilColor("input-bg-color");
+            border-radius: stencilNumber("input-radius");
+        }
+    }
+
+    &.jstree-hovered {
+        .jstree-icon::before {
+            border-color: stencilColor("color-textLink");
+        }
+    }
+
+    &.jstree-clicked {
+        background-color: none;
+
+        .jstree-icon {
+            &::after {
+                position: absolute;
+                content: "";
+                width: 13px;
+                height: 8px;
+                border-left: 3px solid stencilColor("input-font-color");
+                border-bottom: 3px solid stencilColor("input-font-color");
+                top: 2px;
+                left: 0;
+                transform: translate(40%, 55%) rotate(311deg);
+            }
+        }
+    }
+}
+
+.jstree-default .jstree-node,
+.jstree-default .jstree-icon {
+    background: none;
+}

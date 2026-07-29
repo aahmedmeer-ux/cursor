@@ -1,0 +1,210 @@
+<ul class="previewCartList" data-cart-quantity="{{cart.quantity}}" data-cart-price="{{cart.grand_total.value}}" data-cart-formatted="{{cart.grand_total.formatted}}" data-cart-coupons="{{pluck cart.coupons 'code'}}">
+    {{#each cart.items}}
+        <li class="previewCartItem" data-previewCart-item data-cart-itemid="{{id}}">
+            <div class="previewCartItem-form-field">
+                <input class="form-input cart-item-check" data-cart-item-checkbox type="checkbox" value="{{id}}" id="checked--previewCart-{{id}}" name="checked--{{id}}">
+                <label class="form-label" for="checked--previewCart-{{id}}">
+                    <i class="form-icon icon" aria-hidden="true">
+                        <svg><use href="#icon-check" /></svg>
+                    </i>
+                </label>
+            </div>
+            <div class="previewCartItem-image">
+                {{#if type '==' 'GiftCertificate'}}
+                    <img src="{{cdn ../../theme_settings.default_image_gift_certificate}}" alt="GiftCertificate" title="GiftCertificate">
+                {{else}}
+                    {{> components/common/responsive-img
+                        image=image
+                        fallback_size=../../theme_settings.productthumb_size
+                        lazyload=../../theme_settings.lazyload_mode
+                        default_image=../../theme_settings.default_image_product
+                    }}
+                {{/if}}
+            </div>
+            <div class="previewCartItem-content">
+                {{#if ../theme_settings.card_show_brand}}
+                    <span class="previewCartItem-brand">
+                        {{brand.name}}
+                    </span>
+                {{/if}}
+                <h6 class="previewCartItem-name">
+                    <a href="{{url}}" alt="{{name}}" title="{{name}}">{{name}}</a>
+                </h6>
+
+                <span class="previewCartItem-price">
+                    {{#or ../customer (unless ../settings.hide_price_from_guests)}}
+                        {{#if price_discounted}}
+                            <span class="price">{{price_discounted.formatted}}</span>
+                        {{/if}}
+                        <span class="price {{#if price_discounted}}price--discounted{{/if}}">{{price.formatted}}</span>
+                    {{else}}
+                        {{> components/common/login-for-pricing}}
+                    {{/or}}
+                </span>
+
+                {{!-- inhealth: hide brand
+                <span class="previewCartItem-brand">
+                    {{brand.name}}
+                </span>
+                --}}
+
+                <div class="definitionList-wrapper">
+                    {{#if ../theme_settings.card_show_sku}}
+                        {{#if sku}}
+                            <dl class="definitionList definitionList--previewCartItem">
+                                <dt class="definitionList-key">{{lang 'products.sku'}}</dt>
+                                <dd class="definitionList-value">{{sku}}</dd>
+                            </dl>
+                        {{/if}}
+                    {{/if}}
+                    {{#if configurable_fields}}
+                        <dl class="definitionList definitionList--previewCartItem">
+                            {{#each configurable_fields}}
+                                <dt class="definitionList-key">{{name}}:</dt>
+                                <dd class="definitionList-value">
+                                    {{#if is_file}}
+                                        <a href="/viewfile.php?prodfield={{../id}}&cartitem={{../../id}}">{{value}}</a>
+                                    {{else}}
+                                        {{> components/common/product-options}}
+                                    {{/if}}
+                                </dd>
+                            {{/each}}
+                        </dl>
+                    {{/if}}
+                    {{#if options}}
+                        {{#each options}}
+                        <span class="definitionList-key">{{name}}:</span>
+                            <span class="definitionList-value">
+                                {{#if is_file}}
+                                    <a href="/viewfile.php?attributeId={{../id}}&cartitem={{../../id}}">{{value}}</a>
+                                {{else}}
+                                    {{> components/common/product-options}}
+                                {{/if}}
+                            </span>
+                        {{/each}}
+                    {{/if}}
+                </div>
+
+                <div class="previewCartItem-quantity">
+                    <label class="form-label cart-item-label" for="cartpopup-qty-{{id}}">{{lang 'products.quantity'}}</label>
+                    <div class="form-increment">
+                        {{#if can_modify}}
+                            <button class="button button--icon" data-cart-update data-cart-itemid="{{id}}" data-action="dec">
+                                <span class="is-srOnly">{{lang 'products.quantity_decrease' name=name}}</span>
+                                <i class="icon" aria-hidden="true"><svg><use href="#icon-minus" /></svg></i>
+                            </button>
+                        {{/if}}
+                        <input class="form-input form-input--incrementTotal cart-item-qty-input"
+                               id="cartpopup-qty-{{id}}"
+                               name="qty-{{id}}"
+                               type="tel"
+                               value="{{quantity}}"
+                               data-quantity-min="{{min_purchase_quantity}}"
+                               data-quantity-max="{{max_purchase_quantity}}"
+                               data-quantity-min-error="{{lang 'products.quantity_min' quantity=min_purchase_quantity}}"
+                               data-quantity-max-error="{{lang 'products.quantity_max' quantity=max_purchase_quantity}}"
+                               min="1"
+                               pattern="[0-9]*"
+                               data-cart-itemid="{{id}}"
+                               data-action="manualQtyChange"
+                               aria-label="{{name}}"
+                               aria-live="polite"{{#unless can_modify}} disabled{{/unless}}>
+                        {{#if can_modify}}
+                            <button class="button button--icon" data-cart-update data-cart-itemid="{{id}}" data-action="inc">
+                                <span class="is-srOnly">{{lang 'products.quantity_increase' name=name}}</span>
+                                <i class="icon" aria-hidden="true"><svg><use href="#icon-add" /></svg></i>
+                            </button>
+                        {{/if}}
+                    </div>
+                </div>
+
+                <div class="cart-item-totals">
+                    <div class="cart-item-block cart-item-info cart-item-total">
+                        <span class="cart-item-label">{{lang 'cart.checkout.total'}}</span>
+                        {{#or ../customer (unless ../settings.hide_price_from_guests)}}
+                            <span class="cart-item-value {{#if total_discounted}}price--discounted{{/if}}">{{total.formatted}}</span>
+                            {{#if total_discounted}}
+                                <span class="cart-item-value">{{total_discounted.formatted}}</span>
+                            {{/if}}
+                        {{else}}
+                            {{> components/common/login-for-pricing}}
+                        {{/or}}
+                    </div>
+                </div>
+
+                <div class="cart-item-edit-wrapper">
+                    {{#or options configurable_fields}}
+                        <a class="_edit" href="#" data-item-edit="{{id}}" data-product-id="{{product_id}}" aria-label="{{lang 'products.change_product_options' name=name}}"><i class="icon" aria-hidden="true">
+                            <svg><use href="#icon-edit-cart" /></svg>
+                        </i></a>
+                    {{/or}}
+                    <div class="cart-item-edit-option">
+                        <div class="_edit" tabindex="0" role="button" data-cart-item-action title="{{lang 'common.nav_more'}}">
+                            <i class="icon" aria-hidden="true">
+                                <svg><use href="#icon-ellipsis-vertical" /></svg>
+                            </i>
+                        </div>
+                        <div class="cart-item-options" data-cart-item-dropdown>
+                            {{#if ../settings.show_wishlist}}
+                                <span class="cart-item-save">
+                                    <span class="is-srOnly">{{lang 'cart.save'}}</span>
+                                    <a class="cart-item-save-icon" tabindex="0" title="{{lang 'cart.save'}}" data-cart-save data-cart-itemid="{{id}}" data-product-id="{{product_id}}" role="button" aria-autoclose="false">
+                                        <svg class="icon" aria-hidden="true"><use href="#icon-heart2"/></svg><span class="cart-item-text">{{lang 'cart.save'}}</span>
+                                    </a>
+                                </span>
+                            {{/if}}
+                            {{#if can_modify}}
+                                <span class="previewCartItem-remove">
+                                    <a class="previewCartItem-remove-icon" tabindex="0" title="{{lang 'cart.remove'}}" data-cart-remove data-cart-itemid="{{id}}" role="button" data-confirm-delete="{{lang 'cart.confirm_delete'}}" aria-autoclose="false">
+                                        <svg class="icon" aria-hidden="true"><use href="#icon-recycle" /></svg><span class="cart-item-text">{{lang 'cart.remove'}}</span>
+                                    </a>
+                                </span>
+                            {{/if}}
+                        </div>
+                    </div>
+                </div>
+
+                {{#if release_date}}
+                    <p class="previewCartItem-releaseDate">({{release_date}})</p>
+                {{/if}}
+
+                {{#if type '==' 'GiftCertificate'}}
+                    <a href="{{edit_url}}">{{lang 'cart.checkout.change'}}</a>
+                {{/if}}
+                {{> components/cart/item-giftwrap this}}
+                {{#if event_date}}
+                    <dl class="cart-item-options">
+                        <dt class="cart-item-option-title">
+                            {{event_date.name}}
+                        </dt>
+
+                        <dd class="cart-item-option-description">
+                            {{event_date.date}}
+                        </dd>
+                    </dl>
+                {{/if}}
+            </div>
+        </li>
+    {{/each}}
+    <li class="previewCartItem">
+        <div class="cart-item-manager">
+            <div class="cart-manager-wrapper">
+                <div class="form-field">
+                    <input class="form-input" data-cart-select type="checkbox" id="check--previewCart-all" name="check--all">
+                    <label class="form-label" for="check--previewCart-all">
+                        <i class="form-icon icon" aria-hidden="true">
+                            <svg><use href="#icon-check" /></svg>
+                        </i>
+                    </label>
+                </div>
+                <button type="button" data-cart-delete disabled class="button button--manager">
+                    <span class="u-hideDesktop u-hideTablet"><svg class="icon" aria-hidden="true"><use href="#icon-recycle" /></svg></span>
+                    <span class="u-hideMobile">{{lang 'cart.remove_selected'}}</span>
+                </button>
+                {{#if settings.show_wishlist}}
+                    <button type="button" data-cart-save-later disabled class="button button--manager">{{lang 'cart.save'}}</button>
+                {{/if}}
+            </div>
+        </div>
+    </li>
+</ul>

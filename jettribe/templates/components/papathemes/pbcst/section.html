@@ -1,0 +1,36 @@
+<div class="papathemes-pbcst-category-section">
+    <div class="papathemes-pbcst-category {{#if theme_settings.pbcst_showBanner}}_hasWidget{{/if}}">
+        <h2 class="page-heading"><a href="{{category.url}}">{{category.name}}</a></h2>
+
+        {{#if theme_settings.pbcst_showBanner}}
+            <div class="papathemes-pbcst-bannerRegion" data-pbcst-widget-region-placement></div>
+        {{/if}}
+
+        {{#if category.subcategories}}
+            {{#if theme_settings.pbcst_subcategories '>' 0}}
+                <div class="papathemes-pbcst-subcategories">
+                    <p class="papathemes-pbcst-subcategories-heading">{{lang 'papathemes.pbcst.subcategory_title'}}</p>
+                    <ul class="tabs" data-tab role="tablist">
+                        {{#each (limit category.subcategories theme_settings.pbcst_subcategories)}}
+                            <li class="tab" role="presentation"><a class="tab-title" data-pbcst-subcategory-id="{{id}}" href="#tab-pbcst-subcategory-{{id}}" role="tab" tabindex="0" aria-selected="false" aria-controls="tab-pbcst-subcategory-{{category.id}}">{{name}}</a></li>
+                        {{/each}}
+                    </ul>
+                </div>
+            {{/if}}
+        {{/if}}
+        <div class="papathemes-pbcst-products" data-pbcst-products-placement>
+            {{> components/papathemes/pbcst/products}}
+        </div>
+
+        <div class="papathemes-pbcst-loader loader"></div>
+        <div class="papathemes-pbcst-actionGroup">
+            <button type="button" class="button button--small button--link loadMore">{{lang 'papathemes.pbcst.load_more'}}</button>
+            <a href="{{category.url}}" class="button button--small button--link _shopBtn" data-text="{{lang 'common.view_all'}}">{{lang 'common.view_all'}}</a>
+            <span class="_animate">
+                <button type="button" class="button button--small button--link collapse">{{lang 'papathemes.pbcst.collapse'}}</button>
+            </span>
+        </div>
+    </div>
+
+    <div class="papathemes-pbcst-bannerRegion" data-pbcst-widget-region-placement="below"></div>
+</div>

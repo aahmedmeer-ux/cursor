@@ -1,0 +1,104 @@
+// PRODUCT CAROUSEL
+// -----------------------------------------------------------------------------
+//
+// Purpose: Styles the product carousel component, which basically adds extras to the
+// vendor slick carousel, to specifically display product
+//
+// 1. If there's no JS layout the products out based on the grid.
+//
+// -----------------------------------------------------------------------------
+
+.productCarousel { // 1
+    @include grid-row(
+        $behavior: nest
+    );
+    
+    // papathemes-inhealth
+    display: flex;
+    align-items: stretch;
+    @if stencilString("layout") == "left-sidebar" {
+        margin: 0;
+    }
+
+    &:not(.slick-slider) {
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    // papathemes-inhealth: fix style error if products <= 3
+    .slick-list {
+        flex: 1;
+    }
+}
+
+.productCarousel--responsiveCol {
+    .productCarousel-slide {
+        width: 100% / stencilNumber("product_col_sm", "");
+        @include breakpoint("small") {
+            width: 100% / stencilNumber("product_col_md", "");
+        }
+        @include breakpoint("medium") {
+            width: 100% / stencilNumber("product_col", "");
+        }
+    }
+}
+
+.productCarousel--responsiveCol._product-spt {
+    .productCarousel-slide {
+        width: 100% / stencilNumber("product_col_sm", "");
+        @include breakpoint("small") {
+            width: 100% / stencilNumber("product_col_md", "");
+        }
+        @include breakpoint("medium") {
+            width: 100% / stencilNumber("spt_init_count", "");
+        }
+    }
+}
+
+.beautify__section--featuredProducts:has(.productCarousel.blaze-slider) {
+    .productCarousel--responsiveCol .productCarousel-slide {
+        @media (max-width: (screenSize("small") - 1px)) {
+            width: 100%;
+        }
+    }
+
+    .productCarousel.blaze-slider {
+        @media (max-width: (screenSize("small") - 1px)) {
+            margin-right: - spacing("base");
+        }
+    }
+
+    .productCarousel.blaze-slider .blaze-track-container {
+        @media (max-width: (screenSize("small") - 1px)) {
+            padding-right: remCalc(80);
+        }
+    }
+}
+
+.productCarousel-slide { // 1
+    @include grid-column(6);
+
+    // papathemes-inhealth
+    display: flex;
+    flex-shrink: 0;
+
+    @include breakpoint("small") {
+        width: grid-calc(4, $total-columns);
+    }
+
+    @include breakpoint("medium") {
+        width: grid-calc(3, $total-columns);
+    }
+
+    .card {
+        margin-bottom: 0;
+
+        .card-title {
+            overflow-wrap: break-word;
+        }
+    }
+}

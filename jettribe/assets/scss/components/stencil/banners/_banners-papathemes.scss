@@ -1,0 +1,41 @@
+// =============================================================================
+// Banners Component
+// =============================================================================
+
+
+// Banners
+// -----------------------------------------------------------------------------
+//
+// Purpose: Control the look and feel of the top and bottom site banners
+//
+// -----------------------------------------------------------------------------
+
+.banners {
+    background-color: unset;
+    // background-image: -webkit-linear-gradient(right, stencilColor("topBanner-backgroundColor") 0%, stencilColor("topBanner-backgroundColorGradient") 100%);
+    // background-image: -o-linear-gradient(right, stencilColor("topBanner-backgroundColor") 0%, stencilColor("topBanner-backgroundColorGradient") 100%);
+    // background-image: linear-gradient(to right, stencilColor("topBanner-backgroundColor") 0%, stencilColor("topBanner-backgroundColorGradient") 100%);
+    color: stencilColor("topBanner-color");
+    padding: 0;
+
+    .banner {
+        padding: spacing("half") + spacing("eighth") 0;
+        margin: 0;
+    }
+
+    a {
+        color: inherit;
+        text-underline-offset: 3px;
+
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+}
+
+.banners--bottom {
+    margin-bottom: spacing("double");
+    background: transparent;
+    color: inherit;
+    text-align: left;
+}

@@ -1,0 +1,23 @@
+#scrollToTopFloatingButton {
+    position: fixed;
+    bottom: 200px;
+    right: 35px;
+    padding: 0;
+    font-size: fontSize("larger");
+    margin: 0;
+    box-shadow: 0 1px 4px rgba(color("blacks"), 0.1);
+    z-index: 1;
+
+    .icon {
+        @include square(40px);
+        fill: stencilColor("button--white-color");
+    }
+
+    &:hover,
+    &:focus,
+    &:active {
+        .icon {
+            fill: stencilColor("button--white-colorHover");
+        }
+    }
+}

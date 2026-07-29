@@ -1,0 +1,152 @@
+.modal {
+    overflow: visible; // Fix quickview -> choose product options: content disappear
+
+    // Fix modal on mobile
+    top: 50% !important;
+    transform: translateY(-50%);
+    left: 0;
+    right: 0;
+    border-radius: $container-border-radius;
+    box-shadow: 0 5px 15px 15px rgba(stencilColor("color-black"), 0.25);
+    background-color: $container-fill-base;
+    
+    .loadingOverlay {
+        border-radius: $container-border-radius;
+    }
+
+
+    &:has(.modal-question),
+    &:has(.modal-nutrition) {
+        .modal-close {
+            &:hover {
+                .icon {
+                    fill: stencilColor("color-textLink");
+                }
+            }
+        }
+    }
+
+    &:has(.quickView) {
+        overflow: hidden;
+
+        .modal-close {
+            @include square(50px);
+            padding: spacing("base");
+            top: 0;
+            right: 0;
+            box-shadow: unset;
+            background-color: transparent;
+        }
+    }
+
+    &:has(.quickView--alt) {
+        overflow: hidden;
+    }
+}
+
+// papathemes-inhealth-edited
+.modal-close {
+    color: $color-textSecondary;
+    @include square(50px);
+
+    padding: spacing("base");
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: transparent;
+    display: flex;
+    justify-self: center;
+    align-items: center;
+
+    .icon {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    &:hover {
+        color: $color-textSecondary-hover;
+    }
+
+}
+
+.modal-header {
+    ~ .modal-body {
+        margin-top: 0;
+    }
+}
+
+.modal-header-title {
+    @media (max-width: screenSize("medium") - 1px) {
+        font-size: fontSize("small");
+    }
+    font-family: $theme-body-font-family;
+}
+
+.modal-content {
+    border-radius: $container-border-radius;
+    isolation: isolate;
+
+    &:has(.modal-nutrition) {
+        border-radius: $container-border-radius * 1.2;
+        overflow: hidden;
+    }
+}
+
+.modal-body {
+    max-height: calc(100vh - 150px);
+
+    &.modal-nutrition {
+        border-radius: $container-border-radius;
+        position: relative;
+
+        h2,
+        h3,
+        p {
+            color: stencilColor("color-black");
+        }
+
+        &::after,
+        &::before {
+            position: fixed;
+            content: "";
+            display: block;
+            right: 0;
+            left: 0;
+            height: spacing("base") * 2.75;
+
+            @media (max-width: screenSize("medium") - 1px) {
+                height: 2rem;
+            }
+        }
+
+        &::before {
+            top: 0;
+            border-top-left-radius: $container-border-radius;
+            border-top-right-radius: $container-border-radius;
+            border-bottom: 0;
+            height: spacing("base") * 2;
+        }
+
+        &::after {
+            bottom: 0;
+            border-bottom-left-radius: $container-border-radius;
+            border-bottom-right-radius: $container-border-radius;
+            border-top: 0;
+        }
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    @media (max-width: screenSize("medium") - 1px) {
+        padding: spacing("half");
+    }
+}
+
+.has-activeModal--miniPreview {
+    .modal-background {
+        display: none !important;
+    }
+}

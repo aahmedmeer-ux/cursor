@@ -1,0 +1,17 @@
+.tab {
+    // mooncat edited
+    border-top-left-radius: $button-radius;
+    border-top-right-radius: $button-radius;
+}
+
+.tab-title {
+    font-weight: fontWeight("semibold"); // papathemes-kitchenary edited
+    color: $color-textSecondary; // papathemes-kansha edited
+    font-weight: $body-font-weight;
+}
+
+.tab-content {
+    .productReview {
+        width: 100%;
+    }
+}

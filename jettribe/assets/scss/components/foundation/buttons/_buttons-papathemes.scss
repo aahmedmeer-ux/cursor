@@ -1,0 +1,8 @@
+
+.button {
+    text-transform: uppercase;
+
+    @if $theme-variant == "man" {
+        font-weight: 500;
+    }
+}

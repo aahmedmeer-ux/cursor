@@ -1,0 +1,30 @@
+<div class="papathemes-recentlyViewed _left-recentlyViewed _recentlyViewed" data-recently-viewed-products-section>
+    {{#unless hide_heading}}
+    <h2 class="page-heading">{{theme_settings.product_recentviewed_heading}}</h2>
+    {{/unless}}
+    <section class="productCarousel"
+        data-list-name="Recently Viewed Products"
+        data-slick='{
+            "dots": false,
+            "arrows": true,
+            "infinite": true,
+            "rows": 3,
+            "slidesPerRow": 1,
+            "slidesToShow": 1,
+            "slidesToScroll": 1,
+            "touchThreshold": 10,
+            "autoplay": false,
+            "autoplaySpeed": 3000,
+            "responsive": [
+                {
+                    "breakpoint": "800",
+                    "settings": {
+                        "rows": 2,
+                        "arrows": true
+                    }
+                }
+            ]
+        }'
+    >
+    </section>
+</div>

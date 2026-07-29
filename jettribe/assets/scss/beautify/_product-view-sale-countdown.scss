@@ -1,0 +1,78 @@
+.productView-saleCountdown {
+    margin-bottom: spacing("base");
+    display: flex;
+    align-items: center;
+    gap: spacing("quarter") spacing("half");
+
+    @include breakpoint("medium") {
+        gap: spacing("quarter") spacing("third");
+    }
+
+    @include breakpoint("large") {
+        gap: spacing("quarter") spacing("base");
+    }
+
+    &:has(._countdown._saleEnded) {
+        display: none;
+    }
+
+    .icon {
+        @include square(24);
+        fill: $color-textBase;
+    }
+
+    ._label {
+        font-size: fontSize("base");
+        font-weight: fontWeight("medium");
+        line-height: 1.25;
+    }
+
+    ._salePercent {
+        font-size: fontSize("large");
+        font-weight: fontWeight("bold");
+        color: stencilColor("color-save-price");
+        line-height: 1;
+    }
+
+    ._countdown {
+        display: inline-flex;
+        gap: spacing("quarter");
+        align-items: baseline;
+        line-height: 1;
+
+        &._saleEnded {
+            display: none;
+        }
+
+        .icon {
+            display: none;
+        }
+
+        ._end {
+            font-size: fontSize("smaller");
+            color: $color-textSecondary;
+        }
+
+        ._day,
+        ._hour,
+        ._minute,
+        ._second {
+            display: inline-block;
+            text-align: right;
+
+            &._hide {
+                display: none;
+            }
+
+            ._value {
+                font-size: fontSize("small");
+                font-weight: fontWeight("bold");
+            }
+
+            ._label {
+                font-size: fontSize("smaller");
+                color: $color-textSecondary;
+            }
+        }
+    }
+}

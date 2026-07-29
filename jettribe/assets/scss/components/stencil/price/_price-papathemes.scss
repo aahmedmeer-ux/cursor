@@ -1,0 +1,32 @@
+// =============================================================================
+// PRICE (CSS)
+// =============================================================================
+
+.price-section {
+    // color: $color-textSecondary;
+
+    [itemprop="priceSpecification"] {
+        display: inline;
+    }
+}
+
+.price-section--saving {
+    .price {
+        // color: $color-primary; // papathemes-beautify commented
+    }
+}
+
+.price {
+    color: stencilColor("color-price");
+
+    &._hasSale {
+        color: stencilColor("color-save-price");
+    }
+}
+
+.price--rrp,
+.price--non-sale,
+.price--discounted {
+    color: rgba($color-textSecondary, 0.5); // papathemes-inhealth edited
+    // font-weight: fontWeight("thin");
+}

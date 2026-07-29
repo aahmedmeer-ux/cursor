@@ -1,0 +1,68 @@
+<div class="modal-blogPost" data-blog-id="{{entity_id}}" >
+    <div class="modal-body">
+        <div class="modal-content">
+            {{{region name="blog_post_content--global"}}}
+            {{{region name="blog_post_content"}}}
+            <article class="blog {{#if show_tags}}{{#if blog.post.tags}}blog--has-tags{{/if}}{{/if}} {{#unless hide_social_icons}}blog--has-socials{{/unless}}">
+                <div class="blog-post-body">
+                    <header class="blog-header">
+                        {{#unless single}}
+                            <a class="blog-title" data-instantload href="{{blog.post.url}}">{{blog.post.title}}</a>  
+                        {{/unless}}
+                    </header>
+                    {{#if blog.post.body}}
+                        <div class="blog-date"><span class="blog-date-author">{{lang 'blog.posted_by' name=blog.post.author}}{{/if}}</span><span class="blog-date-date">{{blog.post.date_published}}{{#if blog.post.author}}</span></div>
+                    {{/if}}
+                    <div class="blog-post">
+                        {{#if single}}
+                            {{{region name="blog_post_body"}}}
+                        {{/if}}
+                        {{#if blog.post.body}}
+                            <div class="blog-post-summary">
+                                {{{blog.post.body}}}
+                            </div>
+                            <button class="blog-post-more">Show more</button>
+                        {{else}}
+                            {{#unless hide_summary}}
+                                <div class="blog-summary">
+                                    {{{blog.post.summary}}}
+                                    {{#if blog.post.show_read_more}}
+                                        &hellip;
+                                    {{/if}}
+                                </div>
+                            {{/unless}}
+
+                            <div class="blog-dateContainer">
+                                {{#unless hide_readmore}}
+                                {{#if blog.post.show_read_more}}
+                                    <div class="blog-readmore"><a data-instantload href="{{url}}">{{lang 'blog.read_more'}}</a></div>
+                                {{/if}}
+                                {{/unless}}
+                                <div class="blog-date"><span class="blog-date-date">{{blog.post.date_published}}{{#if blog.post.author}}</span> <span class="blog-date-author">{{lang 'blog.posted_by' name=blog.post.author}}{{/if}}</span></div>
+                            </div>
+                        {{/if}}
+                    </div>
+
+                    {{#if show_tags}}
+                        {{#if blog.post.tags}}
+                            <ul class="tags">
+                                {{#each blog.post.tags}}
+                                <li class="tag">
+                                    <a data-instantload href="{{url}}">#{{name}}</a>
+                                </li>
+                                {{/each}}
+                            </ul>
+                        {{/if}}
+                    {{/if}}
+                </div>
+                <div class="blog-post-footer">
+                    {{#unless hide_social_icons}}
+                    {{> components/common/share url=blog.post.url}}
+                {{/unless}}
+                <a href="{{blog.post.url}}" aria-label="{{blog.post.title}}" class="link-to" type="submit"><svg class="icon"><use href="#icon-link"/></svg></a>
+                </div>
+            </article>
+        </div>
+        {{{region name="blog_post_content_right"}}}
+    </div>
+</div>

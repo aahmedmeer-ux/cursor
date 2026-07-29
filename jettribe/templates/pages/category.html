@@ -1,0 +1,258 @@
+---
+category:
+    shop_by_price: true
+    products:
+        limit: {{theme_settings.categorypage_products_per_page}}
+shop_by_brand:
+    limit: {{theme_settings.sidebar_shop_by_brand}}
+---
+{{inject "categoryProductsPerPage" theme_settings.categorypage_products_per_page}}
+{{#partial "head"}}
+    {{#if pagination.category.previous}}
+        <link rel="prev" href="{{pagination.category.previous}}">
+    {{/if}}
+    {{#if pagination.category.next}}
+        <link rel="next" href="{{pagination.category.next}}">
+    {{/if}}
+{{/partial}}
+{{#partial "page-sidebar"}}
+    {{#if theme_settings.categorypage_layout '!==' 'fullwidth'}}
+        <aside class="page-sidebar page-sidebar--top beautify__filters" id="sidebar-top">
+            <div class="_header">
+                <a href="#" class="_close" data-toggle="sidebar-top"><svg class="icon"><use href="#icon-close"></use></svg><span class="sr-only">{{lang 'common.close'}}</span></a>
+            </div>
+            <div class="_body">
+                {{{region name="category_sidebar_top--global"}}}
+                {{{region name="category_sidebar_top"}}}
+                {{#if theme_settings.categorypage_search '===' 'show'}}
+                <div class="_header">
+                    <h2 class="_heading">{{lang 'search.quick_search.input_label'}}</h2>
+                </div>
+                    <form class="categoryPage-searchInCategory-form {{#unless category.faceted_search_enabled}}noFaceted{{/unless}} categoryPage-searchInCategory-form--sidebar">
+                        <fieldset class="form-fieldset">
+                            <div class="form-field">
+                                <input class="form-input" type="text" name="q" {{#if theme_settings.categorypage_layout '!==' 'fullwidth'}}placeholder="{{lang 'search.actionbar.input_placeholder'}}"{{else}}placeholder="{{lang 'search.actionbar.input_placeholder_fullwidth'}}"{{/if}} value="{{forms.search.query}}" data-search-in-category>
+                                <button class="button button--small" type="button" data-clear title="{{lang 'search.actionbar.clear_all'}}">
+                                    <span>{{lang 'search.actionbar.clear_all'}}</span>
+                                    <span class="_clear-all">
+                                        <svg class="icon">
+                                            <use href="#icon-close" />
+                                        </svg>
+                                    </span>
+                                </button>
+                            </div>
+                        </fieldset>
+                    </form>
+                {{/if}}
+                <div id="faceted-search-container">
+                    {{#unless category.faceted_search_enabled}}
+                        <div class="_header">
+                            <h3 class="sidebarBlock-heading">
+                                {{lang 'search.faceted.filter_by'}}
+                            </h3>
+                        </div>
+                    {{/unless}}
+                    {{> components/category/sidebar}}
+                </div>
+                <div class="faceted-region">
+                    {{{region name="category_sidebar_bottom--global"}}}
+                    {{{region name="category_sidebar_bottom"}}}
+                </div>
+            </div>
+            {{!-- Unminified:
+            <script nonce="{{nonce}}">
+                (function() {
+                    if (!window.previewSdk) {
+                        var sb = document.querySelector('#sidebar-top');
+                        if (sb) {
+                            var se = sb.querySelector('[data-search-in-category]');
+                            var na = sb.querySelector('nav > *');
+                            var rs = sb.querySelector('[data-content-region] > *');
+                            if (!se && !na && !rs) {
+                                sb.classList.add('_hide');
+                            };
+                        }
+                    }
+                })();
+            </script>
+            --}}
+            {{!-- Minified: --}}
+            <script nonce="{{nonce}}">!function(){if(!window.previewSdk){var e=document.querySelector("#sidebar-top");if(e){var r=e.querySelector("[data-search-in-category]"),t=e.querySelector("nav > *"),a=e.querySelector("[data-content-region] > *");r||t||a||e.classList.add("_hide")}}}();</script>
+        </aside>
+    {{/if}}
+{{/partial}}
+
+{{#partial "page"}}
+
+{{> components/common/breadcrumbs breadcrumbs=breadcrumbs}}
+<h1 class="page-heading categoryPage-heading">{{category.name}}</h1>
+
+{{{region name="category_below_header--global"}}}
+{{{region name="category_below_header"}}}
+
+{{#and theme_settings.show_category_image category.image}}
+    <div class="papathemes-categoryPage-mainImage">
+        <img alt="{{category.name}}" title="{{category.name}}"
+            {{#if theme_settings.lazyload_mode '===' 'disabled'}}
+                src="{{getImage category.image 'original'}}"
+            {{else}}
+                {{#if theme_settings.lazyload_mode '===' 'lazyload+lqip'}}
+                    src="{{getImageSrcset category.image 1x='80w'}}"
+                {{else}}
+                    src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+                {{/if}}
+                data-src="{{getImage category.image 'category_size'}}" class="lazyload"
+            {{/if}}
+        />
+    </div>
+{{/and}}
+
+{{{region name="category_below_description--global"}}}
+{{{region name="category_below_description"}}}
+
+<div class="page">
+    <div class="beautify__filters-overlay"></div>
+
+    {{#if theme_settings.layout '==' 'fullwidth'}}
+        {{#block "page-sidebar"}} {{/block}}
+    {{/if}}
+
+    <main class="page-content">
+        {{#if category.description}}
+            <div class="supermarket-categoryPage-description">
+                {{{category.description}}}
+                {{{snippet 'categories'}}}
+            </div>
+        {{/if}}
+
+        {{#if theme_settings.show_subcategories_grid}}
+            {{assignVar 'hasImage' 0}}
+            {{#each category.subcategories}}
+                {{#and image ../theme_settings.show_subcategories_image}}
+                    {{assignVar 'hasImage' 1}}
+                {{/and}}
+            {{/each}}
+
+            {{#if category.subcategories}}
+                {{#if (getVar 'hasImage')}}
+                    <div class="dinosaur-categoryPage-subCategories _hasImage {{#unless theme_settings.show_subcategories_mobile}}u-hideMobile u-hideTablet{{/unless}}">
+                        <ul class="subCategories-list">
+                            {{#each category.subcategories}}
+                                <li class="subCategories-item">
+                                    <a class="subCategories-item-action" data-instantload href="{{url}}">
+                                        {{> components/common/responsive-img
+                                            image=image
+                                            fallback_size=theme_settings.categorythumb_size
+                                            lazyload=theme_settings.lazyload_mode
+                                            default_alt=name
+                                            otherAttributes=(getVar 'categoryImageSizeAttrs')
+                                            default_image=../theme_settings.default_image_product
+                                        }}
+                                        <span class="subCategories-item-name" aria-hidden="true">{{name}}</span>
+                                    </a>
+                                </li>
+                            {{/each}}
+                        </ul>
+                        <button id="subCategories-loadMore" class="button-loadMore _showMore-off" data-show-more="{{lang 'papathemes.pbcst.load_more'}}" data-show-less="{{lang 'papathemes.pbcst.collapse'}}" aria-label="{{lang 'papathemes.pbcst.load_more'}}">{{lang 'papathemes.pbcst.load_more'}}</button>
+                    </div>
+                {{else}}
+                    <div class="dinosaur-categoryPage-subCategories {{#unless theme_settings.show_subcategories_mobile}}u-hideMobile u-hideTablet{{/unless}}">
+                        <ul class="subCategories-list">
+                            {{#each category.subcategories}}
+                                <li class="subCategories-item">
+                                    <a class="subCategories-item-action" data-instantload href="{{url}}">{{name}}</a>
+                                </li>
+                            {{/each}}
+                        </ul>
+                    </div>
+                {{/if}}
+            {{/if}}
+        {{/if}}
+        {{{region name="category_above_image--global"}}}
+        {{{region name="category_above_image"}}}
+
+        {{{region name="category_below_image--global"}}}
+        {{{region name="category_below_image"}}}
+
+        {{{region name="category_below_subcategories_grid--global"}}}
+        {{{region name="category_below_subcategories_grid"}}}
+
+        <div class="_layout-search {{#if theme_settings.categorypage_layout '===' 'fullwidth'}}_fullwidth{{/if}}">
+            {{#if theme_settings.categorypage_layout '===' 'fullwidth'}}
+                <span class="_category-icon">
+                    <svg class="icon"><use href="#icon-category-button"></use></svg>
+                </span>
+            {{/if}}
+
+            <div class="_category-wrapper">
+                {{#if theme_settings.categorypage_layout '===' 'fullwidth'}}
+                    <div class="beautify__hozFilters _horizontal" id="faceted-search-container">
+                        <h2 class="_heading">{{lang 'search.faceted.filter_by'}}</h2>
+                        {{> components/category/sidebar collapsed=true}}
+                    </div>
+                {{/if}}
+                {{#if theme_settings.categorypage_search '===' 'show'}}
+                    <form class="categoryPage-searchInCategory-form
+                        {{#unless category.faceted_search_enabled}}noFaceted{{/unless}}
+                        {{#unless category.description}}noDesc{{/unless}}
+                        {{#if theme_settings.categorypage_layout '===' 'fullwidth'}}_fullwidth{{/if}}
+                    ">
+                        <fieldset class="form-fieldset">
+                            <div class="form-field">
+                                <input class="form-input" type="text" name="q" {{#if theme_settings.categorypage_layout '!==' 'fullwidth'}}placeholder="{{lang 'search.actionbar.input_placeholder'}}"{{else}}placeholder="{{lang 'search.actionbar.input_placeholder_fullwidth'}}"{{/if}} value="{{forms.search.query}}" data-search-in-category>
+                                <button class="button button--small" type="button" data-clear title="{{lang 'search.actionbar.clear_all'}}">
+                                    {{#if theme_settings.categorypage_layout '!==' 'fullwidth'}}
+                                        {{lang 'search.actionbar.clear_all'}}
+                                    {{else}}
+                                        <span class="_clear-all">
+                                            <svg class="icon">
+                                                <use href="#icon-close" />
+                                            </svg>
+                                        </span>
+                                    {{/if}}
+                                </button>
+                            </div>
+                        </fieldset>
+                    </form>
+                {{/if}}
+            </div>
+        </div>
+        {{#if theme_settings.categorypage_layout '===' 'fullwidth'}}
+            {{{region name="category_below_filters--global"}}}
+            {{{region name="category_below_filters"}}}
+        {{/if}}
+
+        <h2 class="is-srOnly">{{lang 'common.products_list_heading'}}</h2>
+        <div id="product-listing-container" class="
+            {{#if theme_settings.product_list_display_mode '===' 'grid2'}}mode-2
+            {{else if theme_settings.product_list_display_mode '===' 'grid3'}}mode-3
+            {{else if theme_settings.product_list_display_mode '===' 'grid5'}}mode-5
+            {{else if theme_settings.product_list_display_mode '===' 'list'}}mode-1
+            {{else if theme_settings.product_list_display_mode '===' 'listbo'}}mode-bo{{/if}}
+            {{#if theme_settings.categorypage_search '===' 'show'}}_hasSearchInCategory{{/if}}
+            {{#if theme_settings.categorypage_layout '===' 'fullwidth'}}_fullwidth{{/if}}
+            {{#if theme_settings.infiniteScroll '!==' 'no'}}infiniteScroll{{/if}}"
+            {{#if theme_settings.infiniteScroll '!==' 'no'}}data-category-infinite-scroll="{{theme_settings.infiniteScroll}}"{{/if}}>
+
+            {{#if category.products}}
+                {{> components/category/product-listing}}
+            {{else}}
+                <p>{{lang 'categories.no_products'}}</p>
+            {{/if}}
+        </div>
+        {{{region name="category_below_products--global"}}}
+        {{{region name="category_below_products"}}}
+    </main>
+</div>
+
+<div class="page-bottom">
+    {{{region name="category_below_content--global"}}}
+    {{{region name="category_below_content"}}}
+</div>
+
+{{/partial}}
+{{#and theme_settings.instantload is_ajax}}
+    {{> layout/instantload-base}}
+{{else}}
+    {{> layout/base}}
+{{/and}}

@@ -1,0 +1,303 @@
+.brand-header {
+    display: flex;
+    flex-direction: column;
+    @include breakpoint("medium") {
+        flex-direction: row;
+        margin: 0 (-(spacing("single")));
+        margin-bottom: spacing("base");
+    }
+
+    ._main {
+        order: 2;
+        @include breakpoint("medium") {
+            padding: 0 spacing("single");
+        }
+    }
+
+    ._logo {
+        order: 1;
+        margin-bottom: spacing("half");
+        @include breakpoint("medium") {
+            padding: 0 0 0 spacing("single");
+            width: 25%;
+            flex: 0 0 auto;
+            margin-bottom: 0;
+        }
+    }
+    margin-bottom: spacing("single");
+
+    h1.page-heading {
+        margin-bottom: 0;
+        font-size: beautify__fontSize(32);
+    }
+
+    + .page .beautify__hozFilters._horizontal {
+        display: flex;
+        align-items: center;
+        gap: spacing("half");
+        padding: spacing("base") 0;
+        border-top: 1px solid stencilColor("input-border-color");
+        border-bottom: 1px solid stencilColor("input-border-color");
+
+        ._category-icon {
+            @include square(50);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            .icon {
+                @include square(24);
+            }
+        }
+
+        #noFacetedSearch ._toggle-cats .icon {
+            @include square(9);
+        }
+    }
+
+    @media (max-width: (screenSize("medium") - 1px)) {
+        h1.page-heading {
+            font-size: fontSize("large");
+        }
+        margin-bottom: spacing("third");
+
+        + .page .page-content #product-listing-container:not(._fullwidth) .actionBar {
+            padding-top: spacing("base");
+            border-top: 1px solid stencilColor("input-border-color");
+        }
+
+        + .page .beautify__hozFilters._horizontal {
+            gap: spacing("quarter");
+            margin: 0 (- spacing("base"));
+
+            nav {
+                overflow: auto;
+                max-width: 100%;
+                white-space: nowrap;
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+
+                &::-webkit-scrollbar {
+                    display: none;
+                }
+            }
+        }
+    }
+}
+
+._brand-desc {
+    @media (max-width: (screenSize("medium") - 1px)) {
+        font-size: fontSize("smaller");
+        margin-bottom: spacing("base");
+    }
+}
+
+.papathemes-brandPage-mainImage {
+    margin-bottom: 0;
+}
+
+.brandGrid {
+    .brand {
+        padding: spacing("quarter");
+        transition: all 0.5s ease;
+
+        @include breakpoint("medium") {
+            padding: $column-gutter / 2;
+        }
+
+        .card {
+            background-color: container("fill");
+            border: container("border");
+            margin: 0;
+            grid-template-rows: min-content auto;
+
+            &:hover .card-figcaption .icon {
+                margin-right: 0;
+            }
+        }
+
+        .card-body {
+            display: block;
+            padding-top: 0;
+
+            &._hide {
+                display: none;
+            }
+        }
+
+        .card-title {
+            $font-size: fontSize("base");
+            $line-height: lineHeight("base");
+            $lines-to-show: 1;
+            display: block;
+            height: $font-size * $line-height * $lines-to-show;
+            margin: 0 auto;
+            font-size: $font-size;
+            line-height: $line-height;
+            -webkit-line-clamp: $lines-to-show;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-bottom: spacing("half");
+        }
+
+        &.is-open {
+            .card-title {
+                height: max-content;
+                margin-right: spacing("single") * 1.25;
+                white-space: unset;
+                margin-bottom: 0;
+            }
+        }
+
+        .card-figure {
+            padding: spacing("half");
+
+            a {
+                display: block;
+                position: relative;
+            }
+        }
+
+        .card-figcaption {
+            position: absolute;
+            top: 0;
+            left: auto;
+            height: auto;
+            bottom: auto;
+            right: 0;
+            opacity: 1;
+            pointer-events: auto;
+            display: block;
+
+            ._brandQuickView {
+                margin: 1px;
+                border: 0;
+                border-radius: 0;
+                background-color: stencilColor("button--primary-backgroundColor");
+                padding: spacing("quarter");
+                fill: stencilColor("button--primary-color");
+
+                .icon {
+                    fill: inherit;
+                    display: block;
+                }
+
+                ._off {
+                    display: none;
+                }
+
+                &:hover {
+                    background-color: stencilColor("button--primary-backgroundColorHover");
+                    fill: stencilColor("button--primary-colorHover");
+                }
+
+                &.is-open {
+                    ._on {
+                        display: none;
+                    }
+
+                    ._off {
+                        display: block;
+                    }
+                }
+            }
+        }
+
+        .card-img-container {
+            position: relative;
+            overflow: hidden;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        ._brandQuickView-content {
+            display: none;
+
+            .loadingOverlay {
+                min-height: 50px;
+                display: block;
+                position: relative;
+            }
+
+            ._footer {
+                padding: spacing("half");
+
+                .button {
+                    margin-bottom: 0;
+                }
+            }
+
+            ._body {
+                padding: spacing("half");
+            }
+
+            .banners--bottom {
+                display: block;
+                margin: 0;
+            }
+
+            .banner {
+                margin: 0;
+
+                p:last-child {
+                    margin-bottom: 0;
+                }
+            }
+        }
+
+        &.is-open {
+            width: 100%;
+
+            .card {
+                position: relative;
+                display: grid;
+                grid-template:
+                    "logo name" auto
+                    "content content" auto
+                    / minmax(min-content, #{get-width(stencilString("brand_size"))}) minmax(50%, 1fr);
+
+            }
+
+            .card-figure {
+                grid-area: logo;
+                position: static;
+                @include breakpoint("medium") {
+                    padding-top: spacing("single");
+                    padding-bottom: spacing("single");
+                }
+            }
+
+            .card-body {
+                grid-area: name;
+                align-self: center;
+                padding-left: spacing("half");
+
+                &._hide {
+                    display: block;
+                }
+            }
+
+            .card-title {
+                text-align: inherit;
+                font-size: fontSize("large");
+            }
+
+            ._brandQuickView-content {
+                grid-area: content;
+                display: block;
+            }
+
+            .card-img-container {
+                &::after {
+                    display: none;
+                }
+
+                img {
+                    position: static;
+                }
+            }
+        }
+    }
+}

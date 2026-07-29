@@ -1,0 +1,385 @@
+
+
+@mixin u-papathemes-page-responsiveSidebar() {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+
+    .page-sidebar {
+        order: 2;
+    }
+
+    .page-content {
+        order: 1;
+    }
+
+    @include breakpoint("medium") {
+        display: block;
+    }
+}
+
+/**
+ * Display sidebar bellow main content on mobile/tablet mode
+ * 
+ * Example use: <div class="page u-papathemes-page-responsiveSidebar">
+ */
+.u-papathemes-page-responsiveSidebar {
+    @include u-papathemes-page-responsiveSidebar();
+}
+
+@mixin u-modern-container-box($_shadow: true) {
+    background: container("fill");
+    border: container("border");
+    border-radius: $container-border-radius;
+	
+    @if ($_shadow) {
+        box-shadow: 0 3px 0 container("borderColor");
+    }
+}
+
+@mixin ie-only() {
+    @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+        @content;
+    }
+}
+
+// @mixin themeStyle($styles: "") {
+// 	$s: stencilString("style");
+
+// 	@if $s == $styles {
+// 		@content;
+// 	}
+
+// 	@else if $styles != "" {
+// 		@if $s == "" {
+// 			@if str-index($styles, "default") {
+// 				@content;
+// 			}
+// 		}
+// 		@else if str-index($styles, $s) {
+// 			@content;
+// 		}
+// 	}
+// }
+
+@mixin object-fit($value) {
+    object-fit: $value;
+    font-family: "object-fit: #{$value}";
+}
+
+/**
+ * Style product card for Also Viewed Products and Frequently Bought Together on PDP
+ */
+@mixin product-card-also-viewed($cardSpacing: 10px, $enable-medium-breakpoint: true, $badge-always-bottom: true) {
+    display: grid;
+    grid-template-areas:
+        "figure body"
+        "figure footer";
+    grid-template-columns: minmax(0, 40%) 60%;
+    grid-template-rows: unset;
+    grid-gap: 0 $cardSpacing * 1.5;
+    margin-bottom: 0;
+
+    @if $enable-medium-breakpoint {
+        @include breakpoint("medium") {
+            grid-gap: 0 $cardSpacing * 2;
+        }
+    }
+
+    &:not(._border) {
+        padding: spacing("eighth");
+
+        .card-text--colorswatches {
+            .productSwatches-attributes {
+                align-items: flex-start;
+            }
+        }
+
+        .productSwatches-swatches {
+            justify-content: start;
+        }
+    }
+
+    &:not(:has(.border._show)) {
+        grid-template-rows: unset;
+    }
+
+    &._border {
+        width: 100%;
+        margin: 0;
+
+        .card-body {
+            padding-top: spacing("third");
+            padding-bottom: spacing("third");
+            padding: spacing("third") spacing("third") spacing("third") 0;
+
+            @if $enable-medium-breakpoint {
+                @include breakpoint("medium") {
+                    padding: spacing("base") spacing("base") spacing("base") 0;
+                }
+            }
+        }
+    }
+
+    .sale-flag-side {
+        font-size: fontSize("smallest");
+        padding: 0 spacing("quarter");
+        min-height: unset;
+
+        $y: 0;
+        $h: $spacing-base * 1.25;
+        @if $theme-variant == "kid" {
+            $y: spacing("quarter");
+        }
+        top: $y;
+
+        + .sale-flag-side {
+            top: $y + $h;
+        }
+
+        + .sale-flag-side + .sale-flag-side {
+            top: $y + $h * 2;
+        }
+
+        + .sale-flag-side + .sale-flag-side + .sale-flag-side {
+            top: $y + $h * 3;
+        }
+
+        &._percent {
+            font-size: fontSize("smaller");
+        }
+
+        &.sale-flag-side--custom {
+            padding: spacing("eighth") spacing("quarter");
+        }
+    }
+
+    .card-figure {
+        grid-area: figure;
+
+        .card-figure--button {
+            display: none;
+        }
+
+        .sale-flag-side {
+            @if $badge-always-bottom {
+                display: none;
+            }
+        }
+    }
+
+    .card-badges {
+        @if $badge-always-bottom {
+            display: flex;
+
+            .sale-flag-side {
+                margin-bottom: spacing("quarter");
+            }
+        }
+    }
+
+    .card-body {
+        grid-area: body;
+        padding: 0;
+        justify-items: flex-start;
+        $fontSize: fontSize("smaller");
+        $lineHeight: lineHeight("base");
+
+        @if (stencilString("badge_position") == "bottom" or $badge-always-bottom) {
+            grid-template-rows:
+                minmax(#{remCalc(fontSize("base") * $lineHeight) + $card-text-marginBottom}, max-content)
+                auto // title
+                minmax(min-content, max-content) // brand
+                minmax(min-content, max-content) //sku
+                minmax(min-content, max-content) // swatches
+                minmax(remCalc(to-number(get-height(stencilString("card_swatch_option_size"))) + 4px), max-content) //customField
+                minmax(min-content, max-content) // price
+                minmax(remCalc(12) * 1.5 + $card-text-marginBottom, max-content) // rating;
+                minmax(min-content, max-content); // rating;
+        }
+        @else {
+            grid-template-rows:
+                0
+                max-content // title
+                minmax(min-content, max-content) // brand
+                minmax(min-content, max-content) //sku
+                minmax(min-content, max-content) // swatches
+                minmax(min-content, max-content) //customField
+                minmax(min-content, max-content) // price
+                minmax(remCalc(12) * 1.5 + $card-text-marginBottom, max-content) // rating
+                minmax(min-content, max-content); // rating;
+        }
+
+        .card-actions {
+            display: flex;
+            align-items: center;
+            gap: $cardSpacing;
+            width: 100%;
+        }
+
+        .card-title {
+            text-align: left;
+        }
+
+        .card-text--rating {
+            .rating--small {
+                justify-content: flex-start;
+            }
+        }
+
+        .card-text--price {
+            line-height: 1.4;
+            justify-content: flex-start;
+        }
+
+        .card-text--info {
+            line-height: 1.25;
+            text-align: left;
+
+            > div {
+                margin-bottom: remCalc(14);
+            }
+        }
+
+        .price {
+            font-size: fontSize("base");
+        }
+
+        .card-actions {
+            margin-bottom: 0;
+            margin-top: spacing("eighth");
+            flex-wrap: wrap;
+
+            ._qtyAdd {
+                .card-figcaption-button {
+                    @include square(40);
+                    flex-shrink: 0;
+                    border-radius: $button-radius;
+
+                    i {
+                        display: block;
+                        pointer-events: none;
+                    }
+
+                    .icon {
+                        @include square(24);
+                    }
+
+                    > span {
+                        display: none;
+                    }
+                }
+
+                .form-field--increments {
+                    margin-right: $cardSpacing;
+                    border-radius: $input-border-radius;
+                    border: 2px solid $input-border-color;
+                    max-width: remCalc(110);
+                    width: 100%;
+
+                    .form-increment .button {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background-color: $input-bg-color;
+                        height: auto;
+                        padding-left: $cardSpacing;
+                        padding-right: $cardSpacing;
+
+                        .icon {
+                            @include square(13);
+                        }
+
+                        svg {
+                            fill: $color-textBase;
+                        }
+
+                        &:hover {
+                            background-color: $container-fill-dark;
+                        }
+                    }
+                }
+
+                &:hover .card-figcaption-button {
+                    background-color: $buttonStyle-primary-backgroundColor;
+                }
+
+                .card-figcaption-button:hover {
+                    background: $buttonStyle-primary-backgroundColorHover;
+
+                    svg {
+                        fill: $buttonStyle-primary-colorHover;
+                    }
+                }
+            }
+
+            ._quickViewAndCompare {
+                gap: $cardSpacing;
+            }
+        }
+    }
+
+    .card-footer {
+        display: none;
+    }
+}
+
+// Usage:
+// .element:before { @extend %loading-svg-background; }
+%loading-svg-background {
+    content: "";
+    display: inline-block;
+    // width: 80px;
+    // height: 80px;
+    // background-image: url(../img/loading.svg);
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nNTBweCcgaGVpZ2h0PSc1MHB4JyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCIgY2xhc3M9InVpbC1yaW5nIj48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0ibm9uZSIgY2xhc3M9ImJrIj48L3JlY3Q+PGRlZnM+PGZpbHRlciBpZD0idWlsLXJpbmctc2hhZG93IiB4PSItMTAwJSIgeT0iLTEwMCUiIHdpZHRoPSIzMDAlIiBoZWlnaHQ9IjMwMCUiPjxmZU9mZnNldCByZXN1bHQ9Im9mZk91dCIgaW49IlNvdXJjZUdyYXBoaWMiIGR4PSIwIiBkeT0iMCI+PC9mZU9mZnNldD48ZmVHYXVzc2lhbkJsdXIgcmVzdWx0PSJibHVyT3V0IiBpbj0ib2ZmT3V0IiBzdGREZXZpYXRpb249IjAiPjwvZmVHYXVzc2lhbkJsdXI+PGZlQmxlbmQgaW49IlNvdXJjZUdyYXBoaWMiIGluMj0iYmx1ck91dCIgbW9kZT0ibm9ybWFsIj48L2ZlQmxlbmQ+PC9maWx0ZXI+PC9kZWZzPjxwYXRoIGQ9Ik0xMCw1MGMwLDAsMCwwLjUsMC4xLDEuNGMwLDAuNSwwLjEsMSwwLjIsMS43YzAsMC4zLDAuMSwwLjcsMC4xLDEuMWMwLjEsMC40LDAuMSwwLjgsMC4yLDEuMmMwLjIsMC44LDAuMywxLjgsMC41LDIuOCBjMC4zLDEsMC42LDIuMSwwLjksMy4yYzAuMywxLjEsMC45LDIuMywxLjQsMy41YzAuNSwxLjIsMS4yLDIuNCwxLjgsMy43YzAuMywwLjYsMC44LDEuMiwxLjIsMS45YzAuNCwwLjYsMC44LDEuMywxLjMsMS45IGMxLDEuMiwxLjksMi42LDMuMSwzLjdjMi4yLDIuNSw1LDQuNyw3LjksNi43YzMsMiw2LjUsMy40LDEwLjEsNC42YzMuNiwxLjEsNy41LDEuNSwxMS4yLDEuNmM0LTAuMSw3LjctMC42LDExLjMtMS42IGMzLjYtMS4yLDctMi42LDEwLTQuNmMzLTIsNS44LTQuMiw3LjktNi43YzEuMi0xLjIsMi4xLTIuNSwzLjEtMy43YzAuNS0wLjYsMC45LTEuMywxLjMtMS45YzAuNC0wLjYsMC44LTEuMywxLjItMS45IGMwLjYtMS4zLDEuMy0yLjUsMS44LTMuN2MwLjUtMS4yLDEtMi40LDEuNC0zLjVjMC4zLTEuMSwwLjYtMi4yLDAuOS0zLjJjMC4yLTEsMC40LTEuOSwwLjUtMi44YzAuMS0wLjQsMC4xLTAuOCwwLjItMS4yIGMwLTAuNCwwLjEtMC43LDAuMS0xLjFjMC4xLTAuNywwLjEtMS4yLDAuMi0xLjdDOTAsNTAuNSw5MCw1MCw5MCw1MHMwLDAuNSwwLDEuNGMwLDAuNSwwLDEsMCwxLjdjMCwwLjMsMCwwLjcsMCwxLjEgYzAsMC40LTAuMSwwLjgtMC4xLDEuMmMtMC4xLDAuOS0wLjIsMS44LTAuNCwyLjhjLTAuMiwxLTAuNSwyLjEtMC43LDMuM2MtMC4zLDEuMi0wLjgsMi40LTEuMiwzLjdjLTAuMiwwLjctMC41LDEuMy0wLjgsMS45IGMtMC4zLDAuNy0wLjYsMS4zLTAuOSwyYy0wLjMsMC43LTAuNywxLjMtMS4xLDJjLTAuNCwwLjctMC43LDEuNC0xLjIsMmMtMSwxLjMtMS45LDIuNy0zLjEsNGMtMi4yLDIuNy01LDUtOC4xLDcuMSBjLTAuOCwwLjUtMS42LDEtMi40LDEuNWMtMC44LDAuNS0xLjcsMC45LTIuNiwxLjNMNjYsODcuN2wtMS40LDAuNWMtMC45LDAuMy0xLjgsMC43LTIuOCwxYy0zLjgsMS4xLTcuOSwxLjctMTEuOCwxLjhMNDcsOTAuOCBjLTEsMC0yLTAuMi0zLTAuM2wtMS41LTAuMmwtMC43LTAuMUw0MS4xLDkwYy0xLTAuMy0xLjktMC41LTIuOS0wLjdjLTAuOS0wLjMtMS45LTAuNy0yLjgtMUwzNCw4Ny43bC0xLjMtMC42IGMtMC45LTAuNC0xLjgtMC44LTIuNi0xLjNjLTAuOC0wLjUtMS42LTEtMi40LTEuNWMtMy4xLTIuMS01LjktNC41LTguMS03LjFjLTEuMi0xLjItMi4xLTIuNy0zLjEtNGMtMC41LTAuNi0wLjgtMS40LTEuMi0yIGMtMC40LTAuNy0wLjgtMS4zLTEuMS0yYy0wLjMtMC43LTAuNi0xLjMtMC45LTJjLTAuMy0wLjctMC42LTEuMy0wLjgtMS45Yy0wLjQtMS4zLTAuOS0yLjUtMS4yLTMuN2MtMC4zLTEuMi0wLjUtMi4zLTAuNy0zLjMgYy0wLjItMS0wLjMtMi0wLjQtMi44Yy0wLjEtMC40LTAuMS0wLjgtMC4xLTEuMmMwLTAuNCwwLTAuNywwLTEuMWMwLTAuNywwLTEuMiwwLTEuN0MxMCw1MC41LDEwLDUwLDEwLDUweiIgZmlsbD0iIzk4OTg5OCIgZmlsdGVyPSJ1cmwoI3VpbC1yaW5nLXNoYWRvdykiPjxhbmltYXRlVHJhbnNmb3JtIGF0dHJpYnV0ZU5hbWU9InRyYW5zZm9ybSIgdHlwZT0icm90YXRlIiBmcm9tPSIwIDUwIDUwIiB0bz0iMzYwIDUwIDUwIiByZXBlYXRDb3VudD0iaW5kZWZpbml0ZSIgZHVyPSIxcyI+PC9hbmltYXRlVHJhbnNmb3JtPjwvcGF0aD48L3N2Zz4=");
+    background-size: 100%;
+}
+
+@function beautify__fontSize($val) {
+    @return $val / 16 * fontSize("base");
+}
+
+/// Remove the unit of a length
+/// @param {Number} $number - Number to remove unit from
+/// @return {Number} - Unitless number
+@function papathemes-strip-unit($number) {
+    @if type-of($number) == "number" and not unitless($number) {
+        @return $number / ($number * 0 + 1);
+    }
+  
+    @return $number;
+}
+
+.u-hideWhenQuickSearchOpened {
+    .has-quickSearchOpen & {
+        display: none !important;
+    }
+}
+
+
+// ----------------------------------------------------------------------------
+// Migrate from font-awesome
+// ----------------------------------------------------------------------------
+
+.aria-description--hidden,
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+.sr-only-focusable:active,
+.sr-only-focusable:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+}

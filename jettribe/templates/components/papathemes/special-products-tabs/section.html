@@ -1,0 +1,64 @@
+{{inject 'hasSpecialProductsTabs' true}}
+<div class="papathemes-specialProductsTabs" data-special-products-tabs='{
+    "initCount": "{{theme_settings.spt_init_count}}",
+    "lazyCount": "{{theme_settings.spt_lazy_count}}",
+    "showMore": {{json theme_settings.spt_more}},
+    "type": "{{theme_settings.spt_type}}"
+}'>
+    <ul class="tabs" id="papathemes-specialProductsTabs-tabs" data-tab role="tablist">
+        {{#if theme_settings.spt_show_new}}
+            {{#or (unless theme_settings.spt_init_count) products.new}}
+                <li class="tab{{#if theme_settings.spt_active_tab '===' 'new'}} is-active{{/if}}" role="presentation"><a class="tab-title" href="#tab-new-products" role="tab" tabindex="0" aria-selected="{{#if theme_settings.spt_active_tab '===' 'new'}}true{{else}}false{{/if}}" aria-controls="tab-new-products">{{lang 'products.new' }}</a></li>
+            {{/or}}
+        {{/if}}
+        {{#if theme_settings.spt_show_featured}}
+            {{#or (unless theme_settings.spt_init_count) products.featured}}
+                <li class="tab{{#if theme_settings.spt_active_tab '===' 'featured'}} is-active{{/if}}" role="presentation"><a class="tab-title" href="#tab-featured-products" role="tab" tabindex="0" aria-selected="{{#if theme_settings.spt_active_tab '===' 'featured'}}true{{else}}false{{/if}}" aria-controls="tab-featured-products">{{lang 'products.featured' }}</a></li>
+            {{/or}}
+        {{/if}}
+        {{#if theme_settings.spt_show_top}}
+            {{#or (unless theme_settings.spt_init_count) products.top_sellers}}
+                <li class="tab{{#if theme_settings.spt_active_tab '===' 'top'}} is-active{{/if}}" role="presentation"><a class="tab-title" href="#tab-bestselling-products" role="tab" tabindex="0" aria-selected="{{#if theme_settings.spt_active_tab '===' 'top'}}true{{else}}false{{/if}}" aria-controls="tab-bestselling-products">{{lang 'products.top' }}</a></li>
+            {{/or}}
+        {{/if}}
+    </ul>
+    <div class="tabs-contents">
+        <section role="tabpanel" aria-hidden="{{#if theme_settings.spt_active_tab '===' 'new'}}false{{else}}true{{/if}}" class="tab-content{{#if theme_settings.spt_active_tab '===' 'new'}} is-active{{/if}}" id="tab-new-products" data-product-type="new">
+            {{> components/products/new
+                products=(limit products.new theme_settings.spt_init_count)
+                hide_heading=true
+                show_categories=theme_settings.spt_show_cats
+                region_name="home_spt_above_new_products"
+                display_type=theme_settings.spt_type}}
+            {{#if theme_settings.spt_lazy_count}}
+                <div class="papathemes-specialProductsTabs-viewportCheck" data-viewport-check="new"></div>
+            {{/if}}
+        </section>
+        <section role="tabpanel" aria-hidden="{{#if theme_settings.spt_active_tab '===' 'featured'}}false{{else}}true{{/if}}" class="tab-content{{#if theme_settings.spt_active_tab '===' 'featured'}} is-active{{/if}}" id="tab-featured-products" data-product-type="featured">
+            {{> components/products/featured
+                products=(limit products.featured theme_settings.spt_init_count)
+                hide_heading=true
+                show_categories=theme_settings.spt_show_cats
+                region_name="home_spt_above_featured_products"
+                display_type=theme_settings.spt_type}}
+            {{#if theme_settings.spt_lazy_count}}
+                <div class="papathemes-specialProductsTabs-viewportCheck" data-viewport-check="featured"></div>
+            {{/if}}
+        </section>
+        <section role="tabpanel" aria-hidden="{{#if theme_settings.spt_active_tab '===' 'top'}}false{{else}}true{{/if}}" class="tab-content{{#if theme_settings.spt_active_tab '===' 'top'}} is-active{{/if}}" id="tab-bestselling-products" data-product-type="top">
+            {{> components/products/top
+                products=(limit products.top_sellers theme_settings.spt_init_count)
+                hide_heading=true
+                show_categories=theme_settings.spt_show_cats
+                region_name="home_spt_above_top_products"
+                display_type=theme_settings.spt_type}}
+            {{#if theme_settings.spt_lazy_count}}
+                <div class="papathemes-specialProductsTabs-viewportCheck" data-viewport-check="top_sellers"></div>
+            {{/if}}
+        </section>
+    </div>
+    <div class="papathemes-specialProductsTabs-actionGroup">
+        <a href="#" class="button button--small button--link loadMore" style="display:none">{{lang 'papathemes.pbcst.load_more'}}</a>
+        <a href="#" class="button button--small button--link collapse" style="display:none">{{lang 'papathemes.pbcst.collapse'}}</a>
+    </div>
+</div>

@@ -1,0 +1,127 @@
+<nav class="navPages {{#if theme_settings.navPages_type '===' 'megamenu'}}_hasMegamenu{{/if}} {{#if theme_settings.navPages_widgets}}{{#if theme_settings.navPages_type '===' 'megamenu'}}{{#if theme_settings.layout '===' 'fullwidth'}}_hasWidgets{{/if}}{{/if}}{{/if}}">
+    <ul class="navPages-list">
+        {{#if theme_settings.layout '!==' 'left-sidebar'}}
+            {{#if theme_settings.navPages_type '==' 'standard'}}
+                {{#each categories}}
+                    <li class="navPages-item navPages-item--id-{{id}} navPages-item--standard">
+                        {{> components/beautify/navigation-list theme_settings=../theme_settings menu_type='standard'}}
+                    </li>
+                {{/each}}
+            {{else if theme_settings.navPages_type '==' 'column'}}
+                {{#each categories}}
+                    <li class="navPages-item navPages-item--id-{{id}} navPages-item--column">
+                        {{> components/beautify/navigation-list theme_settings=../theme_settings menu_type='column'}}
+                    </li>
+                {{/each}}
+            {{else}}
+
+                    {{#each categories}}
+                    <li class="navPages-item navPages-item--id-{{id}}">
+                        {{> components/beautify/navigation-list theme_settings=../theme_settings menu_type='mega'}}
+                    </li>
+                {{/each}}
+            {{/if}}
+        {{/if}}
+
+        {{#unless theme_settings.hide_content_navigation}}
+            <li class="border-separation--top u-hideDesktop"></li>
+            {{assignVar 'navWebPageCount' 0}}
+            {{#and theme_settings.navPages_webpageFrom (if theme_settings.navPages_webpageFrom '>' 1)}}
+                {{#each (limit (after pages (subtract theme_settings.navPages_webpageFrom 1)) theme_settings.navPages_webpageLimit)}}
+                    <li class="navPages-item navPages-item--page">
+                        {{> components/beautify/navigation-list theme_settings=../theme_settings menu_type='standard' page_type='page'}}
+                    </li>
+                {{/each}}
+            {{else}}
+                {{#each (limit pages theme_settings.navPages_webpageLimit)}}
+                    <li class="navPages-item navPages-item--page">
+                        {{> components/beautify/navigation-list theme_settings=../theme_settings menu_type='standard' page_type='page'}}
+                    </li>
+                {{/each}}
+            {{/and}}
+        {{/unless}}
+        {{#if settings.gift_certificates_enabled}}
+            <li class="navPages-item u-hideDesktop">
+                <a class="navPages-action" href="{{urls.gift_certificate.purchase}}">{{lang 'gift_certificate.heading'}}</a>
+            </li>
+        {{/if}}
+    </ul>
+
+    <ul class="navPages-list navPages-list--user u-hidden">
+        {{#if customer.store_credit.value '>' 0}}
+            <li class="navPages-item u-hideDesktop">
+                <a class="navPages-action navPages-action--storeCredit">
+                    {{lang 'common.store_credit_overview' credit=customer.store_credit.formatted}}
+                </a>
+            </li>
+        {{/if}}
+        {{#if theme_settings.product_list_display_mode '==' 'list'}}
+            <li class="navPages-item u-hideDesktop">
+                <a class="navPages-action navPages-action--compare" href="{{urls.compare}}" data-compare-nav>{{lang 'common.compare'}} <span class="countPill countPill--positive countPill--alt"></span></a>
+            </li>
+        {{/if}}
+
+        {{#if settings.phone_number}}
+            <li class="navPages-item u-hidden">
+                <a class="navPages-action" href="tel:{{settings.phone_number}}">{{lang 'header.call_us' phone_number=settings.phone_number}}</a>
+            </li>
+        {{/if}}
+
+    </ul>
+</nav>
+
+
+{{!-- TODO: delete this block when finish
+{{#if in_development}}
+<style id="BC-SD-visiblePlaceholders">
+    [data-layout-id] > [data-placeholder]:only-child {
+        display: flex !important;
+    }
+    [data-sub-layout] > [data-placeholder]:last-child { display: flex !important; }
+</style>
+<style id="BC-SD-placeholders">
+    [data-layout-id] > [data-placeholder] {
+        display: none;
+        background: linear-gradient(0deg, rgba(158, 179, 252, 0.4), rgba(158, 179, 252, 0.4)), url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+DQogIDxyZWN0IHdpZHRoPScxMCcgaGVpZ2h0PScxMCcgZmlsbD0nd2hpdGUnLz4NCiAgPHBhdGggZD0nTS0xLDEgbDIsLTINCiAgICAgICAgICAgTTAsMTAgbDEwLC0xMA0KICAgICAgICAgICBNOSwxMSBsMiwtMicgc3Ryb2tlPScjY2NjJyBzdHJva2Utd2lkdGg9JzEnIHN0cm9rZS1kYXNoYXJyYXk9JzEsMScvPg0KPC9zdmc+DQo=");
+        color: #313440;
+        font-family: "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
+        font-size: 14px;
+        text-align: center;
+        padding: 1rem 0;
+    }
+    [data-content-region$="--global"] > [data-layout-id] > [data-placeholder] {
+        color: #A131ED;
+        background: rgba(161, 49, 237, 0.08);
+    }
+
+    [data-content-region="page_content"] > [data-layout-id] > [data-placeholder],
+    [data-content-region="page_builder_content"] > [data-layout-id] > [data-placeholder] {
+        color: #9EB3FC;
+        background: #F0F3FF;
+        border: 1px dashed #9EB3FC;
+        font-size: 24px;
+        line-height: 10rem;
+    }
+    [data-sub-layout] > [data-placeholder] {
+        display: none;
+        overflow: hidden;
+        justify-content: center;
+        border: 1px dashed #B4BAD1;
+        padding: 1rem;
+        margin: 10.5px 0;
+        background: rgba(255, 255, 255, 0.1);
+        color: #5E637A;
+        font-family: "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
+        box-sizing: border-box;
+    }
+    [data-sub-layout] > [data-placeholder] > [data-placeholder-text] {
+        line-height: 19px;
+        padding: .25rem 1rem;
+        font-size: 14px;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 15px;
+        color: #313440;
+    }
+</style>
+{{/if}}
+--}}

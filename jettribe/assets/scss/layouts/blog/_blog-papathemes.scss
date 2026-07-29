@@ -1,0 +1,442 @@
+
+/**
+ * ============================================================================
+ * Block: Blog Posts in Grid view
+ * 
+ * - .papathemes-blogGrid: block blog in grid style
+ * - .papathemes-blogGrid--featured: block blog which has a first post show bigger than others
+ *  
+ * ============================================================================
+ */
+
+.papathemes-blogGrid {
+    @include u-listBullets("none");
+    @include grid-row($behavior: "nest");
+    font-size: 0; // 1
+    margin-bottom: spacing("single");
+
+    .papathemes-blogItem {
+        @include grid-column(12, $float: none);
+        display: inline-block;
+        font-size: fontSize("base"); // 1
+        vertical-align: top;
+
+        @include breakpoint("small") {
+            width: grid-calc(4, $total-columns);
+        }
+    }
+
+    .blog-post-figure {
+        width: 100%;
+    }
+
+    .blog-post-body {
+        width: 100%;
+    }
+
+    .blog-thumbnail {
+        img {
+            object-fit: cover;
+            font-family: "object-fit: cover";
+        }
+    }
+}
+
+@include breakpoint("small") {
+    .papathemes-blogGrid--featured {
+        .papathemes-blogItem:first-child {
+            width: 50%;
+            float: left;
+        }
+
+        .papathemes-blogItem:nth-child(2),
+        .papathemes-blogItem:nth-child(3) {
+            width: 50%;
+			
+            .blog {
+                display: flex;
+                align-items: flex-start;
+            }
+			
+            .blog-post-figure {
+                flex: 1;
+                margin: 0 spacing("single") 0 0;
+
+                .first-tag {
+                    bottom: spacing("single") * 2;
+                }
+            }
+
+            .blog-post-body {
+                flex: 1;
+            }
+
+            .blog-date {
+                display: none;
+            }
+        }
+    }
+}
+
+/**
+ * ----------------------------------------------------------------------------
+ * - Blog page 2-columns layout &
+ * - Blog page 2-columns layout has a first post show full width.
+ * ----------------------------------------------------------------------------
+ */
+@include breakpoint("small") {
+    .papathemes-blog--2col,
+    .papathemes-blog--2col-featured {
+        @include grid-row($behavior: "nest");
+        font-size: 0; // 1
+        margin-bottom: spacing("single");
+
+        > * {
+            font-size: fontSize("base"); // 1
+        }
+
+        .blog {
+            @include grid-column(6, $float: none);
+            display: inline-block;
+            vertical-align: top;
+        }
+    }
+
+    .papathemes-blog--2col .blog:nth-child(2) {
+        margin-top: 0;
+        padding-top: 0;
+    }
+
+    .papathemes-blog--2col,
+    .papathemes-blog--2col-featured {
+        @include grid-row($behavior: "nest");
+        font-size: 0; // 1
+        margin-bottom: spacing("single");
+
+        > * {
+            font-size: fontSize("base"); // 1
+        }
+
+        .blog {
+            @include grid-column(6, $float: none);
+            display: inline-block;
+            vertical-align: top;
+        }
+    }
+
+    .papathemes-blog--2col .blog:nth-child(2) {
+        margin-top: 0;
+        padding-top: 0;
+    }
+
+    .papathemes-blog--2col-featured .blog:first-child {
+        display: block;
+        width: 100%;
+    }
+}
+
+
+/**
+ * ============================================================================
+ * Common blog elements
+ * ============================================================================
+ */
+
+
+.blog-post-figure {
+    position: relative;
+
+    .first-tag {
+        position: absolute;
+        bottom: spacing("single");
+        left: 0;
+
+        a {
+            display: block;
+            padding: spacing("quarter") spacing("single");
+            background: #fff;
+            text-transform: uppercase;
+            font-weight: fontWeight("bold");
+            font-size: fontSize("smaller");
+            letter-spacing: letterSpacing("large");
+            text-decoration: none;
+        }
+    }
+}
+
+/**
+ * Blog page which has Sidebar
+ */
+.page-sidebar + .page-content {
+    .blog-post-figure {
+        width: 100%;
+    }
+}
+
+
+
+.blog-thumbnail {
+    overflow: hidden;
+    margin: 0 0 spacing("single");
+
+    @if (stencilString("blog_size") != "original") {
+        @include lazy-loaded-padding("blog_size");
+
+        img {
+            @include lazy-loaded-img;
+            max-height: 100%;
+            object-fit: contain;
+            font-family: "object-fit: contain";
+            object-position: center left;
+            margin-left: 0;
+        }
+    }
+}
+
+.blog-post-body {
+    text-align: left;
+}
+
+.page-sidebar + .page-content {
+    .blog-post-body {
+        width: 100%;
+    }
+}
+
+
+.blog-title {
+    @if $theme-style == "compact" {
+        margin: 0 0 spacing("half");
+    }
+    @else {
+        margin: 0 0 spacing("single");
+    }
+
+    a {
+        color: inherit;
+    }
+}
+
+h1.blog-title {
+    margin-top: 0;
+}
+
+.blog-post {
+    font-size: fontSize("base");
+    margin-bottom: spacing("single");
+}
+
+.blog--has-tags,
+.blog--has-socials {
+    .blog-post-body {
+        @include clearfix;
+    }
+
+    .blog-post {
+        border-bottom: 1px solid container("borderColor");
+		
+        @if $theme-style == "compact" {
+            padding-bottom: spacing("half");
+        }
+        @else {
+            padding-bottom: spacing("single");
+        }
+    }
+}
+
+.blog-summary {
+    @if $theme-style == "compact" {
+        margin: 0 0 spacing("half");
+    }
+    @else {
+        margin: 0 0 spacing("single");
+    }
+}
+
+.blog-dateContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.blog-readmore a {
+    text-decoration: none;
+    margin: 0;
+    padding-top: remCalc(14);
+    padding-bottom: remCalc(14);
+
+    @if $theme-style == "compact" {
+        font-weight: inherit;
+        text-transform: capitalize;
+    }
+    @else {
+        text-transform: uppercase;
+    }
+}
+
+
+.blog-date {
+    font-size: fontSize("smaller");
+    color: $color-textSecondary;
+    text-align: right;
+}
+
+.blog-date-author {
+    font-size: fontSize("base");
+}
+
+.blog-date-date {
+    font-size: fontSize("base");
+}
+
+.blog {
+    .tags {
+        margin-bottom: 0;
+        text-align: left;
+
+        @if $theme-style == "compact" {
+            margin-top: spacing("half");
+        }
+        @else {
+            margin-top: spacing("single");
+        }
+    }
+
+    .addthis_toolbox {
+        text-align: left;
+
+        @if $theme-style == "compact" {
+            margin-top: spacing("half");
+        }
+        @else {
+            margin-top: spacing("single");
+        }
+
+        align-items: center;
+        gap: spacing("third");
+        flex-wrap: wrap;
+        flex-direction: row-reverse;
+        display: flex;
+        justify-content: flex-end;
+
+        .facebookRecommendBtn {
+            margin-top: 0 !important;
+            width: 120px;
+            max-width: unset !important;
+        }
+        @include breakpoint("small") {
+            text-align: right;
+            justify-content: unset;
+        }
+    }
+}
+
+.blog-post-footer {
+    display: none;
+    justify-content: space-between;
+    @media (max-width: screenSize("small") - 1px) {
+        flex-direction: column;
+    }
+}
+
+.blog .socialLinks {
+    text-align: left;
+
+    @include breakpoint("small") {
+        text-align: right;
+    }
+
+    .icon {
+        padding: spacing("quarter");
+        margin: 0;
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+
+    .socialLinks-item {
+        margin: 0 spacing("eighth") 0 0;
+    }
+}
+
+
+/* fix wrong width of pinterest icon */
+.addthis_toolbox a.at300b.addthis_button_pinterest {
+    width: spacing("quarter") * 2 + lineHeight("base") * fontSize("base");
+
+    .pin_it_iframe_widget {
+        display: none;
+    }
+}
+
+
+.papathemes-blog-bottomSection {
+    margin-top: spacing("single") * 3;
+}
+
+
+// ============================================================================
+// Blog on Sidebar
+// ============================================================================
+.sidebarBlock--blog {
+    .navList {
+        @include breakpoint("small") {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        @include breakpoint("medium") {
+            display: block;
+        }
+    }
+
+    .navList-item {
+        @include breakpoint("small") {
+            width: 50%;
+        }
+
+        @include breakpoint("medium") {
+            width: 100%;
+        }
+    }
+
+    .blog-post-figure {
+        @include breakpoint("medium") {
+            width: 100%;
+        }
+    }
+
+    .blog-thumbnail {
+        img {
+            object-fit: cover;
+            font-family: "object-fit: cover";
+        }
+    }
+
+    .blog-post-body {
+        @include breakpoint("small") {
+            width: 100%;
+        }
+    }
+
+    .blog-dateContainer {
+        @include breakpoint("medium") {
+            display: block;
+        }
+    }
+
+    .blog-date {
+        display: none;
+		
+        @include breakpoint("medium") {
+            text-align: left;
+        }
+    }
+
+    .blog-readmore {
+        + .blog-date {
+            @include breakpoint("medium") {
+                margin-top: spacing("single");
+            }
+        }
+    }
+}

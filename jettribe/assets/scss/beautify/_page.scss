@@ -1,0 +1,11 @@
+.login {
+    margin-top: 0;
+}
+
+.blog {
+    line-height: 1.8;
+
+    &:last-child {
+        margin-bottom: spacing("double");
+    }
+}

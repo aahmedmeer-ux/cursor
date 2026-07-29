@@ -1,0 +1,36 @@
+<div class="productList productGrid" data-list-name="Products Feed Widget"
+>
+    {{#each category.products}}
+        <div class="product">
+            {{> components/products/card 
+                settings=../settings 
+                show_rating=../settings.show_product_rating 
+                theme_settings=../theme_settings 
+                customer=../customer 
+                event="list"
+                position=(add @index 1)}}
+        </div>
+    {{/each}}
+    {{#each brand.products}}
+        <div class="product">
+            {{> components/products/card 
+                settings=../settings 
+                show_rating=../settings.show_product_rating 
+                theme_settings=../theme_settings 
+                customer=../customer 
+                event="list"
+                position=(add @index 1)}}
+        </div>
+    {{/each}}
+    {{#each product_results.products}}
+        <div class="product">
+            {{> components/products/card 
+                settings=../settings 
+                show_rating=../settings.show_product_rating 
+                theme_settings=../theme_settings 
+                customer=../customer 
+                event="list"
+                position=(add @index 1)}}
+        </div>
+    {{/each}}
+</div>

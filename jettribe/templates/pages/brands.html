@@ -1,0 +1,79 @@
+---
+brands:
+    limit: {{theme_settings.brandspage_brands_per_page}}
+blog:
+    recent_posts:
+        limit: {{theme_settings.homepage_blog_posts_count}}
+shop_by_brand:
+    limit: {{theme_settings.sidebar_shop_by_brand}}
+---
+{{inject "brandsPerPage" theme_settings.brandspage_brands_per_page}}
+{{#partial "page"}}
+
+<main class="page">
+    <div class="page-content
+        {{#if theme_settings.infiniteScroll '!==' 'no'}}infiniteScroll{{/if}}"
+        {{#if theme_settings.infiniteScroll '!==' 'no'}}data-brands-infinite-scroll="{{theme_settings.infiniteScroll}}"{{/if}}>
+
+        {{> components/common/breadcrumbs breadcrumbs=breadcrumbs}}
+        <h1 class="page-heading">{{lang 'brand.label'}}</h1>
+        {{{region name="brands_below_header--global"}}}
+        {{{region name="brands_below_header"}}}
+        {{#if in_development}}
+            <p class="u-hideDesktop" style="font-size: 18px">Ensure you have everything in place to secure the most relaxing sleeping conditions for both baby and yourself.</p>
+            <p class="u-hideMobile u-hideTablet" style="font-size: 22px">Ensure you have everything in place to secure the most relaxing sleeping conditions for both baby and yourself.</p>
+        {{/if}}
+
+        <ul class="brandGrid">
+            {{#each brands}}
+                <li class="brand">
+                    <article class="card">
+                        <figure class="card-figure">
+                            <a href="{{url}}" data-instantload title="{{name}}">
+                                <div class="card-img-container">
+                                    {{> components/common/responsive-img
+                                        image=image
+                                        class="card-image"
+                                        fallback_size=../theme_settings.brand_size
+                                        lazyload=../theme_settings.lazyload_mode
+                                        default_image=../theme_settings.default_image_brand
+                                        default_alt=name
+                                    }}
+                                </div>
+                            </a>
+                            <figcaption class="card-figcaption">
+                                <button type="button" class="button _brandQuickView" data-brand-quick-view="{{url}}" title="{{lang 'products.quick_view'}}: {{name}}">
+                                    <svg class="icon _on"><use href="#icon-eye-open"></use></svg>
+                                    <svg class="icon _off"><use href="#icon-eye-close"></use></svg>
+                                </button>
+                            </figcaption>
+                        </figure>
+                        <div class="card-body {{#unless ../theme_settings.show_brand_name}}_hide{{/unless}}">
+                            <h2 class="card-title">
+                                <a href="{{url}}" data-instantload>{{name}}</a>
+                            </h2>
+                        </div>
+                        <div class="_brandQuickView-content">
+                            <div class="_body" data-brand-quick-view-body>
+                                <div class="loadingOverlay"></div>
+                            </div>
+                            <div class="_footer">
+                                <a href="{{url}}" class="button button--primary">{{lang 'brand.shop_products'}}</a>
+                            </div>
+                        </div>
+                    </article>
+                </li>
+            {{/each}}
+        </ul>
+        {{> components/common/paginator pagination.brands instantload=true}}
+        {{{region name="brands_below_content"}}}
+        {{{region name="brands_below_content--global"}}}
+    </div>
+</main>
+{{/partial}}
+{{#and theme_settings.instantload is_ajax}}
+    {{> layout/instantload-base}}
+{{else}}
+    {{> layout/base}}
+{{/and}}
+

@@ -1,0 +1,12 @@
+{{#contains head.meta_tags "og:image"}}
+{{else}}
+    {{#if page_type '==' 'category'}}
+        {{#if category.image}}
+            <meta property="og:image" content="{{getImage category.image 'category_size'}}" />
+        {{/if}}
+    {{else if page_type '==' 'brand'}}
+        {{#if brand.image}}
+            <meta property="og:image" content="{{getImage brand.image 'brand_main_size'}}" />
+        {{/if}}
+    {{/if}}
+{{/contains}}

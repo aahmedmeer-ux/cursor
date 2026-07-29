@@ -1,0 +1,54 @@
+{{!--
+    Params:
+    - shouldAssignVar: boolean
+    - price: object
+    - theme_settings: object
+--}}
+{{#if shouldAssignVar}}
+    {{#if theme_settings.show_rrp}}
+        {{#if price.rrp_without_tax}}
+            {{assignVar '_saleCurrency' (strReplace (money (subtract price.rrp_without_tax.value price.without_tax.value)) " " "")}}
+            {{assignVar '_dataSaleCurrency' (subtract price.rrp_without_tax.value price.without_tax.value)}}
+        {{else if price.rrp_with_tax}}
+            {{assignVar '_saleCurrency' (strReplace (money (subtract price.rrp_with_tax.value price.with_tax.value)) " " "")}}
+            {{assignVar '_dataSaleCurrency' (subtract price.rrp_with_tax.value price.with_tax.value)}}
+        {{else if price.non_sale_price_without_tax}}
+            {{assignVar '_saleCurrency' (strReplace (money (subtract price.non_sale_price_without_tax.value price.without_tax.value)) " " "")}}
+            {{assignVar '_dataSaleCurrency' (subtract price.non_sale_price_without_tax.value price.without_tax.value)}}
+        {{else if price.non_sale_price_with_tax}}
+            {{assignVar '_saleCurrency' (strReplace (money (subtract price.non_sale_price_with_tax.value price.with_tax.value)) " " "")}}
+            {{assignVar '_dataSaleCurrency' (subtract price.non_sale_price_with_tax.value price.with_tax.value)}}
+        {{else}}
+            {{assignVar '_saleCurrency' 0}}
+        {{/if}}
+    {{else}}
+        {{#if price.non_sale_price_without_tax}}
+            {{assignVar '_saleCurrency' (strReplace (money (subtract price.non_sale_price_without_tax.value price.without_tax.value)) " " "")}}
+            {{assignVar '_dataSaleCurrency' (subtract price.non_sale_price_without_tax.value price.without_tax.value)}}
+        {{else if price.non_sale_price_without_tax}}
+            {{assignVar '_saleCurrency' (strReplace (money (subtract price.non_sale_price_without_tax.value price.with_tax.value)) " " "")}}
+            {{assignVar '_dataSaleCurrency' (subtract price.non_sale_price_without_tax.value price.with_tax.value)}}
+        {{else}}
+            {{assignVar '_saleCurrency' 0}}
+        {{/if}}
+    {{/if}}
+{{else}}
+    {{#if theme_settings.show_rrp}}
+        {{#if price.rrp_without_tax}}
+            <span data-price-currency-value="{{subtract price.rrp_without_tax.value price.without_tax.value}}">{{strReplace (money (subtract price.rrp_without_tax.value price.without_tax.value)) " " ""}}</span>
+        {{else if price.rrp_with_tax}}
+            <span data-price-currency-value="{{subtract price.rrp_with_tax.value price.with_tax.value}}">{{strReplace (money (subtract price.rrp_with_tax.value price.with_tax.value)) " " ""}}</span>
+        {{else if price.non_sale_price_without_tax}}
+            <span data-price-currency-value="{{subtract price.non_sale_price_without_tax.value price.without_tax.value}}">{{strReplace (money (subtract price.non_sale_price_without_tax.value price.without_tax.value)) " " ""}}</span>
+        {{else if price.non_sale_price_with_tax}}
+            <span data-price-currency-value="{{subtract price.non_sale_price_with_tax.value price.with_tax.value}}">{{strReplace (money (subtract price.non_sale_price_with_tax.value price.with_tax.value)) " " ""}}</span>
+        {{/if}}
+    {{else}}
+        {{#if price.non_sale_price_without_tax}}
+            <span data-price-currency-value="{{subtract price.non_sale_price_without_tax.value price.without_tax.value}}">{{strReplace (money (subtract price.non_sale_price_without_tax.value price.without_tax.value)) " " ""}}</span>
+        {{else if price.non_sale_price_with_tax}}
+            <span data-price-currency-value="{{subtract price.non_sale_price_with_tax.value price.with_tax.value}}">{{strReplace (money (subtract price.non_sale_price_with_tax.value price.with_tax.value)) " " ""}}</span>
+        {{/if}}
+    {{/if}}
+{{/if}}
+

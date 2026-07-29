@@ -1,0 +1,150 @@
+{{#or banners.top_metadata theme_settings.instantload}}
+    <div class="banners-wrapper">
+        <div class="banners blaze-slider" data-banner-location="top"
+            data-blaze-slider='{
+                "all": {
+                    "enableAutoplay": true,
+                    "autoplayInterval": 7000,
+                    "stopAutoplayOnInteraction": true,
+                    "transitionDuration": 0,
+                    "slidesToShow": 1,
+                    "slidesToScroll": 1,
+                    "loop": true
+                }
+            }'
+            >
+            <div class="blaze-container">
+                <button class="blaze-button blaze-prev" aria-label="{{lang 'common.previous'}}"></button>
+                <button class="blaze-button blaze-next" aria-label="{{lang 'common.next'}}"></button>
+                <div class="blaze-track-container">
+                    <div class="blaze-track">
+                        {{#if settings.data_tag_enabled}}
+                            {{#each banners.top_metadata}}
+                                <div class="banner">
+                                    {{{this.content}}}
+                                </div>
+                            {{/each}}
+                        {{else}}
+                            {{#each banners.top_metadata}}
+                                <div class="banner" data-event-type="promotion" data-entity-id="{{this.id}}" data-name="{{this.banner-name}}" data-position="{{this.location}}" data-banner-id="{{this.banner-name}}">
+                                    <div data-event-type="promotion-click">
+                                        {{{this.content}}}
+                                    </div>
+                                </div>
+                            {{/each}}
+                        {{/if}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="banners-close">
+            <span class="_close"><span class="is-srOnly">{{lang 'common.close'}}</span><svg class="icon"><use href="#icon-close2"></use></svg></span>
+        </button>
+    </div>
+{{/or}}
+<div class="banners-wrapper _top-carousel-global" id="banners-carousel">
+    <div class="banners--global">
+        {{{region name="top_banner_carousel--global"}}}
+    </div>
+    <button class="banners-close">
+        <span class="_close"><span class="is-srOnly">{{lang 'common.close'}}</span><svg class="icon"><use href="#icon-close2"></use></svg></span>
+    </button>
+</div>
+<header id="dinosaur_header" class="header" role="banner" {{#if theme_settings.header_sticky}} data-sticky-header{{/if}}>
+    {{#if theme_settings.logo_position '==' 'center'}}
+        <div class="beautify__topHeader">
+            <div class="container">
+                <div class="_announce _announce-title">
+                    {{{region name="header_top_title--global"}}}
+                </div>
+                <div class="_announce banners-wrapper" id="banners-carousel-center">
+                    {{{region name="header_top_announcement--global"}}}
+                    <button class="banners-close">
+                        <span class="_close"><span class="is-srOnly">{{lang 'common.close'}}</span><svg class="icon"><use href="#icon-close2"></use></svg></span>
+                    </button>
+                </div>
+                {{> components/common/header/navuser-account}}
+            </div>
+        </div>
+    {{/if}}
+    <div class="beautify__mainHeader{{#if settings.store_logo.image}} _hasImg{{/if}} _{{theme_settings.logo_position}}">
+        <div class="container">
+            {{{region name="header_navuser_top--global"}}}
+        </div>
+        <div class="container">
+            {{#if theme_settings.logo_position '===' 'left'}}
+                {{> components/common/header/logo}}
+                {{> components/common/header/navuser-account}}
+                {{> components/common/header/navuser-left}}
+                <a href="#" class="mobileMenu-toggle" data-mobile-menu-toggle="menu">
+                    <span class="mobileMenu-toggleIcon"><span class="_icon"></span></span>
+                    <span class="_label sr-only">{{lang 'common.menu'}}</span>
+                </a>
+                {{> components/common/header/search}}
+            {{else if theme_settings.logo_position '===' 'right'}}
+                {{> components/common/header/logo}}
+                {{> components/common/header/navuser-account}}
+                {{> components/common/header/navuser-right}}
+                <a href="#" class="mobileMenu-toggle" data-mobile-menu-toggle="menu">
+                    <span class="mobileMenu-toggleIcon"><span class="_icon"></span></span>
+                    <span class="_label sr-only">{{lang 'common.menu'}}</span>
+                </a>
+                {{> components/common/header/search}}
+            {{else}}
+                {{> components/common/header/navuser-left}}
+                <a href="#" class="mobileMenu-toggle" data-mobile-menu-toggle="menu">
+                    <span class="mobileMenu-toggleIcon"><span class="_icon"></span></span>
+                    <span class="_label sr-only">{{lang 'common.menu'}}</span>
+                </a>
+                {{> components/common/header/search}}
+            {{/if}}
+        </div>
+        <div class="container">
+            {{{region name="header_navuser_bottom--global"}}}
+        </div>
+    </div>
+
+    <div class="navPages-container" id="menu" data-menu>
+        <div class="container" id="bf-fix-menu-mobile">
+            {{> components/beautify/navigation-menu}}
+        </div>
+    </div>
+    <div class="headerMenu-overlay"></div>
+</header>
+<div class="previewCart-overlay"></div>
+<div class="dropdown-menu" id="cart-preview-dropdown" aria-hidden="true"></div>
+
+<div class="dropdown dropdown--quickSearch" id="quickSearch" aria-hidden="true" tabindex="-1" data-prevent-quick-search-close>
+    <div class="quickSearchSuggestions">
+        <div class="_popular" data-papathemes-search-popular="{{theme_settings.quickSearch_popular}}">
+            <div class="container">
+                <div class="_heading">{{lang 'search.quick_search.popular_search'}}</div>
+                <button type="button" class="button button--small button--link is-open" data-collapsible="quickSearch-popular-list" aria-expanded="true">
+                    <span class="switch">
+                        <input id="switch-rounded" type="checkbox" />
+                        <label for="switch-rounded"></label>
+                    </span>
+                </button>
+                <ul id="quickSearch-popular-list" class="is-open" aria-hidden="false"></ul>
+            </div>
+        </div>
+        <div class="_recent" data-papathemes-search-history style="display: none;">
+            <div class="container">
+                <div class="_heading">{{lang 'search.quick_search.search_history'}}</div>
+                <button type="button" class="button button--small button--link is-open" data-papathemes-delete-search-history>
+                    <span class="on"><svg class="icon"><use xlink:href="#icon-recycle"></use></svg></span>
+                </button>
+                <ul id="quickSearch-recently-list"></ul>
+            </div>
+        </div>
+    </div>
+    <div class="_resultSearch">
+        <div class="container">
+            <section class="quickSearchResults" data-bind="html: results"></section>
+        </div>
+    </div>
+</div>
+<div class="papathemes-overlay"></div>
+
+{{{region name="header_bottom--global"}}}
+{{{region name="header_bottom"}}}

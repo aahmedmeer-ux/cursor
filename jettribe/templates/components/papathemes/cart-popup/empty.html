@@ -1,0 +1,9 @@
+<div class="previewCart-emptyBody">
+    <div class="previewCart-content">
+        <h3 class="cart-emptyText">{{lang 'cart.checkout.empty_cart'}}</h3>
+        {{#unless customer}}
+            <span class="previewCart-notification">{{lang 'cart.checkout.notification'}}</span>
+            <a href="{{urls.auth.login}}" class="button">{{lang 'login.submit_value'}}</a>
+        {{/unless}}
+    </div>
+</div>

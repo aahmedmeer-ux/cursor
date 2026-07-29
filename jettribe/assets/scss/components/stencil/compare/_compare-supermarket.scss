@@ -1,0 +1,150 @@
+.supermarket-page--pages-compare {
+    .page-heading {
+        font-size: fontSize("base") * 2;
+    }
+}
+
+.compareTable-removeProduct {
+    top: 0;
+    right: 0;
+    border-radius: 0;
+
+    .icon {
+        fill: $color-textSecondary;
+    }
+
+}
+
+.compareTable-product {
+    padding: spacing("base");
+
+
+    .card {
+        background-color: transparent;
+        grid-template-rows: auto auto;
+    }
+
+    .price-section {
+        margin: 0;
+
+        + .price-section {
+            margin-left: 0;
+            margin-top: spacing("third") * 1.25;
+        }
+    }
+
+    .price--non-sale {
+        font-weight: initial;
+    }
+
+    &:not(._border) .card-body,
+    .card-body {
+        grid-template-rows: auto auto auto auto;
+    }
+
+    .card-figure > a {
+        position: absolute;
+    }
+
+    .card-price {
+        margin-bottom: 0;
+    }
+
+    .card-title a:hover {
+        color: stencilColor("color-textLink");
+    }
+
+    .compareTable-removeProduct {
+        @include square(36px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: $button-radius;
+
+        .icon {
+            margin: 0;
+            @include square(13px);
+        }
+
+        &:hover,
+        &:focus,
+        &:active {
+            background-color: stencilColor("button--primary-backgroundColor");
+
+            .icon {
+                fill: stencilColor("button--primary-color");
+            }
+        }
+    }
+}
+
+
+.compareTable-heading {
+    width: max-content;
+    max-width: grid-calc(3, $total-columns);
+    padding: spacing("base");
+    font-family: $body-font-family;
+}
+
+.compareTable-headingText {
+    white-space: initial;
+}
+
+.compareTable {
+    border-top: 0;
+    margin-top: spacing("base");
+}
+
+.compareTable-item {
+    padding: spacing("base");
+    font-size: fontSize("smaller");
+}
+
+.compareTable-action {
+    padding-bottom: spacing("single");
+
+    .button {
+        margin-bottom: 0;
+    }
+}
+
+// On Mobile
+// ----------------------------------------------------------------------------
+@media (max-width: screenSize("medium") - 1px) {
+    .supermarket-page--pages-compare {
+        .page-heading {
+            font-size: fontSize("large");
+        }
+    }
+
+    .compareTable {
+        width: auto;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        display: block;
+    }
+
+    .compareTable-heading {
+        display: none;
+    }
+
+    .compareTable-headingText {
+        display: block;
+        padding: 0 spacing("half");
+        font-weight: fontWeight("bold");
+    }
+
+    .compareTable-product {
+        padding: spacing("quarter");
+        min-width: 150px;
+    }
+
+    .compareTable-action {
+        padding: 0 spacing("quarter") spacing("single");
+
+        .button {
+            padding: spacing("quarter") spacing("half");
+            font-size: fontSize("smaller");
+        }
+    }
+}

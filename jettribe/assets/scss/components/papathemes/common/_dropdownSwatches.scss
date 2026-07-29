@@ -1,0 +1,218 @@
+@if stencilString("swatch_option_display_type") != "default" {
+    .chiara__dropdownSwatches.selectize-control {
+        .form-field & {
+            flex-basis: 100%;
+            @if stencilString("swatch_option_display_type") == "both" {
+                margin-bottom: spacing("half");
+            }
+        }
+
+        .selectize-dropdown,
+        .selectize-input,
+        .selectize-input input {
+            // font-size: $input-font-size;
+            font-size: fontSize("smaller");
+            color: $input-font-color;
+            line-height: inherit;
+        }
+
+        &.single .selectize-input::after {
+            border-top-color: $color-textBase;
+            right: 8px;
+        }
+
+        &.single .selectize-input.dropdown-active::after {
+            border-bottom-color: $color-textBase;
+        }
+
+        .selectize-input {
+            border: $input-border-width $input-border-style $input-border-color;
+            border-radius: $select-borderRadius;
+            background-color: $select-bg-color;
+            padding: 0 spacing("half");
+            padding-right: spacing("base") * 2;
+            box-shadow: unset;
+            height: remCalc(40);
+            line-height: 1.6;
+
+            &:hover {
+                background-color: $select-hover-bg-color;
+                border-color: $select-hover-borderColor;
+            }
+            
+            &:focus,
+            &.focus {
+                border-color: $select-focus-borderColor;
+                box-shadow: $select-focus-boxShadow;
+            }
+
+            input {
+                min-height: 26px !important; // 1
+                font-size: fontSize("base");
+                top: 50%;
+                transform: translateY(-50%);
+                position: relative;
+
+                &::placeholder {
+                    font-size: fontSize("smaller");
+                    color: $color-textBase;
+                }
+            }
+
+            ._item {
+                display: inline-flex;
+                align-items: center;
+                vertical-align: middle;
+                top: 50%;
+                transform: translateY(-50%);
+                position: relative;
+
+                ._img {
+                    border: 1px solid $input-border-color;
+                    margin-right: spacing("half");
+                    width: remCalc(27);
+                    position: relative;
+                    border-radius: $input-border-radius;
+                    overflow: hidden;
+
+                    .form-option-variant {
+                        height: remCalc(27);
+                        background-size: cover;
+
+                        + .form-option-variant {
+                            position: absolute;
+                            top: 0;
+                            left: 100%;
+                            transform: rotate(45deg) scale(3);
+                            transform-origin: 0 0;
+
+                            &:has(+ .form-option-variant) {
+                                top: -25%;
+                            }
+
+                            + .form-option-variant {
+                                left: 200%;
+                                top: -50%;
+                            }
+                        }
+                    }
+
+                    &:has(.form-option-variant + .form-option-variant) {
+                        overflow: hidden;
+                    }
+                }
+
+                .form-option-variant--color,
+                .form-option-variant--pattern {
+                    width: 24px; // 1
+                    height: 24px; // 1
+                    padding: 0;
+                    vertical-align: middle;
+                    background-size: 100%;
+                }
+
+                &.unavailable {
+                    ._img {
+                        position: relative;
+                        overflow: hidden;
+                        background-color: rgba(stencilColor("color-black"), 0.3);
+
+                        &::before {
+                            content: "";
+                            position: absolute;
+                            top: 0;
+                            right: 0;
+                            width: 141%;
+                            height: 2px;
+                            transform: rotate(-45deg);
+                            transform-origin: right top;
+                            background-color: rgba(color("blacks"), 0.3);
+                        }
+                    }
+
+                    .form-option-variant--color,
+                    .form-option-variant--pattern {
+                        opacity: 0.5;
+                    }
+                }
+            }
+        }
+
+        .selectize-dropdown-content {
+            ._option {
+                display: flex;
+                align-items: center;
+                vertical-align: middle;
+                padding: spacing("quarter") spacing("base");
+
+                ._img {
+                    border: 1px solid $input-border-color;
+                    box-shadow: 0 2px 4px rgba(stencilColor("color-black"), 0.1);
+                    margin-right: spacing("half");
+                    width: get-width(stencilString("swatch_option_size"));
+                    display: inline-flex;
+                    position: relative;
+                    border-radius: $input-border-radius;
+                    overflow: hidden;
+
+                    .form-option-variant {
+                        background-size: cover;
+
+                        + .form-option-variant {
+                            position: absolute;
+                            top: 0;
+                            left: 100%;
+                            transform: rotate(45deg) scale(3);
+                            transform-origin: 0 0;
+                
+                            &:has(+ .form-option-variant) {
+                                top: -33.33%;
+                            }
+                
+                            + .form-option-variant {
+                                left: 200%;
+                                top: -64%;
+                            }
+                        }
+                    }
+                
+                    &:has(.form-option-variant + .form-option-variant) {
+                        overflow: hidden;
+                    }
+                }
+
+                .form-option-variant--color,
+                .form-option-variant--pattern {
+                    padding: 0;
+                    vertical-align: middle;
+                    background-size: 100%;
+                }
+
+                &.unavailable {
+                    ._img {
+                        position: relative;
+                        overflow: hidden;
+                        background-color: rgba(stencilColor("color-black"), 0.15);
+
+                        &::before {
+                            content: "";
+                            position: absolute;
+                            top: 0;
+                            right: 0;
+                            width: 141%;
+                            height: 2px;
+                            transform: rotate(-45deg);
+                            transform-origin: right top;
+                            background-color: rgba(color("blacks"), 0.3);
+                        }
+                    }
+
+                    .form-option-variant--color,
+                    .form-option-variant--pattern {
+                        opacity: 0.5;
+                    }
+                }
+            }
+        }
+    }
+}

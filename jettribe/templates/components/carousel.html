@@ -1,0 +1,94 @@
+{{inject 'hasMainCarousel' true}}
+<section class="heroCarousel-container">
+    <div class="heroCarousel heroCarousel--{{theme_settings.homepage_carousel_style}} blaze-slider" 
+        data-blaze-slider='{
+                            "all": {
+                                "enablePagination": true,
+                                "enableAutoplay": true,
+                                "autoplayInterval": {{carousel.swap_frequency}},
+                                "stopAutoplayOnInteraction": true,
+                                "transitionDuration": 300,
+                                "slidesToShow": 1,
+                                "slidesToScroll": 1,
+                                "slideGap": "0px",
+                                "loop": true
+                            }
+                        }'>
+        <div class="blaze-container">
+            <div class="blaze-track-container">
+                <div class="blaze-track">
+                    {{#each carousel.slides}}
+                        <div class="heroCarousel-slide heroCarousel-slide--{{@index}}{{#if @first}} heroCarousel-slide--first{{/if}}" tabindex="0">
+                            <div class="heroCarousel-image-wrapper{{#and image_height image_width}} heroCarousel-image-wrapper--sized{{/and}}">
+                                <a {{#if url}}href="{{url}}"{{/if}} tabindex="-1">
+                                    <div class="heroCarousel-image-box {{#if ../theme_settings.carousel-bgImg-height-mobile}}_image-box-height{{/if}}" style="{{#if image_width}}width:{{image_width}}px{{/if}}">
+                                        {{#if ../theme_settings.carousel-bgImg-height-mobile}}
+                                            <div class="heroCarousel-image-box-padding {{#if ../../theme_settings.carousel-bgImg-height-mobile}}heroCarousel-image-box-height{{/if}}" style="padding-bottom:{{multiply (divide image_height image_width) 100}}%">
+                                        {{else}}
+                                            {{#and image_height image_width}}<div class="heroCarousel-image-box-padding" style="padding-bottom:{{multiply (divide image_height image_width) 100}}%">{{/and}}
+                                        {{/if}}
+                                            {{#if @first}}
+                                                {{> components/common/responsive-img
+                                                    image=stencil_image
+                                                    class="heroCarousel-image"
+                                                    fallback_size='1920w'
+                                                    lazyload='disabled'
+                                                    otherAttributes=(concat (concat (concat (concat 'width="' image_width) '" height="') image_height) '"')
+                                                }}
+                                            {{else}}
+                                                {{> components/common/responsive-img
+                                                    image=stencil_image
+                                                    class="heroCarousel-image"
+                                                    fallback_size='1920w'
+                                                    lazyload='lazyload'
+                                                    otherAttributes=(concat (concat (concat (concat 'width="' image_width) '" height="') image_height) '"')
+                                                }}
+                                            {{/if}}
+                                        {{#if ../theme_settings.carousel-bgImg-height-mobile}}
+                                            </div>
+                                        {{else}}
+                                            {{#and image_height image_width}}</div>{{/and}}
+                                        {{/if}}
+                                        {{#if heading}}
+                                            {{> components/carousel-content-heading-button show_background=true theme_settings=../../theme_settings}}
+                                        {{else}}
+                                            {{#if button_text}}
+                                                {{> components/carousel-content-heading-button show_background=false theme_settings=../../../theme_settings}}
+                                            {{/if}}
+                                        {{/if}}
+                                    </div>
+                                    {{#if heading}}
+                                        {{> components/carousel-content show_background=true theme_settings=../../theme_settings}}
+                                    {{else}}
+                                        {{#if text}}
+                                            {{> components/carousel-content show_background=true theme_settings=../../../theme_settings}}
+                                        {{else}}
+                                            {{#if button_text}}
+                                                {{> components/carousel-content show_background=false theme_settings=../../../../theme_settings}}
+                                            {{/if}}
+                                        {{/if}}
+                                    {{/if}}
+                                    {{#if text}}
+                                        {{> components/carousel-content-desc show_background=true theme_settings=../../../theme_settings}}
+                                    {{else}}
+                                        <div class="heroCarousel-content _desc-mobile _empty"></div>
+                                    {{/if}}
+                                </a>
+                            </div>
+                        </div>
+                    {{/each}}
+                </div>
+            </div>
+
+            <!-- navigation buttons -->
+            <button class="blaze-prev" aria-label="{{lang 'common.previous'}}"></button>
+            <button class="blaze-next" aria-label="{{lang 'common.next'}}"></button>
+
+            <!-- pagination container -->
+            <div class="blaze-pagination"></div>
+        </div>
+    </div>
+    <div class="beautify__heroCarouselMobile">
+        {{{region name="home_carousel_mobile"}}}
+    </div>
+</section>

@@ -1,0 +1,46 @@
+.quickSearchResults {
+    margin-top: 0;
+    padding: 0 spacing("half") spacing("single");
+
+    @include breakpoint("medium") {
+        padding: spacing("single") 0;
+    }
+}
+
+.advancedSearch-form {
+    @if $theme-style == "modern" {
+        margin-bottom: 0;
+    }
+    @else {
+        margin-bottom: spacing("half");
+    }
+}
+
+.category-suggestion-list {
+    padding: 0;
+    margin: 0;
+    column-count: 2;
+
+    @include breakpoint("small") {
+        column-count: 3;
+    }
+
+    @include breakpoint("medium") {
+        column-count: 4;
+    }
+
+    .category-suggestion:only-child {
+        width: max-content;
+    }
+}
+
+.category-suggestion {
+    width: auto;
+    padding: 0;
+    margin-right: spacing("half");
+    float: none;
+
+    @include breakpoint("medium") {
+        margin-right: $column-gutter;
+    }
+}

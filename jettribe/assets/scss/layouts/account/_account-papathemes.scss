@@ -1,0 +1,120 @@
+.container .account {
+    padding: 0;
+
+    .account-body {
+        margin: 0;
+    }
+
+    @include breakpoint("medium") {
+        .productGrid {
+            .product {
+                flex-basis: 20%;
+            }
+        }
+    }
+}
+
+.account--fixed {
+    @include breakpoint("medium") {
+        width: 80%;
+    }
+
+    @include breakpoint("large") {
+        width: 60%;
+    }
+}
+
+.account .page-heading,
+.page-heading._account-page {
+    margin-bottom: spacing("single");
+    text-align: inherit;
+}
+
+.account-head {
+    margin-bottom: 0;
+
+    .alertBox--storeCredit {
+        margin-bottom: 0;
+    }
+}
+
+.navBar--account.navBar--sub {
+    margin-bottom: spacing("single");
+}
+
+.message-header {
+    margin-top: spacing("single");
+    margin-bottom: spacing("base");
+
+    + .form .form-actions {
+        @media (max-width: (screenSize("small")) - 1px) {
+            .button {
+                margin-bottom: spacing("half");
+            }
+
+            .button + .button {
+                margin-top: 0;
+            }
+        }
+    }
+}
+
+.addressList {
+    .panel-body {
+        border-radius: $container-border-radius;
+    }
+}
+
+@media (max-width: (screenSize("small")) - 1px) {
+    .account {
+        .form-actions {
+            .button {
+                margin-bottom: spacing("half");
+            }
+
+            .button + .button {
+                margin-top: 0;
+            }
+        }
+    }
+
+    .wishlists-table {
+        margin-bottom: spacing("half");
+
+        + .form {
+            .form-actions {
+                input + .button {
+                    margin-top: 0;
+                }
+
+                .button {
+                    margin-bottom: spacing("half");
+
+                    &:last-child {
+                        margin-bottom: 0;
+                    }
+                }
+            }
+        }
+
+        .form {
+            .form-fieldset {
+                .button {
+                    margin-bottom: spacing("half");
+                }
+
+                .button:last-child {
+                    margin-bottom: 0;
+                }
+            }
+        }
+    }
+}
+
+
+.alertBox--storeCredit.alertBox {
+    background-color: stencilColor("color-successLight");
+    border-color: stencilColor("color-successLight");
+    color: stencilColor("alert-color-alt");
+    padding: spacing("half") spacing("half") * 1.5;
+}

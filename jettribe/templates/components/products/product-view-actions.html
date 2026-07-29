@@ -1,0 +1,135 @@
+{{#unless product.out_of_stock}}
+    <div class="productView-qtyAtcWrapper">
+        {{#if product.show_quantity_input}}
+            <div class="form-field form-field--increments _addToCartVisibility" {{#unless product.can_purchase}}style="display:none"{{/unless}}>
+                <label class="form-label form-label--alternate" for="qty[]">{{lang 'products.quantity'}}</label>
+                <div class="form-increment" data-quantity-change>
+                    <button class="button button--icon" data-action="dec">
+                        <span class="is-srOnly">{{lang 'products.quantity_decrease'}}</span>
+                        <i class="icon" aria-hidden="true">
+                            <svg>
+                                <use href="#icon-minus"/>
+                            </svg>
+                        </i>
+                    </button>
+                    <input class="form-input form-input--incrementTotal"
+                        id="qty[]"
+                        name="qty[]"
+                        type="tel"
+                        value="{{#if product.min_purchase_quantity}}{{product.min_purchase_quantity}}{{else}}1{{/if}}"
+                        data-quantity-min="{{product.min_purchase_quantity}}"
+                        data-quantity-max="{{product.max_purchase_quantity}}"
+                        min="1"
+                        pattern="[0-9]*"
+                        aria-live="polite">
+                    <button class="button button--icon" data-action="inc">
+                        <span class="is-srOnly">{{lang 'products.quantity_increase'}}</span>
+                        <i class="icon" aria-hidden="true">
+                            <svg>
+                                <use href="#icon-plus"/>
+                            </svg>
+                        </i>
+                    </button>
+                </div>
+            </div>
+        {{/if}}
+        {{#if settings.bulk_discount_enabled}}
+            {{#if product.bulk_discount_rates}}
+                {{> components/products/bulk-discount-slider}}
+                {{#if (getVar 'showProductDesignButton')}}
+                    <div class="formView-action _designTools">
+                        <div class="form-action form-action--designTool">
+                            <button class="design-tool-product button button--black" type="button" data-product-id="{{product.id}}" data-product-images="{{json product.images}}" data-design-tool>
+                                {{lang 'design_tool.button_open'}}
+                            </button>
+                        </div>
+                        <div class="form-action form-action--addToCart">
+                            <button id="form-action-addToCart" {{#unless product.can_purchase}}disabled{{/unless}} data-wait-message="{{lang 'products.adding_to_cart'}}" class="button button--primary" type="submit">
+                                {{#if product.pre_order}}{{lang 'products.pre_order'}}{{else}}{{lang 'products.add_to_cart'}}{{/if}}
+                            </button>
+                        </div>
+                    </div>
+                {{else}}
+                    <div class="formView-action _designTools">
+                        <div class="form-action form-action--addToCart">
+                            <button id="form-action-addToCart" {{#unless product.can_purchase}}disabled{{/unless}} data-wait-message="{{lang 'products.adding_to_cart'}}" class="button button--primary" type="submit">
+                                {{#if product.pre_order}}{{lang 'products.pre_order'}}{{else}}{{lang 'products.add_to_cart'}}{{/if}}
+                            </button>
+                        </div>
+                    </div>
+                {{/if}}
+            {{else}}
+                {{#or customer (unless settings.hide_price_from_guests)}}
+                    <div class="productView-info-bulkPricing is-srOnly"></div>
+                {{/or}}
+                <div class="formView-action _designTools">
+                    {{#if (getVar 'showProductDesignButton')}}
+                        <div class="form-action form-action--designTool">
+                            <button class="design-tool-product button button--black" type="button" data-product-id="{{product.id}}" data-product-images="{{json product.images}}" data-design-tool>
+                                {{lang 'design_tool.button_open'}}
+                            </button>
+                        </div>
+                    {{/if}}
+                    <div class="form-action form-action--addToCart">
+                        <button id="form-action-addToCart" {{#unless product.can_purchase}}disabled{{/unless}} data-wait-message="{{lang 'products.adding_to_cart'}}" class="button button--primary" type="submit">
+                            {{#if product.pre_order}}{{lang 'products.pre_order'}}{{else}}{{lang 'products.add_to_cart'}}{{/if}}
+                        </button>
+                    </div>
+                </div>
+            {{/if}}
+        {{else}}
+            <div class="formView-action _designTools">
+                {{#if (getVar 'showProductDesignButton')}}
+                    <div class="form-action form-action--designTool">
+                        <button class="design-tool-product button button--black" type="button" data-product-id="{{product.id}}" data-product-images="{{json product.images}}" data-design-tool>
+                            {{lang 'design_tool.button_open'}}
+                        </button>
+                    </div>
+                {{/if}}
+                <div class="form-action form-action--addToCart">
+                    <button id="form-action-addToCart" {{#unless product.can_purchase}}disabled{{/unless}} data-wait-message="{{lang 'products.adding_to_cart'}}" class="button button--primary" type="submit">
+                        {{#if product.pre_order}}{{lang 'products.pre_order'}}{{else}}{{lang 'products.add_to_cart'}}{{/if}}
+                    </button>
+                </div>
+            </div>
+        {{/if}}
+        {{#or customer (unless settings.hide_price_from_guests)}}
+            <div class="productView-addToCartExtras _addToCartVisibility" {{#unless product.can_purchase}}style="display:none"{{/unless}}>
+                <div class="add-to-cart-wallet-buttons" data-add-to-cart-wallet-buttons>
+                    {{> components/common/wallet-buttons}}
+                </div>
+            </div>
+        {{/or}}
+        <div class="form-action form-action--addToCartLater">
+            <button id="form-action-addToCartLater" class="button button--primary" type="button" style="display:none">
+                {{lang 'products.add_to_cart_later'}}
+            </button>
+        </div>
+    </div>
+{{/unless}}
+
+{{#or customer (unless settings.hide_price_from_guests)}}
+    <div class="formView-action _compareWishlist" {{#unless product.can_purchase}}style="display:none"{{/unless}}>
+        {{#if settings.show_wishlist}}
+            <a href="#" aria-controls="wishlist-dropdown--{{product.id}}" aria-expanded="false" class="button dropdown-menu-button" data-dropdown="wishlist-dropdown--{{product.id}}" title="{{lang 'account.wishlists.add_item'}}">
+                <svg class="icon is-srOnly"><use href="#icon-heart" /></svg>
+                <span>{{lang 'account.wishlists.add_item'}}</span>
+            </a>
+        {{/if}}
+        {{#if theme_settings.productpage_show_compare}}
+            <button type="button" tabindex="0" class="button card-figcaption-button _compare2"
+                    data-compare-id="{{product.id}}"
+                    data-compare-image="{{getImage product.main_image 'productthumb_size' (cdn theme_settings.default_image_product)}}"
+                    data-compare-title="{{product.title}}"
+                    data-compare-url="{{product.url}}"
+                ><svg class="icon is-srOnly"><use href="#icon-compare"></use></svg>{{lang 'products.compare'}}</button>
+            <div class="alert-compare" data-message-compare style="display: none;">
+                <span class="icon">
+                    <svg><use href="#icon-success" /></svg>
+                </span>
+                <span class="_desc">{{{lang 'compare.notification_compare'}}}</span>
+            </div>
+        {{/if}}
+    </div>
+    {{{snippet 'product_addtocart'}}}
+{{/or}}

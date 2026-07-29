@@ -1,0 +1,204 @@
+<article class="productView-description" data-product-tab>
+    <ul class="tabs tabs--alt" role="tablist">
+        <div class="container">
+            <li class="tab tab--description is-active" role="presentation">
+                <a class="tab-title" href="#tab-description-{{product.id}}" aria-selected="true" role="tab" id="productView-tab-description-{{product.id}}">{{lang 'products.description'}}</a>
+            </li>
+
+            {{#if theme_settings.productpage_videos_position '===' 'tab'}}
+                {{#if product.videos.list.length}}
+                    <li class="tab tab--videos" role="presentation">
+                        <a class="tab-title" href="#tab-videos-{{product.id}}" aria-selected="false" role="tab" id="productView-tab-videos-{{product.id}}">{{lang 'products.videos.header'}}</a>
+                    </li>
+                {{/if}}
+            {{/if}}
+
+            {{#if (merge this specialCustomFields=0)}}{{/if}}
+            {{#if theme_settings.productpage_custom_fields_hide_special}}
+                {{#each product.custom_fields}}
+                    {{#startsWith '__' name}}
+                        {{#if (merge ../../this specialCustomFields=(add ../../specialCustomFields 1))}}{{/if}}
+                    {{/startsWith}}
+                {{/each}}
+            {{/if}}
+
+            {{#all product.custom_fields.length theme_settings.productpage_custom_fields_tab}}
+                {{#any (unless theme_settings.productpage_custom_fields_hide_special) (if product.custom_fields.length '>' specialCustomFields )}}
+                    <li class="tab tab--addition" role="presentation">
+                        <a class="tab-title" href="#tab-addition-{{product.id}}" aria-selected="false" role="tab" id="productView-tab-addition-{{product.id}}">{{theme_settings.productpage_custom_fields_tab_title}}</a>
+                    </li>
+                {{/any}}
+            {{/all}}
+
+            {{#if settings.show_product_reviews}}
+                <li class="tab tab--reviews" role="presentation">
+                    <a class="tab-title productView-reviewTabLink" href="#tab-reviews-{{product.id}}" aria-selected="false" role="tab" id="productView-tab-reviews-{{product.id}}">{{lang 'products.reviews.title' total=product.num_reviews}} ({{product.num_reviews}})</a>
+                </li>
+            {{/if}}
+
+            {{#if product.warranty}}
+                <li class="tab tab--warranty" role="presentation">
+                    <a class="tab-title" href="#tab-warranty-{{product.id}}" aria-selected="false" role="tab" id="productView-tab-warranty-{{product.id}}">{{lang 'products.warranty'}}</a>
+                </li>
+            {{/if}}
+
+            {{#or in_development theme_settings.productpage_delivery_tab}}
+                <li class="tab tab--return" role="presentation">
+                    <a class="tab-title" href="#tab-return-{{product.id}}" aria-selected="false" role="tab" id="productView-tab-return-{{product.id}}">{{theme_settings.productpage_delivery_tab_title}}</a>
+                </li>
+            {{/or}}
+        </div>
+    </ul>
+    <div class="tab-content is-active" id="tab-description-{{product.id}}" aria-hidden="false" role="tabpanel" aria-labelledby="productView-tab-description-{{product.id}}">
+        {{#unless in_quickview}}<div class="container">{{/unless}}
+        <a class="productView-description-tabHeading is-open" data-tab-mobile href="#tab-description-{{product.id}}">{{lang 'products.description'}}</a>
+        <div class="productView-description-tabContent is-open" {{#if settings.data_tag_enabled}} data-event-type="product" {{/if}}>
+            {{{product.description}}}
+            {{{snippet 'product_description'}}}
+            {{{region name="product_description_tab_content--global"}}}
+            {{{region name="product_description_tab_content"}}}
+        </div>
+        {{#unless in_quickview}}</div><!-- .container -->{{/unless}}
+    </div>
+    {{#if theme_settings.productpage_videos_position '===' 'tab'}}
+        {{#if product.videos.list.length}}
+            <div class="tab-content" id="tab-videos-{{product.id}}" aria-hidden="true" role="tabpanel" aria-labelledby="productView-tab-videos-{{product.id}}">
+                {{#unless in_quickview}}<div class="container">{{/unless}}
+                <a class="productView-description-tabHeading" data-tab-mobile href="#tab-videos-{{product.id}}">{{lang 'products.videos.header'}}</a>
+                <div class="productView-description-tabContent">
+                    <section class="videoGallery videoGallery--inTab" data-video-gallery>
+                        <div class="videoGallery-main">
+                            <iframe
+                                id="player"
+                                class="lazyload"
+                                type="text/html"
+                                width="640"
+                                height="390"
+                                frameborder="0"
+                                webkitAllowFullScreen
+                                mozallowfullscreen
+                                allowFullScreen
+                                src="//www.youtube.com/embed/{{product.videos.featured.id}}?rel=0"
+                                loading="lazy"
+                                data-video-player
+                                title="{{product.videos.list.0.title_long}}"
+                                >
+                            </iframe>
+                        </div>
+                        <ul class="videoGallery-list">
+                        {{#each product.videos.list}}
+                            <li class="videoGallery-item">
+                                <a href="#" class="video {{#if @first}}is-active{{/if}}" data-video-item data-video-id="{{id}}">
+                                    <div class="video-figure">
+                                        <img class="lazyload" data-sizes="auto" src="{{cdn 'img/loading.svg'}}" data-src="//i.ytimg.com/vi/{{id}}/default.jpg" alt="{{title_long}}"/>
+                                    </div>
+                                    <div class="video-body">
+                                        <h3 class="video-title">{{title_long}}</h3>
+                                        <p class="video-description">{{description_short}}</p>
+                                    </div>
+                                </a>
+                            </li>
+                        {{/each}}
+                        </ul>
+                    </section>
+                </div>
+                {{#unless in_quickview}}</div><!-- .container -->{{/unless}}
+            </div>
+        {{/if}}
+    {{/if}}
+    {{#all product.custom_fields.length theme_settings.productpage_custom_fields_tab}}
+        {{#any (unless theme_settings.productpage_custom_fields_hide_special) (if product.custom_fields.length '>' specialCustomFields )}}
+            <div class="tab-content" id="tab-addition-{{product.id}}" aria-hidden="true" role="tabpanel" aria-labelledby="productView-tab-addition-{{product.id}}">
+                {{#unless in_quickview}}<div class="container">{{/unless}}
+                <a class="productView-description-tabHeading" data-tab-mobile href="#tab-addition-{{product.id}}">{{theme_settings.productpage_custom_fields_tab_title}}</a>
+                <div class="productView-description-tabContent productView-addition-tabContent">
+                    <table class="productView-addition-table table">
+                        <tbody class="table-tbody">
+                            {{#if theme_settings.productpage_custom_fields_hide_special}}
+                                {{#each product.custom_fields}}
+                                    {{#startsWith '__' name}}
+                                    {{else}}
+                                        <tr class="productView-info-row--cf{{pascalcase name}}">
+                                            <td><div class="productView-info-name productView-info-name--cf{{pascalcase name}}">{{name}}:</div></td>
+                                            <td><div class="productView-info-value productView-info-value--cf{{pascalcase name}}">{{{value}}}</div></td>
+                                        </tr>
+                                    {{/startsWith}}
+                                {{/each}}
+                            {{else}}
+                                {{#each product.custom_fields}}
+                                    <tr class="productView-info-row--cf{{pascalcase name}}">
+                                        <td><div class="productView-info-name productView-info-name--cf{{pascalcase name}}">{{name}}:</div></td>
+                                        <td><div class="productView-info-value productView-info-value--cf{{pascalcase name}}">{{{value}}}</div></td>
+                                    </tr>
+                                {{/each}}
+                            {{/if}}
+                        </tbody>
+                    </table>
+                </div>
+                {{#unless in_quickview}}</div><!-- .container -->{{/unless}}
+            </div>
+        {{/any}}
+    {{/all}}
+
+    {{#if settings.show_product_reviews}}
+        <div class="tab-content" id="tab-reviews-{{product.id}}" aria-hidden="true" role="tabpanel" aria-labelledby="productView-tab-reviews-{{product.id}}">
+            {{#unless in_quickview}}<div class="container">{{/unless}}
+            <a class="productView-description-tabHeading" data-tab-mobile href="#tab-reviews-{{product.id}}">{{lang 'products.reviews.title' total=product.num_reviews}} ({{product.num_reviews}})</a>
+            <div class="productView-description-tabContent">
+                {{> components/products/reviews reviews=product.reviews product=product urls=urls}}
+            </div>
+            {{#unless in_quickview}}</div><!-- .container -->{{/unless}}
+        </div>
+    {{/if}}
+
+    {{#if product.warranty}}
+        <div class="tab-content" id="tab-warranty-{{product.id}}" aria-hidden="true" role="tabpanel" aria-labelledby="productView-tab-warranty-{{product.id}}">
+            {{#unless in_quickview}}<div class="container">{{/unless}}
+            <a class="productView-description-tabHeading" data-tab-mobile href="#tab-warranty-{{product.id}}">{{lang 'products.warranty'}}</a>
+            <div class="productView-description-tabContent">
+                {{{product.warranty}}}
+            </div>
+            {{#unless in_quickview}}</div><!-- .container -->{{/unless}}
+        </div>
+    {{/if}}
+
+    {{#or in_development theme_settings.productpage_delivery_tab}}
+        <div class="tab-content" id="tab-return-{{product.id}}" aria-hidden="true" role="tabpanel" aria-labelledby="productView-tab-return-{{product.id}}">
+            {{#unless in_quickview}}<div class="container">{{/unless}}
+                <a class="productView-description-tabHeading" data-tab-mobile href="#tab-return-{{product.id}}">{{theme_settings.productpage_delivery_tab_title}}</a>
+            <div class="productView-description-tabContent">
+                {{{region name="product_delivery_tab_content--global"}}}
+                {{{region name="product_delivery_tab_content"}}}
+                {{#if in_development}}
+                    <p class="beautify__anpost">
+                        <img class="lazyload" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='82' height='55'%3E%3C/svg%3E" data-src="{{cdn 'img/beautify/anpost.png'}}" data-sizes="auto" width="82" height="55" alt="An Post">
+                        <span class="_text">All Orders delivered for just €4.99 To anywhere in Ireland and Northern Ireland</span>
+                    </p>
+                    <ul>
+                        <li>NEXT DAY DELIVERY IRELAND</li>
+                        <li>SMS and Email Alerts</li>
+                        <li>Order before 2pm for same day dispatch</li>
+                        <li>98% of all orders are delivered next day</li>
+                    </ul>
+                    <p>Your order will leave our warehouse in Bray, Co Wicklow and be delivered the <strong>next working day</strong>. You will receive SMS &amp; email tracking updates from An Post and someone will need to sign for the parcel on delivery.</p>
+                    <ul>
+                        <li>For full Delivery Terms visit our <a  href="/delivery-returns/">Delivery Page</a></li>
+                        <li>For hassle free returns visit our&nbsp;<a  title="returns" href="/delivery-returns/">Returns Section</a></li>
+                    </ul>
+                    <p class="_payment-icons">
+                        <span>{{> components/common/responsive-img image=(cdn 'img/beautify/secure.png') alt="secure"}}</span>
+                        <span>{{> components/common/responsive-img image=(cdn 'img/beautify/pci.png') alt="pci"}}</span>
+                        <span>{{> components/common/responsive-img image=(cdn 'img/beautify/trustmark.png') alt="trustmark"}}</span>
+                        <span>{{> components/common/responsive-img image=(cdn 'img/beautify/eccomerce-europe.png') alt="eccomerce-europe"}}</span>
+                        <span>{{> components/common/responsive-img image=(cdn 'img/beautify/ecommerce-2.png') alt="ecommerce-2"}}</span>
+                        <span>{{> components/common/responsive-img image=(cdn 'img/beautify/mastercard.png') alt="mastercard"}}</span>
+                        <span>{{> components/common/responsive-img image=(cdn 'img/beautify/visa.png') alt="visa"}}</span>
+                        <span>{{> components/common/responsive-img image=(cdn 'img/beautify/paypal.png') alt="paypal"}}</span>
+                        <span>{{> components/common/responsive-img image=(cdn 'img/beautify/oneforall.png') alt="oneforall"}}</span>
+                    </p>
+                {{/if}}
+            </div>
+            {{#unless in_quickview}}</div><!-- .container -->{{/unless}}
+        </div>
+    {{/or}}
+</article>

@@ -1,3 +1,0 @@
-{
-  "components/papathemes/cart-popup/additional-checkout-buttons": "{{#or customer (unless settings.hide_price_from_guests)}}\n{{#if cart.additional_checkout_buttons}}\n    <div class=\"previewCart-additionalCheckoutButtons _themed\">\n        {{#each cart.additional_checkout_buttons}}\n            <div class=\"_item\">\n                {{{this}}}\n            </div>\n        {{/each}}\n    </div>\n{{/if}}\n{{/or}}"
-}

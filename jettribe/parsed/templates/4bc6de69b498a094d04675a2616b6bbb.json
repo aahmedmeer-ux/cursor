@@ -1,3 +1,0 @@
-{
-  "components/papathemes/cart-popup/empty": "<div class=\"previewCart-emptyBody\">\n    <div class=\"previewCart-content\">\n        <h3 class=\"cart-emptyText\">{{lang 'cart.checkout.empty_cart'}}</h3>\n        {{#unless customer}}\n            <span class=\"previewCart-notification\">{{lang 'cart.checkout.notification'}}</span>\n            <a href=\"{{urls.auth.login}}\" class=\"button\">{{lang 'login.submit_value'}}</a>\n        {{/unless}}\n    </div>\n</div>\n"
-}

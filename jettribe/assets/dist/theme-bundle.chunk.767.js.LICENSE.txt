@@ -1,5 +1,5 @@
 /*!
- * jQuery UI :data 1.14.0
+ * jQuery UI :data 1.14.2
  * https://jqueryui.com
  *
  * Copyright OpenJS Foundation and other contributors
@@ -8,7 +8,7 @@
  */
 
 /*!
- * jQuery UI Draggable 1.14.0
+ * jQuery UI Draggable 1.14.2
  * https://jqueryui.com
  *
  * Copyright OpenJS Foundation and other contributors
@@ -17,7 +17,7 @@
  */
 
 /*!
- * jQuery UI Keycode 1.14.0
+ * jQuery UI Keycode 1.14.2
  * https://jqueryui.com
  *
  * Copyright OpenJS Foundation and other contributors
@@ -26,7 +26,7 @@
  */
 
 /*!
- * jQuery UI Mouse 1.14.0
+ * jQuery UI Mouse 1.14.2
  * https://jqueryui.com
  *
  * Copyright OpenJS Foundation and other contributors
@@ -35,7 +35,7 @@
  */
 
 /*!
- * jQuery UI Scroll Parent 1.14.0
+ * jQuery UI Scroll Parent 1.14.2
  * https://jqueryui.com
  *
  * Copyright OpenJS Foundation and other contributors
@@ -44,7 +44,7 @@
  */
 
 /*!
- * jQuery UI Slider 1.14.0
+ * jQuery UI Slider 1.14.2
  * https://jqueryui.com
  *
  * Copyright OpenJS Foundation and other contributors
@@ -64,7 +64,7 @@
  */
 
 /*!
- * jQuery UI Widget 1.14.0
+ * jQuery UI Widget 1.14.2
  * https://jqueryui.com
  *
  * Copyright OpenJS Foundation and other contributors

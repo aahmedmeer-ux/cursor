@@ -1,0 +1,43 @@
+<ul class="tabs" data-tab>
+    <li class="tab is-active">
+        <a class="tab-title" href="#tab-description">Description</a>
+    </li>
+    {{#if product.warranty}}
+        <li class="tab">
+            <a class="tab-title" href="#tab-warranty">{{lang 'products.warranty'}}</a>
+        </li>
+    {{/if}}
+    {{#if product.videos.list.length}}
+        <li class="tab">
+            <a class="tab-title" href="#tab-videos">Videos</a>
+        </li>
+    {{/if}}
+    {{#if product.num_reviews '>' 0}}
+        <li class="tab">
+            <a class="tab-title" href="#tab-reviews">Reviews</a>
+        </li>
+    {{/if}}
+</ul>
+<div class="tabs-contents">
+    <div class="tab-content is-active" id="tab-description">
+        {{{product.description}}}
+        {{{snippet 'product_description'}}}
+    </div>
+   {{#if product.warranty}}
+       <div class="tab-content" id="tab-warranty">
+       	<div class="desc_title">Warranty Information</div>
+        <pre>{{{product.warranty}}}</pre>
+       </div>
+   {{/if}}
+   {{#if product.videos.list.length}}
+   <div class="tab-content" id="tab-videos">   	
+    	{{> components/products/videos product.videos}}   
+   </div>
+   {{/if}}
+   
+   {{#if settings.show_product_reviews}}
+   <div class="tab-content" id="tab-reviews">
+		{{> components/products/reviews reviews=product.reviews product=product urls=urls}}
+   </div>
+   {{/if}}
+</div>

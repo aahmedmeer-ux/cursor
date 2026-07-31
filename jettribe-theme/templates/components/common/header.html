@@ -1,0 +1,48 @@
+<header class="header" role="banner">
+	<script>
+	  $(document).ready(function(){
+		  $('body').on('click', 'a.modal-close',  function() {
+					$(".quickSearchResults").html("");
+		  });	
+	  });
+	</script>
+    
+    
+    <div class="headerTop">
+    	<div class="container">
+    	<p><strong>Free USA Shipping on Orders $250+</strong></p>
+        </div>
+    </div>
+    <div class="headerBottom">
+    	<div class="container">
+            <a href="#" class="mobileMenu-toggle" data-mobile-menu-toggle="menu">
+                <span class="mobileMenu-toggleIcon">Toggle menu</span>
+            </a>
+            <div class="headerLeft">
+            	<div class="header-logo header-logo--{{theme_settings.logo-position}}">
+                    {{> components/common/store-logo}}
+                </div>
+            </div>
+            <div class="headerRight">
+            	<div class="hdrrightTop">
+            		{{> components/common/navigation}}
+                </div>
+                <div class="hdrrightBtm">
+                	<div class="callIc"><a href="tel:951 246 3147" title="951 246 3147">951 246 3147</a></div>
+                    <div class="hdrSearch">
+                    	<div class="dropdown dropdown--quickSearch" id="quickSearch" aria-hidden="true" tabindex="-1" data-prevent-quick-search-close>
+                            {{> components/common/quick-search}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+    	</div>
+    </div>
+
+    
+    
+    <div class="navPages-container" id="menu" data-menu>
+        {{> components/common/navigation-menu}}
+    </div>
+</header>
+{{{region name="header_bottom"}}}

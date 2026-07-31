@@ -1,0 +1,119 @@
+<footer class="footer" role="contentinfo">
+    <div class="footerTop">
+    	<div class="container">
+        {{#if theme_settings.social_icon_placement_bottom '!==' 'bottom_none'}}
+            <article class="footer-info-col
+                footer-info-col--social
+                footer-info-col--{{#if theme_settings.social_icon_placement_bottom '===' 'bottom_left'}}left{{else}}right{{/if}}"
+                data-section-type="footer-webPages">
+                    <h5 class="footer-info-heading">{{lang 'social.connect'}}</h5>
+                    {{> components/common/social-links}}
+            </article>
+        {{/if}}
+        <section class="footer-info">
+            <article class="footer-info-col footer-info-col--small" data-section-type="footer-categories">
+                <h5 class="footer-info-heading">{{lang 'footer.categories'}}</h5>
+                <ul class="footer-info-list">
+                    {{#each categories}}
+                        <li>
+                            <a href="{{url}}">{{name}}</a>
+                        </li>
+                    {{/each}}
+                </ul>
+            </article>
+            
+            <article class="footer-info-col footer-info-col--small" data-section-type="footer-webPages">
+                <h5 class="footer-info-heading">Rider Support</h5>
+                <ul class="footer-info-list">
+                    <li><a href="#">Order Status</a></li>
+                    <li><a href="/shipping-info/">Shipping Info</a></li>
+                    <li><a href="/return-policy/">Return Policy</a></li>
+                    <li><a href="/warranty-policy/">Warranty Policy</a></li>
+                    <li><a href="/financing/">Financing</a></li>
+                    <li><a href="/privacy-policy/">Privacy Policy</a></li>
+                </ul>
+            </article>
+            
+            <article class="footer-info-col footer-info-col--small" data-section-type="footer-webPages">
+                <h5 class="footer-info-heading">Rider Resources</h5>
+                <ul class="footer-info-list">
+                    <li><a href="/culture/">Culture</a></li>
+                    <li><a href="/careers/">Jettribe Careers</a></li>
+                    <li><a href="/blog/">Blog</a></li>
+                    <li><a href="/size-chart/">Size Chart</a></li>
+                    <li><a href="https://www.jettribe.com/giftcertificates.php">Gift Certificates</a></li>
+                    <li><a href="/legal-mumbo-jumbo/">Legal</a></li>
+                    <li><a href="/jettribe-logos/">Logo Download</a></li>
+                    <li><a href="/dropshipping/">Reseller Dropshipping</a></li>
+                </ul>
+            </article>
+            
+            
+            
+            <!-- <article class="footer-info-col footer-info-col--small" data-section-type="footer-webPages">
+                <h5 class="footer-info-heading">{{lang 'footer.navigate'}}</h5>
+                <ul class="footer-info-list">
+                    {{#each pages}}
+                        <li>
+                            <a href="{{url}}">{{name}}</a>
+                        </li>
+                    {{/each}}
+                    <li>
+                        <a href="{{urls.sitemap}}">{{lang 'sitemap.page_title'}}</a>
+                    </li>
+                </ul>
+            </article> -->
+
+            <article class="footer-info-col footer-info-col--small" data-section-type="storeInfo">
+                <h5 class="footer-info-heading">Contact Us</h5>
+                <div class="contactInfo">
+                	<p class="ftrlocationIc"><strong>Jettribe Corporate California</strong><br />(No Products at this Location)<br />Temecula, California<br />Office By Appointment Only</p>
+                	<p class="ftrlocationIc"><strong>Jettribe Shipping Distribution</strong> <br />1120 Como Street South<br />Sulphur Springs, Texas 75482 <br />
+                    <p class="ftrcallIc"><strong>Contact Jettribe Rider Support</strong> <br /><a href="tel:951.246.3147" title="951.246.3147">951.246.3147</a> <br />Mon - Fri, 9am - 4pm PST</p>
+                    <p class="ftrmailIc"><a href="mailto:ridersupport@jettribe.com" title="ridersupport@jettribe.com">ridersupport@jettribe.com</a></p>
+                </div>
+                
+            </article>
+
+            <article class="footer-info-col footer-info-col--small" data-section-type="newsletterSubscription">
+                <div class="ftrNewsletter">
+                    {{#if settings.show_newsletter_box}}
+                        {{> components/common/subscription-form}}
+                    {{/if}}
+                </div>
+            </article>
+        </section>
+        
+        <div class="footerSocial">
+        	{{> components/common/social-links}}
+        </div>
+        
+        <div class="footerLogo">
+        	<a href="/"><img src="{{cdn '/assets/img/footer-logo.png'}}" alt="" /></a>
+        </div>
+        
+    </div>
+    </div>
+    <div class="footerBottom">
+    	<div class="container">
+        <div class="paymentIc">
+        	<img src="{{cdn '/assets/img/payment-ic.png'}}" alt="" />
+        </div>
+        	{{#if theme_settings.show_copyright_footer}}
+                <div class="footer-copyright">
+                    <p class="powered-by">&copy; {{moment format="YYYY"}} <strong>Jet Tribe</strong>, All rights Reserved. <span class="bull">&bull;</span> <br /><a href="https://www.qeretail.com/services/ecommerce-website-development" target="_blank">Custom eCommerce website design</a> - <strong>QeRetail</strong> </p>
+                </div>
+            {{/if}}
+        </div>
+    </div>
+    <style>.productOptions-list-item-figure {
+    width: 100px;
+}</style>
+
+<style>
+.videoGallery-main { 
+padding-bottom: 50%; 
+}
+</style>
+
+</footer>

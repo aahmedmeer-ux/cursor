@@ -1,0 +1,37 @@
+{{#partial "page"}}
+
+<main class="page">
+<style type="text/css">
+.body > .container{ width:100%; padding:0; max-width:100%; }
+</style>
+    <div class="page-content page-content--centered">
+        {{#replace '%%Syndicate%%' page.content}}
+            {{> components/page/rss_feed}}
+        {{else}}
+            {{#if page.title '===' "Klarna"}}
+            <!-- Placement v1 -->
+            <div align="center"><klarna-placement
+              data-id="00392170-a280-4311-afe6-17332f6bb3cb" 
+            ></klarna-placement></div>
+            <!-- end Placement -->
+            {{else}}
+            {{{page.content}}}
+            {{/if}}
+        {{/replace}}
+    </div>
+
+    {{#if page.feed}}
+        <ul>
+            {{#each page.feed}}
+                <li>
+                    <h6><a href="{{url}}" target="_blank">{{title}}</a></h6>
+                    <p>{{content}}</p>
+                </li>
+            {{/each}}
+        </ul>
+    {{/if}}
+</main>
+
+{{/partial}}
+
+{{> layout/base}}

@@ -8,7 +8,7 @@ The homepage **Custom Gear** category tile previously linked to `/custom-gear/` 
 
 It now links to:
 
-`/customized-vests-usa/`
+`/customized-gear-factory/?setCurrencyId=1`
 
 ## Upload to BigCommerce (important)
 

@@ -32,58 +32,36 @@
     {{{region name="footer_top--global"}}}
     <section class="footer-info">
         <div class="container ">
-            <div class="footer-info--list">
-                {{#if theme_settings.footer_show_contactInfo}}
-                    <article class="footer-info--contact-us">
-                        {{#if theme_settings.footer_contactInfo_heading}}
-                            <h3 class="footer-info-heading">
-                                {{theme_settings.footer_contactInfo_heading}}
-                            </h3>
-                        {{/if}}
-                        <div class="footer-info--item">
-                            <svg class="icon">
-                                <use href="#icon-location"></use>
-                            </svg>
-                            {{settings.address}}
-                        </div>
-                        {{#if settings.phone_number}}
-                            <div class="footer-info--item">
-                                <a  href="tel:{{settings.phone_number}}" title="{{lang 'header.call_us' phone_number=settings.phone_number}}">
-                                    <svg class="icon">
-                                        <use href="#icon-phone3"></use>
-                                    </svg>
-                                    {{settings.phone_number}}
-                                </a>
-                            </div>
-                        {{/if}}
-                        {{#if theme_settings.footer_email '!==' ""}}
-                            <div class="footer-info--item">
-                                <a href=mailto:{{theme_settings.footer_email}} title="{{theme_settings.footer_email}}">
-                                    <svg class="icon">
-                                        <use href="#icon-email"></use>
-                                    </svg>
-                                    {{theme_settings.footer_email}}
-                                </a>
-                            </div>
-                        {{/if}}
-                        {{#if theme_settings.footer_whatsapp '!==' ""}}
-                            <div class="footer-info--item">
-                                <a href=https://wa.me/{{theme_settings.footer_whatsapp}} title="{{theme_settings.footer_whatsapp}}">
-                                    <svg class="icon">
-                                        <use href="#icon-whatsapp"></use>
-                                    </svg>
-                                    {{theme_settings.footer_whatsapp}}
-                                </a>
-                            </div>
-                        {{/if}}
-                        {{#if theme_settings.social_icon_placement_bottom}}
-                            {{> components/common/social-links}}
-                        {{/if}}
-                        {{{region name="footer_contact--global"}}}
-                    </article>
-                {{/if}}
-
+            <div class="footer-info--list footer-info--list-jettribe">
                 <div class="footer-info--wrapper">
+                    {{!-- 1. CATEGORIES --}}
+                    {{#if theme_settings.footer_show_categories '>' -1}}
+                        <article class="footer-info--col" data-dinosaur-footer-collapsible>
+                            {{#if theme_settings.footer_categories_heading}}
+                                <h3 class="footer-info-heading">
+                                    <a href="#" aria-expanded="false" data-dinosaur-footer-collapsible-handler>
+                                        {{theme_settings.footer_categories_heading}}
+                                        {{> components/common/footer-toggle-icon}}
+                                    </a>
+                                </h3>
+                            {{/if}}
+                            <div class="_wrapper {{#unless theme_settings.footer_categories_heading}}is-open{{/unless}}" aria-hidden="true" data-dinosaur-footer-collapsible-content>
+                                {{#if theme_settings.footer_show_categories '>' 0}}
+                                <ul class="footer-info-list">
+                                    <li><a href="/">Home</a></li>
+                                    {{#each (limit categories theme_settings.footer_show_categories)}}
+                                    <li>
+                                        <a href="{{url}}">{{name}}</a>
+                                    </li>
+                                    {{/each}}
+                                </ul>
+                                {{/if}}
+                                {{{region name="footer_below_col2--global"}}}
+                            </div>
+                        </article>
+                    {{/if}}
+
+                    {{!-- 2. RIDER SUPPORT (custom region) --}}
                     {{#if theme_settings.footer_cs1}}
                     <article class="footer-info--col" data-dinosaur-footer-collapsible>
                         {{#if theme_settings.footer_cs1_title}}
@@ -95,13 +73,20 @@
                         </h3>
                         {{/if}}
                         <div class="_wrapper {{#unless theme_settings.footer_cs1_title}}is-open{{/unless}}" aria-hidden="true" data-dinosaur-footer-collapsible-content>
-                            <ul class="footer-info-list">
+                            <ul class="footer-info-list footer-info-list--rider-support">
+                                <li><a href="/account.php?action=order_status">Order Status</a></li>
+                                <li><a href="/shipping-info/">Shipping Info</a></li>
+                                <li><a href="/returns/">Return Policy</a></li>
+                                <li><a href="/warranty-policy/">Warranty Policy</a></li>
+                                <li><a href="/financing/">Financing</a></li>
+                                <li><a href="/privacy-policy/">Privacy Policy</a></li>
                                 {{{region name="footer_cs1--global"}}}
                             </ul>
                         </div>
                     </article>
                     {{/if}}
 
+                    {{!-- 3. RIDER RESOURCES (web pages) --}}
                     {{#if theme_settings.footer_show_pages '>' -1}}
                         <article class="footer-info--col" data-dinosaur-footer-collapsible>
                             {{#if theme_settings.footer_pages_heading}}
@@ -120,88 +105,72 @@
                                                 <a href="{{url}}">{{name}}</a>
                                             </li>
                                         {{/each}}
-                                        {{#if theme_settings.footer_show_pages '>' pages.length}}
-                                            <li>
-                                                <a href="{{urls.sitemap}}">{{lang 'sitemap.page_title'}}</a>
-                                            </li>
-                                        {{/if}}
                                     </ul>
                                 {{/if}}
                                 {{{region name="footer_below_col4--global"}}}
                             </div>
                         </article>
                     {{/if}}
-
-                    {{#if theme_settings.footer_show_categories '>' -1}}
-                        <article class="footer-info--col" data-dinosaur-footer-collapsible>
-                            {{#if theme_settings.footer_categories_heading}}
-                                <h3 class="footer-info-heading">
-                                    <a href="#" aria-expanded="false" data-dinosaur-footer-collapsible-handler>
-                                        {{theme_settings.footer_categories_heading}}
-                                        {{> components/common/footer-toggle-icon}}
-                                    </a>
-                                </h3>
-                            {{/if}}
-                            <div class="_wrapper {{#unless theme_settings.footer_categories_heading}}is-open{{/unless}}" aria-hidden="true" data-dinosaur-footer-collapsible-content>
-                                {{#if theme_settings.footer_show_categories '>' 0}}
-                                <ul class="footer-info-list">
-                                    {{#each (limit categories theme_settings.footer_show_categories)}}
-                                    <li>
-                                        <a href="{{url}}">{{name}}</a>
-                                    </li>
-                                    {{/each}}
-                                </ul>
-                                {{/if}}
-                                {{{region name="footer_below_col2--global"}}}
-                            </div>
-                        </article>
-                    {{/if}}
-
-                    {{#if theme_settings.footer_shop_by_brand '>' -1}}
-                        <article class="footer-info--col" data-dinosaur-footer-collapsible>
-                            {{#if theme_settings.footer_brands_heading}}
-                            <h3 class="footer-info-heading">
-                                <a href="#" aria-expanded="false" data-dinosaur-footer-collapsible-handler>
-                                    {{theme_settings.footer_brands_heading}}
-                                    {{> components/common/footer-toggle-icon}}
-                                </a>
-                            </h3>
-                            {{/if}}
-                            <div class="_wrapper {{#unless theme_settings.footer_brands_heading}}is-open{{/unless}}" aria-hidden="true" data-dinosaur-footer-collapsible-content>
-                                {{#if theme_settings.footer_shop_by_brand '>' 0}}
-                                <ul class="footer-info-list">
-                                    {{#each (limit shop_by_brand theme_settings.footer_shop_by_brand)}}
-                                    <li>
-                                        <a href="{{url}}">{{name}}</a>
-                                    </li>
-                                    {{/each}}
-                                    <li><a href="{{urls.brands}}">{{lang 'common.view_all'}}</a></li>
-                                </ul>
-                                {{/if}}
-                                {{{region name="footer_below_col3--global"}}}
-                            </div>
-                        </article>
-                    {{/if}}
-
-                    {{#if theme_settings.footer_cs2}}
-                    <article class="footer-info--col" data-dinosaur-footer-collapsible>
-                        {{#if theme_settings.footer_cs2_title}}
-                        <h3 class="footer-info-heading">
-                            <a href="#" aria-expanded="false" data-dinosaur-footer-collapsible-handler>
-                                {{theme_settings.footer_cs2_title}}
-                                {{> components/common/footer-toggle-icon}}
-                            </a>
-                        </h3>
-                        {{/if}}
-                        <div class="_wrapper {{#unless theme_settings.footer_cs2_title}}is-open{{/unless}}" aria-hidden="true" data-dinosaur-footer-collapsible-content>
-                            <ul class="footer-info-list">
-                                {{{region name="footer_cs5--global"}}}
-                            </ul>
-                        </div>
-                        </article>
-                    {{/if}}
                 </div>
 
+                {{!-- 4. CONTACT US --}}
+                {{#if theme_settings.footer_show_contactInfo}}
+                    <article class="footer-info--contact-us">
+                        {{#if theme_settings.footer_contactInfo_heading}}
+                            <h3 class="footer-info-heading">
+                                {{theme_settings.footer_contactInfo_heading}}
+                            </h3>
+                        {{/if}}
+                        {{#if settings.phone_number}}
+                            <div class="footer-info--item">
+                                <a  href="tel:{{settings.phone_number}}" title="{{lang 'header.call_us' phone_number=settings.phone_number}}">
+                                    <svg class="icon">
+                                        <use href="#icon-phone3"></use>
+                                    </svg>
+                                    <span>
+                                        <strong>Contact Jettribe Rider Support</strong><br>
+                                        {{settings.phone_number}}<br>
+                                        Mon - Fri, 9am - 4pm PST
+                                    </span>
+                                </a>
+                            </div>
+                        {{/if}}
+                        {{#if theme_settings.footer_email '!==' ""}}
+                            <div class="footer-info--item">
+                                <a href=mailto:{{theme_settings.footer_email}} title="{{theme_settings.footer_email}}">
+                                    <svg class="icon">
+                                        <use href="#icon-email"></use>
+                                    </svg>
+                                    {{theme_settings.footer_email}}
+                                </a>
+                            </div>
+                        {{/if}}
+                        <div class="footer-info--item">
+                            <svg class="icon">
+                                <use href="#icon-location"></use>
+                            </svg>
+                            <span>
+                                <strong>Jettribe Shipping Distribution</strong><br>
+                                {{#if settings.address}}{{settings.address}}{{else}}1120 Como Street South, Sulphur Springs, Texas 75482{{/if}}
+                            </span>
+                        </div>
+                        <div class="footer-info--item">
+                            <svg class="icon">
+                                <use href="#icon-location"></use>
+                            </svg>
+                            <span>
+                                <strong>Jettribe Corporate California</strong> (No Products at this Location)<br>
+                                Temecula, California, Office By Appointment Only
+                            </span>
+                        </div>
+                        {{#if theme_settings.social_icon_placement_bottom}}
+                            {{> components/common/social-links}}
+                        {{/if}}
+                        {{{region name="footer_contact--global"}}}
+                    </article>
+                {{/if}}
+
+                {{!-- 5. VIP LIST SIGN-UP --}}
                 {{#and settings.show_newsletter_box theme_settings.footer_show_newsletter}}
                     {{#if settings.show_newsletter_box}}
                         {{> components/beautify/section-home-newsletter}}

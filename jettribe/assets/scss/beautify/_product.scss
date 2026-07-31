@@ -2853,6 +2853,7 @@
 
     .form-option {
         border-radius: $input-border-radius;
+        color: #000000;
     }
 
     .form-option-variant {
@@ -2860,6 +2861,15 @@
         padding: spacing("third") spacing("half");
         min-width: auto;
         text-align: inherit;
+        color: #000000;
+    }
+
+    // Size / option labels must read as active (not grey)
+    [data-product-attribute="set-rectangle"] .form-option,
+    [data-product-attribute="set-rectangle"] .form-option-variant,
+    [data-product-attribute="set-radio"] .form-label,
+    .productOptions-list .form-label {
+        color: #000000 !important;
     }
 
     .productOptions-list {

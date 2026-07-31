@@ -3394,3 +3394,32 @@ html .beautify__calloutIcons {
 .beautify__homeWideBanner ._imgContainer img {
     opacity: 1 !important;
 }
+
+// Jettribe storefront customizations
+.price--rrp,
+.rrp-price--withTax,
+.rrp-price--withoutTax,
+.price-section.rrp-price--withTax,
+.price-section.rrp-price--withoutTax {
+    display: none !important;
+}
+
+// PLP / card size buttons — black text (not grey/inactive)
+.card [data-product-attribute="set-rectangle"] .form-option,
+.card [data-product-attribute="set-rectangle"] .form-option-variant,
+.card .form-option-variant,
+.cardSwatches .form-option,
+.cardSwatches .form-option-variant,
+.productCarousel .form-option-variant {
+    color: #000000 !important;
+}
+
+// Hide Country / flag faceted filters
+.facetedSearch-facetBlock[data-facet-key*="country"],
+.facetedSearch-facetBlock[data-facet-title*="Country"],
+.facetedSearch-facetBlock[data-facet-title*="country"],
+#facetedSearch-content--country,
+[id*="facetedSearch-content--country"] {
+    display: none !important;
+}
+

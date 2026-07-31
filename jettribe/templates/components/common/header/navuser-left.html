@@ -22,11 +22,33 @@
         </div>
         <div class="previewLogin-overlay" id="popup-overlay"></div>
     </li>
+    {{!-- Utility links matching current Jettribe header --}}
+    <li class="navUser-item navUser-item--returns">
+        <a class="navUser-action navUser-action--returns" href="/returns/" title="{{lang 'account.nav.returns'}}">
+            <svg class="icon"><use href="#icon-lock" /></svg>
+            <span class="_label">{{lang 'account.nav.returns'}}</span>
+        </a>
+    </li>
+    {{#if settings.show_wishlist}}
+        <li class="navUser-item navUser-item--wishlist">
+            <a class="navUser-action navUser-action--wishlist" href="{{urls.account.wishlists.all}}" title="{{lang 'common.wishlist'}}">
+                <svg class="icon"><use href="#icon-heart" /></svg>
+                <span class="_label">{{lang 'account.nav.wishlists'}}</span>
+            </a>
+        </li>
+    {{else}}
+        <li class="navUser-item navUser-item--wishlist">
+            <a class="navUser-action navUser-action--wishlist" href="{{urls.account.wishlists.all}}" title="Wishlists">
+                <svg class="icon"><use href="#icon-heart" /></svg>
+                <span class="_label">Wishlists</span>
+            </a>
+        </li>
+    {{/if}}
     {{#if settings.gift_certificates_enabled}}
         <li class="navUser-item navPages-item--page navUser-item--giftCert">
             <a class="navUser-action navUser-action--giftCert" href="{{urls.gift_certificate.purchase}}" title="{{lang 'common.gift_cert'}}">
                 <svg class="icon"><use href="#icon-gift-certificate"></use></svg>
-                <span class="_label">{{lang 'common.gift_cert'}}</span>
+                <span class="_label">Gift Certificates</span>
             </a>
         </li>
     {{/if}}

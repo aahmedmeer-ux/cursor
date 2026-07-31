@@ -339,7 +339,7 @@
             {{/if}}
         {{/if}}
 
-        {{!-- Customer Reviews + Explore Popular Articles removed from storefront --}}
+        {{!-- Jettribe storefront customizations --}}
         <style nonce="{{nonce}}">
             .beautify__customerReviews,
             [class*="beautify__customerReviews"],
@@ -354,6 +354,17 @@
                 margin: 0 !important;
                 padding: 0 !important;
             }
+            .price--rrp,
+            .rrp-price--withTax,
+            .rrp-price--withoutTax {
+                display: none !important;
+            }
+            [data-product-attribute="set-rectangle"] .form-option,
+            [data-product-attribute="set-rectangle"] .form-option-variant,
+            [data-product-attribute="set-radio"] .form-label,
+            .card .form-option-variant {
+                color: #000000 !important;
+            }
         </style>
         <script nonce="{{nonce}}">
             (function () {
@@ -364,7 +375,6 @@
                         el.remove();
                     });
 
-                    // Remove Page Builder / HTML widgets whose only visible heading is CUSTOMER REVIEWS
                     document.querySelectorAll('h1, h2, h3, .page-heading').forEach(function (heading) {
                         var text = (heading.textContent || '').replace(/\s+/g, ' ').trim().toUpperCase();
                         if (text === 'CUSTOMER REVIEWS' || text === 'EXPLORE POPULAR ARTICLES') {
@@ -375,6 +385,24 @@
                                 heading.remove();
                             }
                         }
+                        // Homepage wording update
+                        if (text.indexOf('UNIQUE SPORTS-INSPIRED FASHION') !== -1) {
+                            heading.textContent = 'QUALITY PWC GEAR AND APPAREL SINCE 1996';
+                        }
+                    });
+
+                    // Hide Country / flag filters in faceted search
+                    document.querySelectorAll('.facetedSearch-facetBlock, ._accordion-block').forEach(function (block) {
+                        var key = (block.getAttribute('data-facet-key') || '').toLowerCase();
+                        var title = (block.getAttribute('data-facet-title') || '').toLowerCase();
+                        var label = '';
+                        var labelEl = block.querySelector('._accordion-label, ._accordion-title');
+                        if (labelEl) {
+                            label = (labelEl.textContent || '').toLowerCase();
+                        }
+                        if (key.indexOf('country') !== -1 || title.indexOf('country') !== -1 || label.indexOf('country') !== -1) {
+                            block.style.display = 'none';
+                        }
                     });
                 }
 
@@ -384,7 +412,6 @@
                     removeUnwantedSections();
                 }
 
-                // PapaThemes widgets can mount asynchronously after first paint
                 var observer = new MutationObserver(removeUnwantedSections);
                 observer.observe(document.documentElement, { childList: true, subtree: true });
                 setTimeout(function () { observer.disconnect(); }, 15000);

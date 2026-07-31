@@ -1,4 +1,34 @@
 <ul class="navUser-section">
+    <li class="navUser-item navUser-item--account">
+        <a id="login-dropdown-navRight" data-toggle="login-popup" class="navUser-action navUser-action--account login-dropdown--popup login-dropdown--desktop" href="{{#if customer}}{{urls.account.index}}{{else}}{{urls.auth.login}}{{/if}}" title="{{lang 'common.account'}}">
+            <svg class="icon"><use href="#icon-account" /></svg>
+            <span class="_label">{{lang 'common.account'}}</span>
+        </a>
+        <div id="login-popup" class="login-popup general-account {{#if customer}}has-account{{/if}}" aria-hidden="true">
+            {{> components/account/login-popup}}
+        </div>
+        <div class="previewLogin-overlay" id="popup-overlay"></div>
+    </li>
+    <li class="navUser-item navUser-item--returns">
+        <a class="navUser-action navUser-action--returns" href="/returns/" title="{{lang 'account.nav.returns'}}">
+            <svg class="icon"><use href="#icon-lock" /></svg>
+            <span class="_label">{{lang 'account.nav.returns'}}</span>
+        </a>
+    </li>
+    <li class="navUser-item navUser-item--wishlist">
+        <a class="navUser-action navUser-action--wishlist" href="{{urls.account.wishlists.all}}" title="Wishlists">
+            <svg class="icon"><use href="#icon-heart" /></svg>
+            <span class="_label">Wishlists</span>
+        </a>
+    </li>
+    {{#if settings.gift_certificates_enabled}}
+        <li class="navUser-item navPages-item--page navUser-item--giftCert">
+            <a class="navUser-action navUser-action--giftCert" href="{{urls.gift_certificate.purchase}}" title="Gift Certificates">
+                <svg class="icon"><use href="#icon-gift-certificate"></use></svg>
+                <span class="_label">Gift Certificates</span>
+            </a>
+        </li>
+    {{/if}}
     <li class="navUser-item navUser-item--cart">
         <a
         data-cart-preview
@@ -19,24 +49,6 @@
                 </span>
             </span>
         </a>
-    </li>
-    {{#if settings.gift_certificates_enabled}}
-        <li class="navUser-item navPages-item--page navUser-item--giftCert">
-            <a class="navUser-action navUser-action--giftCert" href="{{urls.gift_certificate.purchase}}" title="{{lang 'common.gift_cert'}}">
-                <svg class="icon"><use href="#icon-gift-certificate"></use></svg>
-                <span class="_label">{{lang 'common.gift_cert'}}</span>
-            </a>
-        </li>
-    {{/if}}
-    <li class="navUser-item navUser-item--account">
-        <a id="login-dropdown-navRight" data-toggle="login-popup" class="navUser-action navUser-action--account login-dropdown--popup login-dropdown--desktop" href="{{#if customer}}{{urls.account.index}}{{else}}{{urls.auth.login}}{{/if}}" title="{{lang 'common.account'}}">
-            <svg class="icon"><use href="#icon-account" /></svg>
-            <span class="_label">{{lang 'common.account'}}</span>
-        </a>
-        <div id="login-popup" class="login-popup general-account {{#if customer}}has-account{{/if}}" aria-hidden="true">
-            {{> components/account/login-popup}}
-        </div>
-        <div class="previewLogin-overlay" id="popup-overlay"></div>
     </li>
     {{#if settings.phone_number}}
         {{#if theme_settings.navUser-phone '===' 'show'}}

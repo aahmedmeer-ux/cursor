@@ -1,126 +1,35 @@
-
 {{#with theme_settings}}
 <div class="footer-payment-icons">
-    {{#if show_accept_venmo}}
-        <svg class="footer-payment-icon">
-            <use
-                href="#icon-logo-venmo">
-            </use>
-        </svg>
-    {{/if}}
-    {{#if show_accept_affirm}}
-        <svg class="footer-payment-icon">
-            <use
-                href="#icon-logo-affirm">
-            </use>
-        </svg>
-    {{/if}}
-    {{#if show_accept_discover}}
-    <svg class="footer-payment-icon">
-        <use
-            href="#icon-logo-discover">
-        </use>
-    </svg>
-    {{/if}}
     {{#if show_accept_mastercard}}
-        <svg class="footer-payment-icon">
-            <use
-                href="#icon-logo-mastercard">
-            </use>
-        </svg>
-    {{/if}}
-    {{#if show_accept_shoppay}}
-        <svg class="footer-payment-icon">
-            <use
-                href="#icon-logo-shoppay">
-            </use>
-        </svg>
-    {{/if}}
-    {{#if show_accept_amex}}
-        <svg class="footer-payment-icon">
-            <use
-                href="#icon-logo-american-express">
-            </use>
+        <svg class="footer-payment-icon" aria-label="Mastercard">
+            <use href="#icon-logo-mastercard"></use>
         </svg>
     {{/if}}
     {{#if show_accept_visa}}
-        <svg class="footer-payment-icon">
-            <use
-                href="#icon-logo-visa">
-            </use>
+        <svg class="footer-payment-icon" aria-label="Visa">
+            <use href="#icon-logo-visa"></use>
         </svg>
     {{/if}}
-    {{#if show_accept_applepay}}
-        <svg class="footer-payment-icon">
-            <use
-                href="#icon-logo-applepay">
-            </use>
-        </svg>
-    {{/if}}
-    {{#if show_accept_klarna}}
-        <svg class="footer-payment-icon">
-            <use
-                href="#icon-logo-klarna">
-            </use>
-        </svg>
-    {{/if}}
-    {{#if show_accept_googlepay}}
-        <svg class="footer-payment-icon">
-            <use
-                href="#icon-logo-googlepay">
-            </use>
-        </svg>
-    {{/if}}
-    {{#if show_accept_jcb}}
-        <svg class="footer-payment-icon">
-            <use
-                href="#icon-logo-jcb">
-            </use>
-        </svg>
-
-    {{/if}}
-    {{#if show_accept_stripe}}
-        <svg class="footer-payment-icon">
-            <use
-                href="#icon-logo-stripe">
-            </use>
-        </svg>
-    {{/if}}
-    {{#if show_accept_dinersclub}}
-        <svg class="footer-payment-icon">
-            <use
-                href="#icon-logo-dinerclub">
-            </use>
+    {{#if show_accept_amex}}
+        <svg class="footer-payment-icon" aria-label="American Express">
+            <use href="#icon-logo-american-express"></use>
         </svg>
     {{/if}}
     {{#if show_accept_paypal}}
-        <svg class="footer-payment-icon">
-            <use
-                href="#icon-logo-paypal">
-            </use>
+        <svg class="footer-payment-icon" aria-label="PayPal">
+            <use href="#icon-logo-paypal"></use>
         </svg>
     {{/if}}
-    {{#if show_accept_unionpay}}
-        <svg class="footer-payment-icon">
-            <use
-                href="#icon-logo-union">
-            </use>
-        </svg>
-    {{/if}}
-    {{#if show_accept_afterpay}}
-        <svg class="footer-payment-icon">
-            <use
-                href="#icon-logo-afterpay">
-            </use>
+    {{#if show_accept_googlepay}}
+        <svg class="footer-payment-icon" aria-label="Google Pay">
+            <use href="#icon-logo-googlepay"></use>
         </svg>
     {{/if}}
     {{#if show_accept_amazon}}
-        <svg class="footer-payment-icon">
-            <use
-                href="#icon-logo-amazon">
-            </use>
+        <svg class="footer-payment-icon" aria-label="Amazon Pay">
+            <use href="#icon-logo-amazon"></use>
         </svg>
     {{/if}}
-    </div>
-        {{{region name="footer_payment_icons--global"}}}
+</div>
+{{{region name="footer_payment_icons--global"}}}
 {{/with}}

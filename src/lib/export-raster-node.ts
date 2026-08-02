@@ -37,28 +37,42 @@ function sanitizeSvg(svg: string): string {
 
 export async function svgToPngDataUrl(
   svg: string,
-  scale = 2
+  scale = 2,
+  opts?: { transparent?: boolean }
 ): Promise<{ dataUrl: string; width: number; height: number }> {
-  const cleaned = sanitizeSvg(svg);
+  let cleaned = sanitizeSvg(svg);
+  // Drop solid page-sized background rects so equations don't show a gray panel in PDF
+  if (opts?.transparent) {
+    cleaned = cleaned.replace(/<rect\b[^>]*\bfill=["']#fff(?:fff)?["'][^>]*\/?>/gi, "");
+    cleaned = cleaned.replace(/<rect\b[^>]*\bfill=["']white["'][^>]*\/?>/gi, "");
+  }
   const { width, height } = parseSvgSize(cleaned);
   const w = Math.max(1, Math.round(width * scale));
   const h = Math.max(1, Math.round(height * scale));
+  const bg = opts?.transparent
+    ? { r: 255, g: 255, b: 255, alpha: 0 }
+    : { r: 255, g: 255, b: 255, alpha: 1 };
+  const fit = opts?.transparent ? "fill" : "contain";
   try {
-    const png = await sharp(Buffer.from(cleaned), { density: Math.round(96 * scale) })
+    let pipeline = sharp(Buffer.from(cleaned), { density: Math.round(96 * scale) });
+    if (opts?.transparent) pipeline = pipeline.ensureAlpha();
+    const png = await pipeline
       .resize(w, h, {
-        fit: "contain",
-        background: { r: 255, g: 255, b: 255, alpha: 1 },
+        fit,
+        background: bg,
       })
       .png()
       .toBuffer();
     return { dataUrl: `data:image/png;base64,${png.toString("base64")}`, width, height };
-  } catch (err) {
+  } catch {
     // Fallback: wrap in a minimal SVG shell if the original fails to parse
     const wrapped = `<?xml version="1.0" encoding="UTF-8"?>${cleaned}`;
-    const png = await sharp(Buffer.from(wrapped), { density: Math.round(96 * scale) })
+    let pipeline = sharp(Buffer.from(wrapped), { density: Math.round(96 * scale) });
+    if (opts?.transparent) pipeline = pipeline.ensureAlpha();
+    const png = await pipeline
       .resize(w, h, {
-        fit: "contain",
-        background: { r: 255, g: 255, b: 255, alpha: 1 },
+        fit,
+        background: bg,
       })
       .png()
       .toBuffer();

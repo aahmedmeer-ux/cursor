@@ -28,9 +28,8 @@ export function renderEquationSvg(eq: SurveyEquation): string {
   }
   const h = line2 ? 88 : 72;
 
-  // Transparent / white only — no tinted heading band or card chrome (matches section typography)
+  // No background rect — keeps PDF equations free of gray/white panels
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${h}" width="${width}" height="${h}" role="img" aria-label="Equation ${eq.number}">
-  <rect x="0" y="0" width="${width}" height="${h}" fill="#ffffff"/>
   <text x="${width / 2}" y="${line2 ? 36 : 44}" text-anchor="middle" font-size="17" font-style="italic" font-family="Times New Roman, Times, serif" fill="#111111">${escapeXml(line1)}</text>
   ${
     line2

@@ -11,10 +11,16 @@ const COL_W = (PAGE_W - MARGIN * 2 - GUTTER) / 2;
 const BOTTOM = PAGE_H - MARGIN;
 const TOP = MARGIN;
 const FULL_W = PAGE_W - MARGIN * 2;
+const LEFT_X = MARGIN;
+const RIGHT_X = MARGIN + COL_W + GUTTER;
+const BODY = 9;
+const LINE = 3.9;
 
 type ColState = {
   doc: jsPDF;
   y: number;
+  col: "left" | "right";
+  pageTop: number;
 };
 
 type InlineBlock =
@@ -27,224 +33,244 @@ type FloatBlock =
   | { type: "figure"; fig: SurveyFigure; num: number }
   | { type: "table"; table: SurveyTable; num: number };
 
+type StreamItem = { kind: "inline"; block: InlineBlock } | { kind: "float"; float: FloatBlock };
+
 function setTimes(doc: jsPDF, style: "normal" | "bold" | "italic" | "bolditalic", size: number) {
   doc.setFont("times", style);
   doc.setFontSize(size);
 }
 
-function estimateBlock(doc: jsPDF, block: InlineBlock, width: number): number {
-  if (block.type === "h1") {
-    setTimes(doc, "bold", 10);
-    return 2.2 + (doc.splitTextToSize(block.text, width) as string[]).length * 4.4 + 1;
-  }
-  if (block.type === "h2") {
-    setTimes(doc, "bolditalic", 9);
-    return 1.6 + (doc.splitTextToSize(block.text, width) as string[]).length * 3.9 + 0.7;
-  }
-  if (block.type === "p") {
-    setTimes(doc, "normal", 9);
-    return (doc.splitTextToSize(block.text, width) as string[]).length * 3.9 + 1.2;
-  }
-  setTimes(doc, "italic", 8);
-  const descH = (doc.splitTextToSize(block.eq.description, width) as string[]).length * 3.3;
-  return 2 + 4 + 18 + descH + 2;
+function equationAscii(eq: SurveyEquation): string {
+  return (
+    eq.plaintext.replace(/[ᵢⱼ⁽⁾ᵏ⁺⁻₁₂√‖∫Σ∑θγλ]/g, "").replace(/\s+/g, " ").trim() ||
+    eq.display.replace(/\s+/g, " ").trim()
+  );
 }
 
-async function writeBlock(
-  doc: jsPDF,
-  block: InlineBlock,
-  x: number,
-  yStart: number,
-  width: number
-): Promise<number> {
-  let y = yStart;
-  if (block.type === "h1") {
-    y += 2.2;
-    setTimes(doc, "bold", 10);
-    for (const line of doc.splitTextToSize(block.text, width) as string[]) {
-      doc.text(line, x, y);
-      y += 4.4;
-    }
-    return y + 1;
-  }
-  if (block.type === "h2") {
-    y += 1.6;
-    setTimes(doc, "bolditalic", 9);
-    for (const line of doc.splitTextToSize(block.text, width) as string[]) {
-      doc.text(line, x, y);
-      y += 3.9;
-    }
-    return y + 0.7;
-  }
-  if (block.type === "p") {
-    setTimes(doc, "normal", 9);
-    for (const line of doc.splitTextToSize(block.text, width) as string[]) {
-      doc.text(line, x, y);
-      y += 3.9;
-    }
-    return y + 1.2;
-  }
+function measureEq(doc: jsPDF, eq: SurveyEquation, width: number): number {
+  // Times text only — no SVG panel (avoids gray equation backgrounds in PDF)
+  setTimes(doc, "italic", 9);
+  const asciiH = (doc.splitTextToSize(equationAscii(eq), width) as string[]).length * 3.8;
+  setTimes(doc, "italic", 8);
+  const descH = (doc.splitTextToSize(eq.description, width) as string[]).length * 3.3;
+  return 2 + 4.2 + asciiH + descH + 2;
+}
 
-  // Equation — Times label + formula image/plaintext + description
+async function writeEquation(doc: jsPDF, eq: SurveyEquation, x: number, y: number, width: number): Promise<number> {
   y += 2;
   setTimes(doc, "bold", 9);
-  doc.text(`(${block.eq.number}) ${block.eq.label}`, x + width / 2, y, { align: "center" });
+  doc.text(`(${eq.number}) ${eq.label}`, x + width / 2, y, { align: "center" });
   y += 4.2;
 
-  const ascii =
-    block.eq.plaintext.replace(/[ᵢⱼ⁽⁾ᵏ⁺⁻₁₂√‖∫Σ∑θγλ]/g, "").replace(/\s+/g, " ").trim() ||
-    block.eq.display;
-
-  let drew = false;
-  if (block.eq.svg) {
-    try {
-      const { dataUrl, width: iw, height: ih } = await svgToPngDataUrl(block.eq.svg, 2);
-      const aspect = ih / Math.max(iw, 1);
-      let imgW = width - 2;
-      let imgH = imgW * aspect;
-      if (imgH > 28) {
-        imgH = 28;
-        imgW = Math.min(width - 2, imgH / aspect);
-      }
-      doc.addImage(dataUrl, "PNG", x + (width - imgW) / 2, y, imgW, imgH, undefined, "FAST");
-      y += imgH + 1.2;
-      drew = true;
-    } catch {
-      drew = false;
-    }
-  }
-  if (!drew) {
-    setTimes(doc, "italic", 9);
-    for (const line of doc.splitTextToSize(ascii, width) as string[]) {
-      doc.text(line, x + width / 2, y, { align: "center" });
-      y += 3.8;
-    }
+  setTimes(doc, "italic", 9);
+  for (const line of doc.splitTextToSize(equationAscii(eq), width) as string[]) {
+    doc.text(line, x + width / 2, y, { align: "center" });
+    y += 3.8;
   }
 
   setTimes(doc, "italic", 8);
-  for (const line of doc.splitTextToSize(block.eq.description, width) as string[]) {
+  for (const line of doc.splitTextToSize(eq.description, width) as string[]) {
     doc.text(line, x, y);
     y += 3.3;
   }
   return y + 2;
 }
 
-/**
- * Continuous two-column writer: left→bottom, then right→bottom, then new page.
- * Uses live write positions so we don't leave mid-page voids from bad estimates.
- * Short trailing content before a float is written full-width to avoid empty right columns.
- */
-async function flushInlineRegion(doc: jsPDF, state: ColState, blocks: InlineBlock[]) {
-  if (!blocks.length) return;
+type Atom =
+  | {
+      kind: "line";
+      text: string;
+      height: number;
+      fontSize: number;
+      style: "normal" | "bold" | "italic" | "bolditalic";
+    }
+  | { kind: "eq"; eq: SurveyEquation; height: number };
 
-  // If everything fits comfortably in one full-width column on this page, don't two-col it
-  const pageTop0 = state.y > BOTTOM - 28 ? (doc.addPage(), (state.y = TOP), TOP) : state.y;
-  const avail0 = BOTTOM - pageTop0;
-  let totalEst = 0;
-  for (const b of blocks) totalEst += estimateBlock(doc, b, FULL_W);
-  if (totalEst <= avail0 - 2) {
-    let y = pageTop0;
-    for (const b of blocks) y = await writeBlock(doc, b, MARGIN, y, FULL_W);
-    state.y = y + 3;
-    return;
+async function blockToAtoms(doc: jsPDF, block: InlineBlock): Promise<Atom[]> {
+  if (block.type === "h1") {
+    setTimes(doc, "bold", 10);
+    const lines = doc.splitTextToSize(block.text, COL_W) as string[];
+    return lines.map((text, i) => ({
+      kind: "line" as const,
+      text,
+      height: (i === 0 ? 2.2 : 0) + 4.4 + (i === lines.length - 1 ? 1 : 0),
+      fontSize: 10,
+      style: "bold" as const,
+    }));
   }
+  if (block.type === "h2") {
+    setTimes(doc, "bolditalic", 9);
+    const lines = doc.splitTextToSize(block.text, COL_W) as string[];
+    return lines.map((text, i) => ({
+      kind: "line" as const,
+      text,
+      height: (i === 0 ? 1.6 : 0) + 3.9 + (i === lines.length - 1 ? 0.7 : 0),
+      fontSize: 9,
+      style: "bolditalic" as const,
+    }));
+  }
+  if (block.type === "p") {
+    setTimes(doc, "normal", BODY);
+    const lines = doc.splitTextToSize(block.text, COL_W) as string[];
+    return lines.map((text, i) => ({
+      kind: "line" as const,
+      text,
+      height: LINE + (i === lines.length - 1 ? 1.2 : 0),
+      fontSize: BODY,
+      style: "normal" as const,
+    }));
+  }
+  return [{ kind: "eq", eq: block.eq, height: measureEq(doc, block.eq, COL_W) }];
+}
 
-  let idx = 0;
-  const rightX = MARGIN + COL_W + GUTTER;
+async function paintAtoms(doc: jsPDF, atoms: Atom[], x: number, y0: number, width: number): Promise<number> {
+  let y = y0;
+  for (const a of atoms) {
+    if (a.kind === "eq") {
+      y = await writeEquation(doc, a.eq, x, y, width);
+      continue;
+    }
+    const pad = a.style === "bold" ? 2.2 : a.style === "bolditalic" ? 1.6 : 0;
+    // Only apply pad when this atom's height includes it (first heading line)
+    const usePad = pad > 0 && a.height > (a.fontSize >= 10 ? 4.4 : 3.9) + 0.05;
+    setTimes(doc, a.style, a.fontSize);
+    doc.text(a.text, x, y + (usePad ? pad : 0));
+    y += a.height;
+  }
+  return y;
+}
 
-  while (idx < blocks.length) {
+function bestSplit(heights: number[], colH: number, atoms?: Atom[]): number {
+  if (heights.length <= 1) return heights.length;
+  const total = heights.reduce((a, b) => a + b, 0);
+  let best = Math.max(1, Math.floor(heights.length / 2));
+  let bestScore = Infinity;
+  let acc = 0;
+  for (let s = 1; s < heights.length; s++) {
+    acc += heights[s - 1];
+    const l = acc;
+    const r = total - acc;
+    const overflow = Math.max(0, l - colH) + Math.max(0, r - colH);
+    // Avoid leaving a heading alone at the bottom of the left column
+    let orphan = 0;
+    if (atoms) {
+      const leftLast = atoms[s - 1];
+      const rightFirst = atoms[s];
+      if (
+        leftLast?.kind === "line" &&
+        (leftLast.style === "bold" || leftLast.style === "bolditalic") &&
+        rightFirst?.kind === "line" &&
+        rightFirst.style === "normal"
+      ) {
+        orphan = 40;
+      }
+    }
+    // Equal bottoms first; penalize left running much longer than right
+    const score = Math.abs(l - r) + overflow * 8000 + orphan + (l > r ? (l - r) * 0.35 : 0);
+    if (score < bestScore) {
+      bestScore = score;
+      best = s;
+    }
+  }
+  return best;
+}
+
+/**
+ * Newspaper two-column flow:
+ * - Non-final pages: fill left to bottom, then right to bottom (no hollow bottoms).
+ * - Final page: height-balance the leftover so both columns end together.
+ */
+async function writeAtomsTwoCol(doc: jsPDF, state: ColState, atomsIn: Atom[]) {
+  if (!atomsIn.length) return;
+  const atoms = atomsIn.slice();
+  const sum = (arr: Atom[]) => arr.reduce((s, a) => s + a.height, 0);
+
+  while (atoms.length) {
     if (state.y > BOTTOM - 24) {
       doc.addPage();
       state.y = TOP;
+      state.pageTop = TOP;
+      state.col = "left";
     }
     const pageTop = state.y;
-    const avail = BOTTOM - pageTop;
+    state.pageTop = pageTop;
+    const colH = BOTTOM - pageTop;
+    const totalLeft = sum(atoms);
 
-    // Take a page-worth of blocks (~2 columns), keeping heading/eq packs atomic
-    const pageBlocks: InlineBlock[] = [];
-    const heights: number[] = [];
-    let used = 0;
-    let i = idx;
-    while (i < blocks.length) {
-      const b = blocks[i];
-      let h = estimateBlock(doc, b, COL_W);
-      let take = 1;
-      const next = i + 1 < blocks.length ? blocks[i + 1] : null;
-      if ((b.type === "h1" || b.type === "h2") && next) {
-        h += estimateBlock(doc, next, COL_W);
-        take = 2;
-      } else if (b.type === "p" && next?.type === "eq") {
-        h += estimateBlock(doc, next, COL_W);
-        take = 2;
-      }
-      if (used + h > avail * 2 + 1 && pageBlocks.length) break;
-      for (let k = 0; k < take && i < blocks.length; k++, i++) {
-        const bh = estimateBlock(doc, blocks[i], COL_W);
-        pageBlocks.push(blocks[i]);
-        heights.push(bh);
-        used += bh;
-      }
+    // Short remainder → full width (avoids empty right column)
+    if (totalLeft <= colH + 2) {
+      state.y = await paintAtoms(doc, atoms.splice(0, atoms.length), MARGIN, pageTop, FULL_W);
+      state.col = "left";
+      break;
     }
 
-    // Split pageBlocks into left/right aiming for equal height (reduces bottom blank)
-    let split = pageBlocks.length;
-    let best = Infinity;
-    let leftSum = 0;
-    for (let s = 0; s <= pageBlocks.length; s++) {
-      const l = heights.slice(0, s).reduce((a, b) => a + b, 0);
-      const r = heights.slice(s).reduce((a, b) => a + b, 0);
-      if (l > avail + 1.5 && s > 0) continue;
-      if (r > avail + 1.5 && s < pageBlocks.length) continue;
-      // Prefer true two-column when content exceeds one column
-      if (l + r <= avail) {
-        split = pageBlocks.length;
-        best = -1;
-        break;
-      }
-      const diff = Math.abs(l - r);
-      if (diff < best) {
-        best = diff;
-        split = s;
-        leftSum = l;
-      }
-    }
-    void leftSum;
-    if (best === Infinity) split = Math.max(1, Math.ceil(pageBlocks.length / 2));
+    // Enough for one more full page (both columns)? Use newspaper fill.
+    const hasFullPage = totalLeft >= colH * 2 - 4;
 
-    // If everything fits in one column, write full-width instead of leaving an empty right col
-    const totalH = heights.reduce((a, b) => a + b, 0);
-    if (totalH <= avail + 1) {
-      let y = pageTop;
-      for (const b of pageBlocks) y = await writeBlock(doc, b, MARGIN, y, FULL_W);
-      state.y = y + 2;
-      idx = i;
+    if (hasFullPage) {
+      const left: Atom[] = [];
+      while (atoms.length && sum(left) + atoms[0].height <= colH + 0.8) {
+        left.push(atoms.shift()!);
+      }
+      // Avoid orphan heading at end of left
+      if (
+        left.length > 1 &&
+        atoms.length &&
+        left[left.length - 1].kind === "line" &&
+        (left[left.length - 1] as Extract<Atom, { kind: "line" }>).style !== "normal"
+      ) {
+        atoms.unshift(left.pop()!);
+      }
+
+      const right: Atom[] = [];
+      while (atoms.length && sum(right) + atoms[0].height <= colH + 0.8) {
+        right.push(atoms.shift()!);
+      }
+
+      const yL = await paintAtoms(doc, left, LEFT_X, pageTop, COL_W);
+      const yR = await paintAtoms(doc, right, RIGHT_X, pageTop, COL_W);
+      state.y = Math.max(yL, yR);
+      state.col = "right";
+
+      if (atoms.length) {
+        doc.addPage();
+        state.y = TOP;
+        state.pageTop = TOP;
+        state.col = "left";
+      }
       continue;
     }
 
-    let yL = pageTop;
-    for (const b of pageBlocks.slice(0, split)) {
-      yL = await writeBlock(doc, b, MARGIN, yL, COL_W);
-    }
-    let yR = pageTop;
-    for (const b of pageBlocks.slice(split)) {
-      yR = await writeBlock(doc, b, rightX, yR, COL_W);
-    }
+    // Final partial page → balance leftover across both columns
+    const page = atoms.splice(0, atoms.length);
+    let split = bestSplit(
+      page.map((a) => a.height),
+      colH,
+      page
+    );
+    while (split > 1 && sum(page.slice(0, split)) > colH + 2) split--;
+    while (split < page.length && sum(page.slice(split)) > colH + 2) split++;
 
-    state.y = Math.max(yL, yR) + 2;
-    idx = i;
-
-    if (idx < blocks.length) {
-      doc.addPage();
-      state.y = TOP;
-    }
+    const yL = await paintAtoms(doc, page.slice(0, split), LEFT_X, pageTop, COL_W);
+    const yR = await paintAtoms(doc, page.slice(split), RIGHT_X, pageTop, COL_W);
+    state.y = Math.max(yL, yR);
+    state.col = "right";
+    break;
   }
 }
 
 async function drawFigure(doc: jsPDF, state: ColState, fig: SurveyFigure, index: number) {
-  // Prefer starting floats near top of a page when little room remains
-  if (state.y > BOTTOM - 70) {
+  state.col = "left";
+  state.pageTop = state.y;
+
+  // Reserve space for title + caption; shrink image to fit leftover band when possible
+  const chrome = 18; // title + caption approx
+  let remain = BOTTOM - state.y;
+  if (remain < 50) {
     doc.addPage();
     state.y = TOP;
+    state.pageTop = TOP;
+    remain = BOTTOM - state.y;
   }
 
   setTimes(doc, "bold", 9);
@@ -255,33 +281,44 @@ async function drawFigure(doc: jsPDF, state: ColState, fig: SurveyFigure, index:
     const { dataUrl, width, height } = await svgToPngDataUrl(fig.svg, 2);
     const maxW = FULL_W;
     const aspect = height / Math.max(width, 1);
+    const maxImgH = Math.min(100, Math.max(36, BOTTOM - state.y - chrome));
     let imgW = maxW;
     let imgH = imgW * aspect;
-    if (imgH > 105) {
-      imgH = 105;
-      imgW = imgH / aspect;
+    if (imgH > maxImgH) {
+      imgH = maxImgH;
+      imgW = Math.min(maxW, imgH / aspect);
     }
-    if (state.y + imgH + 14 > BOTTOM) {
+    // If even a compact figure won't fit, move to next page at full size
+    if (state.y + imgH + 12 > BOTTOM + 0.5) {
       doc.addPage();
       state.y = TOP + 2;
+      state.pageTop = TOP;
       setTimes(doc, "bold", 9);
       doc.text(`Fig. ${index}. ${fig.title}.`, PAGE_W / 2, state.y, { align: "center" });
       state.y += 5;
+      imgW = maxW;
+      imgH = imgW * aspect;
+      if (imgH > 100) {
+        imgH = 100;
+        imgW = imgH / aspect;
+      }
     }
     const x = MARGIN + (maxW - imgW) / 2;
     doc.addImage(dataUrl, "PNG", x, state.y, imgW, imgH, undefined, "FAST");
     state.y += imgH + 3;
     setTimes(doc, "italic", 8);
     for (const line of doc.splitTextToSize(fig.caption, maxW) as string[]) {
+      if (state.y > BOTTOM - 4) {
+        doc.addPage();
+        state.y = TOP;
+      }
       doc.text(line, PAGE_W / 2, state.y, { align: "center" });
       state.y += 3.5;
     }
     state.y += 4;
   } catch (err) {
-    // Last-resort: still show caption, no giant blank box
     setTimes(doc, "italic", 8);
-    const msg = `[Figure unavailable: ${fig.title}]`;
-    doc.text(msg, PAGE_W / 2, state.y, { align: "center" });
+    doc.text(`[Figure unavailable: ${fig.title}]`, PAGE_W / 2, state.y, { align: "center" });
     state.y += 6;
     for (const line of doc.splitTextToSize(fig.caption, FULL_W) as string[]) {
       doc.text(line, PAGE_W / 2, state.y, { align: "center" });
@@ -290,13 +327,18 @@ async function drawFigure(doc: jsPDF, state: ColState, fig: SurveyFigure, index:
     state.y += 4;
     console.error("PDF figure raster failed:", fig.id, err);
   }
+  state.pageTop = state.y;
+  state.col = "left";
 }
 
 function drawTable(doc: jsPDF, state: ColState, table: SurveyTable, index: number) {
-  if (state.y > BOTTOM - 40) {
+  if (state.y > BOTTOM - 45) {
     doc.addPage();
     state.y = TOP;
   }
+  state.col = "left";
+  state.pageTop = state.y;
+
   const romans = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
   const roman = romans[index - 1] ?? String(index);
   setTimes(doc, "bold", 9);
@@ -326,6 +368,8 @@ function drawTable(doc: jsPDF, state: ColState, table: SurveyTable, index: numbe
   });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   state.y = (((doc as any).lastAutoTable?.finalY as number) || state.y) + 5;
+  state.pageTop = state.y;
+  state.col = "left";
 }
 
 function sectionLabel(index: number, ieee: boolean): string {
@@ -408,10 +452,47 @@ function proseWithoutEquations(content: string, equations: SurveyEquation[]): st
   return kept.join("\n\n");
 }
 
+/**
+ * Layout strategy that eliminates hollow column bottoms:
+ * 1) Write ALL body text first in height-balanced two-column pages
+ * 2) Pack figures/tables densely afterward (multiple per page when they fit)
+ *
+ * Interleaving floats mid-text was leaving half-empty pages whenever a section
+ * boundary didn't supply enough copy to fill both columns.
+ */
+async function layoutStream(doc: jsPDF, state: ColState, stream: StreamItem[]) {
+  const textAtoms: Atom[] = [];
+  const floats: FloatBlock[] = [];
+
+  for (const item of stream) {
+    if (item.kind === "inline") {
+      textAtoms.push(...(await blockToAtoms(doc, item.block)));
+    } else {
+      floats.push(item.float);
+    }
+  }
+
+  await writeAtomsTwoCol(doc, state, textAtoms);
+
+  // Prefer packing floats under leftover space on the last text page.
+  // Only break to a new page when there truly isn't room for a compact float.
+  if (floats.length && BOTTOM - state.y < 55) {
+    doc.addPage();
+    state.y = TOP;
+    state.pageTop = TOP;
+    state.col = "left";
+  }
+
+  for (const f of floats) {
+    if (f.type === "figure") await drawFigure(doc, state, f.fig, f.num);
+    else drawTable(doc, state, f.table, f.num);
+  }
+}
+
 export async function paperToPdfBlob(paper: SurveyPaper): Promise<Blob> {
   const ieee = paper.template === "ieee" || !paper.template;
   const doc = new jsPDF({ unit: "mm", format: "a4" });
-  const state: ColState = { doc, y: TOP + 2 };
+  const state: ColState = { doc, y: TOP + 2, col: "left", pageTop: TOP + 2 };
 
   setTimes(doc, "bold", 16);
   for (const line of doc.splitTextToSize(paper.title, FULL_W) as string[]) {
@@ -459,6 +540,9 @@ export async function paperToPdfBlob(paper: SurveyPaper): Promise<Blob> {
     state.y += 3;
   }
 
+  state.pageTop = state.y;
+  state.col = "left";
+
   const figures = paper.figures ?? [];
   const tables = paper.tables ?? [];
   const equations = paper.equations ?? [];
@@ -468,47 +552,24 @@ export async function paperToPdfBlob(paper: SurveyPaper): Promise<Blob> {
   let tblNum = 0;
   let major = 0;
 
-  let inline: InlineBlock[] = [];
-  let pendingFloats: FloatBlock[] = [];
-
-  const flush = async (forceFloats: boolean) => {
-    if (inline.length) {
-      await flushInlineRegion(doc, state, inline);
-      inline = [];
-    }
-    if (forceFloats && pendingFloats.length) {
-      for (const f of pendingFloats) {
-        if (f.type === "figure") await drawFigure(doc, state, f.fig, f.num);
-        else drawTable(doc, state, f.table, f.num);
-      }
-      pendingFloats = [];
-    }
-  };
-
-  // Estimate whether current buffered inline text roughly fills the remaining page (2 cols)
-  const inlineFillsPage = () => {
-    const avail = Math.max(BOTTOM - state.y, 40);
-    let est = 0;
-    for (const b of inline) est += estimateBlock(doc, b, COL_W);
-    return est >= avail * 1.6; // ~both columns
-  };
+  const stream: StreamItem[] = [];
 
   for (const section of paper.sections) {
     if (section.level === 1) {
       const label = sectionLabel(major, ieee);
       major++;
-      inline.push({ type: "h1", text: `${label}. ${section.heading.toUpperCase()}` });
+      stream.push({ kind: "inline", block: { type: "h1", text: `${label}. ${section.heading.toUpperCase()}` } });
     } else {
-      inline.push({ type: "h2", text: section.heading });
+      stream.push({ kind: "inline", block: { type: "h2", text: section.heading } });
     }
 
     const prose = proseWithoutEquations(section.content, equations);
     for (const para of prose.split(/\n{2,}/)) {
       const t = para.trim();
-      if (t) inline.push({ type: "p", text: t });
+      if (t) stream.push({ kind: "inline", block: { type: "p", text: t } });
     }
     for (const eq of equations.filter((e) => e.sectionId === section.id)) {
-      inline.push({ type: "eq", eq });
+      stream.push({ kind: "inline", block: { type: "eq", eq } });
     }
 
     for (const fig of figures) {
@@ -516,37 +577,35 @@ export async function paperToPdfBlob(paper: SurveyPaper): Promise<Blob> {
       if (figureKindToSection(fig.kind) !== section.id) continue;
       usedFigs.add(fig.id);
       figNum++;
-      pendingFloats.push({ type: "figure", fig, num: figNum });
+      stream.push({ kind: "float", float: { type: "figure", fig, num: figNum } });
     }
     for (const table of tables) {
       if (usedTables.has(table.id)) continue;
       if (tableKindToSection(table.kind) !== section.id) continue;
       usedTables.add(table.id);
       tblNum++;
-      pendingFloats.push({ type: "table", table, num: tblNum });
-    }
-
-    // Only interrupt for floats once we have enough text to fill the page,
-    // or when the next sections won't add more body before another float cluster.
-    if (pendingFloats.length && inlineFillsPage()) {
-      await flush(true);
+      stream.push({ kind: "float", float: { type: "table", table, num: tblNum } });
     }
   }
-
-  await flush(true);
 
   for (const fig of figures.filter((f) => !usedFigs.has(f.id))) {
     figNum++;
-    await drawFigure(doc, state, fig, figNum);
+    stream.push({ kind: "float", float: { type: "figure", fig, num: figNum } });
   }
   for (const table of tables.filter((t) => !usedTables.has(t.id))) {
     tblNum++;
-    drawTable(doc, state, table, tblNum);
+    stream.push({ kind: "float", float: { type: "table", table, num: tblNum } });
   }
 
-  const refBlocks: InlineBlock[] = [{ type: "h1", text: "REFERENCES" }];
-  for (const ref of paper.references) refBlocks.push({ type: "p", text: ref.text });
-  await flushInlineRegion(doc, state, refBlocks);
+  await layoutStream(doc, state, stream);
+
+  // References
+  const refAtoms: Atom[] = [];
+  for (const a of await blockToAtoms(doc, { type: "h1", text: "REFERENCES" })) refAtoms.push(a);
+  for (const ref of paper.references) {
+    for (const a of await blockToAtoms(doc, { type: "p", text: ref.text })) refAtoms.push(a);
+  }
+  await writeAtomsTwoCol(doc, state, refAtoms);
 
   return doc.output("blob");
 }

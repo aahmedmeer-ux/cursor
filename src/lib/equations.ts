@@ -44,7 +44,8 @@ export function toUnicodeDisplay(raw: string): string {
  */
 export function renderEquationSvg(eq: SurveyEquation): string {
   const width = 820;
-  const src = (eq.latex || eq.plaintext || eq.display || "").trim();
+  // Prefer plaintext/display for SVG — raw latex often leaves commands sharp can't draw
+  const src = (eq.plaintext || eq.display || eq.latex || "").trim();
 
   let parse = src
     .replace(/\\\|/g, "||")
@@ -68,7 +69,22 @@ export function renderEquationSvg(eq: SurveyEquation): string {
     .replace(/\\le\b/g, "<=")
     .replace(/[−–—]/g, "-")
     .replace(/[“”"]/g, "")
-    .replace(/\^\(([^)]+)\)/g, "^{$1}");
+    .replace(/\^\(([^)]+)\)/g, "^{$1}")
+    .replace(/\\mathcal\{([^}]+)\}/g, "$1")
+    .replace(/\\mathbb\{([^}]+)\}/g, "$1")
+    .replace(/\\min_?/g, "min_")
+    .replace(/\\max_?/g, "max_")
+    .replace(/\\!/g, "")
+    .replace(/\\;/g, " ")
+    .replace(/\\ /g, " ");
+
+  // If latex still looks broken after known rewrites, prefer plaintext
+  if (/\\[a-zA-Z]/.test(parse)) {
+    parse = (eq.plaintext || eq.display || parse)
+      .replace(/[−–—]/g, "-")
+      .replace(/\\[a-zA-Z]+\{([^}]+)\}/g, "$1")
+      .replace(/\\[a-zA-Z]+/g, "");
+  }
 
   if (!/_/.test(parse) && eq.display) {
     parse = eq.display

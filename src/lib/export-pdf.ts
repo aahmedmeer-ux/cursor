@@ -6,8 +6,8 @@ import { svgToPngDataUrl } from "./export-raster-node";
 
 const PAGE_W = 210;
 const PAGE_H = 297;
-const MARGIN = 14;
-const GUTTER = 7;
+const MARGIN = 15;
+const GUTTER = 9;
 const COL_W = (PAGE_W - MARGIN * 2 - GUTTER) / 2;
 const BOTTOM = PAGE_H - MARGIN;
 const TOP = MARGIN;
@@ -84,18 +84,15 @@ function equationDisplayText(eq: SurveyEquation): string {
 }
 
 /**
- * Soft-break long tokens for column wrap.
- * Never insert breaks after "." (that produced “10. 1016/…” artifacts).
- * Never use U+200B — jsPDF Times often paints it as a visible gap in DOIs.
- * For DOIs/URLs, keep compact; only split very long paths at "/".
+ * Soft-break ONLY pathological long tokens (DOIs/URLs/unbroken strings).
+ * Do not inject spaces into normal hyphenated prose — that creates rivers/gaps.
  */
-function softBreakLongTokens(text: string, every = 34): string {
-  // Repair any previously damaged DOI spacing before wrapping
+function softBreakLongTokens(text: string, every = 40): string {
   const cleaned = text
     .replace(/\b10\.\s+(\d)/g, "10.$1")
-    .replace(/(\d)\s+\/\s+/g, "$1/")
-    .replace(/\/\s+/g, "/")
-    .replace(/\bdoi:\s*10\.\s+/gi, "doi: 10.");
+    .replace(/\/\s+(?=[A-Za-z0-9])/g, "/")
+    .replace(/\bdoi:\s*10\.\s+/gi, "doi: 10.")
+    .replace(/\s{2,}/g, " ");
 
   return cleaned
     .split(/(\s+)/)
@@ -107,15 +104,11 @@ function softBreakLongTokens(text: string, every = 34): string {
         /^doi:/i.test(tok) ||
         /doi\.org/i.test(tok);
       if (isDoi) {
-        if (tok.length <= 60) return tok;
-        // Very long DOI/URL: wrap only at "/" (no spaces after ".")
-        return tok.replace(/\//g, "/\u00ad");
+        if (tok.length <= 56) return tok;
+        return tok.replace(/\//g, "/ ");
       }
       if (tok.length <= every) return tok;
-      // Generic long token — prefer breaking at punctuation, else every N chars
-      if (/[_/-]/.test(tok)) {
-        return tok.replace(/([_/-])/g, "$1 ").replace(/\s{2,}/g, " ");
-      }
+      // Pathological unbroken token only
       return tok.replace(new RegExp(`(.{${every}})`, "g"), "$1 ");
     })
     .join("");
@@ -123,45 +116,43 @@ function softBreakLongTokens(text: string, every = 34): string {
 
 function measureEq(doc: jsPDF, eq: SurveyEquation, width: number): number {
   setTimes(doc, "italic", 8);
-  const descH = (doc.splitTextToSize(eq.description, width) as string[]).length * 3.3;
-  // Reserve space for raster formula (~14–20mm) + label + description
-  return 3 + 5.2 + 18 + 1.5 + descH + 3;
+  const descH = (doc.splitTextToSize(eq.description, width) as string[]).length * 3.2;
+  // Keep estimate close to real paint height to avoid column holes
+  const formulaH = (eq.display || eq.plaintext || "").length > 54 ? 18 : 14;
+  return 2 + 4.6 + formulaH + 1.2 + descH + 2;
 }
 
 async function writeEquation(doc: jsPDF, eq: SurveyEquation, x: number, y: number, width: number): Promise<number> {
-  y += 3;
+  y += 1.2;
   setTimes(doc, "bold", 9);
   doc.text(`(${eq.number}) ${eq.label}`, x + width / 2, y, { align: "center" });
-  y += 5.2;
+  y += 4.2;
 
-  // Always rasterize a fresh equation SVG (tspan subscripts + white backdrop).
   let drewSvg = false;
   try {
-    // Always rebuild so PDF gets dy-based subscripts (librsvg ignores baseline-shift)
     const svg = renderEquationSvg(eq);
     const { dataUrl, width: iw, height: ih } = await svgToPngDataUrl(svg, 2.8);
     const aspect = ih / Math.max(iw, 1);
-    let imgW = Math.min(width - 1, 88);
+    let imgW = Math.min(width - 0.5, 84);
     let imgH = imgW * aspect;
-    // Keep formulas large enough to read in a narrow IEEE column
-    if (imgH > 24) {
-      imgH = 24;
-      imgW = Math.min(width - 1, imgH / Math.max(aspect, 0.01));
+    const maxH = (eq.display || eq.plaintext || "").length > 54 ? 22 : 18;
+    if (imgH > maxH) {
+      imgH = maxH;
+      imgW = Math.min(width - 0.5, imgH / Math.max(aspect, 0.01));
     }
-    if (imgH < 14) {
-      imgH = 14;
-      imgW = Math.min(width - 1, imgH / Math.max(aspect, 0.01));
+    if (imgH < 13) {
+      imgH = 13;
+      imgW = Math.min(width - 0.5, imgH / Math.max(aspect, 0.01));
     }
     if (imgW >= 28) {
-      doc.addImage(dataUrl, "PNG", x + (width - imgW) / 2, y - 1, imgW, imgH, undefined, "FAST");
-      y += imgH + 2.8;
+      doc.addImage(dataUrl, "PNG", x + (width - imgW) / 2, y - 0.5, imgW, imgH, undefined, "FAST");
+      y += imgH + 2;
       drewSvg = true;
     }
   } catch {
     drewSvg = false;
   }
   if (!drewSvg) {
-    // Readable fallback — NEVER emit underscore ASCII (d_ij / v_i)
     const fallback = equationDisplayText(eq)
       .replace(/ᵢ/g, "i")
       .replace(/ⱼ/g, "j")
@@ -178,20 +169,20 @@ async function writeEquation(doc: jsPDF, eq: SurveyEquation, x: number, y: numbe
       .replace(/≤/g, "<=")
       .replace(/·/g, "*")
       .replace(/_/g, "");
-    setTimes(doc, "italic", 11);
+    setTimes(doc, "italic", 10);
     for (const line of doc.splitTextToSize(fallback, width) as string[]) {
-      doc.text(line, x + width / 2, y, { align: "center" });
-      y += 5;
+      doc.text(line, x + width / 2, y, { align: "center", maxWidth: width });
+      y += 4.4;
     }
   }
 
-  y += 1.2;
+  y += 1;
   setTimes(doc, "italic", 8);
   for (const line of doc.splitTextToSize(eq.description, width) as string[]) {
-    doc.text(line, x, y);
-    y += 3.3;
+    doc.text(line, x, y, { maxWidth: width });
+    y += 3.2;
   }
-  return y + 3;
+  return y + 2;
 }
 
 type Atom =
@@ -204,110 +195,102 @@ type Atom =
     }
   | { kind: "eq"; eq: SurveyEquation; height: number };
 
+function isHeadingAtom(a: Atom | undefined): boolean {
+  return !!a && a.kind === "line" && (a.style === "bold" || a.style === "bolditalic");
+}
+
 async function blockToAtoms(doc: jsPDF, block: InlineBlock): Promise<Atom[]> {
   if (block.type === "h1") {
     setTimes(doc, "bold", 10);
-    const lines = doc.splitTextToSize(block.text, COL_W) as string[];
+    const lines = doc.splitTextToSize(block.text, COL_W - 0.8) as string[];
     return lines.map((text, i) => ({
       kind: "line" as const,
       text,
-      height: (i === 0 ? 2.2 : 0) + 4.4 + (i === lines.length - 1 ? 1 : 0),
+      height: (i === 0 ? 2.4 : 0) + 4.2 + (i === lines.length - 1 ? 0.8 : 0),
       fontSize: 10,
       style: "bold" as const,
     }));
   }
   if (block.type === "h2") {
     setTimes(doc, "bolditalic", 9);
-    const lines = doc.splitTextToSize(block.text, COL_W) as string[];
+    const lines = doc.splitTextToSize(block.text, COL_W - 0.8) as string[];
     return lines.map((text, i) => ({
       kind: "line" as const,
       text,
-      height: (i === 0 ? 1.6 : 0) + 3.9 + (i === lines.length - 1 ? 0.7 : 0),
+      height: (i === 0 ? 1.8 : 0) + 3.8 + (i === lines.length - 1 ? 0.6 : 0),
       fontSize: 9,
       style: "bolditalic" as const,
     }));
   }
   if (block.type === "p") {
     setTimes(doc, "normal", BODY);
-    const safe = softBreakLongTokens(block.text.replace(/\u200b/g, ""));
-    const lines = doc.splitTextToSize(safe, COL_W - 1.2) as string[];
-    return lines.map((text, i) => ({
-      kind: "line" as const,
-      text: text.replace(/\u200b/g, ""),
-      height: LINE + (i === lines.length - 1 ? 1.2 : 0),
-      fontSize: BODY,
-      style: "normal" as const,
-    }));
+    // Force bullet items onto their own visual lines (avoid mid-sentence • clumps)
+    const normalized = block.text
+      .replace(/\u200b/g, "")
+      .replace(/\s*•\s*/g, "\n• ")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+    const atoms: Atom[] = [];
+    for (const chunk of normalized.split("\n")) {
+      const piece = chunk.trim();
+      if (!piece) continue;
+      const safe = softBreakLongTokens(piece);
+      const lines = doc.splitTextToSize(safe, COL_W - 1.5) as string[];
+      lines.forEach((text, i) => {
+        atoms.push({
+          kind: "line",
+          text: text.replace(/\u200b/g, ""),
+          height: LINE + (i === lines.length - 1 ? 0.9 : 0),
+          fontSize: BODY,
+          style: "normal",
+        });
+      });
+    }
+    return atoms;
   }
   return [{ kind: "eq", eq: block.eq, height: measureEq(doc, block.eq, COL_W) }];
 }
 
 async function paintAtoms(doc: jsPDF, atoms: Atom[], x: number, y0: number, width: number): Promise<number> {
   let y = y0;
-  const maxW = Math.max(width - 1.2, 20);
+  const maxW = Math.max(width - 1.5, 20);
   for (const a of atoms) {
     if (a.kind === "eq") {
       y = await writeEquation(doc, a.eq, x, y, width);
       continue;
     }
-    const pad = a.style === "bold" ? 2.2 : a.style === "bolditalic" ? 1.6 : 0;
-    const usePad = pad > 0 && a.height > (a.fontSize >= 10 ? 4.4 : 3.9) + 0.05;
+    const pad = a.style === "bold" ? 2.4 : a.style === "bolditalic" ? 1.8 : 0;
+    const usePad = pad > 0 && a.height > (a.fontSize >= 10 ? 4.2 : 3.8) + 0.05;
     setTimes(doc, a.style, a.fontSize);
     const textY = y + (usePad ? pad : 0);
-    // Soft-break already applied at atomization; if a line still overflows, clip-wrap once
     const plain = a.text.replace(/\u200b/g, "").replace(/\b10\.\s+(\d)/g, "10.$1");
-    if (doc.getTextWidth(plain) > maxW + 0.4) {
-      const fitted = doc.splitTextToSize(softBreakLongTokens(plain), maxW) as string[];
-      let yy = textY;
-      for (const line of fitted) {
-        doc.text(line.replace(/\u200b/g, ""), x, yy);
-        yy += a.style === "normal" ? LINE : a.fontSize >= 10 ? 4.4 : 3.9;
+    // Always bound by maxWidth so glyphs never paint past the column edge
+    const fitted = doc.splitTextToSize(softBreakLongTokens(plain), maxW) as string[];
+    let yy = textY;
+    for (const line of fitted) {
+      const clipped = line.replace(/\u200b/g, "");
+      // Do NOT pass maxWidth here — lines are pre-wrapped; maxWidth would re-wrap and overlap
+      if (doc.getTextWidth(clipped) > maxW + 0.6) {
+        const again = doc.splitTextToSize(clipped, maxW) as string[];
+        for (const part of again) {
+          doc.text(part, x, yy);
+          yy += a.style === "normal" ? LINE : a.fontSize >= 10 ? 4.2 : 3.8;
+        }
+      } else {
+        doc.text(clipped, x, yy);
+        yy += a.style === "normal" ? LINE : a.fontSize >= 10 ? 4.2 : 3.8;
       }
-      y = Math.max(y + a.height, yy);
-    } else {
-      doc.text(plain, x, textY);
-      y += a.height;
     }
+    y = yy + (a.style === "normal" ? 0.35 : 0.2);
   }
   return y;
 }
 
-function bestSplit(heights: number[], colH: number, atoms?: Atom[]): number {
-  if (heights.length <= 1) return heights.length;
-  const total = heights.reduce((a, b) => a + b, 0);
-  let best = Math.max(1, Math.floor(heights.length / 2));
-  let bestScore = Infinity;
-  let acc = 0;
-  for (let s = 1; s < heights.length; s++) {
-    acc += heights[s - 1];
-    const l = acc;
-    const r = total - acc;
-    const overflow = Math.max(0, l - colH) + Math.max(0, r - colH);
-    // Avoid leaving a heading alone at the bottom of the left column
-    let orphan = 0;
-    if (atoms) {
-      const leftLast = atoms[s - 1];
-      const rightFirst = atoms[s];
-      if (
-        leftLast?.kind === "line" &&
-        (leftLast.style === "bold" || leftLast.style === "bolditalic") &&
-        rightFirst?.kind === "line" &&
-        rightFirst.style === "normal"
-      ) {
-        orphan = 40;
-      }
-    }
-    // Equal bottoms first; penalize left running much longer than right
-    const score = Math.abs(l - r) + overflow * 8000 + orphan + (l > r ? (l - r) * 0.35 : 0);
-    if (score < bestScore) {
-      bestScore = score;
-      best = s;
-    }
-  }
-  return best;
-}
-
-/** Paint atoms into one column until the bottom limit; returns final y. */
+/**
+ * Fill one column to the bottom without holes:
+ * - If an equation/heading won't fit, defer it and keep packing following text.
+ * - Prevent orphan headings (heading with < 2 lines of room after it).
+ */
 async function fillColumnLive(
   doc: jsPDF,
   atoms: Atom[],
@@ -317,21 +300,43 @@ async function fillColumnLive(
   yLimit: number
 ): Promise<number> {
   let y = yStart;
+  const deferred: Atom[] = [];
+
+  const fits = (a: Atom, at: number) => {
+    if (a.kind === "eq") return at + a.height <= yLimit + 0.8;
+    if (isHeadingAtom(a)) return at + a.height + LINE * 2.2 <= yLimit + 0.5;
+    return at + Math.min(a.height, LINE) <= yLimit + 0.35;
+  };
+
   while (atoms.length) {
     const a = atoms[0];
-    // Keep a little slack so we don't overflow the margin
-    if (y + Math.min(a.height, 6) > yLimit + 0.4) break;
-    if (a.kind === "eq" && y + a.height > yLimit + 1) break;
+    if (!fits(a, y)) {
+      // Defer blockers (eq / orphan heading) and try to keep packing text
+      if (a.kind === "eq" || isHeadingAtom(a)) {
+        deferred.push(atoms.shift()!);
+        // Keep deferring consecutive headings/eqs, then resume with body text
+        while (atoms.length && (atoms[0].kind === "eq" || isHeadingAtom(atoms[0]))) {
+          deferred.push(atoms.shift()!);
+        }
+        if (!atoms.length || !fits(atoms[0], y)) break;
+        continue;
+      }
+      break;
+    }
     atoms.shift();
     y = await paintAtoms(doc, [a], x, y, width);
+    // Hard stop if we painted past the limit (shouldn't, but clip cascade)
+    if (y > yLimit + 1.5) break;
   }
-  return y;
+
+  if (deferred.length) atoms.unshift(...deferred);
+  return Math.min(y, yLimit + 0.5);
 }
 
 /**
  * Newspaper two-column flow with live fill (avoids estimate under-fill blanks):
  * - Non-final pages: fill left to bottom, then right to bottom.
- * - Final page: height-balance the leftover so both columns end together.
+ * - Final page: live-fill both columns too (balance by consumption, not pre-split).
  */
 async function writeAtomsTwoCol(doc: jsPDF, state: ColState, atomsIn: Atom[]) {
   if (!atomsIn.length) return;
@@ -339,7 +344,7 @@ async function writeAtomsTwoCol(doc: jsPDF, state: ColState, atomsIn: Atom[]) {
   const sum = (arr: Atom[]) => arr.reduce((s, a) => s + a.height, 0);
 
   while (atoms.length) {
-    if (state.y > BOTTOM - 24) {
+    if (state.y > BOTTOM - 20) {
       doc.addPage();
       state.y = TOP;
       state.pageTop = TOP;
@@ -351,44 +356,26 @@ async function writeAtomsTwoCol(doc: jsPDF, state: ColState, atomsIn: Atom[]) {
     const totalLeft = sum(atoms);
 
     // Short remainder → full width (avoids empty right column)
-    if (totalLeft <= colH + 2) {
+    if (totalLeft <= colH * 0.92) {
       state.y = await paintAtoms(doc, atoms.splice(0, atoms.length), MARGIN, pageTop, FULL_W);
       state.col = "left";
       break;
     }
 
-    // Enough for ~two columns? Live-fill both to the page bottom.
-    const hasFullPage = totalLeft >= colH * 1.55;
-
-    if (hasFullPage) {
-      const yL = await fillColumnLive(doc, atoms, LEFT_X, pageTop, COL_W, BOTTOM);
-      const yR = await fillColumnLive(doc, atoms, RIGHT_X, pageTop, COL_W, BOTTOM);
-      state.y = Math.max(yL, yR);
-      state.col = "right";
-
-      if (atoms.length) {
-        doc.addPage();
-        state.y = TOP;
-        state.pageTop = TOP;
-        state.col = "left";
-      }
-      continue;
-    }
-
-    // Final partial page → balance leftover across both columns
-    const page = atoms.splice(0, atoms.length);
-    let split = bestSplit(
-      page.map((a) => a.height),
-      colH,
-      page
-    );
-    while (split > 1 && sum(page.slice(0, split)) > colH + 2) split--;
-    while (split < page.length && sum(page.slice(split)) > colH + 2) split++;
-
-    const yL = await paintAtoms(doc, page.slice(0, split), LEFT_X, pageTop, COL_W);
-    const yR = await paintAtoms(doc, page.slice(split), RIGHT_X, pageTop, COL_W);
+    // Default: always live-fill both columns to the page bottom.
+    // This removes the old "balanced split" path that left large blank bands.
+    const yL = await fillColumnLive(doc, atoms, LEFT_X, pageTop, COL_W, BOTTOM);
+    const yR = await fillColumnLive(doc, atoms, RIGHT_X, pageTop, COL_W, BOTTOM);
     state.y = Math.max(yL, yR);
     state.col = "right";
+
+    if (atoms.length) {
+      doc.addPage();
+      state.y = TOP;
+      state.pageTop = TOP;
+      state.col = "left";
+      continue;
+    }
     break;
   }
 }
@@ -400,8 +387,8 @@ async function drawFigure(doc: jsPDF, state: ColState, fig: SurveyFigure, index:
   // Reserve space for title + caption; shrink image to fit leftover band when possible
   const chrome = 18; // title + caption approx
   let remain = BOTTOM - state.y;
-  // Venn/taxonomy need a tall band — start a fresh page rather than crushing labels
-  const minBand = fig.kind === "venn" || fig.kind === "taxonomy" ? 130 : 50;
+  // Prefer packing under leftover space; only break when the band is truly too short
+  const minBand = fig.kind === "venn" || fig.kind === "taxonomy" ? 95 : 42;
   if (remain < minBand) {
     doc.addPage();
     state.y = TOP;
@@ -418,7 +405,7 @@ async function drawFigure(doc: jsPDF, state: ColState, fig: SurveyFigure, index:
     const maxW = FULL_W;
     const aspect = height / Math.max(width, 1);
     // Venn / taxonomy maps need more height so labels stay readable inside shapes
-    const kindCap = fig.kind === "venn" || fig.kind === "taxonomy" || fig.kind === "challenges" ? 145 : 100;
+    const kindCap = fig.kind === "venn" || fig.kind === "taxonomy" || fig.kind === "challenges" ? 125 : 88;
     const maxImgH = Math.min(kindCap, Math.max(36, BOTTOM - state.y - chrome));
     let imgW = maxW;
     let imgH = imgW * aspect;
@@ -498,12 +485,20 @@ function drawTable(doc: jsPDF, state: ColState, table: SurveyTable, index: numbe
   autoTable(doc, {
     startY: state.y,
     head: [table.headers],
-    body: table.rows,
-    styles: { fontSize: 7, cellPadding: 1.2, overflow: "linebreak", font: "times", valign: "top" },
-    headStyles: { fillColor: [20, 40, 55], textColor: 255, fontStyle: "bold", fontSize: 7.5 },
+    body: table.rows.map((row) => row.map((cell) => String(cell ?? "").replace(/\s+/g, " ").trim())),
+    styles: {
+      fontSize: 6.5,
+      cellPadding: 1.1,
+      overflow: "linebreak",
+      font: "times",
+      valign: "top",
+      minCellHeight: 5,
+    },
+    headStyles: { fillColor: [20, 40, 55], textColor: 255, fontStyle: "bold", fontSize: 7 },
     alternateRowStyles: { fillColor: [245, 248, 250] },
     margin: { left: MARGIN, right: MARGIN },
     tableWidth: FULL_W,
+    showHead: "everyPage",
   });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   state.y = (((doc as any).lastAutoTable?.finalY as number) || state.y) + 5;
@@ -614,8 +609,7 @@ async function layoutStream(doc: jsPDF, state: ColState, stream: StreamItem[]) {
   await writeAtomsTwoCol(doc, state, textAtoms);
 
   // Prefer packing floats under leftover space on the last text page.
-  // Only break to a new page when there truly isn't room for a compact float.
-  if (floats.length && BOTTOM - state.y < 55) {
+  if (floats.length && BOTTOM - state.y < 40) {
     doc.addPage();
     state.y = TOP;
     state.pageTop = TOP;
@@ -703,12 +697,26 @@ export async function paperToPdfBlob(paper: SurveyPaper): Promise<Blob> {
     }
 
     const prose = proseWithoutEquations(section.content, equations);
-    for (const para of prose.split(/\n{2,}/)) {
-      const t = para.trim();
-      if (t) stream.push({ kind: "inline", block: { type: "p", text: t } });
+    const paras = prose
+      .split(/\n{2,}/)
+      .map((t) => t.trim())
+      .filter(Boolean);
+    const sectionEqs = equations.filter((e) => e.sectionId === section.id);
+    // Place equations after the first paragraph so they don't strand under sparse tails
+    let eqsPlaced = false;
+    for (let i = 0; i < paras.length; i++) {
+      stream.push({ kind: "inline", block: { type: "p", text: paras[i] } });
+      if (!eqsPlaced && sectionEqs.length && i === 0) {
+        for (const eq of sectionEqs) {
+          stream.push({ kind: "inline", block: { type: "eq", eq } });
+        }
+        eqsPlaced = true;
+      }
     }
-    for (const eq of equations.filter((e) => e.sectionId === section.id)) {
-      stream.push({ kind: "inline", block: { type: "eq", eq } });
+    if (!eqsPlaced) {
+      for (const eq of sectionEqs) {
+        stream.push({ kind: "inline", block: { type: "eq", eq } });
+      }
     }
 
     for (const fig of figures) {

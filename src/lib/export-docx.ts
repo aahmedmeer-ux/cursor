@@ -14,7 +14,8 @@ import {
   WidthType,
 } from "docx";
 import type { SurveyEquation, SurveyPaper } from "./types";
-import { dataUrlToUint8Array, svgToPngDataUrl } from "./export-media";
+import { dataUrlToUint8Array } from "./export-media";
+import { svgToPngDataUrl } from "./export-raster-node";
 
 function p(
   text: string,

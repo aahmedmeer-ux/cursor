@@ -48,6 +48,7 @@ const STAGES: { id: PipelineStage; label: string }[] = [
   { id: "figuring", label: "Compose figures" },
   { id: "formatting", label: "Apply template" },
   { id: "reviewing", label: "Expert professor review" },
+  { id: "documentQc", label: "PDF & Word QC loop" },
   { id: "done", label: "Ready" },
 ];
 
@@ -78,6 +79,13 @@ export default function Studio() {
     perfect: boolean;
     issues: { id: string; severity: string; message: string; fixed?: boolean }[];
   } | null>(null);
+  const [documentQc, setDocumentQc] = useState<{
+    passes: number;
+    perfect: boolean;
+    pdfBytes: number;
+    docxBytes: number;
+    issues: { id: string; severity: string; message: string; fixed?: boolean; source?: string }[];
+  } | null>(null);
   const [paper, setPaper] = useState<SurveyPaper | null>(null);
   const [discovered, setDiscovered] = useState<DiscoveredPaper[]>([]);
   const [queries, setQueries] = useState<string[]>([]);
@@ -105,6 +113,7 @@ export default function Studio() {
     setError(null);
     setWarnings([]);
     setReview(null);
+    setDocumentQc(null);
     setPaper(null);
     setGenerating(true);
     setStage("discovering");
@@ -116,6 +125,7 @@ export default function Studio() {
       setTimeout(() => setStage(includeFigures ? "figuring" : "formatting"), 3000),
       setTimeout(() => setStage("formatting"), 4200),
       setTimeout(() => setStage("reviewing"), 5600),
+      setTimeout(() => setStage("documentQc"), 7000),
     ];
 
     try {
@@ -136,6 +146,7 @@ export default function Studio() {
           openaiApiKey: openaiApiKey || undefined,
           enrichCitations: true,
           expertReview: true,
+          documentQc: true,
         }),
       });
 
@@ -147,6 +158,7 @@ export default function Studio() {
       setQueries(data.queries || []);
       setWarnings(data.warnings || []);
       setReview(data.review || null);
+      setDocumentQc(data.documentQc || null);
       setStage("done");
       setPreviewMode("formatted");
     } catch (err) {
@@ -512,6 +524,33 @@ export default function Studio() {
                   {review.issues.slice(0, 8).map((issue) => (
                     <li key={issue.id}>
                       [{issue.severity}] {issue.message}
+                      {issue.fixed ? " (auto-fixed)" : ""}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+          {documentQc && (
+            <div
+              className={`rounded-xl border px-4 py-3 text-sm ${
+                documentQc.perfect
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+                  : "border-amber-200 bg-amber-50 text-amber-950"
+              }`}
+            >
+              <p className="font-semibold">
+                PDF &amp; Word QC · {documentQc.passes} pass{documentQc.passes === 1 ? "" : "es"} ·{" "}
+                {documentQc.perfect ? "passed" : "needs attention"} · PDF{" "}
+                {Math.round(documentQc.pdfBytes / 1024)}KB · Word{" "}
+                {Math.round(documentQc.docxBytes / 1024)}KB
+              </p>
+              {documentQc.issues.length > 0 && (
+                <ul className="mt-1 list-disc pl-5">
+                  {documentQc.issues.slice(0, 8).map((issue) => (
+                    <li key={`${issue.id}-${issue.message.slice(0, 24)}`}>
+                      [{issue.severity}/{issue.source || "doc"}] {issue.message}
                       {issue.fixed ? " (auto-fixed)" : ""}
                     </li>
                   ))}

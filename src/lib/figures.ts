@@ -18,6 +18,18 @@ function escapeXml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
+/** Strip HTML markup from titles before they enter figures/tables/PDF. */
+function cleanTitle(s: string): string {
+  return s
+    .replace(/<\/?(i|b|em|strong|scp|sub|sup|span|a)[^>]*>/gi, "")
+    .replace(/<\/?[^>]+>/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function wrapLabel(text: string, max = 18): string[] {
   const words = text.split(/\s+/);
   const lines: string[] = [];
@@ -359,13 +371,16 @@ export function buildProblemFigure(topic: string, rows: MatrixRow[]): SurveyFigu
 export function buildComparisonArtifacts(rows: MatrixRow[]): { figure: SurveyFigure; table: SurveyTable } {
   const sample = rows.slice(0, 8);
   const headers = ["Study", "Year", "Method focus", "Key finding", "Reported gap"];
-  const tableRows = sample.map((r) => [
-    r.title.slice(0, 48) + (r.title.length > 48 ? "…" : ""),
-    r.year ? String(r.year) : "n.d.",
-    shortMethod(r),
-    shortFinding(r),
-    shortGap(r),
-  ]);
+  const tableRows = sample.map((r) => {
+    const title = cleanTitle(r.title);
+    return [
+      title.slice(0, 48) + (title.length > 48 ? "…" : ""),
+      r.year ? String(r.year) : "n.d.",
+      shortMethod(r),
+      shortFinding(r),
+      shortGap(r),
+    ];
+  });
 
   const width = 1000;
   const rowH = 40;
@@ -460,7 +475,10 @@ export function buildChallengeArtifacts(rows: MatrixRow[]): { figure: SurveyFigu
       : "Blocks cumulative progress because follow-on work cannot validate against a shared limitation statement.";
     const evidenceTitles = list
       .slice(0, 3)
-      .map((r) => (r.title.length > 42 ? `${r.title.slice(0, 40)}…` : r.title))
+      .map((r) => {
+        const t = cleanTitle(r.title);
+        return t.length > 42 ? `${t.slice(0, 40)}…` : t;
+      })
       .join("; ");
     const severity = list.length >= 4 ? "High" : list.length >= 2 ? "Medium" : "Emerging";
     challenges.push({
@@ -600,14 +618,14 @@ export function buildVennFigure(rows: MatrixRow[]): SurveyFigure {
   const trends = [...methods]
     .slice(0, 3)
     .map((m) => m.split(/\s+/).slice(0, 3).join(" "))
-    .map((m) => (m.length > 28 ? `${m.slice(0, 26)}…` : m));
-  const gapLabels = topGaps.slice(0, 3).map((t) => (t.length > 16 ? `${t.slice(0, 14)}…` : t));
+    .map((m) => (m.length > 36 ? `${m.slice(0, 34)}…` : m));
+  const gapLabels = topGaps.slice(0, 3).map((t) => (t.length > 22 ? `${t.slice(0, 20)}…` : t));
   const overlap = ["scalability", "coordination", "evaluation"].filter(
     (t) => topGaps.includes(t) || trends.some((x) => x.includes(t))
   );
   const overlapLabels = (overlap.length ? overlap : ["benchmarks", "robustness"])
     .slice(0, 2)
-    .map((t) => (t.length > 14 ? `${t.slice(0, 12)}…` : t));
+    .map((t) => (t.length > 18 ? `${t.slice(0, 16)}…` : t));
 
   // Larger canvas + circles so PDF export stays readable; text anchors sit well inside lobes
   const width = 1040;
@@ -633,8 +651,8 @@ export function buildVennFigure(rows: MatrixRow[]): SurveyFigure {
     ${leftItems
       .slice(0, 3)
       .map((t, i) => {
-        const lines = wrapLabel(t, 12);
-        return multilines(leftCx - 75, cy - 35 + i * 40, lines, {
+        const lines = wrapLabel(t, 16);
+        return multilines(leftCx - 75, cy - 35 + i * 42, lines, {
           size: 12,
           weight: 700,
           fill: "#0c1f2e",
@@ -646,8 +664,8 @@ export function buildVennFigure(rows: MatrixRow[]): SurveyFigure {
     ${rightItems
       .slice(0, 3)
       .map((t, i) => {
-        const lines = wrapLabel(t, 12);
-        return multilines(rightCx + 75, cy - 35 + i * 40, lines, {
+        const lines = wrapLabel(t, 16);
+        return multilines(rightCx + 75, cy - 35 + i * 42, lines, {
           size: 12,
           weight: 700,
           fill: "#0c1f2e",
@@ -695,12 +713,15 @@ export function buildRelatedSurveysTable(rows: MatrixRow[]): SurveyTable | null 
       "Selected prior surveys/reviews in the matrix and the complementary focus of the present synthesis.",
     kind: "related-surveys",
     headers: ["Prior survey / review", "Year", "Primary focus (from matrix)", "This survey adds"],
-    rows: surveys.map((r) => [
-      r.title.slice(0, 60) + (r.title.length > 60 ? "…" : ""),
-      r.year ? String(r.year) : "n.d.",
-      shortMethod(r),
-      "Taxonomy-aligned comparison, challenge map, and trends–gaps Venn",
-    ]),
+    rows: surveys.map((r) => {
+      const title = cleanTitle(r.title);
+      return [
+        title.slice(0, 60) + (title.length > 60 ? "…" : ""),
+        r.year ? String(r.year) : "n.d.",
+        shortMethod(r),
+        "Taxonomy-aligned comparison, challenge map, and trends–gaps Venn",
+      ];
+    }),
   };
 }
 

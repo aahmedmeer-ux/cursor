@@ -152,5 +152,6 @@ export type PipelineStage =
   | "figuring"
   | "reviewing"
   | "formatting"
+  | "documentQc"
   | "done"
   | "error";

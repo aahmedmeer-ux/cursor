@@ -95,13 +95,12 @@ function makeTable(headers: string[], rows: string[][]): Table {
 async function equationBlocks(eq: SurveyEquation): Promise<(Paragraph)[]> {
   const out: Paragraph[] = [p(`(${eq.number}) ${eq.label}`, { bold: true, center: true, size: 17 })];
   try {
-    const svg =
-      eq.svg ||
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 90" width="860" height="90"><rect width="100%" height="100%" fill="#fff" stroke="#000"/><text x="430" y="55" text-anchor="middle" font-size="20" font-style="italic" font-family="Times New Roman, Times, serif">${(eq.display || eq.plaintext).replace(/&/g, "&amp;").replace(/</g, "&lt;")}</text></svg>`;
-    const { dataUrl, width, height } = await svgToPngDataUrl(svg, 2);
+    const { renderEquationSvg } = await import("./equations");
+    const svg = renderEquationSvg(eq);
+    const { dataUrl, width, height } = await svgToPngDataUrl(svg, 2.5);
     const bytes = dataUrlToUint8Array(dataUrl);
-    const displayW = 468;
-    const displayH = Math.min(Math.round(displayW * (height / Math.max(width, 1))), 90);
+    const displayW = 500;
+    const displayH = Math.min(Math.round(displayW * (height / Math.max(width, 1))), 110);
     out.push(
       new Paragraph({
         alignment: AlignmentType.CENTER,
@@ -225,7 +224,17 @@ export async function paperToDocxBlob(paper: SurveyPaper): Promise<Blob> {
 
   body.push(heading("REFERENCES", HeadingLevel.HEADING_1));
   for (const ref of paper.references) {
-    body.push(p(ref.text, { size: 16 }));
+    const clean = ref.text
+      .replace(/<\/?(i|b|em|strong|scp|sub|sup|span|a)[^>]*>/gi, "")
+      .replace(/<\/?[^>]+>/g, "")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/\bn\.d\.\.+/gi, "n.d.")
+      .replace(/\b10\.\s+(\d)/g, "10.$1")
+      .replace(/\/\s+/g, "/");
+    body.push(p(clean, { size: 16 }));
   }
 
   const doc = new Document({

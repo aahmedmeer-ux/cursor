@@ -59,10 +59,18 @@ export function citeMany(papers: DiscoveredPaper[], idsOrTitles: string[]): stri
 /** Repair broken citation separators introduced by fonts/humanize (e.g. [13]_[14]). */
 export function sanitizeCitationMarkers(text: string): string {
   return text
+    .replace(/<\/?(i|b|em|strong|scp|sub|sup|span|a)[^>]*>/gi, "")
+    .replace(/<\/?[^>]+>/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
     .replace(/\]\s*[_\uFF3F/\\|]+\s*\[/g, "]-[")
     .replace(/\]\s*[–—−]+\s*\[/g, "]-[")
     .replace(/\[(\d+)\]\s*-\s*\[(\d+)\]/g, "[$1]-[$2]")
     .replace(/\[(\d+)\]\s*,\s*,\s*\[/g, "[$1], [")
+    .replace(/\bn\.d\.\.+/gi, "n.d.")
+    .replace(/\)\)+/g, ")")
     .replace(/\bAnonymous,\s*/gi, "")
     .replace(/\bAnonymous\b/gi, "");
 }
@@ -131,19 +139,31 @@ function ieeeAuthors(authors: string[]): string {
 export function buildIeeeReferences(papers: DiscoveredPaper[]): ReferenceEntry[] {
   return papers.map((p, i) => {
     const authors = ieeeAuthors(p.authors);
-    const year = p.year ?? "n.d.";
+    const yearPart = p.year ? `${p.year}.` : "n.d.";
     const venue =
       p.venue && !/^unknown/i.test(p.venue) ? ` ${p.venue},` : "";
-    const doi = p.doi ? ` doi: ${p.doi.replace(/^https?:\/\/(dx\.)?doi\.org\//i, "")}` : "";
+    const rawDoi = p.doi ? p.doi.replace(/^https?:\/\/(dx\.)?doi\.org\//i, "").trim() : "";
+    const doi = rawDoi ? ` doi: ${rawDoi}` : "";
     const authorBit = authors ? `${authors}, ` : "";
     const firstAuthor = authors.split(/[\s,]/)[0] || "Ref";
-    const key = `${firstAuthor}${year}_${i + 1}`.replace(/[^A-Za-z0-9_]/g, "");
+    const key = `${firstAuthor}${p.year ?? "nd"}_${i + 1}`.replace(/[^A-Za-z0-9_]/g, "");
+    const title = p.title
+      .replace(/<\/?[^>]+>/g, "")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .trim();
+    const venueClean = venue
+      .replace(/&amp;/g, "&")
+      .replace(/<\/?[^>]+>/g, "");
+    const doiClean = doi.replace(/\b10\.\s+/g, "10.").replace(/\/\s+/g, "/");
     return {
       id: p.id,
       key,
       year: p.year,
       doi: p.doi,
-      text: sanitizeCitationMarkers(`[${i + 1}] ${authorBit}“${p.title},”${venue} ${year}.${doi}`),
+      text: sanitizeCitationMarkers(`[${i + 1}] ${authorBit}“${title},”${venueClean} ${yearPart}${doiClean}`),
     };
   });
 }

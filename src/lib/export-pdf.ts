@@ -1,6 +1,7 @@
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import type { SurveyEquation, SurveyFigure, SurveyPaper, SurveyTable } from "./types";
+import { renderEquationSvg } from "./equations";
 import { svgToPngDataUrl } from "./export-raster-node";
 
 const PAGE_W = 210;
@@ -40,55 +41,157 @@ function setTimes(doc: jsPDF, style: "normal" | "bold" | "italic" | "bolditalic"
   doc.setFontSize(size);
 }
 
-function equationAscii(eq: SurveyEquation): string {
-  return (
-    eq.plaintext.replace(/[ᵢⱼ⁽⁾ᵏ⁺⁻₁₂√‖∫Σ∑θγλ]/g, "").replace(/\s+/g, " ").trim() ||
-    eq.display.replace(/\s+/g, " ").trim()
-  );
+const SUB_MAP: Record<string, string> = {
+  "0": "₀",
+  "1": "₁",
+  "2": "₂",
+  "3": "₃",
+  "4": "₄",
+  "5": "₅",
+  "6": "₆",
+  "7": "₇",
+  "8": "₈",
+  "9": "₉",
+  i: "ᵢ",
+  j: "ⱼ",
+  k: "ₖ",
+  n: "ₙ",
+  s: "ₛ",
+  t: "ₜ",
+  x: "ₓ",
+  a: "ₐ",
+};
+
+/** Journal-ready equation text: prefer Unicode display, never raw d_ij underscores. */
+function equationDisplayText(eq: SurveyEquation): string {
+  let s = (eq.display || "").trim();
+  if (!s || (/_/.test(s) && !/[ᵢⱼₖₛ]/.test(s))) {
+    s = (eq.plaintext || eq.latex || "").trim();
+  }
+  s = s
+    .replace(/_\{([^}]+)\}/g, (_, g: string) =>
+      [...g].map((ch) => SUB_MAP[ch] || SUB_MAP[ch.toLowerCase()] || ch).join("")
+    )
+    .replace(/_([a-zA-Z0-9])/g, (_, ch: string) => SUB_MAP[ch] || SUB_MAP[ch.toLowerCase()] || ch)
+    .replace(/\^\{([^}]+)\}/g, "^($1)")
+    .replace(/\^([0-9+−-]+)/g, "^($1)")
+    .replace(/\\\|/g, "‖")
+    .replace(/\\leq/g, "≤")
+    .replace(/\\int/g, "∫")
+    .replace(/\s+/g, " ")
+    .trim();
+  return s || eq.plaintext || eq.label;
 }
 
-/** Insert break opportunities so long DOIs/URLs cannot spill into the other column. */
-function softBreakLongTokens(text: string, every = 18): string {
-  return text
+/**
+ * Soft-break long tokens for column wrap.
+ * Never insert breaks after "." (that produced “10. 1016/…” artifacts).
+ * Never use U+200B — jsPDF Times often paints it as a visible gap in DOIs.
+ * For DOIs/URLs, keep compact; only split very long paths at "/".
+ */
+function softBreakLongTokens(text: string, every = 34): string {
+  // Repair any previously damaged DOI spacing before wrapping
+  const cleaned = text
+    .replace(/\b10\.\s+(\d)/g, "10.$1")
+    .replace(/(\d)\s+\/\s+/g, "$1/")
+    .replace(/\/\s+/g, "/")
+    .replace(/\bdoi:\s*10\.\s+/gi, "doi: 10.");
+
+  return cleaned
     .split(/(\s+)/)
     .map((tok) => {
-      if (/^\s+$/.test(tok) || tok.length <= every) return tok;
-      let out = tok.replace(/([/.?&=_-])/g, "$1\u200b");
-      if (out.replace(/\u200b/g, "").length > every * 2) {
-        out = out.replace(new RegExp(`([^\\u200b]{${every}})`, "g"), "$1\u200b");
+      if (/^\s+$/.test(tok)) return tok;
+      const isDoi =
+        /^https?:\/\//i.test(tok) ||
+        /^10\.\d{4,}/.test(tok) ||
+        /^doi:/i.test(tok) ||
+        /doi\.org/i.test(tok);
+      if (isDoi) {
+        if (tok.length <= 60) return tok;
+        // Very long DOI/URL: wrap only at "/" (no spaces after ".")
+        return tok.replace(/\//g, "/\u00ad");
       }
-      return out;
+      if (tok.length <= every) return tok;
+      // Generic long token — prefer breaking at punctuation, else every N chars
+      if (/[_/-]/.test(tok)) {
+        return tok.replace(/([_/-])/g, "$1 ").replace(/\s{2,}/g, " ");
+      }
+      return tok.replace(new RegExp(`(.{${every}})`, "g"), "$1 ");
     })
     .join("");
 }
 
 function measureEq(doc: jsPDF, eq: SurveyEquation, width: number): number {
-  // Times text only — no SVG panel (avoids gray equation backgrounds in PDF)
-  setTimes(doc, "italic", 9);
-  const asciiH = (doc.splitTextToSize(equationAscii(eq), width) as string[]).length * 3.8;
   setTimes(doc, "italic", 8);
   const descH = (doc.splitTextToSize(eq.description, width) as string[]).length * 3.3;
-  return 2 + 4.2 + asciiH + descH + 2;
+  // Reserve space for raster formula (~14–20mm) + label + description
+  return 3 + 5.2 + 18 + 1.5 + descH + 3;
 }
 
 async function writeEquation(doc: jsPDF, eq: SurveyEquation, x: number, y: number, width: number): Promise<number> {
-  y += 2;
+  y += 3;
   setTimes(doc, "bold", 9);
   doc.text(`(${eq.number}) ${eq.label}`, x + width / 2, y, { align: "center" });
-  y += 4.2;
+  y += 5.2;
 
-  setTimes(doc, "italic", 9);
-  for (const line of doc.splitTextToSize(equationAscii(eq), width) as string[]) {
-    doc.text(line, x + width / 2, y, { align: "center" });
-    y += 3.8;
+  // Always rasterize a fresh equation SVG (tspan subscripts + white backdrop).
+  let drewSvg = false;
+  try {
+    // Always rebuild so PDF gets dy-based subscripts (librsvg ignores baseline-shift)
+    const svg = renderEquationSvg(eq);
+    const { dataUrl, width: iw, height: ih } = await svgToPngDataUrl(svg, 2.8);
+    const aspect = ih / Math.max(iw, 1);
+    let imgW = Math.min(width - 1, 88);
+    let imgH = imgW * aspect;
+    // Keep formulas large enough to read in a narrow IEEE column
+    if (imgH > 24) {
+      imgH = 24;
+      imgW = Math.min(width - 1, imgH / Math.max(aspect, 0.01));
+    }
+    if (imgH < 14) {
+      imgH = 14;
+      imgW = Math.min(width - 1, imgH / Math.max(aspect, 0.01));
+    }
+    if (imgW >= 28) {
+      doc.addImage(dataUrl, "PNG", x + (width - imgW) / 2, y - 1, imgW, imgH, undefined, "FAST");
+      y += imgH + 2.8;
+      drewSvg = true;
+    }
+  } catch {
+    drewSvg = false;
+  }
+  if (!drewSvg) {
+    // Readable fallback — NEVER emit underscore ASCII (d_ij / v_i)
+    const fallback = equationDisplayText(eq)
+      .replace(/ᵢ/g, "i")
+      .replace(/ⱼ/g, "j")
+      .replace(/ₖ/g, "k")
+      .replace(/ₛ/g, "s")
+      .replace(/ₙ/g, "n")
+      .replace(/[₀₁₂₃₄₅₆₇₈₉]/g, (ch) => {
+        const idx = "₀₁₂₃₄₅₆₇₈₉".indexOf(ch);
+        return idx >= 0 ? String(idx) : ch;
+      })
+      .replace(/[⁽⁾ᵏ⁺⁻ᴺ]/g, "")
+      .replace(/‖/g, "||")
+      .replace(/∫/g, "int ")
+      .replace(/≤/g, "<=")
+      .replace(/·/g, "*")
+      .replace(/_/g, "");
+    setTimes(doc, "italic", 11);
+    for (const line of doc.splitTextToSize(fallback, width) as string[]) {
+      doc.text(line, x + width / 2, y, { align: "center" });
+      y += 5;
+    }
   }
 
+  y += 1.2;
   setTimes(doc, "italic", 8);
   for (const line of doc.splitTextToSize(eq.description, width) as string[]) {
     doc.text(line, x, y);
     y += 3.3;
   }
-  return y + 2;
+  return y + 3;
 }
 
 type Atom =
@@ -126,11 +229,11 @@ async function blockToAtoms(doc: jsPDF, block: InlineBlock): Promise<Atom[]> {
   }
   if (block.type === "p") {
     setTimes(doc, "normal", BODY);
-    const safe = softBreakLongTokens(block.text);
+    const safe = softBreakLongTokens(block.text.replace(/\u200b/g, ""));
     const lines = doc.splitTextToSize(safe, COL_W - 1.2) as string[];
     return lines.map((text, i) => ({
       kind: "line" as const,
-      text,
+      text: text.replace(/\u200b/g, ""),
       height: LINE + (i === lines.length - 1 ? 1.2 : 0),
       fontSize: BODY,
       style: "normal" as const,
@@ -152,12 +255,12 @@ async function paintAtoms(doc: jsPDF, atoms: Atom[], x: number, y0: number, widt
     setTimes(doc, a.style, a.fontSize);
     const textY = y + (usePad ? pad : 0);
     // Soft-break already applied at atomization; if a line still overflows, clip-wrap once
-    const plain = a.text;
-    if (doc.getTextWidth(plain.replace(/\u200b/g, "")) > maxW + 0.4) {
-      const fitted = doc.splitTextToSize(softBreakLongTokens(plain.replace(/\u200b/g, "")), maxW) as string[];
+    const plain = a.text.replace(/\u200b/g, "").replace(/\b10\.\s+(\d)/g, "10.$1");
+    if (doc.getTextWidth(plain) > maxW + 0.4) {
+      const fitted = doc.splitTextToSize(softBreakLongTokens(plain), maxW) as string[];
       let yy = textY;
       for (const line of fitted) {
-        doc.text(line, x, yy);
+        doc.text(line.replace(/\u200b/g, ""), x, yy);
         yy += a.style === "normal" ? LINE : a.fontSize >= 10 ? 4.4 : 3.9;
       }
       y = Math.max(y + a.height, yy);
@@ -204,9 +307,30 @@ function bestSplit(heights: number[], colH: number, atoms?: Atom[]): number {
   return best;
 }
 
+/** Paint atoms into one column until the bottom limit; returns final y. */
+async function fillColumnLive(
+  doc: jsPDF,
+  atoms: Atom[],
+  x: number,
+  yStart: number,
+  width: number,
+  yLimit: number
+): Promise<number> {
+  let y = yStart;
+  while (atoms.length) {
+    const a = atoms[0];
+    // Keep a little slack so we don't overflow the margin
+    if (y + Math.min(a.height, 6) > yLimit + 0.4) break;
+    if (a.kind === "eq" && y + a.height > yLimit + 1) break;
+    atoms.shift();
+    y = await paintAtoms(doc, [a], x, y, width);
+  }
+  return y;
+}
+
 /**
- * Newspaper two-column flow:
- * - Non-final pages: fill left to bottom, then right to bottom (no hollow bottoms).
+ * Newspaper two-column flow with live fill (avoids estimate under-fill blanks):
+ * - Non-final pages: fill left to bottom, then right to bottom.
  * - Final page: height-balance the leftover so both columns end together.
  */
 async function writeAtomsTwoCol(doc: jsPDF, state: ColState, atomsIn: Atom[]) {
@@ -233,31 +357,12 @@ async function writeAtomsTwoCol(doc: jsPDF, state: ColState, atomsIn: Atom[]) {
       break;
     }
 
-    // Enough for one more full page (both columns)? Use newspaper fill.
-    const hasFullPage = totalLeft >= colH * 2 - 4;
+    // Enough for ~two columns? Live-fill both to the page bottom.
+    const hasFullPage = totalLeft >= colH * 1.55;
 
     if (hasFullPage) {
-      const left: Atom[] = [];
-      while (atoms.length && sum(left) + atoms[0].height <= colH + 0.8) {
-        left.push(atoms.shift()!);
-      }
-      // Avoid orphan heading at end of left
-      if (
-        left.length > 1 &&
-        atoms.length &&
-        left[left.length - 1].kind === "line" &&
-        (left[left.length - 1] as Extract<Atom, { kind: "line" }>).style !== "normal"
-      ) {
-        atoms.unshift(left.pop()!);
-      }
-
-      const right: Atom[] = [];
-      while (atoms.length && sum(right) + atoms[0].height <= colH + 0.8) {
-        right.push(atoms.shift()!);
-      }
-
-      const yL = await paintAtoms(doc, left, LEFT_X, pageTop, COL_W);
-      const yR = await paintAtoms(doc, right, RIGHT_X, pageTop, COL_W);
+      const yL = await fillColumnLive(doc, atoms, LEFT_X, pageTop, COL_W, BOTTOM);
+      const yR = await fillColumnLive(doc, atoms, RIGHT_X, pageTop, COL_W, BOTTOM);
       state.y = Math.max(yL, yR);
       state.col = "right";
 

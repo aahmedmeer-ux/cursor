@@ -8,36 +8,155 @@ function escapeXml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
+
+const SUB: Record<string, string> = {
+  "0": "₀", "1": "₁", "2": "₂", "3": "₃", "4": "₄",
+  "5": "₅", "6": "₆", "7": "₇", "8": "₈", "9": "₉",
+  i: "ᵢ", j: "ⱼ", k: "ₖ", n: "ₙ", s: "ₛ", t: "ₜ", x: "ₓ", a: "ₐ", m: "ₘ",
+};
+
+/** Convert latex/plaintext markers into a journal-readable Unicode display string. */
+export function toUnicodeDisplay(raw: string): string {
+  return raw
+    .replace(/\\\|/g, "‖")
+    .replace(/\\leq/g, "≤")
+    .replace(/\\int/g, "∫")
+    .replace(/\\sqrt\{([^}]+)\}/g, "√$1")
+    .replace(/\\theta/g, "θ")
+    .replace(/\\lambda/g, "λ")
+    .replace(/\\Omega/g, "Ω")
+    .replace(/\\sum/g, "Σ")
+    .replace(/\\cdot/g, "·")
+    .replace(/_\{([^}]+)\}/g, (_: string, g: string) =>
+      [...g].map((ch) => SUB[ch] || SUB[ch.toLowerCase()] || ch).join("")
+    )
+    .replace(/_([a-zA-Z0-9])/g, (_: string, ch: string) => SUB[ch] || SUB[ch.toLowerCase()] || ch)
+    .replace(/\^\{([^}]+)\}/g, "^($1)")
+    .replace(/\^([0-9+\-]+)/g, "^($1)")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+
 /**
- * Word/IEEE-like equation graphic — Times family, no tinted heading band.
- * Matches section-heading typography (bold label + italic formula).
+ * Word/IEEE-like equation graphic — white backdrop, DejaVu/Noto serif (sharp-safe).
+ * Uses tspan subscripts so formulas stay readable even when Unicode glyphs are missing.
  */
 export function renderEquationSvg(eq: SurveyEquation): string {
-  const width = 780;
-  const height = 72;
-  const formula = eq.display || eq.plaintext;
-  const max = 64;
-  let line1 = formula;
-  let line2 = "";
-  if (formula.length > max) {
-    const cut = formula.lastIndexOf(" ", max);
-    if (cut > 18) {
-      line1 = formula.slice(0, cut);
-      line2 = formula.slice(cut + 1);
+  const width = 820;
+  const src = (eq.latex || eq.plaintext || eq.display || "").trim();
+
+  let parse = src
+    .replace(/\\\|/g, "||")
+    .replace(/\\leq/g, "<=")
+    .replace(/\\int/g, "∫")
+    .replace(/\\cdot/g, "·")
+    .replace(/\\sqrt\{([^}]+)\}/g, "√($1)")
+    .replace(/\\theta/g, "θ")
+    .replace(/\\lambda/g, "λ")
+    .replace(/\\Omega/g, "Ω")
+    .replace(/\\sum/g, "Σ")
+    .replace(/\\,/g, " ")
+    .replace(/\\lVert/g, "||")
+    .replace(/\\rVert/g, "||")
+    .replace(/\\mathbf\{([^}]+)\}/g, "$1")
+    .replace(/\\mathrm\{([^}]+)\}/g, "$1")
+    .replace(/\\text\{([^}]+)\}/g, "$1")
+    .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, "($1)/($2)")
+    .replace(/\\left/g, "")
+    .replace(/\\right/g, "")
+    .replace(/\\le\b/g, "<=")
+    .replace(/[−–—]/g, "-")
+    .replace(/[“”"]/g, "")
+    .replace(/\^\(([^)]+)\)/g, "^{$1}");
+
+  if (!/_/.test(parse) && eq.display) {
+    parse = eq.display
+      .replace(/[₀₁₂₃₄₅₆₇₈₉]/g, (ch) => `_${"₀₁₂₃₄₅₆₇₈₉".indexOf(ch)}`)
+      .replace(/ᵢ/g, "_i")
+      .replace(/ⱼ/g, "_j")
+      .replace(/ₖ/g, "_k")
+      .replace(/ₛ/g, "_s")
+      .replace(/ₙ/g, "_n")
+      .replace(/ₜ/g, "_t")
+      .replace(/ₓ/g, "_x")
+      .replace(/ₐ/g, "_a")
+      .replace(/ₘ/g, "_m")
+      .replace(/‖/g, "||")
+      .replace(/≤/g, "<=")
+      .replace(/⁽/g, "^(")
+      .replace(/⁾/g, ")")
+      .replace(/ᵏ/g, "k")
+      .replace(/⁺/g, "+")
+      .replace(/⁻/g, "-");
+  }
+
+  const parts: string[] = [];
+  const re = /_\{([^}]+)\}|_([a-zA-Z0-9])|\^\{([^}]+)\}|\^([0-9+\-]+)|[^_^]+/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(parse))) {
+    if (m[1] != null || m[2] != null) {
+      const sub = escapeXml(m[1] ?? m[2]);
+      parts.push(`<tspan dy="6" font-size="17" font-style="italic">${sub}</tspan><tspan dy="-6"> </tspan>`);
+    } else if (m[3] != null || m[4] != null) {
+      const sup = escapeXml(m[3] ?? m[4]);
+      parts.push(`<tspan dy="-8" font-size="15" font-style="italic">${sup}</tspan><tspan dy="8"> </tspan>`);
+    } else {
+      parts.push(escapeXml(m[0]));
     }
   }
-  const h = line2 ? 88 : 72;
 
-  // No background rect — keeps PDF equations free of gray/white panels
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${h}" width="${width}" height="${h}" role="img" aria-label="Equation ${eq.number}">
-  <text x="${width / 2}" y="${line2 ? 36 : 44}" text-anchor="middle" font-size="17" font-style="italic" font-family="Times New Roman, Times, serif" fill="#111111">${escapeXml(line1)}</text>
-  ${
-    line2
-      ? `<text x="${width / 2}" y="60" text-anchor="middle" font-size="17" font-style="italic" font-family="Times New Roman, Times, serif" fill="#111111">${escapeXml(line2)}</text>`
-      : ""
+  const font = "DejaVu Serif, Noto Serif, Liberation Serif, Times New Roman, Times, serif";
+  // Approximate visible length (ignore tspan tags) for wrap decision
+  const visible = parse.replace(/_\{[^}]+\}|_([a-zA-Z0-9])|\^\{[^}]+\}|\^([0-9+\-]+)/g, "x");
+  const needsWrap = visible.length > 54;
+
+  if (needsWrap) {
+    // Split source at a mid operator, then build tspans for each line
+    const cutAt = (() => {
+      const prefer = [" + ", " - ", " = ", "+ ", "- "];
+      let best = -1;
+      for (const p of prefer) {
+        const idx = parse.indexOf(p, Math.floor(parse.length * 0.35));
+        if (idx > 12 && idx < parse.length - 8) { best = idx + (p.startsWith(" ") ? 1 : 0); break; }
+      }
+      return best > 0 ? best : Math.floor(parse.length / 2);
+    })();
+    const left = parse.slice(0, cutAt).trim();
+    const right = parse.slice(cutAt).trim();
+    const toSpans = (src: string) => {
+      const out: string[] = [];
+      const re2 = /_\{([^}]+)\}|_([a-zA-Z0-9])|\^\{([^}]+)\}|\^([0-9+\-]+)|[^_^]+/g;
+      let m2: RegExpExecArray | null;
+      while ((m2 = re2.exec(src))) {
+        if (m2[1] != null || m2[2] != null) {
+          const sub = escapeXml(m2[1] ?? m2[2]);
+          out.push(`<tspan dy="6" font-size="15" font-style="italic">${sub}</tspan><tspan dy="-6"> </tspan>`);
+        } else if (m2[3] != null || m2[4] != null) {
+          const sup = escapeXml(m2[3] ?? m2[4]);
+          out.push(`<tspan dy="-8" font-size="14" font-style="italic">${sup}</tspan><tspan dy="8"> </tspan>`);
+        } else {
+          out.push(escapeXml(m2[0]));
+        }
+      }
+      return out.join("") || escapeXml(src);
+    };
+    const h = 100;
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${h}" width="${width}" height="${h}" role="img" aria-label="Equation ${eq.number}">
+  <rect x="0" y="0" width="${width}" height="${h}" fill="#ffffff"/>
+  <text x="${width / 2}" y="38" text-anchor="middle" font-size="22" font-style="italic" font-family="${font}" fill="#111111">${toSpans(left)}</text>
+  <text x="${width / 2}" y="72" text-anchor="middle" font-size="22" font-style="italic" font-family="${font}" fill="#111111">${toSpans(right)}</text>
+</svg>`;
   }
+
+  const tspans = parts.join("") || escapeXml(eq.display || eq.plaintext || eq.label);
+  const h = 82;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${h}" width="${width}" height="${h}" role="img" aria-label="Equation ${eq.number}">
+  <rect x="0" y="0" width="${width}" height="${h}" fill="#ffffff"/>
+  <text x="${width / 2}" y="52" text-anchor="middle" font-size="28" font-style="italic" font-family="${font}" fill="#111111">${tspans}</text>
 </svg>`;
 }
+
 
 export function generateEquations(topic: string, rows: MatrixRow[]): SurveyEquation[] {
   const hay = `${topic} ${rows

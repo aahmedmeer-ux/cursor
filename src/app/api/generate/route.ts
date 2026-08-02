@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { discoverLiterature } from "@/lib/discover";
 import { enrichPaperMetadata } from "@/lib/enrich-refs";
+import { documentQcLoop } from "@/lib/document-qc";
 import { applyTemplatePass, expertReviewLoop } from "@/lib/expert-review";
 import { generateSurveyPaper } from "@/lib/generate-survey";
 import { extractSearchQueries, inferTopic } from "@/lib/matrix-utils";
@@ -39,6 +40,7 @@ const BodySchema = z.object({
     .default("semi-scientific"),
   enrichCitations: z.boolean().default(true),
   expertReview: z.boolean().default(true),
+  documentQc: z.boolean().default(true),
   targetPages: z.number().min(4).max(30).default(10),
 });
 
@@ -119,12 +121,36 @@ export async function POST(req: Request) {
       }
     }
 
+    // Final gate: build & audit PDF + Word before marking Ready
+    let documentQc = null;
+    if (body.documentQc !== false) {
+      const qc = await documentQcLoop(paper, { maxPasses: 3 });
+      paper = qc.paper;
+      documentQc = {
+        passes: qc.passes,
+        perfect: qc.perfect,
+        pdfBytes: qc.pdfBytes,
+        docxBytes: qc.docxBytes,
+        issues: qc.issues,
+      };
+      if (!qc.perfect) {
+        warnings.push(
+          `Document QC found ${qc.issues.filter((i) => i.severity === "error" && !i.fixed).length} export issue(s) after ${qc.passes} pass(es).`
+        );
+      } else {
+        warnings.push(
+          `Document QC passed (PDF ${Math.round(qc.pdfBytes / 1024)}KB, Word ${Math.round(qc.docxBytes / 1024)}KB).`
+        );
+      }
+    }
+
     return NextResponse.json({
       paper,
       papers,
       queries,
       warnings,
       review,
+      documentQc,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Generation failed";

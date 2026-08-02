@@ -8,6 +8,8 @@ const COLUMN_ALIASES: Record<keyof Omit<MatrixRow, "id" | "raw" | "year">, strin
     "title",
     "paper",
     "paper title",
+    "name of the paper",
+    "name of paper",
     "article",
     "article title",
     "name",
@@ -50,12 +52,19 @@ const COLUMN_ALIASES: Record<keyof Omit<MatrixRow, "id" | "raw" | "year">, strin
     "methodology / approach",
     "approach",
     "technique",
+    "techniques",
+    "techniques used",
+    "techniques used / compared",
+    "techniques compared",
+    "techniques discussed",
     "research method",
     "research design",
     "design",
     "methods / design",
     "study design",
     "analytical approach",
+    "software used",
+    "software",
   ],
   findings: [
     "findings",
@@ -71,6 +80,11 @@ const COLUMN_ALIASES: Record<keyof Omit<MatrixRow, "id" | "raw" | "year">, strin
     "key contribution",
     "main results",
     "outcomes / findings",
+    "effectiveness and scenarios",
+    "effectiveness",
+    "scenarios",
+    "pros and cons of techniques",
+    "pros and cons",
   ],
   gaps: [
     "gaps",
@@ -101,6 +115,7 @@ const COLUMN_ALIASES: Record<keyof Omit<MatrixRow, "id" | "raw" | "year">, strin
     "research theme",
     "classification",
     "strand",
+    "techniques discussed",
   ],
   keywords: ["keywords", "keyword", "tags", "key words", "key terms"],
   doi: ["doi", "doi/url", "digital object identifier"],
@@ -112,6 +127,7 @@ const COLUMN_ALIASES: Record<keyof Omit<MatrixRow, "id" | "raw" | "year">, strin
     "comment",
     "comments",
     "annotation",
+    "introduction",
     "research aim",
     "research aim / focus",
     "aim",
@@ -124,6 +140,11 @@ const COLUMN_ALIASES: Record<keyof Omit<MatrixRow, "id" | "raw" | "year">, strin
     "sample",
     "population",
     "context",
+    "previous work discussed",
+    "previous work",
+    "other papers referenced / built upon",
+    "other papers referenced",
+    "related work",
   ],
 };
 
@@ -134,8 +155,36 @@ const YEAR_ALIASES = [
   "pub year",
   "publication year",
   "year published",
+  "year of publishing",
+  "publishing year",
   "author / year",
   "author year",
+];
+
+/** Header-like labels used to detect the true header row (not long prose cells). */
+const HEADER_HINTS = [
+  "title",
+  "name of the paper",
+  "paper title",
+  "authors",
+  "author",
+  "year",
+  "year of publishing",
+  "method",
+  "methodology",
+  "techniques used",
+  "techniques discussed",
+  "software used",
+  "findings",
+  "research gaps",
+  "future work",
+  "introduction",
+  "effectiveness",
+  "themes",
+  "keywords",
+  "limitations",
+  "previous work",
+  "pros and cons",
 ];
 
 function normalizeHeader(h: string): string {
@@ -147,32 +196,56 @@ function normalizeHeader(h: string): string {
     .replace(/\s+/g, " ");
 }
 
+function isShortHeaderLabel(h: string): boolean {
+  // Real spreadsheet headers are short; prose cells from mistaken header rows are long.
+  return h.length > 0 && h.length <= 60;
+}
+
 function mapHeaders(headers: string[]): Record<string, string> {
   const mapping: Record<string, string> = {};
   const normalized = headers.map(normalizeHeader);
 
   for (const [field, aliases] of Object.entries(COLUMN_ALIASES)) {
-    const idx = normalized.findIndex((h) => aliases.includes(h));
+    const normalizedAliases = aliases.map(normalizeHeader);
+    const idx = normalized.findIndex((h) => normalizedAliases.includes(h));
     if (idx >= 0) mapping[field] = headers[idx];
   }
 
-  const yearIdx = normalized.findIndex((h) => YEAR_ALIASES.includes(h));
+  const normalizedYearAliases = YEAR_ALIASES.map(normalizeHeader);
+  const yearIdx = normalized.findIndex(
+    (h) =>
+      normalizedYearAliases.includes(h) ||
+      (isShortHeaderLabel(h) && (h.includes("year") || h.includes("publish")))
+  );
   if (yearIdx >= 0) mapping.year = headers[yearIdx];
 
+  // Fuzzy matches only against short header-like labels to avoid matching prose cells
   const fuzzy = (field: string, preds: ((h: string) => boolean)[]) => {
     if (mapping[field]) return;
-    const idx = normalized.findIndex((h) => preds.some((p) => p(h)));
+    const idx = normalized.findIndex((h) => isShortHeaderLabel(h) && preds.some((p) => p(h)));
     if (idx >= 0) mapping[field] = headers[idx];
   };
 
-  fuzzy("title", [(h) => h.includes("title"), (h) => h.includes("paper") && !h.includes("author")]);
+  fuzzy("title", [
+    (h) => h.includes("title"),
+    (h) => h.includes("name of the paper"),
+    (h) => h === "paper" || (h.includes("paper") && !h.includes("author") && !h.includes("referenced")),
+  ]);
   fuzzy("authors", [(h) => h.includes("author")]);
-  fuzzy("method", [(h) => h.includes("method"), (h) => h.includes("approach"), (h) => h.includes("design")]);
+  fuzzy("method", [
+    (h) => h.includes("method"),
+    (h) => h.includes("approach"),
+    (h) => h.includes("design"),
+    (h) => h.includes("technique"),
+    (h) => h.includes("software"),
+  ]);
   fuzzy("findings", [
     (h) => h.includes("finding"),
     (h) => h.includes("result"),
     (h) => h.includes("contribution"),
     (h) => h.includes("outcome"),
+    (h) => h.includes("effectiveness"),
+    (h) => h.includes("pros and cons"),
   ]);
   fuzzy("gaps", [
     (h) => h.includes("gap"),
@@ -185,32 +258,41 @@ function mapHeaders(headers: string[]): Record<string, string> {
     (h) => h.includes("topic"),
     (h) => h.includes("categor"),
     (h) => h.includes("strand"),
+    (h) => h === "techniques discussed",
   ]);
   fuzzy("venue", [(h) => h.includes("journal"), (h) => h.includes("venue"), (h) => h.includes("conference")]);
   fuzzy("keywords", [(h) => h.includes("keyword"), (h) => h.includes("tag")]);
   fuzzy("notes", [
+    (h) => h.includes("introduction"),
     (h) => h.includes("aim"),
     (h) => h.includes("purpose"),
     (h) => h.includes("objective"),
+    (h) => h.includes("previous work"),
     (h) => h.includes("sample"),
     (h) => h.includes("dataset"),
     (h) => h.includes("note"),
   ]);
 
-  // Combined "Author / Year" column often holds both
   if (!mapping.authors) {
-    const idx = normalized.findIndex((h) => h.includes("author") && h.includes("year"));
+    const idx = normalized.findIndex(
+      (h) => isShortHeaderLabel(h) && h.includes("author") && h.includes("year")
+    );
     if (idx >= 0) mapping.authors = headers[idx];
   }
   if (!mapping.year) {
-    const idx = normalized.findIndex((h) => h.includes("author") && h.includes("year"));
+    const idx = normalized.findIndex(
+      (h) => isShortHeaderLabel(h) && h.includes("author") && h.includes("year")
+    );
     if (idx >= 0) mapping.year = headers[idx];
   }
 
   if (!mapping.title && headers.length > 0) {
-    // Prefer a text-heavy column over first ID column
+    // Never fall back to bare years like "2025" (integer object-key ordering trap)
     const idx = normalized.findIndex(
-      (h) => !["id", "no", "no.", "#", "s n", "s/n", "sr"].includes(h) && h.length > 0
+      (h) =>
+        h.length > 0 &&
+        !/^(id|no|no\.|#|s n|s\/n|sr|\d{4})$/.test(h) &&
+        !YEAR_ALIASES.includes(h)
     );
     mapping.title = headers[idx >= 0 ? idx : 0];
   }
@@ -281,50 +363,70 @@ function rowFromRecord(
   };
 }
 
-function recordsFromAoA(aoa: unknown[][]): Record<string, unknown>[] {
-  if (!aoa.length) return [];
+function headerRowScore(row: string[]): number {
+  let score = 0;
+  let longCells = 0;
+  for (const cell of row) {
+    if (!cell) continue;
+    if (cell.length > 80) {
+      longCells += 1;
+      continue;
+    }
+    if (HEADER_HINTS.some((hint) => cell === hint || cell.includes(hint))) {
+      score += 5;
+    } else if (
+      [
+        "title",
+        "authors",
+        "author",
+        "year",
+        "method",
+        "methodology",
+        "findings",
+        "gaps",
+        "themes",
+        "keywords",
+        "venue",
+        "journal",
+        "limitations",
+        "aim",
+        "sample",
+        "introduction",
+        "software",
+        "techniques",
+      ].includes(cell) ||
+      cell.includes("title") ||
+      cell.includes("paper") ||
+      cell.includes("author") ||
+      cell.includes("method") ||
+      cell.includes("technique") ||
+      cell.includes("finding") ||
+      cell.includes("theme") ||
+      cell.includes("gap") ||
+      cell.includes("limitation") ||
+      cell.includes("year")
+    ) {
+      score += 3;
+    } else if (cell.length > 0 && cell.length <= 40) {
+      score += 0.4;
+    }
+  }
+  // Strongly prefer compact header rows over prose-filled data rows
+  score += Math.min(row.filter((c) => c && c.length <= 60).length, 10) * 0.5;
+  score -= longCells * 4;
+  return score;
+}
+
+function recordsFromAoA(aoa: unknown[][]): { headers: string[]; records: Record<string, unknown>[] } {
+  if (!aoa.length) return { headers: [], records: [] };
 
   let headerIdx = 0;
-  let bestScore = -1;
+  let bestScore = Number.NEGATIVE_INFINITY;
   const scan = Math.min(aoa.length, 20);
   for (let i = 0; i < scan; i++) {
     const row = (aoa[i] ?? []).map((c) => normalizeHeader(stringifyCell(c)));
     if (!row.some(Boolean)) continue;
-    let score = 0;
-    for (const cell of row) {
-      if (!cell) continue;
-      if (
-        [
-          "title",
-          "authors",
-          "author",
-          "year",
-          "method",
-          "methodology",
-          "findings",
-          "gaps",
-          "themes",
-          "keywords",
-          "venue",
-          "journal",
-          "limitations",
-          "aim",
-          "sample",
-        ].includes(cell) ||
-        cell.includes("title") ||
-        cell.includes("author") ||
-        cell.includes("method") ||
-        cell.includes("finding") ||
-        cell.includes("theme") ||
-        cell.includes("limitation")
-      ) {
-        score += 3;
-      } else if (cell.length > 0 && cell.length < 40) {
-        score += 0.35;
-      }
-    }
-    // Prefer rows with multiple non-empty cells
-    score += Math.min(row.filter(Boolean).length, 8) * 0.15;
+    const score = headerRowScore(row) + (i === 0 ? 1.5 : 0); // slight bias to first row
     if (score > bestScore) {
       bestScore = score;
       headerIdx = i;
@@ -348,37 +450,68 @@ function recordsFromAoA(aoa: unknown[][]): Record<string, unknown>[] {
     const line = aoa[r] ?? [];
     if (!line.some((c) => stringifyCell(c))) continue;
     const record: Record<string, unknown> = {};
+    // Prefix keys so integer-looking years never become JS integer object keys
     headers.forEach((h, i) => {
-      record[h] = line[i] ?? "";
+      record[`__c${i}__${h}`] = line[i] ?? "";
     });
     records.push(record);
   }
-  return records;
+  return { headers, records };
 }
 
-export function parseRecordsMatrix(records: Record<string, unknown>[]): MatrixRow[] {
+function prefixedHeaders(headers: string[]): string[] {
+  return headers.map((h, i) => `__c${i}__${h}`);
+}
+
+export function parseRecordsMatrix(
+  records: Record<string, unknown>[],
+  headerOrder?: string[]
+): MatrixRow[] {
   if (!records.length) {
     throw new Error(
       "No data rows found. Put headers in the first sheet (Title, Authors, Year, Method, Findings, Themes, …)."
     );
   }
-  const headers = Object.keys(records[0] ?? {});
+
+  // Prefer explicit header order (avoids Object.keys reordering integer-like keys such as "2025")
+  const headers =
+    headerOrder && headerOrder.length
+      ? headerOrder
+      : Object.keys(records[0] ?? {}).map((k) => k.replace(/^__c\d+__/, ""));
+
   if (!headers.length) {
     throw new Error(
       "Spreadsheet has no header row. Include columns like Title, Authors, Year, Method, Findings, Themes."
     );
   }
-  const mapping = mapHeaders(headers);
+
+  const keyedHeaders = headerOrder ? prefixedHeaders(headerOrder) : Object.keys(records[0] ?? {});
+  const displayHeaders = keyedHeaders.map((k) => k.replace(/^__c\d+__/, ""));
+  const mappingDisplay = mapHeaders(displayHeaders);
+  const mapping: Record<string, string> = {};
+  for (const [field, displayName] of Object.entries(mappingDisplay)) {
+    const idx = displayHeaders.indexOf(displayName);
+    mapping[field] = idx >= 0 ? keyedHeaders[idx] : displayName;
+  }
+
   const rows = records
     .map((record, i) => rowFromRecord(record, mapping, i))
     .filter((r): r is MatrixRow => Boolean(r));
 
   if (!rows.length) {
     throw new Error(
-      `Found columns (${headers.join(", ")}) but no usable paper titles. Ensure a Title/Paper column is filled.`
+      `Found columns (${displayHeaders.join(", ")}) but no usable paper titles. Ensure a Title/Paper column is filled.`
     );
   }
-  return rows;
+
+  // Rebuild raw with human header names for UI
+  return rows.map((row) => {
+    const raw: Record<string, string> = {};
+    for (const [k, v] of Object.entries(row.raw)) {
+      raw[k.replace(/^__c\d+__/, "")] = v;
+    }
+    return { ...row, raw };
+  });
 }
 
 export function parseCsvMatrix(text: string): MatrixRow[] {
@@ -400,7 +533,8 @@ export function parseCsvMatrix(text: string): MatrixRow[] {
   }
 
   const aoa = (parsed.data ?? []) as unknown as unknown[][];
-  return parseRecordsMatrix(recordsFromAoA(aoa));
+  const { headers, records } = recordsFromAoA(aoa);
+  return parseRecordsMatrix(records, headers);
 }
 
 function looksLikeZip(bytes: Uint8Array): boolean {
@@ -481,7 +615,8 @@ async function parseWithExcelJS(bytes: Uint8Array): Promise<MatrixRow[]> {
       continue;
     }
     try {
-      return parseRecordsMatrix(recordsFromAoA(aoa));
+      const parsed = recordsFromAoA(aoa);
+      return parseRecordsMatrix(parsed.records, parsed.headers);
     } catch (err) {
       errors.push(`Sheet “${sheet.name}”: ${err instanceof Error ? err.message : "parse failed"}`);
     }
@@ -526,7 +661,8 @@ function parseWithSheetJS(bytes: Uint8Array): MatrixRow[] {
         errors.push(`Sheet “${sheetName}” is empty`);
         continue;
       }
-      return parseRecordsMatrix(recordsFromAoA(aoa));
+      const parsed = recordsFromAoA(aoa);
+      return parseRecordsMatrix(parsed.records, parsed.headers);
     } catch (err) {
       errors.push(
         `Sheet “${sheetName}”: ${err instanceof Error ? err.message : "parse failed"}`

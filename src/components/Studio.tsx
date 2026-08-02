@@ -14,7 +14,7 @@ import {
   CheckCircle2,
   FileText,
 } from "lucide-react";
-import MatrixUploader from "@/components/MatrixUploader";
+import MatrixUploader, { type SheetEmbedInfo } from "@/components/MatrixUploader";
 import { inferTopic } from "@/lib/matrix-utils";
 import { TEMPLATES, paperToHtml, paperToLatex, paperToMarkdown } from "@/lib/templates";
 import type {
@@ -49,6 +49,7 @@ function downloadBlob(filename: string, content: string, type: string) {
 export default function Studio() {
   const [rows, setRows] = useState<MatrixRow[]>([]);
   const [fileName, setFileName] = useState<string>("");
+  const [sheetEmbed, setSheetEmbed] = useState<SheetEmbedInfo | null>(null);
   const [parsing, setParsing] = useState(false);
   const [topic, setTopic] = useState("");
   const [authorName, setAuthorName] = useState("Author Name");
@@ -164,6 +165,7 @@ export default function Studio() {
             parsing={parsing}
             fileName={fileName}
             rowCount={rows.length}
+            sheetEmbed={sheetEmbed}
             onParsingChange={(v) => {
               setParsing(v);
               setStage(v ? "parsing" : "idle");
@@ -176,9 +178,10 @@ export default function Studio() {
                 setError(null);
               }
             }}
-            onParsed={(parsed, name, inferred) => {
+            onParsed={(parsed, name, inferred, sheet) => {
               setRows(parsed);
               setFileName(name);
+              setSheetEmbed(sheet ?? null);
               setTopic(inferred || inferTopic(parsed));
               setPaper(null);
               setDiscovered([]);

@@ -1,17 +1,39 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { FileSpreadsheet, Loader2, Upload, ClipboardPaste } from "lucide-react";
+import {
+  FileSpreadsheet,
+  Loader2,
+  Upload,
+  ClipboardPaste,
+  Link2,
+  Sheet,
+} from "lucide-react";
 import type { MatrixRow } from "@/lib/types";
+
+export type SheetEmbedInfo = {
+  embedUrl: string;
+  editUrl: string;
+  spreadsheetId: string;
+};
 
 type Props = {
   parsing: boolean;
   fileName: string;
   rowCount: number;
-  onParsed: (rows: MatrixRow[], fileName: string, topic?: string) => void;
+  sheetEmbed: SheetEmbedInfo | null;
+  onParsed: (
+    rows: MatrixRow[],
+    fileName: string,
+    topic?: string,
+    sheet?: SheetEmbedInfo | null
+  ) => void;
   onError: (message: string) => void;
   onParsingChange: (parsing: boolean) => void;
 };
+
+const DEFAULT_SHEET_URL =
+  "https://docs.google.com/spreadsheets/d/1bx_FjWUKj_sHvxA3qdLFBN7DRfyWqWbNccn6LHIZj7Q/edit?usp=sharing";
 
 async function parseViaApi(file: File): Promise<{ rows: MatrixRow[]; fileName: string; topic?: string }> {
   const form = new FormData();
@@ -30,13 +52,18 @@ async function parseViaApiText(text: string, fileName: string) {
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "Failed to parse pasted table");
-  return { rows: data.rows as MatrixRow[], fileName: data.fileName || fileName, topic: data.topic as string | undefined };
+  return {
+    rows: data.rows as MatrixRow[],
+    fileName: data.fileName || fileName,
+    topic: data.topic as string | undefined,
+  };
 }
 
 export default function MatrixUploader({
   parsing,
   fileName,
   rowCount,
+  sheetEmbed,
   onParsed,
   onError,
   onParsingChange,
@@ -46,6 +73,8 @@ export default function MatrixUploader({
   const [dragActive, setDragActive] = useState(false);
   const [pasteOpen, setPasteOpen] = useState(false);
   const [pasteText, setPasteText] = useState("");
+  const [sheetUrl, setSheetUrl] = useState(DEFAULT_SHEET_URL);
+  const [showEmbed, setShowEmbed] = useState(false);
 
   const runParseFile = useCallback(
     async (file: File) => {
@@ -56,12 +85,42 @@ export default function MatrixUploader({
         if (!result.rows?.length) {
           throw new Error("No paper rows found. Check that a Title / Paper Title column exists.");
         }
-        onParsed(result.rows, result.fileName, result.topic);
+        onParsed(result.rows, result.fileName, result.topic, null);
       } catch (err) {
         onError(err instanceof Error ? err.message : "Failed to parse matrix");
       } finally {
         onParsingChange(false);
         if (inputRef.current) inputRef.current.value = "";
+      }
+    },
+    [onError, onParsed, onParsingChange]
+  );
+
+  const importGoogleSheet = useCallback(
+    async (url: string) => {
+      onParsingChange(true);
+      onError("");
+      try {
+        const res = await fetch("/api/import-sheet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to import Google Sheet");
+        if (!data.rows?.length) {
+          throw new Error("Sheet imported but no paper rows were found.");
+        }
+        onParsed(data.rows, data.fileName, data.topic, {
+          embedUrl: data.sheet.embedUrl,
+          editUrl: data.sheet.editUrl,
+          spreadsheetId: data.sheet.spreadsheetId,
+        });
+        setShowEmbed(true);
+      } catch (err) {
+        onError(err instanceof Error ? err.message : "Failed to import Google Sheet");
+      } finally {
+        onParsingChange(false);
       }
     },
     [onError, onParsed, onParsingChange]
@@ -109,7 +168,7 @@ export default function MatrixUploader({
     onError("");
     try {
       const result = await parseViaApiText(pasteText, "pasted-matrix.csv");
-      onParsed(result.rows, result.fileName, result.topic);
+      onParsed(result.rows, result.fileName, result.topic, null);
       setPasteOpen(false);
     } catch (err) {
       onError(err instanceof Error ? err.message : "Failed to parse pasted table");
@@ -123,6 +182,48 @@ export default function MatrixUploader({
       <div className="mb-3 flex items-center gap-2 font-semibold">
         <FileSpreadsheet className="h-4 w-4 text-[var(--sea)]" />
         Synthesis matrix
+      </div>
+
+      {/* Google Sheets import — primary path for shared research tables */}
+      <div className="mb-3 space-y-2 rounded-xl border border-[var(--line)] bg-white p-3">
+        <div className="flex items-center gap-2 text-sm font-semibold text-[var(--ink)]">
+          <Sheet className="h-4 w-4 text-[var(--sea)]" />
+          Google Sheet link
+        </div>
+        <input
+          className="field text-xs"
+          type="url"
+          placeholder="https://docs.google.com/spreadsheets/d/…/edit"
+          value={sheetUrl}
+          onChange={(e) => setSheetUrl(e.target.value)}
+          disabled={parsing}
+        />
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            className="btn btn-primary"
+            disabled={parsing || !sheetUrl.trim()}
+            onClick={() => void importGoogleSheet(sheetUrl)}
+          >
+            <Link2 className="h-4 w-4" />
+            Import sheet
+          </button>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            disabled={parsing}
+            onClick={() => {
+              setSheetUrl(DEFAULT_SHEET_URL);
+              void importGoogleSheet(DEFAULT_SHEET_URL);
+            }}
+          >
+            Load my UAV sheet
+          </button>
+        </div>
+        <p className="text-[11px] leading-relaxed text-[var(--muted)]">
+          Sheet must be shared as <strong>Anyone with the link → Viewer</strong>. Embed preview
+          appears after a successful import.
+        </p>
       </div>
 
       <div
@@ -160,16 +261,15 @@ export default function MatrixUploader({
           <Upload className="mx-auto mb-3 h-8 w-8 text-[var(--sea)]" />
         )}
         <p className="text-sm font-medium">
-          {parsing ? "Parsing spreadsheet…" : "Drop your synthesis table here"}
+          {parsing ? "Importing / parsing…" : "Or drop CSV / XLSX here"}
         </p>
         <p className="mt-1 text-xs text-[var(--muted)]">
-          Accepts real .xlsx / .xls / .csv. Any header row with Title, Authors, Method, Findings,
-          Gaps, Themes (or similar labels).
+          Supports headers like Name of the Paper, Techniques Used, Research Gaps, Year of
+          Publishing…
         </p>
 
-        {/* Native file input — always visible so OS picker works even if custom buttons fail */}
         <label className="mt-4 flex cursor-pointer flex-col items-center gap-2">
-          <span className="btn btn-primary pointer-events-none">
+          <span className="btn btn-secondary pointer-events-none">
             {parsing ? "Parsing…" : "Choose CSV / XLSX file"}
           </span>
           <input
@@ -191,14 +291,6 @@ export default function MatrixUploader({
           type="button"
           className="btn btn-secondary w-full"
           disabled={parsing}
-          onClick={() => void loadSample("research")}
-        >
-          Sample matrix
-        </button>
-        <button
-          type="button"
-          className="btn btn-secondary w-full"
-          disabled={parsing}
           onClick={() => setPasteOpen((v) => !v)}
         >
           <ClipboardPaste className="h-4 w-4" />
@@ -208,28 +300,20 @@ export default function MatrixUploader({
           type="button"
           className="btn btn-ghost w-full text-xs"
           disabled={parsing}
-          onClick={() => void loadSample("csv")}
+          onClick={() => void loadSample("research")}
         >
-          Demo CSV
-        </button>
-        <button
-          type="button"
-          className="btn btn-ghost w-full text-xs"
-          disabled={parsing}
-          onClick={() => void loadSample("xlsx")}
-        >
-          Demo XLSX
+          Sample matrix
         </button>
       </div>
 
       {pasteOpen && (
         <div className="mt-3 space-y-2 rounded-xl border border-[var(--line)] bg-white p-3">
           <p className="text-xs text-[var(--muted)]">
-            In Excel: select your table → Copy → paste here (tabs/CSV both work).
+            In Excel/Sheets: select your table → Copy → paste here.
           </p>
           <textarea
             className="field min-h-[140px] font-mono text-xs"
-            placeholder={"Paper Title\tAuthors\tYear\tMethod\tFindings\tGaps\tThemes\n..."}
+            placeholder={"Name of the Paper\tIntroduction\tTechniques Used / Compared\t..."}
             value={pasteText}
             onChange={(e) => setPasteText(e.target.value)}
           />
@@ -251,11 +335,37 @@ export default function MatrixUploader({
         </p>
       )}
 
-      <p className="mt-3 text-[11px] leading-relaxed text-[var(--muted)]">
-        Tip: if upload is blocked in an embedded preview, use <strong>Paste table</strong> or open
-        this app in a normal browser tab. If your file is Excel saved as “.csv” and fails, export
-        again via <strong>Save As → CSV UTF-8</strong> or a fresh <strong>.xlsx</strong>.
-      </p>
+      {sheetEmbed && (
+        <div className="mt-3 space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              className="btn btn-secondary text-xs"
+              onClick={() => setShowEmbed((v) => !v)}
+            >
+              {showEmbed ? "Hide embed" : "Show sheet embed"}
+            </button>
+            <a
+              className="text-xs font-medium text-[var(--sea)] underline"
+              href={sheetEmbed.editUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open in Google Sheets
+            </a>
+          </div>
+          {showEmbed && (
+            <div className="overflow-hidden rounded-xl border border-[var(--line)] bg-white">
+              <iframe
+                title="Google Sheet embed"
+                src={sheetEmbed.embedUrl}
+                className="h-72 w-full"
+                loading="lazy"
+              />
+            </div>
+          )}
+        </div>
+      )}
     </section>
   );
 }

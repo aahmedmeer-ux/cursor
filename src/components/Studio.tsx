@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BookOpen,
   Download,
@@ -67,6 +67,14 @@ export default function Studio() {
   const [queries, setQueries] = useState<string[]>([]);
   const [previewMode, setPreviewMode] = useState<"formatted" | "markdown" | "figures">("formatted");
   const [generating, setGenerating] = useState(false);
+  const [isInsecureHttp, setIsInsecureHttp] = useState(false);
+
+  useEffect(() => {
+    const host = window.location.hostname;
+    const insecure =
+      window.location.protocol === "http:" && host !== "localhost" && host !== "127.0.0.1";
+    setIsInsecureHttp(insecure);
+  }, []);
 
   const suggestedTopic = useMemo(() => (rows.length ? inferTopic(rows) : ""), [rows]);
 
@@ -128,6 +136,13 @@ export default function Studio() {
 
   return (
     <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-6 sm:px-6 lg:px-8">
+      {isInsecureHttp && (
+        <div className="mb-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          This page is open over plain <strong>HTTP</strong> (“Not secure”). Some browsers block
+          imports and clicks in that mode. Open the app via <strong>localhost</strong> or an{" "}
+          <strong>HTTPS</strong> link instead.
+        </div>
+      )}
       <header className="rise mb-10 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
         <div>
           <div className="mb-4 inline-flex items-center gap-2 text-sm text-[var(--sea)]">

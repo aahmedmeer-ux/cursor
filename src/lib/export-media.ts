@@ -1,4 +1,8 @@
-/** Rasterize SVG figures for PDF/DOCX embedding (browser canvas or Node sharp). */
+/**
+ * SVG → PNG helpers.
+ * - Browser: canvas / canvg
+ * - Node (API routes): sharp via dynamic require (never imported by client components)
+ */
 
 function parseSvgSize(svg: string): { width: number; height: number } {
   const viewBox = svg.match(/viewBox=["']\s*([0-9.]+)\s+([0-9.]+)\s+([0-9.]+)\s+([0-9.]+)\s*["']/i);
@@ -23,11 +27,10 @@ function sanitizeSvg(svg: string): string {
 }
 
 async function rasterizeWithSharp(svg: string, scale: number): Promise<string> {
-  // Node-only path. Never execute / bundle sharp into the browser.
-  if (typeof document !== "undefined") throw new Error("sharp skipped in browser");
-  // Hide from bundler static analysis (Next client build must not see `sharp`).
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-eval
-  const nodeRequire = eval("require") as (id: string) => any;
+  if (typeof window !== "undefined") throw new Error("sharp skipped in browser");
+  // Use Function so bundlers cannot statically rewrite / include sharp in client graphs.
+  // eslint-disable-next-line no-new-func, @typescript-eslint/no-explicit-any
+  const nodeRequire = Function("return require")() as (id: string) => any;
   const sharp = nodeRequire("sharp");
   const cleaned = sanitizeSvg(svg);
   const { width, height } = parseSvgSize(cleaned);
@@ -42,7 +45,7 @@ async function rasterizeWithSharp(svg: string, scale: number): Promise<string> {
 
 async function rasterizeWithCanvg(svg: string, scale: number): Promise<string> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const canvgMod: any = await import(/* webpackIgnore: false */ "canvg");
+  const canvgMod: any = await import("canvg");
   const Canvg = canvgMod.Canvg;
   const { width, height } = parseSvgSize(svg);
   const canvas = document.createElement("canvas");
@@ -113,9 +116,8 @@ export async function svgToPngDataUrl(
 ): Promise<{ dataUrl: string; width: number; height: number }> {
   const { width, height } = parseSvgSize(svg);
   const errors: string[] = [];
-
   const fns =
-    typeof document === "undefined"
+    typeof window === "undefined"
       ? [rasterizeWithSharp]
       : [rasterizeWithCanvg, rasterizeWithDom, rasterizeWithImage];
 
@@ -149,6 +151,7 @@ export function dataUrlToUint8Array(dataUrl: string): Uint8Array {
   return bytes;
 }
 
+/** Browser-only download helper (safe for client components). */
 export function downloadBlob(filename: string, content: Blob | string, type?: string) {
   const blob = content instanceof Blob ? content : new Blob([content], { type: type || "text/plain" });
   const url = URL.createObjectURL(blob);

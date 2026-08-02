@@ -15,11 +15,9 @@ import {
   FileText,
 } from "lucide-react";
 import MatrixUploader, { type SheetEmbedInfo } from "@/components/MatrixUploader";
+import { downloadBlob, downloadFromApi, slugify } from "@/lib/download";
 import { inferTopic } from "@/lib/matrix-utils";
 import { TEMPLATES, paperToHtml, paperToLatex, paperToMarkdown } from "@/lib/templates";
-import { paperToDocxBlob } from "@/lib/export-docx";
-import { paperToPdfBlob } from "@/lib/export-pdf";
-import { downloadBlob as downloadAny } from "@/lib/export-media";
 import {
   HIGH_IMPACT_SURVEY_PRINCIPLES,
   REQUIRED_SURVEY_ARTIFACTS,
@@ -54,7 +52,7 @@ const STAGES: { id: PipelineStage; label: string }[] = [
 ];
 
 function downloadText(filename: string, content: string, type: string) {
-  downloadAny(filename, content, type);
+  downloadBlob(filename, content, type);
 }
 
 export default function Studio() {
@@ -165,8 +163,9 @@ export default function Studio() {
     setExporting("pdf");
     setError(null);
     try {
-      const blob = await paperToPdfBlob(paper);
-      downloadAny(`${slugify(paper.title)}.pdf`, blob);
+      // Server-side export keeps jspdf/docx/sharp out of the browser bundle
+      // (those libs previously broke hydration and made all buttons dead).
+      await downloadFromApi("/api/export-pdf", { paper }, `${slugify(paper.title)}.pdf`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "PDF export failed");
     } finally {
@@ -179,8 +178,7 @@ export default function Studio() {
     setExporting("docx");
     setError(null);
     try {
-      const blob = await paperToDocxBlob(paper);
-      downloadAny(`${slugify(paper.title)}.docx`, blob);
+      await downloadFromApi("/api/export-docx", { paper }, `${slugify(paper.title)}.docx`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Word export failed");
     } finally {
@@ -825,12 +823,4 @@ export default function Studio() {
       </div>
     </div>
   );
-}
-
-function slugify(s: string): string {
-  return s
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "")
-    .slice(0, 60) || "survey-draft";
 }

@@ -1,4 +1,4 @@
-/** Browser helpers to rasterize SVG figures for PDF/DOCX embedding. */
+/** Rasterize SVG figures for PDF/DOCX embedding (browser canvas or Node sharp). */
 
 function parseSvgSize(svg: string): { width: number; height: number } {
   const viewBox = svg.match(/viewBox=["']\s*([0-9.]+)\s+([0-9.]+)\s+([0-9.]+)\s+([0-9.]+)\s*["']/i);
@@ -12,11 +12,9 @@ function parseSvgSize(svg: string): { width: number; height: number } {
 
 function sanitizeSvg(svg: string): string {
   let out = svg.trim();
-  // Ensure xmlns for standalone rendering
   if (!/xmlns=/.test(out)) {
     out = out.replace(/<svg\b/, '<svg xmlns="http://www.w3.org/2000/svg"');
   }
-  // Strip nested double-quotes inside font-family attributes that break XML
   out = out.replace(/font-family="([^"]*)"/g, (_m, fam: string) => {
     const clean = fam.replace(/"/g, "'");
     return `font-family="${clean}"`;
@@ -24,8 +22,25 @@ function sanitizeSvg(svg: string): string {
   return out;
 }
 
+async function rasterizeWithSharp(svg: string, scale: number): Promise<string> {
+  // Node-only path. Never execute / bundle sharp into the browser.
+  if (typeof document !== "undefined") throw new Error("sharp skipped in browser");
+  // Hide from bundler static analysis (Next client build must not see `sharp`).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-eval
+  const nodeRequire = eval("require") as (id: string) => any;
+  const sharp = nodeRequire("sharp");
+  const cleaned = sanitizeSvg(svg);
+  const { width, height } = parseSvgSize(cleaned);
+  const w = Math.max(1, Math.round(width * scale));
+  const h = Math.max(1, Math.round(height * scale));
+  const png = await sharp(Buffer.from(cleaned), { density: Math.round(72 * scale) })
+    .resize(w, h, { fit: "contain", background: { r: 255, g: 255, b: 255, alpha: 1 } })
+    .png()
+    .toBuffer();
+  return `data:image/png;base64,${png.toString("base64")}`;
+}
+
 async function rasterizeWithCanvg(svg: string, scale: number): Promise<string> {
-  // canvg ships types that don't resolve via package exports in Next/TS.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const canvgMod: any = await import(/* webpackIgnore: false */ "canvg");
   const Canvg = canvgMod.Canvg;
@@ -92,11 +107,19 @@ async function rasterizeWithDom(svg: string, scale: number): Promise<string> {
   }
 }
 
-export async function svgToPngDataUrl(svg: string, scale = 2): Promise<{ dataUrl: string; width: number; height: number }> {
+export async function svgToPngDataUrl(
+  svg: string,
+  scale = 2
+): Promise<{ dataUrl: string; width: number; height: number }> {
   const { width, height } = parseSvgSize(svg);
   const errors: string[] = [];
 
-  for (const fn of [rasterizeWithCanvg, rasterizeWithDom, rasterizeWithImage]) {
+  const fns =
+    typeof document === "undefined"
+      ? [rasterizeWithSharp]
+      : [rasterizeWithCanvg, rasterizeWithDom, rasterizeWithImage];
+
+  for (const fn of fns) {
     try {
       const dataUrl = await fn(svg, scale);
       if (dataUrl.startsWith("data:image/png")) {

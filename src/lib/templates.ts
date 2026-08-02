@@ -500,13 +500,13 @@ export function paperToHtml(paper: SurveyPaper): string {
   td { font-weight: 500; }
   ol.refs { padding-left: 18px; font-size: 11.5px; }
   ol.refs li { margin-bottom: 6px; }
-  /* Equations share the same Times typography as headings — no tinted panel */
-  .equation { margin: 14px 0; padding: 0; background: transparent; border: none; break-inside: avoid; }
+  /* Equations share the same Times typography as headings — no tinted panel / card */
+  .equation { margin: 14px 0; padding: 0; background: transparent; border: none; box-shadow: none; break-inside: avoid; }
   .eq-head { font-family: "Times New Roman", Times, serif; font-size: 12.5px; font-weight: 700; font-style: italic; margin: 0 0 6px; color: #111; text-align: center; background: transparent; border: none; padding: 0; }
-  .eq-formula { font-family: "Times New Roman", Times, serif; font-style: italic; font-size: 14px; text-align: center; margin: 8px 0; color: #111; }
-  .eq-svg { display: flex; justify-content: center; margin: 6px 0; }
-  .eq-svg svg { max-width: 100%; height: auto; }
-  .eq-desc { font-family: "Times New Roman", Times, serif; font-size: 11px; font-style: italic; color: #333; text-align: center; margin-top: 4px; }
+  .eq-formula { font-family: "Times New Roman", Times, serif; font-style: italic; font-size: 14px; text-align: center; margin: 8px 0; color: #111; background: transparent; }
+  .eq-svg { display: flex; justify-content: center; margin: 6px 0; background: transparent; }
+  .eq-svg svg { max-width: 100%; height: auto; background: transparent; }
+  .eq-desc { font-family: "Times New Roman", Times, serif; font-size: 11px; font-style: italic; color: #333; text-align: center; margin-top: 4px; background: transparent; }
   .tpl-nature h1 { font-family: Georgia, serif; font-size: 26px; }
   .tpl-acm h1 { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 24px; letter-spacing: -0.02em; }
   .tpl-elsevier .abstract { border-left: 3px solid var(--sea); padding-left: 12px; }

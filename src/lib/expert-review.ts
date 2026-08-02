@@ -95,6 +95,13 @@ function audit(paper: SurveyPaper): ReviewIssue[] {
   if (/Prior authors\s*\(/i.test(text)) {
     issues.push({ id: "prior-authors", severity: "warn", message: "Generic “Prior authors” phrasing should be replaced when names exist." });
   }
+  if (/\)\[\d+\]/.test(text)) {
+    issues.push({
+      id: "cite-space",
+      severity: "warn",
+      message: "Missing space before in-text citation (e.g. \")[3]\").",
+    });
+  }
 
   const citeNums = [...text.matchAll(/\[(\d+)\]/g)].map((m) => Number(m[1]));
   const maxCite = citeNums.length ? Math.max(...citeNums) : 0;
@@ -147,6 +154,7 @@ function autofix(paper: SurveyPaper, issues: ReviewIssue[]): SurveyPaper {
       let content = section.content;
       content = content.replace(/\bUnknown\s*\((\d{4}|n\.d\.)\)/gi, (_m, y) => `The authors (${y})`);
       content = content.replace(/\bPrior authors\s*\((\d{4}|n\.d\.)\)/gi, "Prior work ($1)");
+      content = content.replace(/\)\[(\d+)\]/g, ") [$1]");
       content = sanitizeCitationMarkers(content);
 
       const blocks = content.split(/\n{2,}/);
@@ -193,7 +201,8 @@ function autofix(paper: SurveyPaper, issues: ReviewIssue[]): SurveyPaper {
       issue.id.startsWith("eq-dup") ||
       issue.id.startsWith("eq-typo") ||
       issue.id === "unknown-author" ||
-      issue.id === "prior-authors"
+      issue.id === "prior-authors" ||
+      issue.id === "cite-space"
     ) {
       issue.fixed = true;
     }

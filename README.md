@@ -10,7 +10,7 @@ A modern Turnitin-style originality platform: upload PDF/DOCX/TXT, run hybrid si
 | Embeddings | Local hashed bag-of-words (`EMBEDDING_PROVIDER=local`) | Set `EMBEDDING_PROVIDER=openai` + `OPENAI_API_KEY` |
 | AI writing detection | Local stylometric heuristics (`AI_DETECTION_PROVIDER=local`) | Set `AI_DETECTION_PROVIDER=openai` + `OPENAI_API_KEY` |
 | File storage | Local `./uploads` | Replace `src/lib/storage.ts` with S3/Supabase |
-| Web matching | Simulated corpus | Set `SERPER_API_KEY` for live Serper.dev results |
+| Web / publication matching | **OpenAlex + Crossref** (real academic APIs, no key) | Optional `SERPER_API_KEY` adds Google web results |
 | Queue | Inline async processing + Redis cache | Can be upgraded to BullMQ workers |
 | Privacy / indexing | `ALLOW_REPOSITORY_INDEXING=false` (default) | Uploads are check-only, raw files deleted after analysis, never added to a shared corpus |
 

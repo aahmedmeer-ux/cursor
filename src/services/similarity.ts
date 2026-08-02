@@ -230,7 +230,12 @@ function mergeMatches(matches: SimilarityMatch[]): SimilarityMatch[] {
   return kept.slice(0, 40);
 }
 
-/** Coverage-weighted overall similarity (matched unique chars / total chars). */
+/**
+ * Overall similarity blends:
+ * - character coverage of highlighted spans
+ * - strongest source score (critical for published papers where abstract/title
+ *   match is strong but the full PDF body is longer than our snippet coverage)
+ */
 export function computeOverallScore(
   fullText: string,
   matches: SimilarityMatch[],
@@ -248,9 +253,21 @@ export function computeOverallScore(
 
   const coveredCount = covered.reduce((n, v) => n + (v ? 1 : 0), 0);
   const ratio = coveredCount / fullText.length;
-  // Blend coverage with top match strength
   const top = matches[0]?.similarityScore ?? 0;
-  return Math.round(Math.min(100, ratio * 85 + top * 0.15));
+  const topJournalOrWeb =
+    matches.find((m) => m.sourceType === "JOURNAL" || m.sourceType === "WEB")
+      ?.similarityScore ?? 0;
+
+  // Published-paper title/abstract hits should dominate the index.
+  const publicationBoost =
+    topJournalOrWeb >= 85
+      ? topJournalOrWeb * 0.9
+      : topJournalOrWeb >= 70
+        ? topJournalOrWeb * 0.75
+        : 0;
+
+  const coverageScore = ratio * 85 + top * 0.15;
+  return Math.round(Math.min(100, Math.max(coverageScore, publicationBoost)));
 }
 
 /** Seed a small publication corpus so first-run demos show journal matches. */

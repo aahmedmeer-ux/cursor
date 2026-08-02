@@ -1,4 +1,5 @@
 import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import Papa from "papaparse";
 import type { MatrixRow } from "./types";
 
@@ -14,17 +15,47 @@ const COLUMN_ALIASES: Record<keyof Omit<MatrixRow, "id" | "raw" | "year">, strin
     "study title",
     "publication title",
     "reference",
+    "citation",
+    "full reference",
+    "source title",
+    "document title",
   ],
-  authors: ["authors", "author", "author(s)", "writer", "writers", "investigator"],
-  venue: ["venue", "journal", "conference", "publication", "source", "publisher", "outlet"],
+  authors: [
+    "authors",
+    "author",
+    "author(s)",
+    "author / year",
+    "author year",
+    "authors year",
+    "writer",
+    "writers",
+    "investigator",
+    "first author",
+  ],
+  venue: [
+    "venue",
+    "journal",
+    "conference",
+    "publication",
+    "source",
+    "publisher",
+    "outlet",
+    "journal / conference",
+    "published in",
+  ],
   method: [
     "method",
     "methods",
     "methodology",
+    "methodology / approach",
     "approach",
     "technique",
     "research method",
+    "research design",
     "design",
+    "methods / design",
+    "study design",
+    "analytical approach",
   ],
   findings: [
     "findings",
@@ -36,16 +67,24 @@ const COLUMN_ALIASES: Record<keyof Omit<MatrixRow, "id" | "raw" | "year">, strin
     "key findings",
     "main findings",
     "key results",
+    "results / findings",
+    "key contribution",
+    "main results",
+    "outcomes / findings",
   ],
   gaps: [
     "gaps",
     "gap",
     "limitations",
     "limitation",
+    "limitations / gaps",
     "future work",
     "open issues",
     "research gaps",
     "future research",
+    "weaknesses",
+    "critique",
+    "limitations gaps",
   ],
   themes: [
     "themes",
@@ -57,11 +96,35 @@ const COLUMN_ALIASES: Record<keyof Omit<MatrixRow, "id" | "raw" | "year">, strin
     "dimension",
     "focus",
     "area",
+    "themes / categories",
+    "theme / category",
+    "research theme",
+    "classification",
+    "strand",
   ],
   keywords: ["keywords", "keyword", "tags", "key words", "key terms"],
   doi: ["doi", "doi/url", "digital object identifier"],
   url: ["url", "link", "paper url", "pdf", "web link", "website"],
-  notes: ["notes", "note", "remarks", "comment", "comments", "annotation"],
+  notes: [
+    "notes",
+    "note",
+    "remarks",
+    "comment",
+    "comments",
+    "annotation",
+    "research aim",
+    "research aim / focus",
+    "aim",
+    "purpose",
+    "objective",
+    "objectives",
+    "research question",
+    "dataset",
+    "dataset / sample",
+    "sample",
+    "population",
+    "context",
+  ],
 };
 
 const YEAR_ALIASES = [
@@ -71,6 +134,8 @@ const YEAR_ALIASES = [
   "pub year",
   "publication year",
   "year published",
+  "author / year",
+  "author year",
 ];
 
 function normalizeHeader(h: string): string {
@@ -78,7 +143,7 @@ function normalizeHeader(h: string): string {
     .replace(/^\uFEFF/, "")
     .trim()
     .toLowerCase()
-    .replace(/[_./\\-]+/g, " ")
+    .replace(/[_./\\|+–—-]+/g, " ")
     .replace(/\s+/g, " ");
 }
 
@@ -94,40 +159,60 @@ function mapHeaders(headers: string[]): Record<string, string> {
   const yearIdx = normalized.findIndex((h) => YEAR_ALIASES.includes(h));
   if (yearIdx >= 0) mapping.year = headers[yearIdx];
 
-  // Fuzzy contains match if exact alias missed
-  if (!mapping.title) {
-    const idx = normalized.findIndex((h) => h.includes("title") || h.includes("paper"));
-    if (idx >= 0) mapping.title = headers[idx];
-  }
+  const fuzzy = (field: string, preds: ((h: string) => boolean)[]) => {
+    if (mapping[field]) return;
+    const idx = normalized.findIndex((h) => preds.some((p) => p(h)));
+    if (idx >= 0) mapping[field] = headers[idx];
+  };
+
+  fuzzy("title", [(h) => h.includes("title"), (h) => h.includes("paper") && !h.includes("author")]);
+  fuzzy("authors", [(h) => h.includes("author")]);
+  fuzzy("method", [(h) => h.includes("method"), (h) => h.includes("approach"), (h) => h.includes("design")]);
+  fuzzy("findings", [
+    (h) => h.includes("finding"),
+    (h) => h.includes("result"),
+    (h) => h.includes("contribution"),
+    (h) => h.includes("outcome"),
+  ]);
+  fuzzy("gaps", [
+    (h) => h.includes("gap"),
+    (h) => h.includes("limitation"),
+    (h) => h.includes("future"),
+    (h) => h.includes("weakness"),
+  ]);
+  fuzzy("themes", [
+    (h) => h.includes("theme"),
+    (h) => h.includes("topic"),
+    (h) => h.includes("categor"),
+    (h) => h.includes("strand"),
+  ]);
+  fuzzy("venue", [(h) => h.includes("journal"), (h) => h.includes("venue"), (h) => h.includes("conference")]);
+  fuzzy("keywords", [(h) => h.includes("keyword"), (h) => h.includes("tag")]);
+  fuzzy("notes", [
+    (h) => h.includes("aim"),
+    (h) => h.includes("purpose"),
+    (h) => h.includes("objective"),
+    (h) => h.includes("sample"),
+    (h) => h.includes("dataset"),
+    (h) => h.includes("note"),
+  ]);
+
+  // Combined "Author / Year" column often holds both
   if (!mapping.authors) {
-    const idx = normalized.findIndex((h) => h.includes("author"));
+    const idx = normalized.findIndex((h) => h.includes("author") && h.includes("year"));
     if (idx >= 0) mapping.authors = headers[idx];
   }
-  if (!mapping.method) {
-    const idx = normalized.findIndex((h) => h.includes("method") || h.includes("approach"));
-    if (idx >= 0) mapping.method = headers[idx];
-  }
-  if (!mapping.findings) {
-    const idx = normalized.findIndex(
-      (h) => h.includes("finding") || h.includes("result") || h.includes("contribution")
-    );
-    if (idx >= 0) mapping.findings = headers[idx];
-  }
-  if (!mapping.gaps) {
-    const idx = normalized.findIndex(
-      (h) => h.includes("gap") || h.includes("limitation") || h.includes("future")
-    );
-    if (idx >= 0) mapping.gaps = headers[idx];
-  }
-  if (!mapping.themes) {
-    const idx = normalized.findIndex(
-      (h) => h.includes("theme") || h.includes("topic") || h.includes("categor")
-    );
-    if (idx >= 0) mapping.themes = headers[idx];
+  if (!mapping.year) {
+    const idx = normalized.findIndex((h) => h.includes("author") && h.includes("year"));
+    if (idx >= 0) mapping.year = headers[idx];
   }
 
   if (!mapping.title && headers.length > 0) {
-    mapping.title = headers[0];
+    // Prefer a text-heavy column over first ID column
+    const idx = normalized.findIndex(
+      (h) => !["id", "no", "no.", "#", "s n", "s/n", "sr"].includes(h) && h.length > 0
+    );
+    mapping.title = headers[idx >= 0 ? idx : 0];
   }
 
   return mapping;
@@ -143,10 +228,17 @@ function stringifyCell(value: unknown): string {
   if (value === undefined || value === null) return "";
   if (value instanceof Date) return String(value.getFullYear());
   if (typeof value === "number" && Number.isFinite(value)) {
-    // Excel serial year-like ints stay ints; avoid scientific notation noise
     return Number.isInteger(value) ? String(value) : String(value);
   }
-  return String(value).trim();
+  if (typeof value === "object") {
+    // exceljs rich text
+    const maybe = value as { text?: string; richText?: { text?: string }[]; result?: string | number };
+    if (typeof maybe.text === "string") return maybe.text.trim();
+    if (Array.isArray(maybe.richText)) return maybe.richText.map((t) => t.text || "").join("").trim();
+    if (maybe.result !== undefined) return stringifyCell(maybe.result);
+    return String(value).trim();
+  }
+  return String(value).replace(/\r\n/g, "\n").trim();
 }
 
 function rowFromRecord(
@@ -161,7 +253,12 @@ function rowFromRecord(
   };
 
   const title = get("title");
-  if (!title || /^untitled$/i.test(title)) return null;
+  const authors = get("authors");
+
+  if (!title) return null;
+  if (/^untitled$/i.test(title)) return null;
+  // Skip obvious header repeats
+  if (normalizeHeader(title) === "title" || normalizeHeader(title) === "paper title") return null;
 
   const raw: Record<string, string> = {};
   for (const [k, v] of Object.entries(record)) raw[k] = stringifyCell(v);
@@ -169,8 +266,8 @@ function rowFromRecord(
   return {
     id: `m${index + 1}`,
     title,
-    authors: get("authors"),
-    year: parseYear(get("year")),
+    authors,
+    year: parseYear(get("year") || authors),
     venue: get("venue"),
     method: get("method"),
     findings: get("findings"),
@@ -187,10 +284,9 @@ function rowFromRecord(
 function recordsFromAoA(aoa: unknown[][]): Record<string, unknown>[] {
   if (!aoa.length) return [];
 
-  // Find the most likely header row in the first 15 rows
   let headerIdx = 0;
   let bestScore = -1;
-  const scan = Math.min(aoa.length, 15);
+  const scan = Math.min(aoa.length, 20);
   for (let i = 0; i < scan; i++) {
     const row = (aoa[i] ?? []).map((c) => normalizeHeader(stringifyCell(c)));
     if (!row.some(Boolean)) continue;
@@ -204,22 +300,31 @@ function recordsFromAoA(aoa: unknown[][]): Record<string, unknown>[] {
           "author",
           "year",
           "method",
+          "methodology",
           "findings",
           "gaps",
           "themes",
           "keywords",
           "venue",
           "journal",
+          "limitations",
+          "aim",
+          "sample",
         ].includes(cell) ||
         cell.includes("title") ||
         cell.includes("author") ||
-        cell.includes("method")
+        cell.includes("method") ||
+        cell.includes("finding") ||
+        cell.includes("theme") ||
+        cell.includes("limitation")
       ) {
         score += 3;
-      } else {
-        score += 0.25;
+      } else if (cell.length > 0 && cell.length < 40) {
+        score += 0.35;
       }
     }
+    // Prefer rows with multiple non-empty cells
+    score += Math.min(row.filter(Boolean).length, 8) * 0.15;
     if (score > bestScore) {
       bestScore = score;
       headerIdx = i;
@@ -231,7 +336,6 @@ function recordsFromAoA(aoa: unknown[][]): Record<string, unknown>[] {
     return label || `Column ${i + 1}`;
   });
 
-  // Ensure unique headers
   const seen = new Map<string, number>();
   const headers = headerRow.map((h) => {
     const count = seen.get(h) ?? 0;
@@ -279,6 +383,13 @@ export function parseRecordsMatrix(records: Record<string, unknown>[]): MatrixRo
 
 export function parseCsvMatrix(text: string): MatrixRow[] {
   const cleaned = text.replace(/^\uFEFF/, "");
+  // Detect binary masquerading as text early
+  if (cleaned.startsWith("PK") || cleaned.includes("\u0000")) {
+    throw new Error(
+      "This file looks like an Excel workbook (.xlsx) saved with a .csv name, or it is corrupted. In Excel/Google Sheets use File → Save As / Download as → CSV UTF-8, then upload that CSV."
+    );
+  }
+
   const parsed = Papa.parse<unknown[]>(cleaned, {
     header: false,
     skipEmptyLines: "greedy",
@@ -292,21 +403,93 @@ export function parseCsvMatrix(text: string): MatrixRow[] {
   return parseRecordsMatrix(recordsFromAoA(aoa));
 }
 
-function sheetToAoA(sheet: XLSX.WorkSheet): unknown[][] {
-  return XLSX.utils.sheet_to_json(sheet, {
-    header: 1,
-    raw: false,
-    defval: "",
-    blankrows: false,
-  }) as unknown[][];
+function looksLikeZip(bytes: Uint8Array): boolean {
+  return bytes.length >= 2 && bytes[0] === 0x50 && bytes[1] === 0x4b;
 }
 
-export function parseWorkbookMatrix(data: ArrayBuffer | Uint8Array): MatrixRow[] {
-  const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
-  if (!bytes.byteLength) {
-    throw new Error("The uploaded spreadsheet is empty.");
+function looksLikeOle(bytes: Uint8Array): boolean {
+  // Old .xls compound document
+  return (
+    bytes.length >= 4 &&
+    bytes[0] === 0xd0 &&
+    bytes[1] === 0xcf &&
+    bytes[2] === 0x11 &&
+    bytes[3] === 0xe0
+  );
+}
+
+function assertHealthyZip(bytes: Uint8Array) {
+  // Fast reject for obviously truncated uploads (central directory / EOCD missing near end)
+  const tail = bytes.subarray(Math.max(0, bytes.length - 65536));
+  let hasEocd = false;
+  for (let i = 0; i < tail.length - 3; i++) {
+    if (tail[i] === 0x50 && tail[i + 1] === 0x4b && tail[i + 2] === 0x05 && tail[i + 3] === 0x06) {
+      hasEocd = true;
+      break;
+    }
+  }
+  // Also accept ZIP64 EOCD locator PK\x06\x06 / PK\x06\x07
+  if (!hasEocd) {
+    for (let i = 0; i < tail.length - 3; i++) {
+      if (
+        tail[i] === 0x50 &&
+        tail[i + 1] === 0x4b &&
+        ((tail[i + 2] === 0x06 && tail[i + 3] === 0x06) ||
+          (tail[i + 2] === 0x06 && tail[i + 3] === 0x07))
+      ) {
+        hasEocd = true;
+        break;
+      }
+    }
+  }
+  if (!hasEocd && bytes.length > 2048) {
+    // Only hard-fail when the archive is large enough that a missing EOCD is suspicious.
+    // Tiny valid writers sometimes place structures differently; parsers below will decide.
+    const hasCentral = (() => {
+      for (let i = 0; i < tail.length - 3; i++) {
+        if (tail[i] === 0x50 && tail[i + 1] === 0x4b && tail[i + 2] === 0x01 && tail[i + 3] === 0x02) {
+          return true;
+        }
+      }
+      return false;
+    })();
+    if (!hasCentral) {
+      throw new Error(
+        "This Excel file appears truncated or corrupted (incomplete .xlsx zip). Please re-export: Excel → Save As → Excel Workbook (.xlsx) or CSV UTF-8, then upload again."
+      );
+    }
+  }
+}
+
+async function parseWithExcelJS(bytes: Uint8Array): Promise<MatrixRow[]> {
+  const workbook = new ExcelJS.Workbook();
+  // exceljs accepts Buffer in Node
+  await workbook.xlsx.load(Buffer.from(bytes) as unknown as ExcelJS.Buffer);
+  if (!workbook.worksheets.length) {
+    throw new Error("Workbook has no sheets.");
   }
 
+  const errors: string[] = [];
+  for (const sheet of workbook.worksheets) {
+    const aoa: unknown[][] = [];
+    sheet.eachRow({ includeEmpty: false }, (row) => {
+      const values = Array.isArray(row.values) ? row.values.slice(1) : [];
+      aoa.push(values.map((v) => stringifyCell(v)));
+    });
+    if (!aoa.length) {
+      errors.push(`Sheet “${sheet.name}” is empty`);
+      continue;
+    }
+    try {
+      return parseRecordsMatrix(recordsFromAoA(aoa));
+    } catch (err) {
+      errors.push(`Sheet “${sheet.name}”: ${err instanceof Error ? err.message : "parse failed"}`);
+    }
+  }
+  throw new Error(errors.join(" | ") || "Could not parse spreadsheet with ExcelJS.");
+}
+
+function parseWithSheetJS(bytes: Uint8Array): MatrixRow[] {
   let workbook: XLSX.WorkBook;
   try {
     workbook = XLSX.read(bytes, {
@@ -315,9 +498,13 @@ export function parseWorkbookMatrix(data: ArrayBuffer | Uint8Array): MatrixRow[]
       dense: false,
     });
   } catch (err) {
-    throw new Error(
-      `Could not read Excel file (${err instanceof Error ? err.message : "invalid workbook"}). Try re-saving as .xlsx.`
-    );
+    const msg = err instanceof Error ? err.message : "invalid workbook";
+    if (/alloc|inflate|corrupt|password|zip/i.test(msg)) {
+      throw new Error(
+        `Could not read Excel file (${msg}). The workbook may be truncated or password-protected. Re-save as .xlsx or CSV UTF-8 and try again.`
+      );
+    }
+    throw new Error(`Could not read Excel file (${msg}). Try re-saving as .xlsx.`);
   }
 
   if (!workbook.SheetNames?.length) {
@@ -329,7 +516,12 @@ export function parseWorkbookMatrix(data: ArrayBuffer | Uint8Array): MatrixRow[]
     const sheet = workbook.Sheets[sheetName];
     if (!sheet) continue;
     try {
-      const aoa = sheetToAoA(sheet);
+      const aoa = XLSX.utils.sheet_to_json(sheet, {
+        header: 1,
+        raw: false,
+        defval: "",
+        blankrows: false,
+      }) as unknown[][];
       if (!aoa.length) {
         errors.push(`Sheet “${sheetName}” is empty`);
         continue;
@@ -349,50 +541,78 @@ export function parseWorkbookMatrix(data: ArrayBuffer | Uint8Array): MatrixRow[]
   );
 }
 
-function isSpreadsheetFile(file: { name?: string; type?: string }): boolean {
-  const name = (file.name || "").toLowerCase();
-  const type = (file.type || "").toLowerCase();
-  return (
-    name.endsWith(".xlsx") ||
-    name.endsWith(".xls") ||
-    name.endsWith(".xlsm") ||
-    name.endsWith(".ods") ||
-    type.includes("spreadsheet") ||
-    type.includes("excel") ||
-    type === "application/vnd.ms-excel" ||
-    type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-  );
-}
-
-function isCsvFile(file: { name?: string; type?: string }): boolean {
-  const name = (file.name || "").toLowerCase();
-  const type = (file.type || "").toLowerCase();
-  return name.endsWith(".csv") || name.endsWith(".tsv") || type.includes("csv") || type.includes("tab-separated");
-}
-
-export async function parseMatrixFile(file: File): Promise<MatrixRow[]> {
-  if (isSpreadsheetFile(file)) {
-    const buffer = await file.arrayBuffer();
-    return parseWorkbookMatrix(buffer);
+function friendlyWorkbookError(err: unknown): Error {
+  const msg = err instanceof Error ? err.message : String(err);
+  if (/truncated|corrupt|incomplete|end of data|alloc|inflate|zip/i.test(msg)) {
+    return new Error(
+      "This Excel file appears truncated or corrupted (incomplete .xlsx). Please re-export from Excel/Google Sheets as a fresh .xlsx or CSV UTF-8, then upload again. Tip: File → Save As → CSV UTF-8 is the most reliable option."
+    );
   }
-  if (isCsvFile(file)) {
-    const text = await file.text();
+  return err instanceof Error ? err : new Error(msg);
+}
+
+export async function parseWorkbookMatrix(data: ArrayBuffer | Uint8Array): Promise<MatrixRow[]> {
+  const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
+  if (!bytes.byteLength) {
+    throw new Error("The uploaded spreadsheet is empty.");
+  }
+
+  try {
+    if (looksLikeZip(bytes)) {
+      assertHealthyZip(bytes);
+      try {
+        return await parseWithExcelJS(bytes);
+      } catch {
+        return parseWithSheetJS(bytes);
+      }
+    }
+    return parseWithSheetJS(bytes);
+  } catch (err) {
+    throw friendlyWorkbookError(err);
+  }
+}
+
+function isSpreadsheetName(name: string): boolean {
+  const n = name.toLowerCase();
+  return n.endsWith(".xlsx") || n.endsWith(".xls") || n.endsWith(".xlsm") || n.endsWith(".ods");
+}
+
+function isCsvName(name: string): boolean {
+  const n = name.toLowerCase();
+  return n.endsWith(".csv") || n.endsWith(".tsv") || n.endsWith(".txt");
+}
+
+export async function parseMatrixBuffer(
+  bytes: Uint8Array,
+  fileName = "matrix.xlsx"
+): Promise<MatrixRow[]> {
+  const name = fileName.toLowerCase();
+
+  // Magic-byte first — many exports are .xlsx renamed/downloaded as .csv
+  if (looksLikeZip(bytes) || looksLikeOle(bytes) || isSpreadsheetName(name)) {
+    return parseWorkbookMatrix(bytes);
+  }
+
+  if (isCsvName(name) || !name.includes(".")) {
+    const text = new TextDecoder("utf-8").decode(bytes);
+    // If UTF-8 decode looks like binary garbage from zip, redirect
+    if (looksLikeZip(bytes) || text.startsWith("PK")) {
+      return parseWorkbookMatrix(bytes);
+    }
     return parseCsvMatrix(text);
   }
 
-  // Unknown extension: sniff ZIP/XLSX signature (PK) vs text
-  const buffer = await file.arrayBuffer();
-  const bytes = new Uint8Array(buffer);
-  const isZip = bytes.length >= 2 && bytes[0] === 0x50 && bytes[1] === 0x4b; // PK
-  if (isZip || bytes.length > 8) {
-    try {
-      return parseWorkbookMatrix(bytes);
-    } catch {
-      // fall through to CSV
-    }
+  // Unknown: try workbook then CSV
+  try {
+    return await parseWorkbookMatrix(bytes);
+  } catch {
+    return parseCsvMatrix(new TextDecoder("utf-8").decode(bytes));
   }
-  const text = new TextDecoder("utf-8").decode(bytes);
-  return parseCsvMatrix(text);
+}
+
+export async function parseMatrixFile(file: File): Promise<MatrixRow[]> {
+  const buffer = await file.arrayBuffer();
+  return parseMatrixBuffer(new Uint8Array(buffer), file.name || "matrix.xlsx");
 }
 
 export { inferTopic, extractSearchQueries } from "./matrix-utils";

@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { inferTopic, parseCsvMatrix, parseMatrixFile, parseWorkbookMatrix } from "@/lib/parse-matrix";
+import {
+  inferTopic,
+  parseCsvMatrix,
+  parseMatrixBuffer,
+  parseMatrixFile,
+} from "@/lib/parse-matrix";
 
 export const runtime = "nodejs";
 
@@ -16,8 +21,8 @@ export async function POST(req: Request) {
       if (!file.size) {
         return NextResponse.json({ error: "Uploaded file is empty." }, { status: 400 });
       }
-      if (file.size > 15 * 1024 * 1024) {
-        return NextResponse.json({ error: "File too large (max 15MB)." }, { status: 400 });
+      if (file.size > 25 * 1024 * 1024) {
+        return NextResponse.json({ error: "File too large (max 25MB)." }, { status: 400 });
       }
 
       const rows = await parseMatrixFile(file);
@@ -29,7 +34,6 @@ export async function POST(req: Request) {
       });
     }
 
-    // JSON fallback: base64 workbook or raw CSV text
     const body = await req.json();
     if (typeof body?.csv === "string") {
       const rows = parseCsvMatrix(body.csv);
@@ -42,7 +46,10 @@ export async function POST(req: Request) {
     }
     if (typeof body?.base64 === "string") {
       const binary = Buffer.from(body.base64, "base64");
-      const rows = parseWorkbookMatrix(new Uint8Array(binary));
+      const rows = await parseMatrixBuffer(
+        new Uint8Array(binary),
+        body.fileName || "matrix.xlsx"
+      );
       return NextResponse.json({
         rows,
         fileName: body.fileName || "matrix.xlsx",

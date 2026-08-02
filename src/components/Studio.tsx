@@ -1,21 +1,20 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   BookOpen,
   Download,
-  FileSpreadsheet,
   Globe2,
   Loader2,
   PenLine,
   Sparkles,
-  Upload,
   Wand2,
   ImageIcon,
   AlertTriangle,
   CheckCircle2,
   FileText,
 } from "lucide-react";
+import MatrixUploader from "@/components/MatrixUploader";
 import { inferTopic } from "@/lib/matrix-utils";
 import { TEMPLATES, paperToHtml, paperToLatex, paperToMarkdown } from "@/lib/templates";
 import type {
@@ -25,9 +24,6 @@ import type {
   PipelineStage,
   SurveyPaper,
 } from "@/lib/types";
-
-const SPREADSHEET_ACCEPT =
-  ".csv,.tsv,.xlsx,.xls,.xlsm,.ods,text/csv,text/tab-separated-values,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.oasis.opendocument.spreadsheet";
 
 const STAGES: { id: PipelineStage; label: string }[] = [
   { id: "parsing", label: "Parse matrix" },
@@ -51,11 +47,8 @@ function downloadBlob(filename: string, content: string, type: string) {
 }
 
 export default function Studio() {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const dragDepth = useRef(0);
   const [rows, setRows] = useState<MatrixRow[]>([]);
   const [fileName, setFileName] = useState<string>("");
-  const [dragActive, setDragActive] = useState(false);
   const [parsing, setParsing] = useState(false);
   const [topic, setTopic] = useState("");
   const [authorName, setAuthorName] = useState("Author Name");
@@ -75,67 +68,6 @@ export default function Studio() {
   const [generating, setGenerating] = useState(false);
 
   const suggestedTopic = useMemo(() => (rows.length ? inferTopic(rows) : ""), [rows]);
-
-  async function handleFile(file: File) {
-    setError(null);
-    setParsing(true);
-    setStage("parsing");
-    try {
-      const form = new FormData();
-      form.append("file", file, file.name || "matrix.xlsx");
-
-      const res = await fetch("/api/parse-matrix", {
-        method: "POST",
-        body: form,
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to parse matrix");
-
-      const parsed = data.rows as MatrixRow[];
-      if (!parsed?.length) {
-        throw new Error("No paper rows found. Check that a Title column exists.");
-      }
-
-      setRows(parsed);
-      setFileName(data.fileName || file.name);
-      setTopic(data.topic || inferTopic(parsed));
-      setPaper(null);
-      setDiscovered([]);
-      setQueries([]);
-      setWarnings([]);
-      setStage("idle");
-    } catch (err) {
-      setStage("error");
-      setError(err instanceof Error ? err.message : "Failed to parse matrix");
-    } finally {
-      setParsing(false);
-      if (inputRef.current) inputRef.current.value = "";
-    }
-  }
-
-  async function loadSample(kind: "csv" | "xlsx" = "csv") {
-    const path =
-      kind === "xlsx"
-        ? "/samples/synthesis-matrix-sample.xlsx"
-        : "/samples/synthesis-matrix-sample.csv";
-    const res = await fetch(path);
-    if (!res.ok) throw new Error(`Could not load sample (${res.status})`);
-    const blob = await res.blob();
-    const type =
-      kind === "xlsx"
-        ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        : "text/csv";
-    const file = new File(
-      [blob],
-      kind === "xlsx" ? "synthesis-matrix-sample.xlsx" : "synthesis-matrix-sample.csv",
-      { type }
-    );
-    await handleFile(file);
-  }
-
-  function openFilePicker() {
-    inputRef.current?.click();
-  }
 
   async function runPipeline() {
     if (!rows.length) {
@@ -228,118 +160,34 @@ export default function Studio() {
 
       <div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
         <aside className="space-y-4">
-          <section className="panel rise rise-delay-1 rounded-2xl p-5">
-            <div className="mb-3 flex items-center gap-2 font-semibold">
-              <FileSpreadsheet className="h-4 w-4 text-[var(--sea)]" />
-              Synthesis matrix
-            </div>
-
-            <div
-              role="button"
-              tabIndex={0}
-              className={`dropzone relative cursor-pointer rounded-xl px-4 py-8 text-center ${dragActive ? "active" : ""} ${parsing ? "opacity-70" : ""}`}
-              onClick={() => {
-                if (!parsing) openFilePicker();
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  openFilePicker();
-                }
-              }}
-              onDragEnter={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                dragDepth.current += 1;
-                setDragActive(true);
-              }}
-              onDragOver={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.dataTransfer.dropEffect = "copy";
-                setDragActive(true);
-              }}
-              onDragLeave={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                dragDepth.current = Math.max(0, dragDepth.current - 1);
-                if (dragDepth.current === 0) setDragActive(false);
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                dragDepth.current = 0;
-                setDragActive(false);
-                const file =
-                  e.dataTransfer.files?.[0] ||
-                  // Some browsers expose dragged files via items
-                  Array.from(e.dataTransfer.items || [])
-                    .map((item) => (item.kind === "file" ? item.getAsFile() : null))
-                    .find((f): f is File => Boolean(f));
-                if (file) void handleFile(file);
-                else setError("No file detected in drop. Try Choose file instead.");
-              }}
-            >
-              {parsing ? (
-                <Loader2 className="mx-auto mb-3 h-8 w-8 animate-spin text-[var(--sea)]" />
-              ) : (
-                <Upload className="mx-auto mb-3 h-8 w-8 text-[var(--sea)]" />
-              )}
-              <p className="text-sm font-medium">
-                {parsing ? "Parsing spreadsheet…" : "Drop CSV / XLSX here — or click to browse"}
-              </p>
-              <p className="mt-1 text-xs text-[var(--muted)]">
-                Columns: Title, Authors, Year, Method, Findings, Gaps, Themes…
-              </p>
-              <div
-                className="mt-4 flex flex-wrap justify-center gap-2"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  disabled={parsing}
-                  onClick={openFilePicker}
-                >
-                  Choose file
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  disabled={parsing}
-                  onClick={() => void loadSample("csv").catch((err) => setError(String(err)))}
-                >
-                  Sample CSV
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  disabled={parsing}
-                  onClick={() => void loadSample("xlsx").catch((err) => setError(String(err)))}
-                >
-                  Sample XLSX
-                </button>
-              </div>
-              <input
-                ref={inputRef}
-                type="file"
-                accept={SPREADSHEET_ACCEPT}
-                className="sr-only"
-                tabIndex={-1}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) void handleFile(file);
-                }}
-              />
-            </div>
-
-            {fileName && (
-              <p className="mt-3 text-xs text-[var(--muted)]">
-                Loaded <span className="font-semibold text-[var(--ink)]">{fileName}</span> · {rows.length}{" "}
-                papers
-              </p>
-            )}
-          </section>
+          <MatrixUploader
+            parsing={parsing}
+            fileName={fileName}
+            rowCount={rows.length}
+            onParsingChange={(v) => {
+              setParsing(v);
+              setStage(v ? "parsing" : "idle");
+            }}
+            onError={(message) => {
+              if (message) {
+                setError(message);
+                setStage("error");
+              } else {
+                setError(null);
+              }
+            }}
+            onParsed={(parsed, name, inferred) => {
+              setRows(parsed);
+              setFileName(name);
+              setTopic(inferred || inferTopic(parsed));
+              setPaper(null);
+              setDiscovered([]);
+              setQueries([]);
+              setWarnings([]);
+              setError(null);
+              setStage("idle");
+            }}
+          />
 
           <section className="panel rise rise-delay-2 rounded-2xl p-5 space-y-3">
             <div className="flex items-center gap-2 font-semibold">

@@ -1,0 +1,126 @@
+// Originality — Prisma schema (PostgreSQL)
+// Defaults: local Postgres. Compatible with Supabase Postgres URLs.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+}
+
+enum SubmissionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum SourceType {
+  WEB
+  INTERNAL_REPO
+  JOURNAL
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  name         String?
+  role         Role         @default(STUDENT)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  submissions  Submission[]
+}
+
+model Submission {
+  id                     String           @id @default(cuid())
+  userId                 String
+  user                   User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title                  String
+  fileName               String
+  fileUrl                String
+  mimeType               String
+  extractedText          String?          @db.Text
+  status                 SubmissionStatus @default(PENDING)
+  overallSimilarityScore Float            @default(0)
+  addToIndex             Boolean          @default(true)
+  wordCount              Int              @default(0)
+  pageCount              Int              @default(0)
+  errorMessage           String?
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+  chunks                 DocumentChunk[]
+  matches                MatchResult[]
+  fingerprints           DocumentFingerprint[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model DocumentChunk {
+  id           String     @id @default(cuid())
+  submissionId String
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  chunkIndex   Int
+  text         String     @db.Text
+  pageNumber   Int        @default(1)
+  startChar    Int        @default(0)
+  endChar      Int        @default(0)
+  /// Opaque id referencing the vector store entry (local JSON / Qdrant / Pinecone)
+  embeddingId  String?
+  /// Dense embedding stored as JSON float array for local/pgvector-less similarity
+  embedding    Json?
+  createdAt    DateTime   @default(now())
+
+  @@unique([submissionId, chunkIndex])
+  @@index([submissionId])
+  @@index([embeddingId])
+}
+
+model MatchResult {
+  id              String     @id @default(cuid())
+  submissionId    String
+  submission      Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  sourceUrl       String?
+  sourceTitle     String
+  sourceType      SourceType
+  similarityScore Float
+  matchedText     String     @db.Text
+  sourceText      String?    @db.Text
+  startChar       Int
+  endChar         Int
+  pageNumber      Int        @default(1)
+  colorHex        String
+  isExactMatch    Boolean    @default(false)
+  isQuote         Boolean    @default(false)
+  isBibliography  Boolean    @default(false)
+  createdAt       DateTime   @default(now())
+
+  @@index([submissionId])
+  @@index([sourceType])
+  @@index([similarityScore])
+}
+
+/// Winnowing / MinHash fingerprints for exact-match lookup
+model DocumentFingerprint {
+  id           String     @id @default(cuid())
+  submissionId String
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  hash         String
+  position     Int
+  gramText     String
+  createdAt    DateTime   @default(now())
+
+  @@index([hash])
+  @@index([submissionId])
+  @@unique([submissionId, hash, position])
+}

@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f3f6f4;
+  --foreground: #14201c;
+  --muted: #5f6f68;
+  --surface: #ffffff;
+  --surface-2: #eef3f0;
+  --surface-3: #dde7e1;
+  --sidebar: #f7faf8;
+  --border: #d5e0da;
+  --border-strong: #b7c9bf;
+  --brand: #0f6b5c;
+  --brand-strong: #0b4f44;
+  --brand-soft: #d8efe8;
+  --danger: #c23b3b;
+  --ring: #1f8a75;
+  --shadow-soft: 0 10px 30px rgba(20, 32, 28, 0.06);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-mono);
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 10% -10%, #d8efe8 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, #e7eef8 0%, transparent 45%),
+    linear-gradient(180deg, #f7faf8 0%, var(--background) 40%, #eef2f0 100%);
+  color: var(--foreground);
+  font-family: var(--font-body), "Segoe UI", sans-serif;
+  min-height: 100%;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes score-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-rise {
+  animation: rise 0.55s ease-out both;
+}

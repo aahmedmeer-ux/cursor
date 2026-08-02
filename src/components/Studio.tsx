@@ -31,7 +31,15 @@ import type {
   MatrixRow,
   PipelineStage,
   SurveyPaper,
+  TaxonomyStyle,
 } from "@/lib/types";
+
+const TAXONOMY_STYLES: { id: TaxonomyStyle; label: string; hint: string }[] = [
+  { id: "scientific", label: "Scientific", hint: "Multi-axis: phenomena, mechanisms, methods, evidence" },
+  { id: "semi-scientific", label: "Semi-scientific", hint: "Problem / methods / evaluation taxonomy" },
+  { id: "simple", label: "Simple", hint: "Flat theme cards for quick reading" },
+  { id: "professional", label: "Professional", hint: "Capability framework for applied audiences" },
+];
 
 const STAGES: { id: PipelineStage; label: string }[] = [
   { id: "parsing", label: "Parse matrix" },
@@ -56,6 +64,7 @@ export default function Studio() {
   const [topic, setTopic] = useState("");
   const [authorName, setAuthorName] = useState("Author Name");
   const [template, setTemplate] = useState<JournalTemplateId>("ieee");
+  const [taxonomyStyle, setTaxonomyStyle] = useState<TaxonomyStyle>("semi-scientific");
   const [humanize, setHumanize] = useState(true);
   const [includeFigures, setIncludeFigures] = useState(true);
   const [discoverOnline, setDiscoverOnline] = useState(true);
@@ -110,12 +119,14 @@ export default function Studio() {
           rows,
           topic: topic || suggestedTopic,
           template,
+          taxonomyStyle,
           humanize,
           includeFigures,
           discoverOnline,
           maxDiscover,
           authorName,
           openaiApiKey: openaiApiKey || undefined,
+          enrichCitations: true,
         }),
       });
 
@@ -276,6 +287,21 @@ export default function Studio() {
                 {TEMPLATES.map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.name} — {t.venueHint}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block text-xs font-medium text-[var(--muted)]">
+              Taxonomy type
+              <select
+                className="field mt-1"
+                value={taxonomyStyle}
+                onChange={(e) => setTaxonomyStyle(e.target.value as TaxonomyStyle)}
+              >
+                {TAXONOMY_STYLES.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.label} — {t.hint}
                   </option>
                 ))}
               </select>

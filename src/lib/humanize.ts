@@ -147,7 +147,7 @@ export function humanizeText(input: string): string {
   // Protect IEEE citation markers during rewriting
   const citeMap = new Map<string, string>();
   let citeI = 0;
-  const protectedText = input.replace(/\[\d+\](?:–\[\d+\])?/g, (m) => {
+  const protectedText = input.replace(/\[\d+\](?:-\[\d+\])?/g, (m) => {
     const key = `{{CITE${citeI++}}}`;
     citeMap.set(key, m);
     return key;

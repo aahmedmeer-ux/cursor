@@ -91,11 +91,34 @@ function makeTable(headers: string[], rows: string[][]): Table {
   });
 }
 
-function equationParagraphs(eq: SurveyEquation): Paragraph[] {
-  return [
-    p(`(${eq.number})  ${eq.plaintext}`, { italics: true, center: true, size: 17 }),
-    p(`${eq.label}. ${eq.description}`, { size: 16, italics: true }),
-  ];
+async function equationBlocks(eq: SurveyEquation): Promise<(Paragraph)[]> {
+  const out: Paragraph[] = [p(`(${eq.number}) ${eq.label}`, { bold: true, center: true, size: 17 })];
+  try {
+    const svg =
+      eq.svg ||
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 90" width="860" height="90"><rect width="100%" height="100%" fill="#fff" stroke="#000"/><text x="430" y="55" text-anchor="middle" font-size="20" font-style="italic" font-family="Times New Roman, Times, serif">${(eq.display || eq.plaintext).replace(/&/g, "&amp;").replace(/</g, "&lt;")}</text></svg>`;
+    const { dataUrl, width, height } = await svgToPngDataUrl(svg, 2);
+    const bytes = dataUrlToUint8Array(dataUrl);
+    const displayW = 468;
+    const displayH = Math.min(Math.round(displayW * (height / Math.max(width, 1))), 90);
+    out.push(
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 80 },
+        children: [
+          new ImageRun({
+            data: bytes,
+            transformation: { width: displayW, height: displayH },
+            type: "png",
+          }),
+        ],
+      })
+    );
+  } catch {
+    out.push(p(eq.display || eq.plaintext, { italics: true, center: true, size: 18 }));
+  }
+  out.push(p(eq.description, { italics: true, size: 15 }));
+  return out;
 }
 
 function sectionNumber(index: number, ieee: boolean): string {
@@ -148,7 +171,7 @@ export async function paperToDocxBlob(paper: SurveyPaper): Promise<Blob> {
       if (!t) continue;
       if (/^Equation\s*\(\d+\)/i.test(t)) {
         const eq = equations.find((e) => t.includes(`(${e.number})`));
-        if (eq) body.push(...equationParagraphs(eq));
+        if (eq) body.push(...(await equationBlocks(eq)));
         else body.push(p(t));
       } else {
         body.push(p(t));

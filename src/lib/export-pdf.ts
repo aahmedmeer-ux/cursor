@@ -197,11 +197,35 @@ function drawTable(state: ColState, table: SurveyTable, index: number) {
   beginTwoColumn(state);
 }
 
-function drawEquation(state: ColState, eq: SurveyEquation) {
+async function drawEquation(state: ColState, eq: SurveyEquation) {
   writeGap(state, 1.5);
-  writeLines(state, `(${eq.number})  ${eq.plaintext}`, { italic: true, size: 8.5, align: "center", lineH: 3.8 });
-  writeLines(state, `${eq.label}: ${eq.description}`, { size: 8, lineH: 3.4 });
+  flushToFullWidth(state);
+  try {
+    const svg =
+      eq.svg ||
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 90" width="860" height="90"><rect width="100%" height="100%" fill="#fff"/><text x="430" y="55" text-anchor="middle" font-size="18" font-style="italic" font-family="Times New Roman, Times, serif">(${eq.number})  ${eq.display || eq.plaintext}</text></svg>`;
+    const { dataUrl, width, height } = await svgToPngDataUrl(svg, 2);
+    const maxW = PAGE_W - MARGIN * 2;
+    const aspect = height / Math.max(width, 1);
+    const imgW = maxW;
+    const imgH = Math.min(imgW * aspect, 36);
+    ensure(state, imgH + 12);
+    const x = MARGIN + (PAGE_W - MARGIN * 2 - imgW) / 2;
+    const y = getY(state);
+    state.doc.addImage(dataUrl, "PNG", x, y, imgW, imgH, undefined, "FAST");
+    setY(state, y + imgH + 2);
+    writeLines(state, eq.description, { size: 8, lineH: 3.4, italic: true });
+  } catch {
+    writeLines(state, `(${eq.number})  ${eq.display || eq.plaintext}`, {
+      italic: true,
+      size: 9,
+      align: "center",
+      lineH: 3.8,
+    });
+    writeLines(state, `${eq.label}: ${eq.description}`, { size: 8, lineH: 3.4 });
+  }
   writeGap(state, 1.5);
+  beginTwoColumn(state);
 }
 
 function toRoman(n: number): string {
@@ -270,10 +294,10 @@ export async function paperToPdfBlob(paper: SurveyPaper): Promise<Blob> {
     for (const para of section.content.split(/\n{2,}/)) {
       const t = para.trim();
       if (!t) continue;
-      // Equation blocks start with "Equation (n)"
+      // Equation blocks start with "Equation (n)" — skip plain text duplicates; render once as image
       if (/^Equation\s*\(\d+\)/i.test(t)) {
         const eq = equations.find((e) => t.includes(`(${e.number})`));
-        if (eq) drawEquation(state, eq);
+        if (eq) await drawEquation(state, eq);
         else writeLines(state, t, { size: 9, lineH: 3.8 });
       } else {
         writeLines(state, t, { size: 9, lineH: 3.8 });

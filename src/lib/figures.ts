@@ -1,4 +1,10 @@
-import type { DiscoveredPaper, MatrixRow, SurveyFigure, SurveyTable } from "./types";
+import type {
+  DiscoveredPaper,
+  MatrixRow,
+  SurveyFigure,
+  SurveyTable,
+  TaxonomyStyle,
+} from "./types";
 import { themeKeysForRow } from "./taxonomy";
 
 /** No nested quotes — nested quotes break SVG XML and PDF rasterization. */
@@ -105,42 +111,120 @@ function shortFinding(row: MatrixRow): string {
   return (row.findings || "—").split(/[.;]/)[0].slice(0, 70);
 }
 
-/** Fig: Visual taxonomy tree */
-export function buildTaxonomyFigure(rows: MatrixRow[], topic: string): SurveyFigure {
-  const buckets = [...taxonomyBuckets(rows).entries()].slice(0, 6);
-  const width = 980;
-  const height = 520;
-  const cx = width / 2;
-
-  const rootLabel = topic.replace(/^A Survey of\s+/i, "").slice(0, 40);
-  const midY = 195;
-  const leafY = 340;
-
-  const branches = [
+function taxonomyBranches(style: TaxonomyStyle): { label: string; x: number }[] {
+  if (style === "scientific") {
+    return [
+      { label: "Phenomena / Domain", x: 160 },
+      { label: "Mechanisms / Models", x: 400 },
+      { label: "Methods / Algorithms", x: 640 },
+      { label: "Evidence / Metrics", x: 860 },
+    ];
+  }
+  if (style === "professional") {
+    return [
+      { label: "Strategic Drivers", x: 180 },
+      { label: "Capability Layers", x: 490 },
+      { label: "Value Outcomes", x: 800 },
+    ];
+  }
+  if (style === "simple") return [];
+  return [
     { label: "Problem & Scope", x: 180 },
     { label: "Methods & Control", x: 490 },
     { label: "Evaluation & Gaps", x: 800 },
   ];
+}
 
+function taxonomyTitle(style: TaxonomyStyle): string {
+  switch (style) {
+    case "scientific":
+      return "SCIENTIFIC TAXONOMY OF THE LITERATURE";
+    case "professional":
+      return "PROFESSIONAL CAPABILITY FRAMEWORK";
+    case "simple":
+      return "SIMPLE THEME MAP";
+    default:
+      return "TAXONOMY OF THE SURVEYED LITERATURE";
+  }
+}
+
+/** Fig: Visual taxonomy tree (style-selectable) */
+export function buildTaxonomyFigure(
+  rows: MatrixRow[],
+  topic: string,
+  style: TaxonomyStyle = "semi-scientific"
+): SurveyFigure {
+  const buckets = [...taxonomyBuckets(rows).entries()].slice(0, style === "simple" ? 5 : 6);
+  const width = 980;
+  const height = style === "simple" ? 360 : 520;
+  const cx = width / 2;
+  const rootLabel = topic.replace(/^A Survey of\s+/i, "").slice(0, 40);
+  const branches = taxonomyBranches(style);
+
+  if (style === "simple") {
+    const leafW = 160;
+    const gap = (width - 48 - buckets.length * leafW) / Math.max(buckets.length - 1, 1);
+    const cards = buckets
+      .map(([label, list], i) => {
+        const x = 24 + i * (leafW + Math.max(gap, 8));
+        const lines = wrapLabel(label, 14);
+        return `
+        <rect x="${x}" y="140" width="${leafW}" height="120" rx="14" fill="#ffffff" stroke="#0c1f2e" stroke-width="2.5"/>
+        ${multilines(x + leafW / 2, 175, lines, {
+          size: 15,
+          weight: 800,
+          fill: "#0c1f2e",
+          anchor: "middle",
+          lineHeight: 20,
+        })}
+        ${svgText(x + leafW / 2, 235, `${list.length} studies`, {
+          size: 13,
+          weight: 700,
+          fill: "#1a6b7a",
+          anchor: "middle",
+        })}`;
+      })
+      .join("");
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="Simple taxonomy">
+      <rect width="100%" height="100%" fill="#f3f7f8"/>
+      ${svgText(28, 36, taxonomyTitle(style), { size: 18, weight: 800, fill: "#0c1f2e" })}
+      <rect x="${cx - 180}" y="58" width="360" height="50" rx="12" fill="#1a6b7a"/>
+      ${svgText(cx, 90, rootLabel, { size: 16, weight: 800, fill: "#ffffff", anchor: "middle" })}
+      ${cards}
+    </svg>`;
+
+    return {
+      id: "fig-taxonomy",
+      title: "Field Taxonomy (Simple)",
+      caption: "Simple theme map of dominant clusters extracted from the synthesis matrix.",
+      kind: "taxonomy",
+      svg,
+    };
+  }
+
+  const midY = 195;
+  const leafY = 340;
   const branchSvg = branches
-    .map(
-      (b) => `
-      <line x1="${cx}" y1="108" x2="${b.x}" y2="${midY}" stroke="#1a6b7a" stroke-width="3"/>
-      <rect x="${b.x - 100}" y="${midY - 26}" width="200" height="52" rx="10" fill="#0c1f2e"/>
-      ${svgText(b.x, midY + 7, b.label, { size: 15, weight: 800, fill: "#ffffff", anchor: "middle" })}`
-    )
+    .map((b) => {
+      const bw = style === "scientific" ? 168 : 200;
+      return `
+      <line x1="${cx}" y1="108" x2="${b.x}" y2="${midY}" stroke="${style === "professional" ? "#0c1f2e" : "#1a6b7a"}" stroke-width="3"/>
+      <rect x="${b.x - bw / 2}" y="${midY - 26}" width="${bw}" height="52" rx="${style === "professional" ? 4 : 10}" fill="#0c1f2e"/>
+      ${svgText(b.x, midY + 7, b.label, { size: style === "scientific" ? 13 : 15, weight: 800, fill: "#ffffff", anchor: "middle" })}`;
+    })
     .join("");
 
-  const leafW = 138;
+  const leafW = style === "scientific" ? 120 : 138;
   const gap = (width - 48 - buckets.length * leafW) / Math.max(buckets.length - 1, 1);
   const leaves = buckets.map(([label, list], i) => {
     const x = 24 + i * (leafW + Math.max(gap, 8));
     const parent = branches[i % branches.length];
-    const lines = wrapLabel(label, 12);
+    const lines = wrapLabel(label, style === "scientific" ? 11 : 12);
     const boxH = 52 + lines.length * 18;
     return `
       <line x1="${parent.x}" y1="${midY + 26}" x2="${x + leafW / 2}" y2="${leafY}" stroke="#2a8fa1" stroke-width="2.4"/>
-      <rect x="${x}" y="${leafY}" width="${leafW}" height="${boxH}" rx="10" fill="#ffffff" stroke="#0c1f2e" stroke-width="2.5"/>
+      <rect x="${x}" y="${leafY}" width="${leafW}" height="${boxH}" rx="${style === "professional" ? 4 : 10}" fill="#ffffff" stroke="#0c1f2e" stroke-width="2.5"/>
       ${multilines(x + leafW / 2, leafY + 28, lines, {
         size: 14,
         weight: 800,
@@ -163,8 +247,8 @@ export function buildTaxonomyFigure(rows: MatrixRow[], topic: string): SurveyFig
       </linearGradient>
     </defs>
     <rect width="100%" height="100%" fill="url(#taxBg)"/>
-    ${svgText(28, 34, "TAXONOMY OF THE SURVEYED LITERATURE", { size: 18, weight: 800, fill: "#0c1f2e" })}
-    <rect x="${cx - 190}" y="52" width="380" height="56" rx="12" fill="#1a6b7a" stroke="#0c1f2e" stroke-width="1.5"/>
+    ${svgText(28, 34, taxonomyTitle(style), { size: 18, weight: 800, fill: "#0c1f2e" })}
+    <rect x="${cx - 190}" y="52" width="380" height="56" rx="${style === "professional" ? 4 : 12}" fill="#1a6b7a" stroke="#0c1f2e" stroke-width="1.5"/>
     ${svgText(cx, 87, rootLabel, { size: 17, weight: 800, fill: "#ffffff", anchor: "middle" })}
     ${branchSvg}
     ${leaves.join("")}
@@ -172,9 +256,13 @@ export function buildTaxonomyFigure(rows: MatrixRow[], topic: string): SurveyFig
 
   return {
     id: "fig-taxonomy",
-    title: "Field Taxonomy",
+    title: style === "professional" ? "Capability Framework" : "Field Taxonomy",
     caption:
-      "Multi-level taxonomy organizing the synthesis matrix into problem/scope, methods/control, and evaluation/gap dimensions with leaf research clusters.",
+      style === "scientific"
+        ? "Scientific multi-axis taxonomy spanning phenomena, mechanisms, methods, and evidence metrics."
+        : style === "professional"
+          ? "Professional capability framework mapping strategic drivers to layers and outcomes."
+          : "Multi-level taxonomy organizing the synthesis matrix into problem/scope, methods/control, and evaluation/gap dimensions.",
     kind: "taxonomy",
     svg,
   };
@@ -547,7 +635,8 @@ export function buildRelatedSurveysTable(rows: MatrixRow[]): SurveyTable | null 
 export function generateFiguresAndTables(
   rows: MatrixRow[],
   _papers: DiscoveredPaper[],
-  topic: string
+  topic: string,
+  taxonomyStyle: TaxonomyStyle = "semi-scientific"
 ): { figures: SurveyFigure[]; tables: SurveyTable[] } {
   const comparison = buildComparisonArtifacts(rows);
   const challenges = buildChallengeArtifacts(rows);
@@ -555,7 +644,7 @@ export function generateFiguresAndTables(
 
   const figures: SurveyFigure[] = [
     buildProblemFigure(topic, rows),
-    buildTaxonomyFigure(rows, topic),
+    buildTaxonomyFigure(rows, topic, taxonomyStyle),
     comparison.figure,
     challenges.figure,
     buildVennFigure(rows),

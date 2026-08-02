@@ -380,10 +380,10 @@ export function paperToHtml(paper: SurveyPaper): string {
           const t = block.trim();
           if (!t) return "";
           if (/^Equation\s*\(\d+\)/i.test(t)) {
-            const lines = t.split(/(?<=\.)\s+/);
-            const head = lines[0] || t;
-            const formula = lines[1] || "";
-            const desc = lines.slice(2).join(" ");
+            const parts = t.split(/\n+/).map((x) => x.trim()).filter(Boolean);
+            const head = parts[0] || t;
+            const formula = parts[1] || "";
+            const desc = parts.slice(2).join(" ");
             return `<div class="equation"><div class="eq-head">${escapeHtml(head)}</div><div class="eq-formula">${escapeHtml(formula)}</div><div class="eq-desc">${escapeHtml(desc)}</div></div>`;
           }
           return `<p>${escapeHtml(t)}</p>`;

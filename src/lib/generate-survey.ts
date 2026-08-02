@@ -5,7 +5,7 @@ import type {
   SurveyPaper,
   SurveySection,
 } from "./types";
-import { buildIeeeReferences, cite, citeMany, matchPaper } from "./citations";
+import { buildIeeeReferences, cite, citeMany, matchPaper, sanitizePaperTextDeep } from "./citations";
 import { formatEquationBlock, generateEquations } from "./equations";
 import { generateFiguresAndTables } from "./figures";
 import { humanizePaperSections, humanizeText } from "./humanize";
@@ -393,9 +393,9 @@ async function maybeEnhanceWithOpenAI(
 
 /** If the rewrite dropped citation markers, fall back to the original text. */
 function preserveCitations(original: string, rewritten: string): string {
-  const origCites = original.match(/\[\d+\](?:–\[\d+\])?/g) || [];
+  const origCites = original.match(/\[\d+\](?:-\[\d+\])?/g) || [];
   if (!origCites.length) return rewritten;
-  const rewrittenCites = rewritten.match(/\[\d+\](?:–\[\d+\])?/g) || [];
+  const rewrittenCites = rewritten.match(/\[\d+\](?:-\[\d+\])?/g) || [];
   if (rewrittenCites.length >= Math.ceil(origCites.length * 0.6)) return rewritten;
   return original;
 }
@@ -413,8 +413,9 @@ export async function generateSurveyPaper(input: {
   const contributionTexts = contributionObjs.map((c) => `${c.label}: ${c.detail}`);
   const equations = generateEquations(topic, rows);
 
+  const taxonomyStyle = options.taxonomyStyle || "semi-scientific";
   const generated = options.includeFigures
-    ? generateFiguresAndTables(rows, papers, topic)
+    ? generateFiguresAndTables(rows, papers, topic, taxonomyStyle)
     : { figures: [], tables: [] };
   const figures = generated.figures;
   const tables = addCitationColumn(generated.tables, rows, papers);
@@ -515,6 +516,7 @@ export async function generateSurveyPaper(input: {
     tables,
     equations,
     template: options.template,
+    taxonomyStyle,
     metadata: {
       generatedAt: new Date().toISOString(),
       matrixPaperCount: rows.length,
@@ -522,6 +524,7 @@ export async function generateSurveyPaper(input: {
       humanized: false,
       topic,
       rubric: "high-impact-v1",
+      taxonomyStyle,
     },
   };
 
@@ -539,5 +542,5 @@ export async function generateSurveyPaper(input: {
     };
   }
 
-  return paper;
+  return sanitizePaperTextDeep(paper);
 }

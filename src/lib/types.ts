@@ -75,14 +75,20 @@ export type SurveySection = {
   citations: string[];
 };
 
+export type TaxonomyStyle = "scientific" | "semi-scientific" | "simple" | "professional";
+
 export type SurveyEquation = {
   id: string;
   number: number;
   label: string;
   latex: string;
   plaintext: string;
+  /** Word-like Unicode display form (no caret/underscore markup). */
+  display: string;
   description: string;
   sectionId: string;
+  /** Optional pre-rendered equation SVG for PDF/Word embedding */
+  svg?: string;
 };
 
 export type SurveyPaper = {
@@ -97,6 +103,7 @@ export type SurveyPaper = {
   tables: SurveyTable[];
   equations: SurveyEquation[];
   template: JournalTemplateId;
+  taxonomyStyle: TaxonomyStyle;
   metadata: {
     generatedAt: string;
     matrixPaperCount: number;
@@ -104,6 +111,7 @@ export type SurveyPaper = {
     humanized: boolean;
     topic: string;
     rubric?: "high-impact-v1";
+    taxonomyStyle?: TaxonomyStyle;
   };
 };
 
@@ -125,6 +133,7 @@ export type GenerateOptions = {
   authorName?: string;
   affiliation?: string;
   openaiApiKey?: string;
+  taxonomyStyle?: TaxonomyStyle;
 };
 
 export type PipelineStage =

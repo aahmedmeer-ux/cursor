@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { discoverLiterature } from "@/lib/discover";
+import { enrichPaperMetadata } from "@/lib/enrich-refs";
 import { generateSurveyPaper } from "@/lib/generate-survey";
 import { extractSearchQueries, inferTopic } from "@/lib/matrix-utils";
-import type { JournalTemplateId, MatrixRow } from "@/lib/types";
+import type { JournalTemplateId, MatrixRow, TaxonomyStyle } from "@/lib/types";
 
 const MatrixRowSchema = z.object({
   id: z.string(),
@@ -32,6 +33,10 @@ const BodySchema = z.object({
   maxDiscover: z.number().min(3).max(40).default(12),
   authorName: z.string().optional(),
   openaiApiKey: z.string().optional(),
+  taxonomyStyle: z
+    .enum(["scientific", "semi-scientific", "simple", "professional"])
+    .default("semi-scientific"),
+  enrichCitations: z.boolean().default(true),
 });
 
 export async function POST(req: Request) {
@@ -58,6 +63,16 @@ export async function POST(req: Request) {
       papers = matrixToDiscovered(rows);
     }
 
+    // Always enrich bibliographic metadata for journal-ready references
+    if (body.enrichCitations !== false) {
+      const enriched = await enrichPaperMetadata(papers);
+      papers = enriched.papers;
+      warnings.push(...enriched.warnings);
+      if (enriched.enrichedCount) {
+        warnings.push(`Enriched bibliographic details for ${enriched.enrichedCount} reference(s) via Crossref/OpenAlex.`);
+      }
+    }
+
     const paper = await generateSurveyPaper({
       rows,
       papers,
@@ -70,6 +85,7 @@ export async function POST(req: Request) {
         maxDiscover: body.maxDiscover,
         authorName: body.authorName,
         openaiApiKey: body.openaiApiKey || process.env.OPENAI_API_KEY,
+        taxonomyStyle: body.taxonomyStyle as TaxonomyStyle,
       },
     });
 

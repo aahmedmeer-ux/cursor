@@ -20,7 +20,7 @@ const syne = Syne({
 export const metadata: Metadata = {
   title: "SurveyForge — Synthesis Matrix to Survey Paper",
   description:
-    "Turn a research synthesis matrix into a journal-ready survey draft with literature discovery, humanized prose, figures, and IEEE/ACM/Springer templates.",
+    "Turn a research synthesis matrix into a high-impact survey draft with taxonomy, problem diagrams, comparison tables, challenges maps, trends–gaps Venn, literature discovery, and IEEE/ACM/Springer templates.",
 };
 
 export default function RootLayout({

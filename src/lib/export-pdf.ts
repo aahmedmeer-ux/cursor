@@ -150,86 +150,92 @@ async function flushInlineRegion(doc: jsPDF, state: ColState, blocks: InlineBloc
   }
 
   let idx = 0;
+  const rightX = MARGIN + COL_W + GUTTER;
+
   while (idx < blocks.length) {
     if (state.y > BOTTOM - 24) {
       doc.addPage();
       state.y = TOP;
     }
     const pageTop = state.y;
-    let yL = pageTop;
-    let yR = pageTop;
-    let col: 0 | 1 = 0;
-    const rightX = MARGIN + COL_W + GUTTER;
+    const avail = BOTTOM - pageTop;
 
-    while (idx < blocks.length) {
-      const b = blocks[idx];
-      const alone = estimateBlock(doc, b, COL_W);
-      // Keep heading + following block, and paragraph + following equation together
-      let pack = alone;
-      const next = idx + 1 < blocks.length ? blocks[idx + 1] : null;
-      if ((b.type === "h1" || b.type === "h2") && next) pack += estimateBlock(doc, next, COL_W);
-      if (b.type === "p" && next?.type === "eq") pack += estimateBlock(doc, next, COL_W);
-
-      const yCur = col === 0 ? yL : yR;
-      // Use pack size for fit decisions so we don't strand an equation at the top of the next column
-      if (yCur + pack > BOTTOM + 0.5) {
-        if (col === 0) {
-          col = 1;
-          continue;
-        }
-        break; // new page
+    // Take a page-worth of blocks (~2 columns), keeping heading/eq packs atomic
+    const pageBlocks: InlineBlock[] = [];
+    const heights: number[] = [];
+    let used = 0;
+    let i = idx;
+    while (i < blocks.length) {
+      const b = blocks[i];
+      let h = estimateBlock(doc, b, COL_W);
+      let take = 1;
+      const next = i + 1 < blocks.length ? blocks[i + 1] : null;
+      if ((b.type === "h1" || b.type === "h2") && next) {
+        h += estimateBlock(doc, next, COL_W);
+        take = 2;
+      } else if (b.type === "p" && next?.type === "eq") {
+        h += estimateBlock(doc, next, COL_W);
+        take = 2;
       }
-
-      if (col === 0) yL = await writeBlock(doc, b, MARGIN, yL, COL_W);
-      else yR = await writeBlock(doc, b, rightX, yR, COL_W);
-      idx++;
-
-      // Immediately pull the packed follower into the same column
-      if (next && idx < blocks.length && blocks[idx] === next) {
-        const follow =
-          ((b.type === "h1" || b.type === "h2") && next) ||
-          (b.type === "p" && next.type === "eq");
-        if (follow) {
-          const yNow = col === 0 ? yL : yR;
-          const nh = estimateBlock(doc, next, COL_W);
-          if (yNow + nh <= BOTTOM + 0.5) {
-            if (col === 0) yL = await writeBlock(doc, next, MARGIN, yL, COL_W);
-            else yR = await writeBlock(doc, next, rightX, yR, COL_W);
-            idx++;
-          }
-        }
+      if (used + h > avail * 2 + 1 && pageBlocks.length) break;
+      for (let k = 0; k < take && i < blocks.length; k++, i++) {
+        const bh = estimateBlock(doc, blocks[i], COL_W);
+        pageBlocks.push(blocks[i]);
+        heights.push(bh);
+        used += bh;
       }
     }
 
+    // Split pageBlocks into left/right aiming for equal height (reduces bottom blank)
+    let split = pageBlocks.length;
+    let best = Infinity;
+    let leftSum = 0;
+    for (let s = 0; s <= pageBlocks.length; s++) {
+      const l = heights.slice(0, s).reduce((a, b) => a + b, 0);
+      const r = heights.slice(s).reduce((a, b) => a + b, 0);
+      if (l > avail + 1.5 && s > 0) continue;
+      if (r > avail + 1.5 && s < pageBlocks.length) continue;
+      // Prefer true two-column when content exceeds one column
+      if (l + r <= avail) {
+        split = pageBlocks.length;
+        best = -1;
+        break;
+      }
+      const diff = Math.abs(l - r);
+      if (diff < best) {
+        best = diff;
+        split = s;
+        leftSum = l;
+      }
+    }
+    void leftSum;
+    if (best === Infinity) split = Math.max(1, Math.ceil(pageBlocks.length / 2));
+
+    // If everything fits in one column, write full-width instead of leaving an empty right col
+    const totalH = heights.reduce((a, b) => a + b, 0);
+    if (totalH <= avail + 1) {
+      let y = pageTop;
+      for (const b of pageBlocks) y = await writeBlock(doc, b, MARGIN, y, FULL_W);
+      state.y = y + 2;
+      idx = i;
+      continue;
+    }
+
+    let yL = pageTop;
+    for (const b of pageBlocks.slice(0, split)) {
+      yL = await writeBlock(doc, b, MARGIN, yL, COL_W);
+    }
+    let yR = pageTop;
+    for (const b of pageBlocks.slice(split)) {
+      yR = await writeBlock(doc, b, rightX, yR, COL_W);
+    }
+
     state.y = Math.max(yL, yR) + 2;
+    idx = i;
 
     if (idx < blocks.length) {
       doc.addPage();
       state.y = TOP;
-    }
-  }
-
-  // Remainder: if leftover blocks are short, full-width; else continue two-col
-  if (idx < blocks.length) {
-    const rest = blocks.slice(idx);
-    let est = 0;
-    for (const b of rest) est += estimateBlock(doc, b, FULL_W);
-    if (state.y > BOTTOM - 24) {
-      doc.addPage();
-      state.y = TOP;
-    }
-    if (est <= BOTTOM - state.y - 2 || rest.length <= 3) {
-      let y = state.y;
-      for (const b of rest) {
-        if (y > BOTTOM - 20) {
-          doc.addPage();
-          y = TOP;
-        }
-        y = await writeBlock(doc, b, MARGIN, y, FULL_W);
-      }
-      state.y = y + 3;
-    } else {
-      await flushInlineRegion(doc, state, rest);
     }
   }
 }

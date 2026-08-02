@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ReportView } from "@/components/report/report-view";
+import { TurnitinReport } from "@/components/report/turnitin-report";
 import { StatusPoller } from "@/components/submissions/status-poller";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -53,12 +53,12 @@ export default async function SubmissionDetailPage({
             className="mt-3"
             action={async () => {
               "use server";
-              const { enqueueProcessing } = await import("@/services/pipeline");
+              const { processSubmission } = await import("@/services/pipeline");
               await prisma.submission.update({
                 where: { id: submission.id },
                 data: { status: "PENDING", errorMessage: null },
               });
-              enqueueProcessing(submission.id);
+              await processSubmission(submission.id);
             }}
           >
             <Button type="submit" size="sm" variant="danger">
@@ -69,10 +69,12 @@ export default async function SubmissionDetailPage({
       )}
 
       {submission.status === "COMPLETED" ? (
-        <ReportView
+        <TurnitinReport
           title={submission.title}
           text={submission.extractedText ?? ""}
           overallScore={submission.overallSimilarityScore}
+          wordCount={submission.wordCount}
+          pageCount={submission.pageCount}
           matches={submission.matches.map((m) => ({
             id: m.id,
             sourceTitle: m.sourceTitle,
@@ -91,11 +93,10 @@ export default async function SubmissionDetailPage({
       ) : (
         <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
           <p className="font-[family-name:var(--font-display)] text-2xl">
-            Preparing your report
+            Preparing your originality report
           </p>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            Text extraction, fingerprinting, embeddings, and source matching are
-            in progress.
+            Extracting text, fingerprinting, embedding, and matching sources…
           </p>
         </div>
       )}

@@ -1,4 +1,6 @@
 import { FileUpload } from "@/components/upload/file-upload";
+import { DemoButton } from "@/components/upload/demo-button";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function SubmitPage() {
   return (
@@ -13,9 +15,24 @@ export default function SubmitPage() {
         <p className="mt-2 text-[var(--muted)]">
           Upload a PDF, DOCX, or TXT file. We extract text, chunk it, fingerprint
           exact matches, embed for semantic search, then build your interactive
-          report.
+          Turnitin-style originality report.
         </p>
       </div>
+
+      <Card className="border-[#fdba74] bg-[#fff7ed]">
+        <CardContent className="flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-medium text-[#9a3412]">
+              Want to see a finished report instantly?
+            </p>
+            <p className="text-sm text-[#9a3412]/80">
+              Run the bundled sample essay through the full similarity engine.
+            </p>
+          </div>
+          <DemoButton variant="default" size="default" label="Generate demo report" />
+        </CardContent>
+      </Card>
+
       <FileUpload />
     </div>
   );

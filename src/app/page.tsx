@@ -3,6 +3,7 @@ import { ArrowRight, FileSearch, ShieldCheck, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DemoButton } from "@/components/upload/demo-button";
 import { getCurrentUser, canReview } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatPercent, similarityTone } from "@/lib/utils";
@@ -42,12 +43,13 @@ export default async function DashboardPage() {
             report.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Button asChild size="lg">
+            <DemoButton />
+            <Button asChild size="lg" variant="secondary">
               <Link href="/submit">
-                New submission <ArrowRight className="h-4 w-4" />
+                Upload your own file <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
-            <Button asChild variant="secondary" size="lg">
+            <Button asChild variant="outline" size="lg">
               <Link href="/submissions">View submissions</Link>
             </Button>
           </div>

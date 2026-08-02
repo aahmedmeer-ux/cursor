@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TurnitinReport } from "@/components/report/turnitin-report";
+import { PrivacyActions } from "@/components/submissions/privacy-actions";
 import { StatusPoller } from "@/components/submissions/status-poller";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,31 +31,37 @@ export default async function SubmissionDetailPage({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--muted)]">
-        <Link href="/submissions" className="hover:text-[var(--foreground)]">
-          Submissions
-        </Link>
-        <span>/</span>
-        <span className="text-[var(--foreground)]">{submission.title}</span>
-        <Badge className="ml-2">{submission.status}</Badge>
-        {submission.status === "COMPLETED" && (
-          <>
-            <Badge variant="brand">
-              {formatPercent(submission.overallSimilarityScore)} similarity
-            </Badge>
-            <Badge
-              variant={
-                submission.aiLabel === "AI"
-                  ? "danger"
-                  : submission.aiLabel === "MIXED"
-                    ? "warn"
-                    : "success"
-              }
-            >
-              {formatPercent(submission.aiScore)} AI
-            </Badge>
-          </>
-        )}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--muted)]">
+          <Link href="/submissions" className="hover:text-[var(--foreground)]">
+            Submissions
+          </Link>
+          <span>/</span>
+          <span className="text-[var(--foreground)]">{submission.title}</span>
+          <Badge className="ml-2">{submission.status}</Badge>
+          {submission.status === "COMPLETED" && (
+            <>
+              <Badge variant="brand">
+                {formatPercent(submission.overallSimilarityScore)} similarity
+              </Badge>
+              <Badge
+                variant={
+                  submission.aiLabel === "AI"
+                    ? "danger"
+                    : submission.aiLabel === "MIXED"
+                      ? "warn"
+                      : "success"
+                }
+              >
+                {formatPercent(submission.aiScore)} AI
+              </Badge>
+              {!submission.addToIndex && (
+                <Badge variant="success">Check only · not indexed</Badge>
+              )}
+            </>
+          )}
+        </div>
+        <PrivacyActions submissionId={submission.id} />
       </div>
 
       <StatusPoller submissionId={submission.id} status={submission.status} />

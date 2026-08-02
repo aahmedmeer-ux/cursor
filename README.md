@@ -12,6 +12,7 @@ A modern Turnitin-style originality platform: upload PDF/DOCX/TXT, run hybrid si
 | File storage | Local `./uploads` | Replace `src/lib/storage.ts` with S3/Supabase |
 | Web matching | Simulated corpus | Set `SERPER_API_KEY` for live Serper.dev results |
 | Queue | Inline async processing + Redis cache | Can be upgraded to BullMQ workers |
+| Privacy / indexing | `ALLOW_REPOSITORY_INDEXING=false` (default) | Uploads are check-only, raw files deleted after analysis, never added to a shared corpus |
 
 ## Stack
 
@@ -79,8 +80,16 @@ prisma/schema.prisma      # User, Submission, DocumentChunk, MatchResult, finger
 - `POST /api/session` — switch demo user
 - `GET /api/files/:name` — serve stored upload
 
+## Privacy (important)
+
+- **Default is check-only.** Public/demo deployments keep `ALLOW_REPOSITORY_INDEXING=false`.
+- Raw uploaded files are **deleted from disk immediately after text extraction**.
+- User papers are **not** added to the shared comparison repository, so other uploads cannot match against them.
+- File downloads require the owner session; deleted files 404.
+- Use **Delete my submission** on a report to wipe stored report text from the database.
+- To hard-reset polluted demo data: `node scripts/purge-user-index.mjs`
+
 ## Notes
 
-- Submissions with **Add to internal document index** contribute fingerprints/embeddings for future checks.
-- **Check only** runs the report without indexing the document for later comparisons.
-- A small seed corpus is created on first process so demo uploads can surface repository/web overlap.
+- Indexing can only be enabled when `ALLOW_REPOSITORY_INDEXING=true` (private institutional installs).
+- A tiny synthetic seed corpus exists for demo matching only — never your uploads.

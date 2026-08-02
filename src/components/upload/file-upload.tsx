@@ -3,7 +3,7 @@
 import { useCallback, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useDropzone } from "react-dropzone";
-import { FileUp, Loader2, X } from "lucide-react";
+import { FileUp, Loader2, ShieldCheck, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
@@ -16,11 +16,16 @@ const ACCEPT = {
   "text/plain": [".txt"],
 };
 
-export function FileUpload() {
+export function FileUpload({
+  indexingAllowed = false,
+}: {
+  indexingAllowed?: boolean;
+}) {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
-  const [addToIndex, setAddToIndex] = useState(true);
+  // Privacy-first: check-only by default. Never opt users into a shared corpus.
+  const [addToIndex, setAddToIndex] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -49,7 +54,10 @@ export function FileUpload() {
     const body = new FormData();
     body.append("file", file);
     body.append("title", title || file.name);
-    body.append("addToIndex", String(addToIndex));
+    body.append(
+      "addToIndex",
+      String(indexingAllowed ? addToIndex : false),
+    );
 
     startTransition(async () => {
       setError(null);
@@ -69,6 +77,18 @@ export function FileUpload() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
+      <div className="flex gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
+        <div>
+          <p className="font-medium">Privacy mode: check only</p>
+          <p className="text-emerald-900/80">
+            Your file is analyzed for this report, then deleted from disk. It is
+            never published and is not added to any shared plagiarism database
+            that other users can match against.
+          </p>
+        </div>
+      </div>
+
       <div
         {...getRootProps()}
         className={cn(
@@ -86,7 +106,7 @@ export function FileUpload() {
             {isDragActive ? "Drop to upload" : "Drag & drop your document"}
           </p>
           <p className="text-sm text-[var(--muted)]">
-            PDF, DOCX, or TXT up to 20MB
+            PDF, DOCX, or TXT up to 20MB · private analysis only
           </p>
           <Button type="button" variant="secondary" size="sm">
             Browse files
@@ -123,15 +143,23 @@ export function FileUpload() {
         />
       </label>
 
-      <div className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3">
-        <div>
-          <p className="text-sm font-medium">Add to internal document index</p>
-          <p className="text-xs text-[var(--muted)]">
-            Off = check only (do not store fingerprints for future comparisons)
-          </p>
+      {indexingAllowed ? (
+        <div className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3">
+          <div>
+            <p className="text-sm font-medium">Add to internal document index</p>
+            <p className="text-xs text-[var(--muted)]">
+              Only enable if you want this paper kept for future comparisons in
+              your private institution corpus.
+            </p>
+          </div>
+          <Switch checked={addToIndex} onCheckedChange={setAddToIndex} />
         </div>
-        <Switch checked={addToIndex} onCheckedChange={setAddToIndex} />
-      </div>
+      ) : (
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-4 py-3 text-sm text-[var(--muted)]">
+          Repository indexing is disabled on this deployment. Uploads stay
+          check-only and cannot be copied into a shared index.
+        </div>
+      )}
 
       {error && (
         <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
@@ -143,10 +171,10 @@ export function FileUpload() {
         {pending ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            Uploading & queuing…
+            Analyzing privately…
           </>
         ) : (
-          "Run originality check"
+          "Run private originality check"
         )}
       </Button>
     </form>

@@ -140,12 +140,9 @@ export async function findWebMatches(
     return dedupeMatches(matches);
   }
 
-  // Simulated web corpus matching for local/dev
+  // Simulated web corpus (dev only): require an exact 7-gram hit so ordinary
+  // student papers are not falsely inflated by soft topical overlap.
   for (const source of SIMULATED_CORPUS) {
-    const score = Math.round(overlapScore(documentText, source.text) * 100);
-    if (score < 20) continue;
-
-    // Also check if any distinctive source n-gram appears in the document
     const sourceTokens = tokenizeWords(source.text);
     let bestGram = "";
     let bestPos = -1;
@@ -159,26 +156,26 @@ export async function findWebMatches(
       }
     }
 
-    if (bestPos < 0 && score < 35) continue;
+    if (bestPos < 0) continue;
 
-    const start = bestPos >= 0 ? bestPos : 0;
-    const matchedText =
-      bestPos >= 0
-        ? documentText.slice(start, start + Math.max(bestGram.length, 80))
-        : documentText.slice(0, 120);
+    const matchedText = documentText.slice(
+      bestPos,
+      bestPos + Math.max(bestGram.length, 80),
+    );
+    const score = Math.round(overlapScore(matchedText, source.text) * 100);
 
     matches.push({
       sourceUrl: source.url,
       sourceTitle: source.title,
       sourceType: "WEB",
-      similarityScore: bestPos >= 0 ? Math.max(score, 72) : score,
+      similarityScore: Math.min(95, Math.max(score, 55)),
       matchedText,
       sourceText: source.text,
-      startChar: start,
-      endChar: start + matchedText.length,
+      startChar: bestPos,
+      endChar: bestPos + matchedText.length,
       pageNumber: 1,
       colorHex: colorForIndex(colorIdx++),
-      isExactMatch: bestPos >= 0,
+      isExactMatch: true,
       isQuote: false,
       isBibliography: false,
     });

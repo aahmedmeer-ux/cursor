@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { resolveStoredPath } from "@/lib/storage";
+import { deleteStoredFile, resolveStoredPath } from "@/lib/storage";
 import { detectAiWriting } from "@/services/ai-detection";
 import { chunkDocument } from "@/services/chunking";
 import { embedTexts } from "@/services/embeddings";
@@ -8,8 +8,11 @@ import { winnowFingerprints } from "@/services/fingerprinting";
 import { ensureSeedCorpus, runHybridSimilarity } from "@/services/similarity";
 
 /**
- * End-to-end originality pipeline for a submission:
- * extract → chunk → fingerprint → embed → hybrid match → AI detection → persist
+ * End-to-end originality pipeline:
+ * extract → (delete raw file) → chunk → fingerprint → match → AI detect
+ *
+ * Privacy: raw uploads are always deleted after extraction. Comparison-index
+ * artifacts are only kept when addToIndex=true AND indexing is allowed.
  */
 export async function processSubmission(submissionId: string): Promise<void> {
   const submission = await prisma.submission.findUnique({
@@ -26,6 +29,7 @@ export async function processSubmission(submissionId: string): Promise<void> {
   });
 
   try {
+    // Seed corpus is synthetic demo data only — never user uploads.
     await ensureSeedCorpus(submission.userId);
 
     const absolutePath = resolveStoredPath(submission.fileUrl);
@@ -35,18 +39,22 @@ export async function processSubmission(submissionId: string): Promise<void> {
       submission.mimeType,
     );
 
-    if (!extracted.text.trim()) {
-      throw new Error("No extractable text found in document");
-    }
-
+    // Always remove the raw uploaded file from disk after extraction.
+    await deleteStoredFile(submission.fileUrl);
     await prisma.submission.update({
       where: { id: submissionId },
       data: {
         extractedText: extracted.text,
         wordCount: extracted.wordCount,
         pageCount: extracted.pageCount,
+        // Mark file as consumed / no longer downloadable
+        fileUrl: "deleted://local",
       },
     });
+
+    if (!extracted.text.trim()) {
+      throw new Error("No extractable text found in document");
+    }
 
     // Reset prior derived data (re-process safe)
     await prisma.matchResult.deleteMany({ where: { submissionId } });
@@ -57,6 +65,7 @@ export async function processSubmission(submissionId: string): Promise<void> {
     const chunks = chunkDocument(extracted);
     const embeddings = await embedTexts(chunks.map((c) => c.text));
 
+    // Temporary in-memory/DB working set for this analysis only
     if (chunks.length > 0) {
       await prisma.documentChunk.createMany({
         data: chunks.map((chunk, i) => ({
@@ -127,7 +136,9 @@ export async function processSubmission(submissionId: string): Promise<void> {
       });
     }
 
-    // If check-only, remove fingerprints/chunks from the searchable index
+    // Privacy default: do not keep this paper in the searchable corpus.
+    // Only retain index artifacts when the submission explicitly opted in
+    // AND the deployment allows repository indexing.
     if (!submission.addToIndex) {
       await prisma.documentFingerprint.deleteMany({ where: { submissionId } });
       await prisma.documentChunk.deleteMany({ where: { submissionId } });
@@ -144,11 +155,17 @@ export async function processSubmission(submissionId: string): Promise<void> {
       },
     });
   } catch (error) {
+    // Still try to scrub the raw file on failure
+    await deleteStoredFile(submission.fileUrl).catch(() => undefined);
     const message =
       error instanceof Error ? error.message : "Unknown processing error";
     await prisma.submission.update({
       where: { id: submissionId },
-      data: { status: "FAILED", errorMessage: message },
+      data: {
+        status: "FAILED",
+        errorMessage: message,
+        fileUrl: "deleted://local",
+      },
     });
     throw error;
   }

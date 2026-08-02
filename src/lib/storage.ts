@@ -1,10 +1,10 @@
-import { mkdir, writeFile, readFile } from "fs/promises";
+import { mkdir, writeFile, readFile, unlink } from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
 
 /**
  * Local filesystem storage with a clean swap path to S3 / Supabase Storage.
- * Set STORAGE_DRIVER=local (default). Future: s3 | supabase.
+ * Uploads are treated as ephemeral working files and deleted after analysis.
  */
 const UPLOAD_DIR = process.env.UPLOAD_DIR ?? "./uploads";
 
@@ -33,7 +33,7 @@ export async function saveUpload(
 
   await writeFile(absolutePath, buffer);
 
-  // Public-ish relative URL used by the app (served via API route)
+  // Private app path — never a public CDN URL. Served only to the owner.
   const fileUrl = `/api/files/${storedName}`;
   return { fileUrl, absolutePath, storedName };
 }
@@ -51,4 +51,14 @@ export function resolveStoredPath(fileUrl: string): string {
     UPLOAD_DIR,
     storedName,
   );
+}
+
+/** Best-effort delete of a raw upload after text extraction. */
+export async function deleteStoredFile(fileUrlOrName: string): Promise<void> {
+  try {
+    const abs = resolveStoredPath(fileUrlOrName);
+    await unlink(abs);
+  } catch {
+    /* already gone */
+  }
 }

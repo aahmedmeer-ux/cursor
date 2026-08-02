@@ -1,3 +1,4 @@
+import { isRepositoryIndexingAllowed } from "@/lib/privacy";
 import { prisma } from "@/lib/prisma";
 import { colorForIndex } from "@/lib/utils";
 import { cosineSimilarity } from "@/services/embeddings";
@@ -5,6 +6,15 @@ import { jaccardSimilarity, winnowFingerprints } from "@/services/fingerprinting
 import { looksLikeBibliography, looksLikeQuote } from "@/services/text/normalize";
 import { findWebMatches } from "@/services/web-search";
 import type { SimilarityMatch, TextChunk } from "@/types";
+
+/** When privacy mode is on, only the synthetic seed corpus is comparable. */
+function indexedSubmissionFilter() {
+  const base = { addToIndex: true as const, status: "COMPLETED" as const };
+  if (!isRepositoryIndexingAllowed()) {
+    return { ...base, fileName: "seed-climate.txt" };
+  }
+  return base;
+}
 
 type IndexedChunk = {
   submissionId: string;
@@ -67,7 +77,7 @@ async function findExactMatches(
     where: {
       hash: { in: hashes },
       submissionId: { not: submissionId },
-      submission: { addToIndex: true, status: "COMPLETED" },
+      submission: indexedSubmissionFilter(),
     },
     include: {
       submission: { select: { id: true, title: true, fileName: true } },
@@ -132,7 +142,7 @@ async function findSemanticMatches(
     where: {
       submissionId: { not: submissionId },
       embeddingId: { not: null },
-      submission: { addToIndex: true, status: "COMPLETED" },
+      submission: indexedSubmissionFilter(),
     },
     include: {
       submission: { select: { id: true, title: true } },

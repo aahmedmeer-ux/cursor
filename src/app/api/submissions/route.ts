@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
+import { resolveAddToIndex } from "@/lib/privacy";
 import { prisma } from "@/lib/prisma";
 import { saveUpload } from "@/lib/storage";
 import { isAllowedUpload } from "@/services/extraction";
@@ -22,6 +23,8 @@ export async function GET() {
       fileName: true,
       status: true,
       overallSimilarityScore: true,
+      aiScore: true,
+      aiLabel: true,
       createdAt: true,
       addToIndex: true,
       wordCount: true,
@@ -38,7 +41,9 @@ export async function POST(request: Request) {
     const form = await request.formData();
     const file = form.get("file");
     const title = String(form.get("title") ?? "").trim();
-    const addToIndex = String(form.get("addToIndex") ?? "true") !== "false";
+    const requestedIndex = String(form.get("addToIndex") ?? "false") === "true";
+    // Privacy: force check-only unless deployment explicitly allows indexing
+    const addToIndex = resolveAddToIndex(requestedIndex);
 
     if (!(file instanceof File)) {
       return NextResponse.json({ error: "file is required" }, { status: 400 });
@@ -74,7 +79,14 @@ export async function POST(request: Request) {
 
     enqueueProcessing(submission.id);
 
-    return NextResponse.json({ id: submission.id }, { status: 201 });
+    return NextResponse.json(
+      {
+        id: submission.id,
+        addToIndex,
+        privacyMode: !addToIndex,
+      },
+      { status: 201 },
+    );
   } catch (error) {
     console.error(error);
     return NextResponse.json(

@@ -36,7 +36,8 @@ export async function runDemoSubmission(kind: DemoKind = "ai") {
       fileUrl: stored.fileUrl,
       mimeType: "text/plain",
       status: "PENDING",
-      addToIndex: true,
+      // Demos must never pollute the shared comparison corpus
+      addToIndex: false,
     },
   });
 

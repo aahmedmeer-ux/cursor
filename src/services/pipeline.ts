@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { resolveStoredPath } from "@/lib/storage";
+import { detectAiWriting } from "@/services/ai-detection";
 import { chunkDocument } from "@/services/chunking";
 import { embedTexts } from "@/services/embeddings";
 import { extractDocument } from "@/services/extraction";
@@ -8,7 +9,7 @@ import { ensureSeedCorpus, runHybridSimilarity } from "@/services/similarity";
 
 /**
  * End-to-end originality pipeline for a submission:
- * extract → chunk → fingerprint → embed → hybrid match → persist results
+ * extract → chunk → fingerprint → embed → hybrid match → AI detection → persist
  */
 export async function processSubmission(submissionId: string): Promise<void> {
   const submission = await prisma.submission.findUnique({
@@ -51,6 +52,7 @@ export async function processSubmission(submissionId: string): Promise<void> {
     await prisma.matchResult.deleteMany({ where: { submissionId } });
     await prisma.documentChunk.deleteMany({ where: { submissionId } });
     await prisma.documentFingerprint.deleteMany({ where: { submissionId } });
+    await prisma.aiSegment.deleteMany({ where: { submissionId } });
 
     const chunks = chunkDocument(extracted);
     const embeddings = await embedTexts(chunks.map((c) => c.text));
@@ -112,6 +114,19 @@ export async function processSubmission(submissionId: string): Promise<void> {
       });
     }
 
+    const ai = await detectAiWriting(extracted.text);
+    if (ai.segments.length > 0) {
+      await prisma.aiSegment.createMany({
+        data: ai.segments.map((seg) => ({
+          submissionId,
+          startChar: seg.startChar,
+          endChar: seg.endChar,
+          score: seg.score,
+          reason: seg.reason,
+        })),
+      });
+    }
+
     // If check-only, remove fingerprints/chunks from the searchable index
     if (!submission.addToIndex) {
       await prisma.documentFingerprint.deleteMany({ where: { submissionId } });
@@ -123,6 +138,9 @@ export async function processSubmission(submissionId: string): Promise<void> {
       data: {
         status: "COMPLETED",
         overallSimilarityScore: overallScore,
+        aiScore: ai.aiScore,
+        aiLabel: ai.aiLabel,
+        aiSummary: `${ai.aiSummary} (detector: ${ai.provider})`,
       },
     });
   } catch (error) {

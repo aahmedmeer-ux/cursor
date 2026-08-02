@@ -29,7 +29,12 @@ export default function SubmitPage() {
               Run the bundled sample essay through the full similarity engine.
             </p>
           </div>
-          <DemoButton variant="default" size="default" label="Generate demo report" />
+          <DemoButton
+            variant="default"
+            size="default"
+            label="Generate AI + similarity demo"
+            kind="ai"
+          />
         </CardContent>
       </Card>
 

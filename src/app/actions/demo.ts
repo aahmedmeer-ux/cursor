@@ -8,22 +8,31 @@ import { prisma } from "@/lib/prisma";
 import { saveUpload } from "@/lib/storage";
 import { processSubmission } from "@/services/pipeline";
 
-/** One-click demo: submit the bundled sample essay and open its report. */
-export async function runDemoSubmission() {
+type DemoKind = "mixed" | "ai";
+
+/** One-click demo: submit a bundled essay and open its report. */
+export async function runDemoSubmission(kind: DemoKind = "ai") {
   const user = await getCurrentUser();
+  const fileName =
+    kind === "ai" ? "sample-ai-essay.txt" : "sample-essay.txt";
+  const title =
+    kind === "ai"
+      ? "Demo — AI-polished education essay"
+      : "Demo — Academic integrity essay";
+
   const fixturePath = path.join(
     /* turbopackIgnore: true */ process.cwd(),
     "fixtures",
-    "sample-essay.txt",
+    fileName,
   );
   const buffer = await readFile(fixturePath);
-  const stored = await saveUpload(buffer, "sample-essay.txt");
+  const stored = await saveUpload(buffer, fileName);
 
   const submission = await prisma.submission.create({
     data: {
       userId: user.id,
-      title: "Demo — Academic integrity essay",
-      fileName: "sample-essay.txt",
+      title,
+      fileName,
       fileUrl: stored.fileUrl,
       mimeType: "text/plain",
       status: "PENDING",

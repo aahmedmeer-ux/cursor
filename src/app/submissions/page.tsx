@@ -38,6 +38,7 @@ export default async function SubmissionsPage() {
               )}
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3 font-medium">Similarity</th>
+              <th className="px-4 py-3 font-medium">AI</th>
               <th className="px-4 py-3 font-medium">Indexed</th>
               <th className="px-4 py-3 font-medium">Created</th>
             </tr>
@@ -46,7 +47,7 @@ export default async function SubmissionsPage() {
             {submissions.length === 0 ? (
               <tr>
                 <td
-                  colSpan={canReview(user.role) ? 6 : 5}
+                  colSpan={canReview(user.role) ? 7 : 6}
                   className="px-4 py-10 text-center text-[var(--muted)]"
                 >
                   No submissions yet.{" "}
@@ -93,6 +94,23 @@ export default async function SubmissionsPage() {
                           }
                         >
                           {formatPercent(s.overallSimilarityScore)}
+                        </Badge>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      {s.status === "COMPLETED" ? (
+                        <Badge
+                          variant={
+                            s.aiLabel === "AI"
+                              ? "danger"
+                              : s.aiLabel === "MIXED"
+                                ? "warn"
+                                : "success"
+                          }
+                        >
+                          {formatPercent(s.aiScore)} · {s.aiLabel}
                         </Badge>
                       ) : (
                         "—"

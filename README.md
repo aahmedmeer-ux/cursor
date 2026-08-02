@@ -8,6 +8,7 @@ A modern Turnitin-style originality platform: upload PDF/DOCX/TXT, run hybrid si
 |---|---|---|
 | Database | Local PostgreSQL via Prisma | Set `DATABASE_URL` to a Supabase Postgres URL |
 | Embeddings | Local hashed bag-of-words (`EMBEDDING_PROVIDER=local`) | Set `EMBEDDING_PROVIDER=openai` + `OPENAI_API_KEY` |
+| AI writing detection | Local stylometric heuristics (`AI_DETECTION_PROVIDER=local`) | Set `AI_DETECTION_PROVIDER=openai` + `OPENAI_API_KEY` |
 | File storage | Local `./uploads` | Replace `src/lib/storage.ts` with S3/Supabase |
 | Web matching | Simulated corpus | Set `SERPER_API_KEY` for live Serper.dev results |
 | Queue | Inline async processing + Redis cache | Can be upgraded to BullMQ workers |
@@ -58,6 +59,7 @@ Use the sidebar switcher:
 4. **Scoring** — hybrid exact + semantic + web match merge
 5. **Report UI** — split-screen highlights + source sidebar + filters
 6. **Web API** — Serper integration with simulated fallback
+7. **AI writing detection** — document AI score + flagged passage highlights
 
 ## Key paths
 

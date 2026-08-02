@@ -14,6 +14,7 @@ export async function GET(
     where: { id },
     include: {
       matches: { orderBy: { similarityScore: "desc" } },
+      aiSegments: { orderBy: { score: "desc" } },
       user: { select: { id: true, email: true, name: true, role: true } },
     },
   });

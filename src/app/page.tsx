@@ -38,12 +38,11 @@ export default async function DashboardPage() {
             Originality
           </h1>
           <p className="mt-3 text-lg text-[var(--muted)]">
-            Upload coursework, run exact + semantic matching against your
-            repository and the web, then review a Turnitin-style interactive
-            report.
+            Upload coursework, run similarity matching and AI-writing detection,
+            then review a Turnitin-style interactive report.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <DemoButton />
+            <DemoButton label="Demo with AI detection" kind="ai" />
             <Button asChild size="lg" variant="secondary">
               <Link href="/submit">
                 Upload your own file <ArrowRight className="h-4 w-4" />
@@ -68,9 +67,11 @@ export default async function DashboardPage() {
           hint="Ready to review"
         />
         <StatCard
-          label="Engine mode"
-          value={process.env.EMBEDDING_PROVIDER === "openai" ? "OpenAI" : "Local"}
-          hint="Embeddings provider"
+          label="AI detector"
+          value={
+            process.env.AI_DETECTION_PROVIDER === "openai" ? "OpenAI" : "Local"
+          }
+          hint="Writing detection provider"
         />
       </section>
 
@@ -106,17 +107,30 @@ export default async function DashboardPage() {
                       </p>
                     </div>
                     {item.status === "COMPLETED" ? (
-                      <Badge
-                        variant={
-                          tone === "low"
-                            ? "success"
-                            : tone === "mid"
-                              ? "warn"
-                              : "danger"
-                        }
-                      >
-                        {formatPercent(item.overallSimilarityScore)}
-                      </Badge>
+                      <div className="flex shrink-0 items-center gap-1.5">
+                        <Badge
+                          variant={
+                            tone === "low"
+                              ? "success"
+                              : tone === "mid"
+                                ? "warn"
+                                : "danger"
+                          }
+                        >
+                          {formatPercent(item.overallSimilarityScore)} sim
+                        </Badge>
+                        <Badge
+                          variant={
+                            item.aiLabel === "AI"
+                              ? "danger"
+                              : item.aiLabel === "MIXED"
+                                ? "warn"
+                                : "success"
+                          }
+                        >
+                          {formatPercent(item.aiScore)} AI
+                        </Badge>
+                      </div>
                     ) : (
                       <Badge>{item.status}</Badge>
                     )}
@@ -144,8 +158,8 @@ export default async function DashboardPage() {
             />
             <Feature
               icon={ShieldCheck}
-              title="Web fallback"
-              text="Serper-powered search (or a simulated corpus) flags public internet matches."
+              title="AI writing detection"
+              text="Stylometric heuristics (and optional OpenAI) flag likely machine-generated spans."
             />
           </CardContent>
         </Card>

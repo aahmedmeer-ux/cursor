@@ -20,6 +20,7 @@ export default async function SubmissionDetailPage({
     where: { id },
     include: {
       matches: { orderBy: { similarityScore: "desc" } },
+      aiSegments: { orderBy: { score: "desc" } },
       user: { select: { name: true, email: true } },
     },
   });
@@ -37,9 +38,22 @@ export default async function SubmissionDetailPage({
         <span className="text-[var(--foreground)]">{submission.title}</span>
         <Badge className="ml-2">{submission.status}</Badge>
         {submission.status === "COMPLETED" && (
-          <Badge variant="brand">
-            {formatPercent(submission.overallSimilarityScore)} overall
-          </Badge>
+          <>
+            <Badge variant="brand">
+              {formatPercent(submission.overallSimilarityScore)} similarity
+            </Badge>
+            <Badge
+              variant={
+                submission.aiLabel === "AI"
+                  ? "danger"
+                  : submission.aiLabel === "MIXED"
+                    ? "warn"
+                    : "success"
+              }
+            >
+              {formatPercent(submission.aiScore)} AI
+            </Badge>
+          </>
         )}
       </div>
 
@@ -75,6 +89,16 @@ export default async function SubmissionDetailPage({
           overallScore={submission.overallSimilarityScore}
           wordCount={submission.wordCount}
           pageCount={submission.pageCount}
+          aiScore={submission.aiScore}
+          aiLabel={submission.aiLabel}
+          aiSummary={submission.aiSummary}
+          aiSegments={submission.aiSegments.map((seg) => ({
+            id: seg.id,
+            startChar: seg.startChar,
+            endChar: seg.endChar,
+            score: seg.score,
+            reason: seg.reason,
+          }))}
           matches={submission.matches.map((m) => ({
             id: m.id,
             sourceTitle: m.sourceTitle,
@@ -96,7 +120,8 @@ export default async function SubmissionDetailPage({
             Preparing your originality report
           </p>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            Extracting text, fingerprinting, embedding, and matching sources…
+            Extracting text, fingerprinting, embedding, matching sources, and
+            running AI writing detection…
           </p>
         </div>
       )}

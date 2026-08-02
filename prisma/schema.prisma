@@ -40,6 +40,12 @@ model User {
   submissions  Submission[]
 }
 
+enum AiLabel {
+  HUMAN
+  MIXED
+  AI
+}
+
 model Submission {
   id                     String           @id @default(cuid())
   userId                 String
@@ -51,6 +57,10 @@ model Submission {
   extractedText          String?          @db.Text
   status                 SubmissionStatus @default(PENDING)
   overallSimilarityScore Float            @default(0)
+  /// Percent of text predicted as AI-generated (0–100)
+  aiScore                Float            @default(0)
+  aiLabel                AiLabel          @default(HUMAN)
+  aiSummary              String?
   addToIndex             Boolean          @default(true)
   wordCount              Int              @default(0)
   pageCount              Int              @default(0)
@@ -60,10 +70,25 @@ model Submission {
   chunks                 DocumentChunk[]
   matches                MatchResult[]
   fingerprints           DocumentFingerprint[]
+  aiSegments             AiSegment[]
 
   @@index([userId])
   @@index([status])
   @@index([createdAt])
+}
+
+/// Contiguous spans flagged as likely AI-generated for report highlighting
+model AiSegment {
+  id           String     @id @default(cuid())
+  submissionId String
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  startChar    Int
+  endChar      Int
+  score        Float
+  reason       String?
+  createdAt    DateTime   @default(now())
+
+  @@index([submissionId])
 }
 
 model DocumentChunk {

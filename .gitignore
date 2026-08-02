@@ -52,3 +52,4 @@ next-env.d.ts
 /.claude
 /.windsurf
 /skills-lock.json
+dump.rdb

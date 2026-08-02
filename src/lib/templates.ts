@@ -1,4 +1,4 @@
-import type { JournalTemplateId, SurveyPaper } from "./types";
+import type { JournalTemplateId, SurveyFigure, SurveyPaper, SurveyTable } from "./types";
 
 export type TemplateMeta = {
   id: JournalTemplateId;
@@ -64,19 +64,102 @@ export function getTemplate(id: JournalTemplateId): TemplateMeta {
 
 function sectionNumber(index: number, template: JournalTemplateId): string {
   if (template === "ieee") {
-    const romans = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+    const romans = [
+      "I",
+      "II",
+      "III",
+      "IV",
+      "V",
+      "VI",
+      "VII",
+      "VIII",
+      "IX",
+      "X",
+      "XI",
+      "XII",
+    ];
     return romans[index] ?? String(index + 1);
   }
   return String(index + 1);
 }
 
+function tableToMarkdown(table: SurveyTable): string {
+  const lines = [
+    `### ${table.title}`,
+    "",
+    table.caption,
+    "",
+    `| ${table.headers.join(" | ")} |`,
+    `| ${table.headers.map(() => "---").join(" | ")} |`,
+    ...table.rows.map((row) => `| ${row.map((c) => c.replace(/\|/g, "/")).join(" | ")} |`),
+    "",
+  ];
+  return lines.join("\n");
+}
+
+function tableToHtml(table: SurveyTable, index: number): string {
+  const head = table.headers.map((h) => `<th>${escapeHtml(h)}</th>`).join("");
+  const body = table.rows
+    .map(
+      (row) =>
+        `<tr>${row.map((c) => `<td>${escapeHtml(c)}</td>`).join("")}</tr>`
+    )
+    .join("");
+  return `<figure class="paper-table" id="${table.id}">
+  <figcaption><strong>Table ${index}.</strong> ${escapeHtml(table.caption)}</figcaption>
+  <div class="table-wrap"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>
+</figure>`;
+}
+
+function figureToHtml(fig: SurveyFigure, index: number): string {
+  const body = fig.html || fig.svg;
+  return `<figure class="paper-figure" id="${fig.id}" data-kind="${fig.kind}">
+  ${body}
+  <figcaption><strong>Fig. ${index}.</strong> ${escapeHtml(fig.caption)}</figcaption>
+</figure>`;
+}
+
+/** Place visuals after the section they support (high-impact survey practice). */
+function attachmentForSection(sectionId: string): {
+  figureKinds: SurveyFigure["kind"][];
+  tableKinds: SurveyTable["kind"][];
+} {
+  switch (sectionId) {
+    case "background":
+      return { figureKinds: ["problem"], tableKinds: [] };
+    case "related-surveys":
+      return { figureKinds: [], tableKinds: ["related-surveys"] };
+    case "taxonomy":
+      return { figureKinds: ["taxonomy"], tableKinds: ["taxonomy"] };
+    case "comparison":
+      return { figureKinds: ["comparison"], tableKinds: ["comparison"] };
+    case "challenges":
+      return { figureKinds: ["challenges"], tableKinds: ["challenges"] };
+    case "trends-gaps":
+      return { figureKinds: ["venn", "timeline", "gaps"], tableKinds: [] };
+    case "method":
+      return { figureKinds: ["methods"], tableKinds: [] };
+    default:
+      return { figureKinds: [], tableKinds: [] };
+  }
+}
+
 export function paperToMarkdown(paper: SurveyPaper): string {
   const tpl = getTemplate(paper.template);
+  const figures = paper.figures ?? [];
+  const tables = paper.tables ?? [];
+  const contributions = paper.contributions ?? [];
+  const usedFigs = new Set<string>();
+  const usedTables = new Set<string>();
+
   const lines: string[] = [];
   lines.push(`# ${paper.title}`);
   lines.push("");
   lines.push(`**Authors:** ${paper.authorsPlaceholder}`);
   lines.push(`**Template:** ${tpl.name}`);
+  if (paper.metadata.rubric) {
+    lines.push(`**Survey rubric:** ${paper.metadata.rubric}`);
+  }
   lines.push("");
   lines.push("## Abstract");
   lines.push(paper.abstract);
@@ -84,7 +167,17 @@ export function paperToMarkdown(paper: SurveyPaper): string {
   lines.push(`**Keywords:** ${paper.keywords.join("; ")}`);
   lines.push("");
 
+  if (contributions.length) {
+    lines.push("## Contributions");
+    lines.push("");
+    contributions.forEach((c, i) => lines.push(`${i + 1}. ${c}`));
+    lines.push("");
+  }
+
   let major = 0;
+  let figNum = 0;
+  let tblNum = 0;
+
   for (const section of paper.sections) {
     if (section.level === 1) {
       const num = sectionNumber(major, paper.template);
@@ -96,13 +189,14 @@ export function paperToMarkdown(paper: SurveyPaper): string {
     lines.push("");
     lines.push(section.content);
     lines.push("");
-  }
 
-  if (paper.figures.length) {
-    lines.push("## Figures");
-    lines.push("");
-    for (const fig of paper.figures) {
-      lines.push(`### ${fig.title}`);
+    const attach = attachmentForSection(section.id);
+    for (const fig of figures) {
+      if (usedFigs.has(fig.id)) continue;
+      if (!attach.figureKinds.includes(fig.kind)) continue;
+      usedFigs.add(fig.id);
+      figNum++;
+      lines.push(`### Figure ${figNum}: ${fig.title}`);
       lines.push("");
       lines.push(fig.caption);
       lines.push("");
@@ -110,6 +204,35 @@ export function paperToMarkdown(paper: SurveyPaper): string {
       lines.push(fig.svg);
       lines.push("```");
       lines.push("");
+    }
+    for (const table of tables) {
+      if (usedTables.has(table.id)) continue;
+      if (!attach.tableKinds.includes(table.kind)) continue;
+      usedTables.add(table.id);
+      tblNum++;
+      lines.push(tableToMarkdown({ ...table, title: `Table ${tblNum}: ${table.title}` }));
+    }
+  }
+
+  const leftoverFigs = figures.filter((f) => !usedFigs.has(f.id));
+  const leftoverTables = tables.filter((t) => !usedTables.has(t.id));
+  if (leftoverFigs.length || leftoverTables.length) {
+    lines.push("## Visual Synthesis (Additional)");
+    lines.push("");
+    for (const fig of leftoverFigs) {
+      figNum++;
+      lines.push(`### Figure ${figNum}: ${fig.title}`);
+      lines.push("");
+      lines.push(fig.caption);
+      lines.push("");
+      lines.push("```svg");
+      lines.push(fig.svg);
+      lines.push("```");
+      lines.push("");
+    }
+    for (const table of leftoverTables) {
+      tblNum++;
+      lines.push(tableToMarkdown({ ...table, title: `Table ${tblNum}: ${table.title}` }));
     }
   }
 
@@ -121,16 +244,27 @@ export function paperToMarkdown(paper: SurveyPaper): string {
   lines.push("");
   lines.push("---");
   lines.push(
-    `_Draft generated by SurveyForge on ${paper.metadata.generatedAt}. Humanized: ${paper.metadata.humanized}. Validate all citations against primary sources before submission._`
+    `_Draft generated by SurveyForge on ${paper.metadata.generatedAt}. Humanized: ${paper.metadata.humanized}. Rubric: ${paper.metadata.rubric ?? "n/a"}. Validate all citations against primary sources before submission._`
   );
   return lines.join("\n");
 }
 
 export function paperToLatex(paper: SurveyPaper): string {
   const isIeee = paper.template === "ieee";
+  const figures = paper.figures ?? [];
+  const tables = paper.tables ?? [];
+  const contributions = paper.contributions ?? [];
+
+  const contribBlock = contributions.length
+    ? `\n\\noindent\\textbf{Contributions.}\n\\begin{enumerate}\n${contributions
+        .map((c) => `\\item ${escapeLatex(c)}`)
+        .join("\n")}\n\\end{enumerate}\n`
+    : "";
+
   const preamble = isIeee
     ? `\\documentclass[conference]{IEEEtran}
 \\usepackage{graphicx}
+\\usepackage{booktabs}
 \\usepackage{cite}
 \\begin{document}
 \\title{${escapeLatex(paper.title)}}
@@ -141,9 +275,11 @@ ${escapeLatex(paper.abstract)}
 \\end{abstract}
 \\begin{IEEEkeywords}
 ${escapeLatex(paper.keywords.join(", "))}
-\\end{IEEEkeywords}`
+\\end{IEEEkeywords}
+${contribBlock}`
     : `\\documentclass[11pt]{article}
 \\usepackage{graphicx}
+\\usepackage{booktabs}
 \\usepackage[margin=1in]{geometry}
 \\begin{document}
 \\title{${escapeLatex(paper.title)}}
@@ -152,21 +288,50 @@ ${escapeLatex(paper.keywords.join(", "))}
 \\begin{abstract}
 ${escapeLatex(paper.abstract)}
 \\end{abstract}
-\\noindent\\textbf{Keywords:} ${escapeLatex(paper.keywords.join("; "))}`;
+\\noindent\\textbf{Keywords:} ${escapeLatex(paper.keywords.join("; "))}
+${contribBlock}`;
 
-  const body = paper.sections
-    .map((section) => {
-      const cmd = section.level === 1 ? "section" : "subsection";
-      return `\\${cmd}{${escapeLatex(section.heading)}}\n${escapeLatex(section.content)}\n`;
-    })
-    .join("\n");
+  const usedFigs = new Set<string>();
+  const usedTables = new Set<string>();
 
-  const figs = paper.figures
-    .map(
-      (fig) =>
-        `\\begin{figure}[ht]\\centering\\fbox{\\parbox{0.9\\linewidth}{\\textit{[SVG figure: ${escapeLatex(fig.title)}]}}}\\caption{${escapeLatex(fig.caption)}}\\label{fig:${fig.id}}\\end{figure}`
-    )
-    .join("\n\n");
+  const bodyParts: string[] = [];
+  for (const section of paper.sections) {
+    const cmd = section.level === 1 ? "section" : "subsection";
+    bodyParts.push(`\\${cmd}{${escapeLatex(section.heading)}}\n${escapeLatex(section.content)}\n`);
+
+    const attach = attachmentForSection(section.id);
+    for (const fig of figures) {
+      if (usedFigs.has(fig.id) || !attach.figureKinds.includes(fig.kind)) continue;
+      usedFigs.add(fig.id);
+      bodyParts.push(
+        `\\begin{figure}[ht]\\centering\\fbox{\\parbox{0.9\\linewidth}{\\textit{[SVG figure: ${escapeLatex(fig.title)}]}}}\\caption{${escapeLatex(fig.caption)}}\\label{fig:${fig.id}}\\end{figure}\n`
+      );
+    }
+    for (const table of tables) {
+      if (usedTables.has(table.id) || !attach.tableKinds.includes(table.kind)) continue;
+      usedTables.add(table.id);
+      const header = table.headers.map(escapeLatex).join(" & ");
+      const rows = table.rows
+        .map((r) => r.map(escapeLatex).join(" & ") + " \\\\")
+        .join("\n");
+      bodyParts.push(
+        `\\begin{table}[ht]\\centering\\caption{${escapeLatex(table.caption)}}\\label{tab:${table.id}}\\begin{tabular}{${"l".repeat(table.headers.length)}}\\toprule\n${header} \\\\\n\\midrule\n${rows}\n\\bottomrule\\end{tabular}\\end{table}\n`
+      );
+    }
+  }
+
+  for (const fig of figures.filter((f) => !usedFigs.has(f.id))) {
+    bodyParts.push(
+      `\\begin{figure}[ht]\\centering\\fbox{\\parbox{0.9\\linewidth}{\\textit{[SVG figure: ${escapeLatex(fig.title)}]}}}\\caption{${escapeLatex(fig.caption)}}\\label{fig:${fig.id}}\\end{figure}\n`
+    );
+  }
+  for (const table of tables.filter((t) => !usedTables.has(t.id))) {
+    const header = table.headers.map(escapeLatex).join(" & ");
+    const rows = table.rows.map((r) => r.map(escapeLatex).join(" & ") + " \\\\").join("\n");
+    bodyParts.push(
+      `\\begin{table}[ht]\\centering\\caption{${escapeLatex(table.caption)}}\\label{tab:${table.id}}\\begin{tabular}{${"l".repeat(table.headers.length)}}\\toprule\n${header} \\\\\n\\midrule\n${rows}\n\\bottomrule\\end{tabular}\\end{table}\n`
+    );
+  }
 
   const refs = paper.references
     .map((r) => `\\bibitem{${r.key}} ${escapeLatex(r.text.replace(/^\[\d+\]\s*/, ""))}`)
@@ -174,9 +339,7 @@ ${escapeLatex(paper.abstract)}
 
   return `${preamble}
 
-${body}
-
-${figs}
+${bodyParts.join("\n")}
 
 \\begin{thebibliography}{99}
 ${refs}
@@ -195,35 +358,69 @@ function escapeLatex(s: string): string {
 
 export function paperToHtml(paper: SurveyPaper): string {
   const tpl = getTemplate(paper.template);
+  const figures = paper.figures ?? [];
+  const tables = paper.tables ?? [];
+  const contributions = paper.contributions ?? [];
+  const usedFigs = new Set<string>();
+  const usedTables = new Set<string>();
   let major = 0;
+  let figNum = 0;
+  let tblNum = 0;
+
   const sectionsHtml = paper.sections
     .map((section) => {
+      let headingHtml: string;
       if (section.level === 1) {
         const num = sectionNumber(major, paper.template);
         major++;
-        return `<section class="section"><h2>${num}. ${escapeHtml(section.heading)}</h2>${section.content
-          .split(/\n{2,}/)
-          .map((p) => `<p>${escapeHtml(p)}</p>`)
-          .join("")}</section>`;
+        headingHtml = `<h2>${num}. ${escapeHtml(section.heading)}</h2>`;
+      } else {
+        headingHtml = `<h3>${escapeHtml(section.heading)}</h3>`;
       }
-      return `<section class="subsection"><h3>${escapeHtml(section.heading)}</h3>${section.content
+
+      const paras = section.content
         .split(/\n{2,}/)
         .map((p) => `<p>${escapeHtml(p)}</p>`)
-        .join("")}</section>`;
+        .join("");
+
+      const attach = attachmentForSection(section.id);
+      const attached: string[] = [];
+      for (const fig of figures) {
+        if (usedFigs.has(fig.id) || !attach.figureKinds.includes(fig.kind)) continue;
+        usedFigs.add(fig.id);
+        figNum++;
+        attached.push(figureToHtml(fig, figNum));
+      }
+      for (const table of tables) {
+        if (usedTables.has(table.id) || !attach.tableKinds.includes(table.kind)) continue;
+        usedTables.add(table.id);
+        tblNum++;
+        attached.push(tableToHtml(table, tblNum));
+      }
+
+      return `<section class="${section.level === 1 ? "section" : "subsection"}">${headingHtml}${paras}${attached.join("\n")}</section>`;
     })
     .join("\n");
 
-  const figuresHtml = paper.figures
-    .map(
-      (fig, idx) =>
-        `<figure class="paper-figure" id="${fig.id}">
-          ${fig.svg}
-          <figcaption><strong>Fig. ${idx + 1}.</strong> ${escapeHtml(fig.caption)}</figcaption>
-        </figure>`
-    )
-    .join("\n");
+  const leftover: string[] = [];
+  for (const fig of figures.filter((f) => !usedFigs.has(f.id))) {
+    figNum++;
+    leftover.push(figureToHtml(fig, figNum));
+  }
+  for (const table of tables.filter((t) => !usedTables.has(t.id))) {
+    tblNum++;
+    leftover.push(tableToHtml(table, tblNum));
+  }
 
-  const refsHtml = paper.references.map((r) => `<li id="${r.id}">${escapeHtml(r.text.replace(/^\[\d+\]\s*/, ""))}</li>`).join("");
+  const contribHtml = contributions.length
+    ? `<div class="contributions"><strong>Contributions</strong><ol>${contributions
+        .map((c) => `<li>${escapeHtml(c)}</li>`)
+        .join("")}</ol></div>`
+    : "";
+
+  const refsHtml = paper.references
+    .map((r) => `<li id="${r.id}">${escapeHtml(r.text.replace(/^\[\d+\]\s*/, ""))}</li>`)
+    .join("");
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -231,7 +428,7 @@ export function paperToHtml(paper: SurveyPaper): string {
 <meta charset="utf-8"/>
 <title>${escapeHtml(paper.title)}</title>
 <style>
-  :root { --ink:#0c1f2e; --sea:#1a6b7a; --muted:#5a6b75; }
+  :root { --ink:#0c1f2e; --sea:#1a6b7a; --muted:#5a6b75; --line:#d5dee3; --foam:#f3f7f8; }
   body { font-family: "Times New Roman", Times, serif; color: var(--ink); margin: 0; background: #fff; }
   .page { max-width: ${tpl.columns === 2 ? "920px" : "780px"}; margin: 0 auto; padding: 48px 32px 80px; }
   .tpl-ieee .columns { column-count: 2; column-gap: 28px; }
@@ -240,16 +437,23 @@ export function paperToHtml(paper: SurveyPaper): string {
   .authors { text-align: center; font-size: 13px; margin-bottom: 20px; color: var(--muted); }
   .abstract { font-size: 12.5px; margin-bottom: 12px; }
   .abstract strong { display: block; text-align: center; margin-bottom: 6px; }
-  .keywords { font-size: 12px; margin-bottom: 22px; }
+  .keywords { font-size: 12px; margin-bottom: 14px; }
+  .contributions { font-size: 12.5px; margin-bottom: 18px; background: var(--foam); padding: 10px 14px; border-left: 3px solid var(--sea); }
+  .contributions ol { margin: 6px 0 0; padding-left: 18px; }
+  .contributions li { margin-bottom: 4px; }
   h2 { font-size: 13px; text-transform: ${paper.template === "ieee" ? "uppercase" : "none"}; margin: 18px 0 8px; }
   h3 { font-size: 12.5px; margin: 14px 0 6px; font-style: italic; }
   p { font-size: 12.5px; line-height: 1.45; text-align: justify; margin: 0 0 8px; }
-  .paper-figure { margin: 16px 0; break-inside: avoid; }
+  .paper-figure, .paper-table { margin: 16px 0; break-inside: avoid; }
   .paper-figure svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
-  figcaption { font-size: 11px; margin-top: 6px; text-align: center; }
+  figcaption { font-size: 11px; margin: 6px 0 8px; text-align: center; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  th, td { border: 1px solid var(--line); padding: 5px 6px; text-align: left; vertical-align: top; }
+  th { background: var(--foam); font-weight: 700; }
   ol.refs { padding-left: 18px; font-size: 11.5px; }
   ol.refs li { margin-bottom: 6px; }
-  .meta { margin-top: 28px; font-size: 10px; color: var(--muted); border-top: 1px solid #d5dee3; padding-top: 10px; }
+  .meta { margin-top: 28px; font-size: 10px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; }
   .tpl-nature h1 { font-family: Georgia, serif; font-size: 26px; }
   .tpl-acm h1 { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 24px; letter-spacing: -0.02em; }
   .tpl-elsevier .abstract { border-left: 3px solid var(--sea); padding-left: 12px; }
@@ -263,16 +467,17 @@ export function paperToHtml(paper: SurveyPaper): string {
       <div class="authors">${escapeHtml(paper.authorsPlaceholder)} · ${escapeHtml(tpl.venueHint)}</div>
       <div class="abstract"><strong>Abstract</strong><p>${escapeHtml(paper.abstract)}</p></div>
       <div class="keywords"><strong>Keywords—</strong>${escapeHtml(paper.keywords.join("; "))}</div>
+      ${contribHtml}
     </header>
     <div class="${tpl.columns === 2 ? "columns" : "single"}">
       ${sectionsHtml}
-      ${figuresHtml}
+      ${leftover.join("\n")}
       <section>
-        <h2>${paper.template === "ieee" ? "References" : "References"}</h2>
+        <h2>References</h2>
         <ol class="refs">${refsHtml}</ol>
       </section>
     </div>
-    <p class="meta">SurveyForge draft · matrix ${paper.metadata.matrixPaperCount} · discovered ${paper.metadata.discoveredPaperCount} · humanized ${paper.metadata.humanized ? "yes" : "no"} · ${escapeHtml(paper.metadata.generatedAt)}. Validate citations before submission.</p>
+    <p class="meta">SurveyForge draft · rubric ${escapeHtml(paper.metadata.rubric ?? "n/a")} · matrix ${paper.metadata.matrixPaperCount} · discovered ${paper.metadata.discoveredPaperCount} · figures ${figures.length} · tables ${tables.length} · humanized ${paper.metadata.humanized ? "yes" : "no"} · ${escapeHtml(paper.metadata.generatedAt)}. Validate citations before submission.</p>
   </article>
 </body>
 </html>`;

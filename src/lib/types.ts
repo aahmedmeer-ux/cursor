@@ -37,13 +37,34 @@ export type JournalTemplateId =
   | "elsevier"
   | "nature";
 
+export type SurveyFigureKind =
+  | "taxonomy"
+  | "problem"
+  | "comparison"
+  | "challenges"
+  | "venn"
+  | "timeline"
+  | "methods"
+  | "gaps";
+
 export type SurveyFigure = {
   id: string;
   title: string;
   caption: string;
-  kind: "taxonomy" | "comparison" | "timeline" | "methods" | "gaps";
+  kind: SurveyFigureKind;
   svg: string;
+  /** Optional HTML table/figure body rendered in journal preview */
+  html?: string;
   mermaid?: string;
+};
+
+export type SurveyTable = {
+  id: string;
+  title: string;
+  caption: string;
+  kind: "comparison" | "challenges" | "related-surveys" | "taxonomy";
+  headers: string[];
+  rows: string[][];
 };
 
 export type SurveySection = {
@@ -59,9 +80,11 @@ export type SurveyPaper = {
   abstract: string;
   keywords: string[];
   authorsPlaceholder: string;
+  contributions: string[];
   sections: SurveySection[];
   references: ReferenceEntry[];
   figures: SurveyFigure[];
+  tables: SurveyTable[];
   template: JournalTemplateId;
   metadata: {
     generatedAt: string;
@@ -69,6 +92,7 @@ export type SurveyPaper = {
     discoveredPaperCount: number;
     humanized: boolean;
     topic: string;
+    rubric?: "high-impact-v1";
   };
 };
 

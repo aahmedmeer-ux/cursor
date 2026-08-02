@@ -17,6 +17,11 @@ import {
 import MatrixUploader, { type SheetEmbedInfo } from "@/components/MatrixUploader";
 import { inferTopic } from "@/lib/matrix-utils";
 import { TEMPLATES, paperToHtml, paperToLatex, paperToMarkdown } from "@/lib/templates";
+import {
+  HIGH_IMPACT_SURVEY_PRINCIPLES,
+  REQUIRED_SURVEY_ARTIFACTS,
+  SURVEY_SECTION_BLUEPRINT,
+} from "@/lib/survey-rubric";
 import type {
   DiscoveredPaper,
   JournalTemplateId,
@@ -65,7 +70,9 @@ export default function Studio() {
   const [paper, setPaper] = useState<SurveyPaper | null>(null);
   const [discovered, setDiscovered] = useState<DiscoveredPaper[]>([]);
   const [queries, setQueries] = useState<string[]>([]);
-  const [previewMode, setPreviewMode] = useState<"formatted" | "markdown" | "figures">("formatted");
+  const [previewMode, setPreviewMode] = useState<"formatted" | "markdown" | "figures" | "rubric">(
+    "formatted"
+  );
   const [generating, setGenerating] = useState(false);
   const [isInsecureHttp, setIsInsecureHttp] = useState(false);
 
@@ -153,13 +160,14 @@ export default function Studio() {
             SurveyForge
           </h1>
           <p className="serif mt-5 max-w-xl text-lg leading-relaxed text-[var(--muted)]">
-            Upload your synthesis matrix. We discover related literature, draft a cited survey,
-            humanize the prose, generate figures, and format to IEEE and other top-journal styles.
+            Upload your synthesis matrix. We draft a high-impact survey structure—taxonomy, problem
+            diagram, comparison tables, challenges map, and trends–gaps Venn—then discover literature,
+            humanize prose, and format to IEEE/ACM and other journal styles.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
-            <span className="chip">OpenAlex discovery</span>
-            <span className="chip">Humanize pass</span>
-            <span className="chip">SVG figures</span>
+            <span className="chip">Taxonomy + problem diagram</span>
+            <span className="chip">Comparison &amp; challenges tables</span>
+            <span className="chip">Trends–gaps Venn</span>
             <span className="chip">IEEE · ACM · Springer · Elsevier</span>
           </div>
         </div>
@@ -296,7 +304,7 @@ export default function Studio() {
                   onChange={(e) => setIncludeFigures(e.target.checked)}
                 />
                 <ImageIcon className="h-4 w-4 text-[var(--sea)]" />
-                Generate relevant figures
+                Generate taxonomy, diagrams &amp; tables
               </label>
             </div>
 
@@ -393,8 +401,8 @@ export default function Studio() {
               <FileText className="mb-4 h-12 w-12 text-[var(--sea)]" />
               <h2 className="brand-display text-3xl">Your survey draft appears here</h2>
               <p className="serif mt-3 max-w-md text-[var(--muted)]">
-                Start with the sample matrix to see discovery, humanization, figures, and IEEE
-                formatting in one pass.
+                Start with the sample matrix to see taxonomy, comparison tables, Venn gaps map,
+                discovery, and IEEE formatting in one pass.
               </p>
             </section>
           )}
@@ -404,7 +412,8 @@ export default function Studio() {
               <Loader2 className="mb-4 h-10 w-10 animate-spin text-[var(--sea)]" />
               <h2 className="brand-display text-3xl capitalize">{stage.replace(/ing$/, "ing…")}</h2>
               <p className="mt-2 text-sm text-[var(--muted)]">
-                Building a cited narrative from your matrix{discoverOnline ? " and live literature indexes" : ""}.
+                Building a taxonomy-driven survey with comparison tables and challenge maps
+                {discoverOnline ? ", plus live literature discovery" : ""}.
               </p>
             </section>
           )}
@@ -422,7 +431,9 @@ export default function Studio() {
                     <p className="text-xs text-[var(--muted)]">
                       Matrix {paper.metadata.matrixPaperCount} · Discovered{" "}
                       {paper.metadata.discoveredPaperCount} · Humanized{" "}
-                      {paper.metadata.humanized ? "yes" : "no"} · Figures {paper.figures.length}
+                      {paper.metadata.humanized ? "yes" : "no"} · Figures{" "}
+                      {paper.figures?.length ?? 0} · Tables {paper.tables?.length ?? 0}
+                      {paper.metadata.rubric ? ` · Rubric ${paper.metadata.rubric}` : ""}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -470,7 +481,8 @@ export default function Studio() {
                     [
                       ["formatted", "Formatted preview"],
                       ["markdown", "Markdown"],
-                      ["figures", "Figures"],
+                      ["figures", "Figures & tables"],
+                      ["rubric", "Survey rubric"],
                     ] as const
                   ).map(([id, label]) => (
                     <button
@@ -521,14 +533,133 @@ export default function Studio() {
                   </pre>
                 )}
                 {previewMode === "figures" && (
-                  <div className="scroll-thin grid max-h-[80vh] gap-6 overflow-auto p-6">
-                    {paper.figures.map((fig) => (
-                      <figure key={fig.id} className="rounded-xl border border-[var(--line)] bg-[var(--foam)] p-4">
-                        <h4 className="mb-2 font-semibold">{fig.title}</h4>
-                        <div dangerouslySetInnerHTML={{ __html: fig.svg }} />
-                        <figcaption className="mt-2 text-sm text-[var(--muted)]">{fig.caption}</figcaption>
+                  <div className="scroll-thin grid max-h-[80vh] gap-8 overflow-auto p-6">
+                    {(paper.figures ?? []).map((fig) => (
+                      <figure
+                        key={fig.id}
+                        className="rounded-xl border border-[var(--line)] bg-[var(--foam)] p-4"
+                      >
+                        <div className="mb-2 flex flex-wrap items-center gap-2">
+                          <h4 className="font-semibold">{fig.title}</h4>
+                          <span className="chip">{fig.kind}</span>
+                        </div>
+                        <div
+                          dangerouslySetInnerHTML={{ __html: fig.html || fig.svg }}
+                          className="overflow-x-auto"
+                        />
+                        <figcaption className="mt-2 text-sm text-[var(--muted)]">
+                          {fig.caption}
+                        </figcaption>
                       </figure>
                     ))}
+                    {(paper.tables ?? []).map((table) => (
+                      <div
+                        key={table.id}
+                        className="rounded-xl border border-[var(--line)] bg-white p-4"
+                      >
+                        <div className="mb-2 flex flex-wrap items-center gap-2">
+                          <h4 className="font-semibold">{table.title}</h4>
+                          <span className="chip">{table.kind}</span>
+                        </div>
+                        <p className="mb-3 text-sm text-[var(--muted)]">{table.caption}</p>
+                        <div className="overflow-x-auto">
+                          <table className="w-full border-collapse text-left text-xs">
+                            <thead>
+                              <tr>
+                                {table.headers.map((h) => (
+                                  <th
+                                    key={h}
+                                    className="border border-[var(--line)] bg-[var(--foam)] px-2 py-1.5 font-semibold"
+                                  >
+                                    {h}
+                                  </th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {table.rows.map((row, i) => (
+                                <tr key={i}>
+                                  {row.map((cell, j) => (
+                                    <td
+                                      key={j}
+                                      className="border border-[var(--line)] px-2 py-1.5 align-top"
+                                    >
+                                      {cell}
+                                    </td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    ))}
+                    {!paper.figures?.length && !paper.tables?.length && (
+                      <p className="text-sm text-[var(--muted)]">
+                        No figures or tables in this draft. Enable “Generate taxonomy, diagrams &amp;
+                        tables” and regenerate.
+                      </p>
+                    )}
+                  </div>
+                )}
+                {previewMode === "rubric" && (
+                  <div className="scroll-thin max-h-[80vh] space-y-6 overflow-auto p-6">
+                    <div>
+                      <h3 className="brand-display text-2xl">High-impact survey rubric</h3>
+                      <p className="mt-2 text-sm text-[var(--muted)]">
+                        Embedded guidance distilled from ACM CSUR-style expectations, survey
+                        methodology papers, and CS survey practice: synthesize with a taxonomy, not a
+                        laundry list.
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="mb-2 font-semibold">Principles</h4>
+                      <ul className="space-y-2 text-sm">
+                        {HIGH_IMPACT_SURVEY_PRINCIPLES.map((p) => (
+                          <li key={p} className="flex gap-2">
+                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--sea)]" />
+                            <span>{p}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="mb-2 font-semibold">Required artifacts</h4>
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {REQUIRED_SURVEY_ARTIFACTS.map((a) => (
+                          <div
+                            key={a.id}
+                            className="rounded-lg border border-[var(--line)] bg-[var(--foam)] px-3 py-2 text-sm"
+                          >
+                            <div className="font-semibold">{a.label}</div>
+                            <div className="mt-1 text-[var(--muted)]">{a.why}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="mb-2 font-semibold">Section blueprint</h4>
+                      <ol className="space-y-2 text-sm">
+                        {SURVEY_SECTION_BLUEPRINT.map((s, i) => (
+                          <li key={s.id} className="rounded-lg border border-[var(--line)] px-3 py-2">
+                            <span className="font-semibold">
+                              {i + 1}. {s.heading}
+                            </span>
+                            <span className="mt-1 block text-[var(--muted)]">{s.purpose}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                    {paper.contributions?.length > 0 && (
+                      <div>
+                        <h4 className="mb-2 font-semibold">This draft’s contributions</h4>
+                        <ol className="list-decimal space-y-1 pl-5 text-sm">
+                          {paper.contributions.map((c) => (
+                            <li key={c}>{c}</li>
+                          ))}
+                        </ol>
+                      </div>
+                    )}
                   </div>
                 )}
               </section>

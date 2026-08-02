@@ -46,8 +46,8 @@ const STAGES: { id: PipelineStage; label: string }[] = [
   { id: "drafting", label: "Draft sections" },
   { id: "humanizing", label: "Humanize prose" },
   { id: "figuring", label: "Compose figures" },
-  { id: "reviewing", label: "Expert review loop" },
   { id: "formatting", label: "Apply template" },
+  { id: "reviewing", label: "Expert professor review" },
   { id: "done", label: "Ready" },
 ];
 
@@ -68,6 +68,7 @@ export default function Studio() {
   const [includeFigures, setIncludeFigures] = useState(true);
   const [discoverOnline, setDiscoverOnline] = useState(true);
   const [maxDiscover, setMaxDiscover] = useState(12);
+  const [targetPages, setTargetPages] = useState(10);
   const [openaiApiKey, setOpenaiApiKey] = useState("");
   const [stage, setStage] = useState<PipelineStage>("idle");
   const [error, setError] = useState<string | null>(null);
@@ -112,9 +113,9 @@ export default function Studio() {
       setTimeout(() => setStage("outlining"), 700),
       setTimeout(() => setStage("drafting"), 1400),
       setTimeout(() => setStage(humanize ? "humanizing" : "figuring"), 2200),
-      setTimeout(() => setStage(includeFigures ? "figuring" : "reviewing"), 3000),
-      setTimeout(() => setStage("reviewing"), 4200),
-      setTimeout(() => setStage("formatting"), 5600),
+      setTimeout(() => setStage(includeFigures ? "figuring" : "formatting"), 3000),
+      setTimeout(() => setStage("formatting"), 4200),
+      setTimeout(() => setStage("reviewing"), 5600),
     ];
 
     try {
@@ -130,6 +131,7 @@ export default function Studio() {
           includeFigures,
           discoverOnline,
           maxDiscover,
+          targetPages,
           authorName,
           openaiApiKey: openaiApiKey || undefined,
           enrichCitations: true,
@@ -360,6 +362,22 @@ export default function Studio() {
             </label>
 
             <label className="block text-xs font-medium text-[var(--muted)]">
+              Target paper length (pages)
+              <input
+                type="number"
+                min={4}
+                max={30}
+                className="field mt-1"
+                value={targetPages}
+                onChange={(e) => setTargetPages(Math.max(4, Math.min(30, Number(e.target.value) || 10)))}
+              />
+              <span className="mt-1 block text-[11px] leading-snug text-[var(--muted)]">
+                Controls how deep synthesis and paper-by-paper reviews go (about {targetPages} IEEE
+                two-column pages).
+              </span>
+            </label>
+
+            <label className="block text-xs font-medium text-[var(--muted)]">
               Max related papers to discover
               <input
                 type="number"
@@ -478,9 +496,17 @@ export default function Studio() {
               }`}
             >
               <p className="font-semibold">
-                Expert review · {review.passes} pass{review.passes === 1 ? "" : "es"} ·{" "}
+                Professor review · {review.passes} pass{review.passes === 1 ? "" : "es"} ·{" "}
                 {review.perfect ? "passed" : "needs human attention"}
+                {paper?.metadata.templateName ? ` · after ${paper.metadata.templateName}` : ""}
               </p>
+              {paper?.metadata.professorNotes?.length ? (
+                <ul className="mt-1 list-disc pl-5 text-[var(--muted)]">
+                  {paper.metadata.professorNotes.slice(0, 5).map((note) => (
+                    <li key={note}>{note}</li>
+                  ))}
+                </ul>
+              ) : null}
               {review.issues.length > 0 && (
                 <ul className="mt-1 list-disc pl-5">
                   {review.issues.slice(0, 8).map((issue) => (

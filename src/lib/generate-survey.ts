@@ -122,26 +122,33 @@ function draftBackground(topic: string, rows: MatrixRow[], papers: DiscoveredPap
 function draftRelatedSurveys(rows: MatrixRow[], papers: DiscoveredPaper[]): string {
   const surveys = rows.filter((r) => /survey|review|taxonomy/i.test(r.title));
   if (!surveys.length) {
-    const fallback = citeMany(
-      papers,
-      papers.slice(0, 4).map((p) => p.id)
-    );
+    const sample = papers.slice(0, 3);
+    const paras = sample.map((p) => {
+      const c = cite(papers, p.id);
+      return `${p.authors.slice(0, 2).join(" and ") || "Prior work"} (${p.year ?? "n.d."})${c} provides a related reference point through “${p.title}”, which we use for positioning rather than as a full prior survey.`;
+    });
     return [
-      `We did not find a dense cluster of prior survey papers inside the seed matrix; positioning is therefore relative to highly cited discovered works ${fallback} and the novelty of our taxonomy-driven comparison artifacts.`,
+      `We did not find a dense cluster of prior survey papers inside the seed matrix; positioning is therefore developed against a few highly relevant discovered works, discussed individually below.`,
+      ...paras,
       `Compared with narrative reviews that catalog methods chronologically, this survey adds (i) an explicit multi-level taxonomy, (ii) concept-centric comparison tables with numbered citations, and (iii) a challenges map aligned with taxonomy dimensions.`,
-    ].join(" ");
+    ].join("\n\n");
   }
 
-  const lines = surveys.slice(0, 5).map((s) => {
+  // Discuss each prior survey in its own paragraph (no semicolon dump)
+  const paras = surveys.slice(0, 6).map((s) => {
     const c = cite(papers, s.title);
-    return `${s.authors || "Prior authors"} (${s.year ?? "n.d."})${c} focus on ${(s.method || s.notes || "broad coverage").split(/[.;]/)[0].toLowerCase()}`;
+    const focus = (s.method || s.notes || "broad coverage").split(/[.;]/)[0].toLowerCase();
+    const gap = s.gaps
+      ? ` Their remaining limitation is that ${s.gaps.charAt(0).toLowerCase()}${s.gaps.slice(1).replace(/\.$/, "")}.`
+      : "";
+    return `${s.authors || "Prior authors"} (${s.year ?? "n.d."})${c} survey “${s.title}”, with primary focus on ${focus}.${gap} We treat this as a complementary slice rather than a substitute for a taxonomy-driven synthesis.`;
   });
 
   return [
-    `Several related surveys and systematic reviews appear in the matrix: ${lines.join("; ")}.`,
-    `Table I (Related Surveys) summarizes their primary focus and clarifies our complementary contribution.`,
-    `In short, prior reviews often emphasize a single slice (algorithms, applications, or definitions), whereas we integrate problem formulation, taxonomy, comparative tables, equations, and a trends–gaps Venn analysis in one coherent framework.`,
-  ].join(" ");
+    `Related surveys and systematic reviews in the matrix are reviewed individually so that each contribution—and its blind spot—is explicit.`,
+    ...paras,
+    `Table I (Related Surveys) summarizes their primary focus and clarifies our complementary contribution: we integrate problem formulation, taxonomy, comparative tables, equations, and a trends–gaps Venn analysis in one coherent framework.`,
+  ].join("\n\n");
 }
 
 function draftMethodSection(rows: MatrixRow[], discoveredCount: number, papers: DiscoveredPaper[]): string {
@@ -172,29 +179,30 @@ function draftTaxonomySection(themes: string[], papers: DiscoveredPaper[], rows:
   ].join(" ");
 }
 
-function draftThemeSections(rows: MatrixRow[], papers: DiscoveredPaper[]): SurveySection[] {
+function draftThemeSections(
+  rows: MatrixRow[],
+  papers: DiscoveredPaper[],
+  detailBudget: number
+): SurveySection[] {
   const grouped = groupByTheme(rows);
   const sections: SurveySection[] = [];
   let i = 0;
+  // How many papers to discuss in depth per theme (scales with target pages)
+  const perTheme = Math.max(2, Math.min(8, detailBudget));
+
   for (const [theme, themeRows] of grouped) {
     i++;
     const paragraphs: string[] = [];
-    const branchCite = citeMany(
-      papers,
-      themeRows.map((r) => r.title)
-    );
     paragraphs.push(
-      `Within the “${theme}” branch (${themeRows.length} matrix studies${branchCite ? ` ${branchCite}` : ""}), we synthesize shared problem framings, dominant techniques, and unresolved tensions rather than restating each abstract.`
+      `Within the “${theme}” branch (${themeRows.length} matrix studies), we discuss papers individually or in small pairs so that methods, findings, and limitations remain traceable.`
     );
 
-    for (const row of themeRows.slice(0, 4)) {
+    const detailed = themeRows.slice(0, perTheme);
+    // Pair papers in groups of 1–2 instead of citing everyone up front
+    for (let g = 0; g < detailed.length; g++) {
+      const row = detailed[g];
       const matrixPaper = matchPaper(papers, row.title);
       const c = matrixPaper ? cite(papers, matrixPaper.id) : cite(papers, row.title);
-      const related = pickRelated(papers, row, 2);
-      const relatedCites = citeMany(
-        papers,
-        related.map((p) => p.id)
-      );
       const method = row.method ? ` Methodologically, they rely on ${row.method.replace(/\.$/, "")}.` : "";
       const finding = row.findings
         ? ` Reported outcomes indicate that ${row.findings.charAt(0).toLowerCase()}${row.findings.slice(1).replace(/\.$/, "")}.`
@@ -202,26 +210,47 @@ function draftThemeSections(rows: MatrixRow[], papers: DiscoveredPaper[]): Surve
       const gap = row.gaps
         ? ` A key limitation remains that ${row.gaps.charAt(0).toLowerCase()}${row.gaps.slice(1).replace(/\.$/, "")}.`
         : "";
-      const bridge = relatedCites
-        ? ` Related literature ${relatedCites} provides additional comparative context.`
-        : "";
 
       const who = row.authors || matrixPaper?.authors.slice(0, 2).join(" and ") || "The authors";
-      paragraphs.push(
-        `${who} (${row.year ?? matrixPaper?.year ?? "n.d."})${c} examine “${row.title}”.${method}${finding}${gap}${bridge}`
-          .replace(/\s+\./g, ".")
-          .replace(/\.\./g, ".")
-      );
+      let para = `${who} (${row.year ?? matrixPaper?.year ?? "n.d."})${c} examine “${row.title}”.${method}${finding}${gap}`
+        .replace(/\s+\./g, ".")
+        .replace(/\.\./g, ".");
+
+      // Optionally pair with the next paper in the same paragraph only when both are short
+      if (g + 1 < detailed.length && (row.findings?.length || 0) < 90 && (detailed[g + 1].findings?.length || 0) < 90) {
+        const row2 = detailed[g + 1];
+        const mp2 = matchPaper(papers, row2.title);
+        const c2 = mp2 ? cite(papers, mp2.id) : cite(papers, row2.title);
+        const who2 = row2.authors || mp2?.authors.slice(0, 2).join(" and ") || "The authors";
+        const method2 = row2.method ? ` using ${row2.method.replace(/\.$/, "")}` : "";
+        para += ` In a closely related line, ${who2} (${row2.year ?? mp2?.year ?? "n.d."})${c2} study “${row2.title}”${method2}. Taken together, the two works illustrate complementary angles under ${theme}.`;
+        g++;
+      } else {
+        // Single related work as a follow-up sentence (not a dump)
+        const related = pickRelated(papers, row, 1)[0];
+        if (related) {
+          const rc = cite(papers, related.id);
+          para += ` A useful contrasting reference is ${related.authors.slice(0, 2).join(" and ") || "prior work"} (${related.year ?? "n.d."})${rc}, which sharpens the comparison without expanding into a full secondary review.`;
+        }
+      }
+
+      paragraphs.push(para);
     }
 
-    if (themeRows.length > 4) {
-      const restCite = citeMany(
-        papers,
-        themeRows.slice(4).map((r) => r.title)
-      );
-      paragraphs.push(
-        `Additional matrix entries under ${theme}${restCite ? ` ${restCite}` : ""} are folded into the comparative table rather than restated exhaustively, preserving a synthesis-first narrative.`
-      );
+    if (themeRows.length > perTheme) {
+      // Remaining papers in small groups of 2 with brief explanation (not one mega-cite)
+      const rest = themeRows.slice(perTheme);
+      for (let g = 0; g < rest.length; g += 2) {
+        const chunk = rest.slice(g, g + 2);
+        const bits = chunk.map((r) => {
+          const c = cite(papers, r.title);
+          const focus = (r.method || r.findings || "related evidence").split(/[.;]/)[0];
+          return `${r.authors || "The authors"} (${r.year ?? "n.d."})${c} (${focus})`;
+        });
+        paragraphs.push(
+          `A smaller follow-on group under ${theme} includes ${bits.join(" and ")}. We fold their quantitative details into the comparative table while retaining the qualitative takeaway here.`
+        );
+      }
     }
 
     sections.push({
@@ -252,19 +281,33 @@ function draftComparison(rows: MatrixRow[], papers: DiscoveredPaper[]): string {
 }
 
 function draftChallenges(rows: MatrixRow[], themes: string[], papers: DiscoveredPaper[]): string {
-  const gaps = rows.map((r) => r.gaps).filter(Boolean).slice(0, 6);
-  const gapCite = citeMany(
-    papers,
-    rows.filter((r) => r.gaps).slice(0, 5).map((r) => r.title)
-  );
-  return [
+  const withGaps = rows.filter((r) => r.gaps?.trim());
+  const paras: string[] = [
     `Open challenges are aligned with the taxonomy dimensions (${themes.slice(0, 5).join(", ") || "general themes"}) so that future work can be traced back to the same organizing schema.`,
-    `Figure 4 / Table III (Challenge Map) consolidates severity-tagged challenges derived from matrix gap fields${gapCite ? ` reported in ${gapCite}` : ""}.`,
-    gaps.length
-      ? `Evidence snippets include: ${gaps.map((g) => g.replace(/\.$/, "")).slice(0, 4).join("; ")}.`
-      : `Because gap annotations are sparse, we elevate cross-cutting issues such as benchmark scarcity and reproducibility.`,
-    `We distinguish engineering challenges (implementation, communication, energy) from scientific challenges (theory of coordination under uncertainty, assurance, and generalization).`,
-  ].join(" ");
+    `Figure 4 / Table III (Challenge Map) consolidates severity-tagged challenges and explains why each gap matters for follow-on research.`,
+  ];
+
+  // Explain challenges in small groups / individuals — not one dump of all gaps
+  for (const row of withGaps.slice(0, 6)) {
+    const c = cite(papers, row.title);
+    const who = row.authors || "The authors";
+    const gap = row.gaps.replace(/\.$/, "");
+    const method = row.method ? ` (method: ${row.method.split(/[.;]/)[0]})` : "";
+    paras.push(
+      `${who} (${row.year ?? "n.d."})${c}${method} surface a concrete limitation: ${gap.charAt(0).toLowerCase()}${gap.slice(1)}. This matters because unresolved ${row.themes.split(/[,;]/)[0]?.trim() || "theme"} issues prevent fair comparison and weaken deployment claims.`
+    );
+  }
+
+  if (!withGaps.length) {
+    paras.push(
+      `Because gap annotations are sparse, we elevate cross-cutting issues such as benchmark scarcity, reproducibility artifacts, and weak external validation.`
+    );
+  }
+
+  paras.push(
+    `We distinguish engineering challenges (implementation, communication, energy) from scientific challenges (theory of coordination under uncertainty, assurance, and generalization).`
+  );
+  return paras.join("\n\n");
 }
 
 function draftTrendsGaps(papers: DiscoveredPaper[], rows: MatrixRow[]): string {
@@ -399,6 +442,10 @@ export async function generateSurveyPaper(input: {
   const equations = generateEquations(topic, rows);
 
   const taxonomyStyle = options.taxonomyStyle || "semi-scientific";
+  const targetPages = Math.max(4, Math.min(30, options.targetPages ?? 10));
+  // Map page target → how many papers to discuss in depth per theme
+  const detailBudget = targetPages <= 6 ? 2 : targetPages <= 10 ? 4 : targetPages <= 16 ? 6 : 8;
+
   const generated = options.includeFigures
     ? generateFiguresAndTables(rows, papers, topic, taxonomyStyle)
     : { figures: [], tables: [] };
@@ -449,7 +496,7 @@ export async function generateSurveyPaper(input: {
         "The following subsections synthesize evidence under each taxonomy leaf. We emphasize agreements, contradictions, and boundary conditions, and we cite each discussed primary study with IEEE numbered references.",
       citations: [],
     },
-    ...draftThemeSections(rows, papers),
+    ...draftThemeSections(rows, papers, detailBudget),
     {
       id: "comparison",
       heading: "Comparative Analysis",
@@ -487,6 +534,29 @@ export async function generateSurveyPaper(input: {
     },
   ];
 
+  // For longer targets, expand background / future with an extra analytical paragraph
+  if (targetPages >= 12) {
+    sections = sections.map((s) => {
+      if (s.id === "background") {
+        return {
+          ...s,
+          content:
+            s.content +
+            "\n\nWe keep notation consistent across later comparison tables and equations so that claimed gains can be audited against the same symbols used in the problem formulation.",
+        };
+      }
+      if (s.id === "future" && targetPages >= 16) {
+        return {
+          ...s,
+          content:
+            s.content +
+            "\n\nFor longer-form surveys, we additionally recommend staged evaluation roadmaps (simulation → controlled field trial → multi-site replication) tied explicitly to each taxonomy leaf.",
+        };
+      }
+      return s;
+    });
+  }
+
   // Equations stay in structured `paper.equations` only — exporters render them once
   // (injecting formula text into section prose caused PDF duplicates / garbled Unicode).
 
@@ -511,6 +581,7 @@ export async function generateSurveyPaper(input: {
       topic,
       rubric: "high-impact-v1",
       taxonomyStyle,
+      targetPages,
     },
   };
 

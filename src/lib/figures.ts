@@ -107,6 +107,16 @@ function shortGap(row: MatrixRow): string {
   return (row.gaps || "Not reported").split(/[.;]/)[0].slice(0, 70);
 }
 
+/** Richer gap explanation for challenge map cards/tables */
+function detailedGap(row: MatrixRow): string {
+  const raw = (row.gaps || "").trim();
+  if (!raw) return "Not reported in the seed matrix; treat as an under-specified limitation.";
+  // Keep up to two sentences / ~220 chars so the map explains, not just tags
+  const sentences = raw.split(/(?<=[.!?])\s+/).filter(Boolean);
+  const joined = sentences.slice(0, 2).join(" ");
+  return joined.length > 220 ? `${joined.slice(0, 217).trim()}…` : joined;
+}
+
 function shortFinding(row: MatrixRow): string {
   return (row.findings || "—").split(/[.;]/)[0].slice(0, 70);
 }
@@ -427,20 +437,37 @@ export function buildComparisonArtifacts(rows: MatrixRow[]): { figure: SurveyFig
   };
 }
 
-/** Fig + table: Challenges */
+/** Fig + table: Challenges — detailed explanations, not truncated tags */
 export function buildChallengeArtifacts(rows: MatrixRow[]): { figure: SurveyFigure; table: SurveyTable } {
   const buckets = taxonomyBuckets(rows);
-  const challenges: { dimension: string; challenge: string; evidence: string; severity: string }[] = [];
+  const challenges: {
+    dimension: string;
+    challenge: string;
+    whyItMatters: string;
+    evidence: string;
+    severity: string;
+  }[] = [];
 
   for (const [dim, list] of buckets) {
-    const gapText =
-      list.map((r) => shortGap(r)).find((g) => g !== "Not reported") ||
-      "Sparse reporting of limitations";
+    const detailed =
+      list.map((r) => detailedGap(r)).find((g) => !/^Not reported/i.test(g)) ||
+      "Sparse reporting of limitations in this branch; authors rarely quantify failure modes.";
+    const methods = [
+      ...new Set(list.map((r) => shortMethod(r)).filter((m) => !/^unspecified/i.test(m))),
+    ].slice(0, 3);
+    const whyItMatters = methods.length
+      ? `Affects studies using ${methods.join(", ")}; unresolved gaps block reliable comparison and deployment claims.`
+      : "Blocks cumulative progress because follow-on work cannot validate against a shared limitation statement.";
+    const evidenceTitles = list
+      .slice(0, 3)
+      .map((r) => (r.title.length > 42 ? `${r.title.slice(0, 40)}…` : r.title))
+      .join("; ");
     const severity = list.length >= 4 ? "High" : list.length >= 2 ? "Medium" : "Emerging";
     challenges.push({
       dimension: dim,
-      challenge: gapText,
-      evidence: `${list.length} matrix studies`,
+      challenge: detailed,
+      whyItMatters,
+      evidence: `${list.length} matrix studies — ${evidenceTitles || "see synthesis matrix"}`,
       severity,
     });
   }
@@ -448,25 +475,37 @@ export function buildChallengeArtifacts(rows: MatrixRow[]): { figure: SurveyFigu
   while (challenges.length < 4) {
     challenges.push({
       dimension: "Cross-cutting",
-      challenge: "Limited shared benchmarks and reproducibility artifacts",
-      evidence: "Synthesis observation",
+      challenge:
+        "Limited shared benchmarks and reproducibility artifacts across the surveyed corpus make it hard to compare methods fairly or reproduce claimed gains.",
+      whyItMatters:
+        "Without common tasks, metrics, and open artifacts, surveys and follow-on systems risk overclaiming progress.",
+      evidence: "Synthesis observation across seed matrix",
       severity: "High",
     });
   }
 
   const width = 980;
-  const height = 130 + challenges.length * 62;
+  const cardH = 96;
+  const height = 120 + challenges.length * (cardH + 8);
   const cards = challenges
     .map((c, i) => {
-      const y = 70 + i * 62;
+      const y = 70 + i * (cardH + 8);
       const sevColor = c.severity === "High" ? "#8b2e2e" : c.severity === "Medium" ? "#8a6a20" : "#1f5c3d";
+      const challengeLines = wrapLabel(c.challenge, 88);
+      const whyLines = wrapLabel(`Why it matters: ${c.whyItMatters}`, 88);
       return `<g>
-        <rect x="20" y="${y}" width="940" height="54" rx="10" fill="#ffffff" stroke="#0c1f2e" stroke-width="1.8"/>
-        <rect x="20" y="${y}" width="10" height="54" fill="${sevColor}"/>
-        ${svgText(48, y + 22, c.dimension, { size: 15, weight: 800, fill: "#0c1f2e" })}
-        ${svgText(48, y + 42, c.challenge.slice(0, 100), { size: 13, weight: 600, fill: "#2a3a44" })}
-        ${svgText(900, y + 32, c.severity.toUpperCase(), {
-          size: 13,
+        <rect x="20" y="${y}" width="940" height="${cardH}" rx="10" fill="#ffffff" stroke="#0c1f2e" stroke-width="1.8"/>
+        <rect x="20" y="${y}" width="10" height="${cardH}" fill="${sevColor}"/>
+        ${svgText(48, y + 20, c.dimension, { size: 15, weight: 800, fill: "#0c1f2e" })}
+        ${multilines(48, y + 40, challengeLines.slice(0, 2), { size: 12, weight: 600, fill: "#2a3a44", lineHeight: 15 })}
+        ${multilines(48, y + 40 + Math.min(challengeLines.length, 2) * 15 + 2, whyLines.slice(0, 2), {
+          size: 11,
+          weight: 600,
+          fill: "#3d5160",
+          lineHeight: 14,
+        })}
+        ${svgText(900, y + 28, c.severity.toUpperCase(), {
+          size: 12,
           weight: 800,
           fill: sevColor,
           anchor: "middle",
@@ -478,11 +517,22 @@ export function buildChallengeArtifacts(rows: MatrixRow[]): { figure: SurveyFigu
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="Challenge map">
     <rect width="100%" height="100%" fill="#f3f7f8"/>
     ${svgText(24, 36, "CHALLENGES ALIGNED WITH THE TAXONOMY", { size: 18, weight: 800, fill: "#0c1f2e" })}
+    ${svgText(24, 54, "Each row explains the gap, why it matters, and which matrix studies motivate the severity tag.", {
+      size: 11,
+      weight: 600,
+      fill: "#3d5160",
+    })}
     ${cards}
   </svg>`;
 
-  const headers = ["Taxonomy dimension", "Challenge", "Evidence", "Severity"];
-  const tableRows = challenges.map((c) => [c.dimension, c.challenge, c.evidence, c.severity]);
+  const headers = ["Taxonomy dimension", "Challenge (detailed)", "Why it matters", "Evidence", "Severity"];
+  const tableRows = challenges.map((c) => [
+    c.dimension,
+    c.challenge,
+    c.whyItMatters,
+    c.evidence,
+    c.severity,
+  ]);
   const html = `<table class="survey-table">
     <thead><tr>${headers.map((h) => `<th>${escapeXml(h)}</th>`).join("")}</tr></thead>
     <tbody>${tableRows.map((r) => `<tr>${r.map((c) => `<td>${escapeXml(c)}</td>`).join("")}</tr>`).join("")}</tbody>
@@ -492,7 +542,7 @@ export function buildChallengeArtifacts(rows: MatrixRow[]): { figure: SurveyFigu
     id: "tbl-challenges",
     title: "Open Challenges by Taxonomy Dimension",
     caption:
-      "Challenges synthesized from matrix gap fields and grouped under the survey taxonomy, with qualitative severity.",
+      "Challenges synthesized from matrix gap fields with detailed explanations, motivating evidence, and qualitative severity.",
     kind: "challenges",
     headers,
     rows: tableRows,
@@ -511,7 +561,7 @@ export function buildChallengeArtifacts(rows: MatrixRow[]): { figure: SurveyFigu
   };
 }
 
-/** Fig: Venn diagram of trends vs gaps */
+/** Fig: Venn diagram of trends vs gaps — larger circles, wrapped labels kept inside lobes */
 export function buildVennFigure(rows: MatrixRow[]): SurveyFigure {
   const methods = new Set(
     rows
@@ -546,49 +596,71 @@ export function buildVennFigure(rows: MatrixRow[]): SurveyFigure {
     .slice(0, 4)
     .map(([t]) => t);
 
-  const trends = [...methods].slice(0, 4).map((m) => m.split(/\s+/).slice(0, 3).join(" "));
+  // Short phrase labels that fit inside lobe width (~14–16 chars/line)
+  const trends = [...methods]
+    .slice(0, 3)
+    .map((m) => m.split(/\s+/).slice(0, 3).join(" "))
+    .map((m) => (m.length > 28 ? `${m.slice(0, 26)}…` : m));
+  const gapLabels = topGaps.slice(0, 3).map((t) => (t.length > 16 ? `${t.slice(0, 14)}…` : t));
   const overlap = ["scalability", "coordination", "evaluation"].filter(
     (t) => topGaps.includes(t) || trends.some((x) => x.includes(t))
   );
-  const overlapLabels = overlap.length ? overlap : ["benchmarks", "robustness"];
+  const overlapLabels = (overlap.length ? overlap : ["benchmarks", "robustness"])
+    .slice(0, 2)
+    .map((t) => (t.length > 14 ? `${t.slice(0, 12)}…` : t));
 
-  const width = 960;
-  const height = 460;
+  // Larger canvas + circles so PDF export stays readable; text anchors sit well inside lobes
+  const width = 1040;
+  const height = 560;
+  const r = 168;
+  const leftCx = 370;
+  const rightCx = 670;
+  const cy = 280;
+
+  const leftItems = trends.length
+    ? trends
+    : ["method A", "method B", "method C"];
+  const rightItems = gapLabels.length ? gapLabels : ["gap-a", "gap-b", "gap-c"];
+
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="Trends and gaps Venn">
     <rect width="100%" height="100%" fill="#f3f7f8"/>
-    ${svgText(28, 34, "TRENDS ∩ COVERAGE VS PERSISTENT GAPS", { size: 18, weight: 800, fill: "#0c1f2e" })}
-    <circle cx="360" cy="230" r="135" fill="#2a8fa1" fill-opacity="0.32" stroke="#0c1f2e" stroke-width="3"/>
-    <circle cx="540" cy="230" r="135" fill="#c4a35a" fill-opacity="0.34" stroke="#0c1f2e" stroke-width="3"/>
-    ${svgText(290, 145, "ACTIVE TRENDS", { size: 15, weight: 800, fill: "#0c1f2e", anchor: "middle" })}
-    ${svgText(610, 145, "OPEN GAPS", { size: 15, weight: 800, fill: "#0c1f2e", anchor: "middle" })}
-    ${svgText(450, 145, "OVERLAP", { size: 14, weight: 800, fill: "#0c1f2e", anchor: "middle" })}
-    ${trends
+    ${svgText(28, 36, "TRENDS ∩ COVERAGE VS PERSISTENT GAPS", { size: 18, weight: 800, fill: "#0c1f2e" })}
+    <circle cx="${leftCx}" cy="${cy}" r="${r}" fill="#2a8fa1" fill-opacity="0.30" stroke="#0c1f2e" stroke-width="3"/>
+    <circle cx="${rightCx}" cy="${cy}" r="${r}" fill="#c4a35a" fill-opacity="0.32" stroke="#0c1f2e" stroke-width="3"/>
+    ${svgText(leftCx - 75, cy - 88, "ACTIVE TRENDS", { size: 13, weight: 800, fill: "#0c1f2e", anchor: "middle" })}
+    ${svgText(rightCx + 75, cy - 88, "OPEN GAPS", { size: 13, weight: 800, fill: "#0c1f2e", anchor: "middle" })}
+    ${svgText((leftCx + rightCx) / 2, cy - 48, "OVERLAP", { size: 12, weight: 800, fill: "#0c1f2e", anchor: "middle" })}
+    ${leftItems
       .slice(0, 3)
-      .map((t, i) =>
-        svgText(290, 200 + i * 26, t.slice(0, 24), {
-          size: 13,
+      .map((t, i) => {
+        const lines = wrapLabel(t, 12);
+        return multilines(leftCx - 75, cy - 35 + i * 40, lines, {
+          size: 12,
           weight: 700,
           fill: "#0c1f2e",
           anchor: "middle",
-        })
-      )
+          lineHeight: 14,
+        });
+      })
       .join("")}
-    ${topGaps
+    ${rightItems
       .slice(0, 3)
-      .map((t, i) =>
-        svgText(610, 200 + i * 26, t, {
-          size: 13,
+      .map((t, i) => {
+        const lines = wrapLabel(t, 12);
+        return multilines(rightCx + 75, cy - 35 + i * 40, lines, {
+          size: 12,
           weight: 700,
           fill: "#0c1f2e",
           anchor: "middle",
-        })
-      )
+          lineHeight: 14,
+        });
+      })
       .join("")}
     ${overlapLabels
       .slice(0, 2)
       .map((t, i) =>
-        svgText(450, 210 + i * 26, t, {
-          size: 13,
+        svgText((leftCx + rightCx) / 2, cy - 10 + i * 26, t, {
+          size: 12,
           weight: 800,
           fill: "#0c1f2e",
           anchor: "middle",
@@ -597,7 +669,7 @@ export function buildVennFigure(rows: MatrixRow[]): SurveyFigure {
       .join("")}
     ${svgText(
       28,
-      430,
+      530,
       "Left: frequently pursued methods/themes. Right: recurring gap tokens. Center: contested intersections.",
       { size: 12, weight: 600, fill: "#3d5160" }
     )}

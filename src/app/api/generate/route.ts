@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { discoverLiterature } from "@/lib/discover";
 import { enrichPaperMetadata } from "@/lib/enrich-refs";
-import { expertReviewLoop } from "@/lib/expert-review";
+import { applyTemplatePass, expertReviewLoop } from "@/lib/expert-review";
 import { generateSurveyPaper } from "@/lib/generate-survey";
 import { extractSearchQueries, inferTopic } from "@/lib/matrix-utils";
 import type { JournalTemplateId, MatrixRow, TaxonomyStyle } from "@/lib/types";
@@ -39,6 +39,7 @@ const BodySchema = z.object({
     .default("semi-scientific"),
   enrichCitations: z.boolean().default(true),
   expertReview: z.boolean().default(true),
+  targetPages: z.number().min(4).max(30).default(10),
 });
 
 export async function POST(req: Request) {
@@ -88,14 +89,20 @@ export async function POST(req: Request) {
         authorName: body.authorName,
         openaiApiKey: body.openaiApiKey || process.env.OPENAI_API_KEY,
         taxonomyStyle: body.taxonomyStyle as TaxonomyStyle,
+        targetPages: body.targetPages,
       },
     });
+
+    // Template application happens BEFORE the expert professor review loop
+    paper = applyTemplatePass(paper, body.template as JournalTemplateId);
+    warnings.push(`Applied ${body.template.toUpperCase()} journal template before expert review.`);
 
     let review = null;
     if (body.expertReview !== false) {
       const reviewed = await expertReviewLoop(paper, {
         maxPasses: 3,
         openaiApiKey: body.openaiApiKey || process.env.OPENAI_API_KEY,
+        templateId: body.template as JournalTemplateId,
       });
       paper = reviewed.paper;
       review = {
@@ -105,10 +112,10 @@ export async function POST(req: Request) {
       };
       if (!reviewed.perfect) {
         warnings.push(
-          `Expert review completed ${reviewed.passes} pass(es); ${reviewed.issues.filter((i) => !i.fixed && i.severity === "error").length} issue(s) may still need human attention.`
+          `Professor review completed ${reviewed.passes} pass(es); ${reviewed.issues.filter((i) => !i.fixed && i.severity === "error").length} issue(s) may still need human attention.`
         );
       } else {
-        warnings.push(`Expert review passed after ${reviewed.passes} pass(es).`);
+        warnings.push(`Professor review passed after ${reviewed.passes} pass(es).`);
       }
     }
 

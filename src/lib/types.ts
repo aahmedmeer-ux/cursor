@@ -112,6 +112,10 @@ export type SurveyPaper = {
     topic: string;
     rubric?: "high-impact-v1";
     taxonomyStyle?: TaxonomyStyle;
+    targetPages?: number;
+    templateApplied?: JournalTemplateId;
+    templateName?: string;
+    professorNotes?: string[];
   };
 };
 
@@ -134,6 +138,8 @@ export type GenerateOptions = {
   affiliation?: string;
   openaiApiKey?: string;
   taxonomyStyle?: TaxonomyStyle;
+  /** Target length of the generated survey draft (IEEE two-column pages). */
+  targetPages?: number;
 };
 
 export type PipelineStage =

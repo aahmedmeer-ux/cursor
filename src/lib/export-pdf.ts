@@ -47,6 +47,21 @@ function equationAscii(eq: SurveyEquation): string {
   );
 }
 
+/** Insert break opportunities so long DOIs/URLs cannot spill into the other column. */
+function softBreakLongTokens(text: string, every = 18): string {
+  return text
+    .split(/(\s+)/)
+    .map((tok) => {
+      if (/^\s+$/.test(tok) || tok.length <= every) return tok;
+      let out = tok.replace(/([/.?&=_-])/g, "$1\u200b");
+      if (out.replace(/\u200b/g, "").length > every * 2) {
+        out = out.replace(new RegExp(`([^\\u200b]{${every}})`, "g"), "$1\u200b");
+      }
+      return out;
+    })
+    .join("");
+}
+
 function measureEq(doc: jsPDF, eq: SurveyEquation, width: number): number {
   // Times text only — no SVG panel (avoids gray equation backgrounds in PDF)
   setTimes(doc, "italic", 9);
@@ -111,7 +126,8 @@ async function blockToAtoms(doc: jsPDF, block: InlineBlock): Promise<Atom[]> {
   }
   if (block.type === "p") {
     setTimes(doc, "normal", BODY);
-    const lines = doc.splitTextToSize(block.text, COL_W) as string[];
+    const safe = softBreakLongTokens(block.text);
+    const lines = doc.splitTextToSize(safe, COL_W - 1.2) as string[];
     return lines.map((text, i) => ({
       kind: "line" as const,
       text,
@@ -125,17 +141,30 @@ async function blockToAtoms(doc: jsPDF, block: InlineBlock): Promise<Atom[]> {
 
 async function paintAtoms(doc: jsPDF, atoms: Atom[], x: number, y0: number, width: number): Promise<number> {
   let y = y0;
+  const maxW = Math.max(width - 1.2, 20);
   for (const a of atoms) {
     if (a.kind === "eq") {
       y = await writeEquation(doc, a.eq, x, y, width);
       continue;
     }
     const pad = a.style === "bold" ? 2.2 : a.style === "bolditalic" ? 1.6 : 0;
-    // Only apply pad when this atom's height includes it (first heading line)
     const usePad = pad > 0 && a.height > (a.fontSize >= 10 ? 4.4 : 3.9) + 0.05;
     setTimes(doc, a.style, a.fontSize);
-    doc.text(a.text, x, y + (usePad ? pad : 0));
-    y += a.height;
+    const textY = y + (usePad ? pad : 0);
+    // Soft-break already applied at atomization; if a line still overflows, clip-wrap once
+    const plain = a.text;
+    if (doc.getTextWidth(plain.replace(/\u200b/g, "")) > maxW + 0.4) {
+      const fitted = doc.splitTextToSize(softBreakLongTokens(plain.replace(/\u200b/g, "")), maxW) as string[];
+      let yy = textY;
+      for (const line of fitted) {
+        doc.text(line, x, yy);
+        yy += a.style === "normal" ? LINE : a.fontSize >= 10 ? 4.4 : 3.9;
+      }
+      y = Math.max(y + a.height, yy);
+    } else {
+      doc.text(plain, x, textY);
+      y += a.height;
+    }
   }
   return y;
 }
@@ -266,7 +295,9 @@ async function drawFigure(doc: jsPDF, state: ColState, fig: SurveyFigure, index:
   // Reserve space for title + caption; shrink image to fit leftover band when possible
   const chrome = 18; // title + caption approx
   let remain = BOTTOM - state.y;
-  if (remain < 50) {
+  // Venn/taxonomy need a tall band — start a fresh page rather than crushing labels
+  const minBand = fig.kind === "venn" || fig.kind === "taxonomy" ? 130 : 50;
+  if (remain < minBand) {
     doc.addPage();
     state.y = TOP;
     state.pageTop = TOP;
@@ -281,7 +312,9 @@ async function drawFigure(doc: jsPDF, state: ColState, fig: SurveyFigure, index:
     const { dataUrl, width, height } = await svgToPngDataUrl(fig.svg, 2);
     const maxW = FULL_W;
     const aspect = height / Math.max(width, 1);
-    const maxImgH = Math.min(100, Math.max(36, BOTTOM - state.y - chrome));
+    // Venn / taxonomy maps need more height so labels stay readable inside shapes
+    const kindCap = fig.kind === "venn" || fig.kind === "taxonomy" || fig.kind === "challenges" ? 145 : 100;
+    const maxImgH = Math.min(kindCap, Math.max(36, BOTTOM - state.y - chrome));
     let imgW = maxW;
     let imgH = imgW * aspect;
     if (imgH > maxImgH) {
@@ -298,8 +331,9 @@ async function drawFigure(doc: jsPDF, state: ColState, fig: SurveyFigure, index:
       state.y += 5;
       imgW = maxW;
       imgH = imgW * aspect;
-      if (imgH > 100) {
-        imgH = 100;
+      const cap = fig.kind === "venn" || fig.kind === "taxonomy" || fig.kind === "challenges" ? 145 : 100;
+      if (imgH > cap) {
+        imgH = cap;
         imgW = imgH / aspect;
       }
     }

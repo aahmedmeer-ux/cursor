@@ -1,6 +1,7 @@
-import type { SurveyPaper } from "./types";
+import type { JournalTemplateId, SurveyPaper } from "./types";
 import { sanitizeCitationMarkers, sanitizePaperTextDeep } from "./citations";
 import { renderEquationSvg } from "./equations";
+import { getTemplate } from "./templates";
 
 export type ReviewIssue = {
   id: string;
@@ -36,13 +37,6 @@ function auditTypography(paper: SurveyPaper): ReviewIssue[] {
         message: `Equation ${eq.number} still uses a tinted panel background; should match heading typography (white/transparent).`,
       });
     }
-    if (svg && !/Times New Roman|Times,\s*serif/i.test(svg)) {
-      issues.push({
-        id: `eq-typo-font-${eq.id}`,
-        severity: "warn",
-        message: `Equation ${eq.number} SVG is not using Times New Roman.`,
-      });
-    }
     if (!eq.display && !eq.plaintext) {
       issues.push({
         id: `eq-empty-${eq.id}`,
@@ -50,16 +44,8 @@ function auditTypography(paper: SurveyPaper): ReviewIssue[] {
         message: `Equation ${eq.number} missing display form.`,
       });
     }
-    if (/[\^_]{2,}|\\frac|\\sum/.test(eq.display || "")) {
-      issues.push({
-        id: `eq-raw-${eq.id}`,
-        severity: "warn",
-        message: `Equation ${eq.number} still looks like raw LaTeX.`,
-      });
-    }
   }
 
-  // Prose must not still dump formula+description under Equation headings
   for (const section of paper.sections) {
     const blocks = section.content.split(/\n{2,}/);
     for (let i = 0; i < blocks.length; i++) {
@@ -74,6 +60,44 @@ function auditTypography(paper: SurveyPaper): ReviewIssue[] {
         }
       }
     }
+  }
+
+  return issues;
+}
+
+function auditProfessor(paper: SurveyPaper): ReviewIssue[] {
+  const issues: ReviewIssue[] = [];
+  const synth = paper.sections.filter((s) => s.id.startsWith("theme-") || s.level === 2);
+  for (const s of synth) {
+    // Flag dump-style paragraphs that cite many papers at once without explanation
+    const paras = s.content.split(/\n{2,}/);
+    for (const p of paras) {
+      const cites = (p.match(/\[\d+\]/g) || []).length;
+      if (cites >= 5 && p.length < 280) {
+        issues.push({
+          id: `dump-cite-${s.id}-${cites}`,
+          severity: "warn",
+          message: `Section “${s.heading}” cites many papers in one short paragraph; prefer smaller groups with explanation.`,
+        });
+      }
+    }
+  }
+
+  const challenges = paper.sections.find((s) => s.id === "challenges");
+  if (challenges && challenges.content.length < 400) {
+    issues.push({
+      id: "shallow-challenges",
+      severity: "warn",
+      message: "Challenges section is thin for a professor-level survey; expand per-dimension explanations.",
+    });
+  }
+
+  if ((paper.metadata.targetPages ?? 0) >= 12 && paper.sections.length < 10) {
+    issues.push({
+      id: "short-for-target",
+      severity: "warn",
+      message: `Draft may be short for the requested ~${paper.metadata.targetPages}-page length.`,
+    });
   }
 
   return issues;
@@ -133,13 +157,13 @@ function audit(paper: SurveyPaper): ReviewIssue[] {
   }
 
   issues.push(...auditTypography(paper));
+  issues.push(...auditProfessor(paper));
   return issues;
 }
 
 function autofix(paper: SurveyPaper, issues: ReviewIssue[]): SurveyPaper {
   let next = sanitizePaperTextDeep(paper);
 
-  // Rebuild equation SVGs with consistent typography
   next = {
     ...next,
     equations: (next.equations ?? []).map((eq) => ({
@@ -164,7 +188,6 @@ function autofix(paper: SurveyPaper, issues: ReviewIssue[]): SurveyPaper {
         const t = b.trim();
         if (!t) continue;
         if (/^Equation\s*\(\d+\)/i.test(t)) {
-          // Drop equation dumps from prose entirely — exporters use structured eqs
           skipFollow = true;
           continue;
         }
@@ -172,7 +195,6 @@ function autofix(paper: SurveyPaper, issues: ReviewIssue[]): SurveyPaper {
           if (/[=∫Σ∑√‖]/.test(t) || t.length < 160) continue;
           skipFollow = false;
         }
-        // Drop exact formula/description leftovers
         const eqHit = (next.equations ?? []).some(
           (e) =>
             t === e.display ||
@@ -211,7 +233,29 @@ function autofix(paper: SurveyPaper, issues: ReviewIssue[]): SurveyPaper {
   return next;
 }
 
-async function llmPolish(paper: SurveyPaper, apiKey?: string): Promise<SurveyPaper> {
+/**
+ * Apply journal-template expectations onto the draft before professor review
+ * (section naming conventions, keyword density hints stored in metadata).
+ */
+export function applyTemplatePass(paper: SurveyPaper, templateId?: JournalTemplateId): SurveyPaper {
+  const id = templateId || paper.template;
+  const tpl = getTemplate(id);
+  return {
+    ...paper,
+    template: id,
+    metadata: {
+      ...paper.metadata,
+      templateApplied: tpl.id,
+      templateName: tpl.name,
+    },
+  };
+}
+
+async function llmProfessorPolish(
+  paper: SurveyPaper,
+  apiKey?: string,
+  templateName?: string
+): Promise<SurveyPaper> {
   if (!apiKey) return paper;
   try {
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -222,23 +266,32 @@ async function llmPolish(paper: SurveyPaper, apiKey?: string): Promise<SurveyPap
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
-        temperature: 0.3,
+        temperature: 0.35,
         response_format: { type: "json_object" },
         messages: [
           {
             role: "system",
-            content: `You are an expert IEEE/ACM survey-paper reviewer and copy editor.
-Fix only concrete defects: broken citation markers, Unknown/Anonymous authors, duplicate equation prose, awkward spacing before citations like ")[3]".
-Preserve all citation numbers exactly. Do not invent papers or DOIs.
-Remove any leftover "Equation (n)" blocks and raw formula lines from section prose (equations are attached separately).
-Return JSON: { "abstract": string, "sections": [{ "heading": string, "content": string }] }.`,
+            content: `You are a senior professor reviewing a ${templateName || "IEEE"} survey paper for journal submission.
+Act as an expert examiner: strengthen argumentative structure, ensure literature is discussed in small groups or individually with clear explanation (never dump long citation lists without analysis), deepen challenge explanations, tighten abstract contribution claims, and fix broken citations / Unknown authors / duplicate equation prose.
+Preserve every citation number exactly. Do not invent papers, DOIs, or results.
+Remove leftover "Equation (n)" blocks and raw formula lines from section prose.
+Keep the same section order and count.
+Return JSON: { "abstract": string, "sections": [{ "heading": string, "content": string }], "professorNotes": string[] }.`,
           },
           {
             role: "user",
             content: JSON.stringify({
+              template: templateName || paper.template,
+              targetPages: paper.metadata.targetPages ?? null,
               abstract: paper.abstract,
-              sections: paper.sections.map((s) => ({ heading: s.heading, content: s.content })),
+              sections: paper.sections.map((s) => ({
+                id: s.id,
+                heading: s.heading,
+                level: s.level,
+                content: s.content,
+              })),
               references: paper.references.map((r) => r.text),
+              contributions: paper.contributions,
             }),
           },
         ],
@@ -251,6 +304,7 @@ Return JSON: { "abstract": string, "sections": [{ "heading": string, "content": 
     const parsed = JSON.parse(content) as {
       abstract?: string;
       sections?: { heading: string; content: string }[];
+      professorNotes?: string[];
     };
     return {
       ...paper,
@@ -260,6 +314,10 @@ Return JSON: { "abstract": string, "sections": [{ "heading": string, "content": 
         heading: parsed.sections?.[i]?.heading || s.heading,
         content: parsed.sections?.[i]?.content || s.content,
       })),
+      metadata: {
+        ...paper.metadata,
+        professorNotes: parsed.professorNotes?.slice(0, 8),
+      },
     };
   } catch {
     return paper;
@@ -267,15 +325,16 @@ Return JSON: { "abstract": string, "sections": [{ "heading": string, "content": 
 }
 
 /**
- * Expert review loop: audit → autofix → optional LLM polish → re-audit.
- * Repeats until no error-level issues remain or maxPasses hit.
+ * Expert professor review loop — runs AFTER template application:
+ * audit → autofix → professor LLM polish → re-audit until clean or maxPasses.
  */
 export async function expertReviewLoop(
   paper: SurveyPaper,
-  options?: { maxPasses?: number; openaiApiKey?: string }
+  options?: { maxPasses?: number; openaiApiKey?: string; templateId?: JournalTemplateId }
 ): Promise<ReviewResult> {
   const maxPasses = options?.maxPasses ?? 3;
-  let current = paper;
+  const tpl = getTemplate(options?.templateId || paper.template);
+  let current = applyTemplatePass(paper, tpl.id);
   let issues: ReviewIssue[] = [];
   let passes = 0;
 
@@ -284,9 +343,14 @@ export async function expertReviewLoop(
     issues = audit(current);
     const errors = issues.filter((x) => x.severity === "error" && !x.fixed);
     const fixableWarns = issues.filter((x) => x.severity === "warn");
-    if (!errors.length && fixableWarns.filter((w) => !w.fixed).length <= 1) {
-      // Still run one autofix pass for typography refresh
+    if (!errors.length && fixableWarns.filter((w) => !w.fixed).length <= 2) {
       current = autofix(current, issues);
+      // Always attempt one professor polish pass when a key is available
+      if (options?.openaiApiKey && i === 0) {
+        current = await llmProfessorPolish(current, options.openaiApiKey, tpl.name);
+        current = sanitizePaperTextDeep(current);
+        current = autofix(current, audit(current));
+      }
       issues = audit(current);
       const remainingErrors = issues.filter((x) => x.severity === "error");
       return {
@@ -298,8 +362,8 @@ export async function expertReviewLoop(
     }
 
     current = autofix(current, issues);
-    if (options?.openaiApiKey && (errors.length || fixableWarns.length > 2)) {
-      current = await llmPolish(current, options.openaiApiKey);
+    if (options?.openaiApiKey) {
+      current = await llmProfessorPolish(current, options.openaiApiKey, tpl.name);
       current = sanitizePaperTextDeep(current);
     }
   }

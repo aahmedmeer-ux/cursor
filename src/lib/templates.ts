@@ -445,12 +445,14 @@ export function paperToHtml(paper: SurveyPaper): string {
   h3 { font-size: 12.5px; margin: 14px 0 6px; font-style: italic; }
   p { font-size: 12.5px; line-height: 1.45; text-align: justify; margin: 0 0 8px; }
   .paper-figure, .paper-table { margin: 16px 0; break-inside: avoid; }
-  .paper-figure svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
-  figcaption { font-size: 11px; margin: 6px 0 8px; text-align: center; }
+  .paper-figure svg { max-width: 100%; height: auto; display: block; margin: 0 auto; min-height: 220px; }
+  .paper-figure text { font-weight: 700 !important; }
+  figcaption { font-size: 11.5px; margin: 6px 0 8px; text-align: center; font-weight: 600; }
   .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 11px; }
-  th, td { border: 1px solid var(--line); padding: 5px 6px; text-align: left; vertical-align: top; }
-  th { background: var(--foam); font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  th, td { border: 1px solid var(--line); padding: 6px 7px; text-align: left; vertical-align: top; }
+  th { background: var(--ink); color: #fff; font-weight: 800; }
+  td { font-weight: 500; }
   ol.refs { padding-left: 18px; font-size: 11.5px; }
   ol.refs li { margin-bottom: 6px; }
   .meta { margin-top: 28px; font-size: 10px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; }

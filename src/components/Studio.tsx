@@ -17,6 +17,9 @@ import {
 import MatrixUploader, { type SheetEmbedInfo } from "@/components/MatrixUploader";
 import { inferTopic } from "@/lib/matrix-utils";
 import { TEMPLATES, paperToHtml, paperToLatex, paperToMarkdown } from "@/lib/templates";
+import { paperToDocxBlob } from "@/lib/export-docx";
+import { paperToPdfBlob } from "@/lib/export-pdf";
+import { downloadBlob as downloadAny } from "@/lib/export-media";
 import {
   HIGH_IMPACT_SURVEY_PRINCIPLES,
   REQUIRED_SURVEY_ARTIFACTS,
@@ -41,14 +44,8 @@ const STAGES: { id: PipelineStage; label: string }[] = [
   { id: "done", label: "Ready" },
 ];
 
-function downloadBlob(filename: string, content: string, type: string) {
-  const blob = new Blob([content], { type });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
+function downloadText(filename: string, content: string, type: string) {
+  downloadAny(filename, content, type);
 }
 
 export default function Studio() {
@@ -74,6 +71,7 @@ export default function Studio() {
     "formatted"
   );
   const [generating, setGenerating] = useState(false);
+  const [exporting, setExporting] = useState<"pdf" | "docx" | null>(null);
   const [isInsecureHttp, setIsInsecureHttp] = useState(false);
 
   useEffect(() => {
@@ -140,6 +138,34 @@ export default function Studio() {
   }
 
   const stageIndex = STAGES.findIndex((s) => s.id === stage);
+
+  async function exportPdf() {
+    if (!paper) return;
+    setExporting("pdf");
+    setError(null);
+    try {
+      const blob = await paperToPdfBlob(paper);
+      downloadAny(`${slugify(paper.title)}.pdf`, blob);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "PDF export failed");
+    } finally {
+      setExporting(null);
+    }
+  }
+
+  async function exportDocx() {
+    if (!paper) return;
+    setExporting("docx");
+    setError(null);
+    try {
+      const blob = await paperToDocxBlob(paper);
+      downloadAny(`${slugify(paper.title)}.docx`, blob);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Word export failed");
+    } finally {
+      setExporting(null);
+    }
+  }
 
   return (
     <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-6 sm:px-6 lg:px-8">
@@ -438,9 +464,45 @@ export default function Studio() {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <button
+                      className="btn btn-primary"
+                      disabled={!!exporting}
+                      onClick={() => void exportPdf()}
+                    >
+                      {exporting === "pdf" ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Download className="h-4 w-4" />
+                      )}
+                      PDF
+                    </button>
+                    <button
+                      className="btn btn-primary"
+                      disabled={!!exporting}
+                      onClick={() => void exportDocx()}
+                    >
+                      {exporting === "docx" ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <FileText className="h-4 w-4" />
+                      )}
+                      Word
+                    </button>
+                    <button
                       className="btn btn-secondary"
                       onClick={() =>
-                        downloadBlob(
+                        downloadText(
+                          `${slugify(paper.title)}.html`,
+                          paperToHtml(paper),
+                          "text/html;charset=utf-8"
+                        )
+                      }
+                    >
+                      <Download className="h-4 w-4" /> HTML
+                    </button>
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() =>
+                        downloadText(
                           `${slugify(paper.title)}.md`,
                           paperToMarkdown(paper),
                           "text/markdown;charset=utf-8"
@@ -452,7 +514,7 @@ export default function Studio() {
                     <button
                       className="btn btn-secondary"
                       onClick={() =>
-                        downloadBlob(
+                        downloadText(
                           `${slugify(paper.title)}.tex`,
                           paperToLatex(paper),
                           "application/x-tex;charset=utf-8"
@@ -460,18 +522,6 @@ export default function Studio() {
                       }
                     >
                       <Download className="h-4 w-4" /> LaTeX
-                    </button>
-                    <button
-                      className="btn btn-primary"
-                      onClick={() =>
-                        downloadBlob(
-                          `${slugify(paper.title)}.html`,
-                          paperToHtml(paper),
-                          "text/html;charset=utf-8"
-                        )
-                      }
-                    >
-                      <Download className="h-4 w-4" /> Journal HTML
                     </button>
                   </div>
                 </div>

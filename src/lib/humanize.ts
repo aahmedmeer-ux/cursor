@@ -124,7 +124,7 @@ function tidyWhitespace(text: string): string {
 }
 
 function humanizeParagraph(paragraph: string, seed: number): string {
-  let text = replaceCliches(paragraph, seed);
+  const text = replaceCliches(paragraph, seed);
   let sentences = splitSentences(text);
   sentences = varySentenceOpeners(sentences, seed);
   sentences = mergeAndSplitRhythm(sentences, seed + 11);
@@ -161,9 +161,6 @@ export function humanizeText(input: string): string {
 
 export function humanizePaperSections<T extends { content: string }>(sections: T[]): T[] {
   return sections.map((section, i) => ({
-    ...section,
-    content: humanizeText(section.content + `\n`), // seed diversity
-  })).map((section, i) => ({
     ...section,
     content: humanizeText(section.content + " ".repeat(i % 3)),
   }));

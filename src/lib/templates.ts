@@ -163,7 +163,7 @@ ${escapeLatex(paper.abstract)}
 
   const figs = paper.figures
     .map(
-      (fig, i) =>
+      (fig) =>
         `\\begin{figure}[ht]\\centering\\fbox{\\parbox{0.9\\linewidth}{\\textit{[SVG figure: ${escapeLatex(fig.title)}]}}}\\caption{${escapeLatex(fig.caption)}}\\label{fig:${fig.id}}\\end{figure}`
     )
     .join("\n\n");

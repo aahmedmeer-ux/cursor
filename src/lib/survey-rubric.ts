@@ -148,4 +148,6 @@ Rules:
 - Strengthen contribution statements, comparative insight, and challenge–future alignment.
 - Prefer precise, varied academic prose without cliché AI transitions.
 - Do not invent citations, papers, numbers, or venues.
+- Preserve every IEEE citation marker exactly ([1], [2], [1]–[3], etc.).
+- Preserve equation blocks that begin with "Equation (n)".
 Return strict JSON: { "abstract": string, "sections": [{ "heading": string, "content": string }] }.`;

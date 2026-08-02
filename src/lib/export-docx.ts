@@ -1,30 +1,35 @@
 import {
+  AlignmentType,
+  BorderStyle,
   Document,
   HeadingLevel,
   ImageRun,
   Packer,
   Paragraph,
+  SectionType,
   Table,
   TableCell,
   TableRow,
   TextRun,
   WidthType,
-  BorderStyle,
-  AlignmentType,
 } from "docx";
-import type { SurveyPaper } from "./types";
+import type { SurveyEquation, SurveyPaper } from "./types";
 import { dataUrlToUint8Array, svgToPngDataUrl } from "./export-media";
 
-function p(text: string, opts?: { bold?: boolean; italics?: boolean; size?: number }): Paragraph {
+function p(
+  text: string,
+  opts?: { bold?: boolean; italics?: boolean; size?: number; center?: boolean; after?: number }
+): Paragraph {
   return new Paragraph({
-    spacing: { after: 160 },
+    alignment: opts?.center ? AlignmentType.CENTER : AlignmentType.JUSTIFIED,
+    spacing: { after: opts?.after ?? 120, line: 240 },
     children: [
       new TextRun({
         text,
         bold: opts?.bold,
         italics: opts?.italics,
-        size: opts?.size ?? 22, // half-points
-        font: "Calibri",
+        size: opts?.size ?? 18, // 9pt IEEE-ish
+        font: "Times New Roman",
       }),
     ],
   });
@@ -33,26 +38,33 @@ function p(text: string, opts?: { bold?: boolean; italics?: boolean; size?: numb
 function heading(text: string, level: typeof HeadingLevel.HEADING_1 | typeof HeadingLevel.HEADING_2) {
   return new Paragraph({
     heading: level,
-    spacing: { before: 280, after: 160 },
-    children: [new TextRun({ text, bold: true, font: "Calibri", size: level === HeadingLevel.HEADING_1 ? 28 : 24 })],
+    spacing: { before: 200, after: 120 },
+    children: [
+      new TextRun({
+        text,
+        bold: true,
+        font: "Times New Roman",
+        size: level === HeadingLevel.HEADING_1 ? 20 : 18,
+      }),
+    ],
   });
 }
 
 function makeTable(headers: string[], rows: string[][]): Table {
-  const border = { style: BorderStyle.SINGLE, size: 8, color: "0C1F2E" };
+  const border = { style: BorderStyle.SINGLE, size: 4, color: "000000" };
   const borders = { top: border, bottom: border, left: border, right: border };
+  const colW = Math.floor(9360 / Math.max(headers.length, 1));
   const headerRow = new TableRow({
     children: headers.map(
       (h) =>
         new TableCell({
           borders,
-          width: { size: Math.floor(9000 / headers.length), type: WidthType.DXA },
+          width: { size: colW, type: WidthType.DXA },
           children: [
             new Paragraph({
-              children: [new TextRun({ text: h, bold: true, size: 18, font: "Calibri", color: "FFFFFF" })],
+              children: [new TextRun({ text: h, bold: true, size: 14, font: "Times New Roman" })],
             }),
           ],
-          shading: { fill: "0C1F2E" },
         })
     ),
   });
@@ -63,10 +75,10 @@ function makeTable(headers: string[], rows: string[][]): Table {
           (cell) =>
             new TableCell({
               borders,
-              width: { size: Math.floor(9000 / headers.length), type: WidthType.DXA },
+              width: { size: colW, type: WidthType.DXA },
               children: [
                 new Paragraph({
-                  children: [new TextRun({ text: cell, size: 18, font: "Calibri" })],
+                  children: [new TextRun({ text: cell, size: 14, font: "Times New Roman" })],
                 }),
               ],
             })
@@ -74,102 +86,144 @@ function makeTable(headers: string[], rows: string[][]): Table {
       })
   );
   return new Table({
-    width: { size: 9000, type: WidthType.DXA },
+    width: { size: 9360, type: WidthType.DXA },
     rows: [headerRow, ...bodyRows],
   });
 }
 
-export async function paperToDocxBlob(paper: SurveyPaper): Promise<Blob> {
-  const children: (Paragraph | Table)[] = [];
+function equationParagraphs(eq: SurveyEquation): Paragraph[] {
+  return [
+    p(`(${eq.number})  ${eq.plaintext}`, { italics: true, center: true, size: 17 }),
+    p(`${eq.label}. ${eq.description}`, { size: 16, italics: true }),
+  ];
+}
 
-  children.push(
+function sectionNumber(index: number, ieee: boolean): string {
+  if (!ieee) return `${index + 1}.`;
+  const romans = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+  return `${romans[index] ?? index + 1}.`;
+}
+
+export async function paperToDocxBlob(paper: SurveyPaper): Promise<Blob> {
+  const ieee = paper.template === "ieee" || !paper.template;
+  const front: Paragraph[] = [];
+
+  front.push(
     new Paragraph({
       alignment: AlignmentType.CENTER,
       spacing: { after: 120 },
-      children: [new TextRun({ text: paper.title, bold: true, size: 32, font: "Calibri" })],
+      children: [new TextRun({ text: paper.title, bold: true, size: 28, font: "Times New Roman" })],
     })
   );
-  children.push(
+  front.push(
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      spacing: { after: 240 },
-      children: [new TextRun({ text: paper.authorsPlaceholder, size: 20, font: "Calibri", color: "5A6B75" })],
+      spacing: { after: 200 },
+      children: [new TextRun({ text: paper.authorsPlaceholder, size: 20, font: "Times New Roman" })],
     })
   );
-
-  children.push(heading("Abstract", HeadingLevel.HEADING_1));
-  children.push(p(paper.abstract));
-  children.push(p(`Keywords: ${paper.keywords.join("; ")}`, { italics: true, size: 20 }));
+  front.push(p(`Abstract—${paper.abstract}`, { size: 18 }));
+  front.push(p(`Index Terms—${paper.keywords.join(", ")}.`, { italics: true, size: 16 }));
 
   if (paper.contributions?.length) {
-    children.push(heading("Contributions", HeadingLevel.HEADING_1));
-    paper.contributions.forEach((c, i) => children.push(p(`${i + 1}. ${c}`)));
+    front.push(p("Contributions:", { bold: true }));
+    paper.contributions.forEach((c, i) => front.push(p(`${i + 1}) ${c}`, { size: 17 })));
   }
 
+  const body: (Paragraph | Table)[] = [];
   let major = 0;
+  const equations = paper.equations ?? [];
+
   for (const section of paper.sections) {
     if (section.level === 1) {
+      const num = sectionNumber(major, ieee);
       major++;
-      children.push(heading(`${major}. ${section.heading}`, HeadingLevel.HEADING_1));
+      body.push(heading(`${num} ${section.heading.toUpperCase()}`, HeadingLevel.HEADING_1));
     } else {
-      children.push(heading(section.heading, HeadingLevel.HEADING_2));
+      body.push(heading(section.heading, HeadingLevel.HEADING_2));
     }
-    // Split paragraphs on blank lines
+
     for (const para of section.content.split(/\n{2,}/)) {
       const t = para.trim();
-      if (t) children.push(p(t));
+      if (!t) continue;
+      if (/^Equation\s*\(\d+\)/i.test(t)) {
+        const eq = equations.find((e) => t.includes(`(${e.number})`));
+        if (eq) body.push(...equationParagraphs(eq));
+        else body.push(p(t));
+      } else {
+        body.push(p(t));
+      }
     }
   }
 
+  let tbl = 0;
   for (const table of paper.tables ?? []) {
-    children.push(heading(table.title, HeadingLevel.HEADING_1));
-    children.push(p(table.caption, { italics: true, size: 20 }));
-    children.push(makeTable(table.headers, table.rows));
-    children.push(p(""));
+    tbl++;
+    body.push(p(`TABLE ${tbl}. ${table.title}`, { bold: true, center: true }));
+    body.push(p(table.caption, { italics: true, size: 15, center: true }));
+    body.push(makeTable(table.headers, table.rows));
+    body.push(p(""));
   }
 
   let figIndex = 0;
   for (const fig of paper.figures ?? []) {
     figIndex++;
-    children.push(heading(`Figure ${figIndex}. ${fig.title}`, HeadingLevel.HEADING_1));
+    body.push(p(`Fig. ${figIndex}. ${fig.title}`, { bold: true, center: true }));
     try {
-      const dataUrl = await svgToPngDataUrl(fig.svg, 2);
+      const { dataUrl, width, height } = await svgToPngDataUrl(fig.svg, 2);
       const bytes = dataUrlToUint8Array(dataUrl);
-      children.push(
+      const displayW = ieee ? 300 : 540; // column-friendly width for IEEE
+      const displayH = Math.round(displayW * (height / Math.max(width, 1)));
+      body.push(
         new Paragraph({
           alignment: AlignmentType.CENTER,
-          spacing: { after: 120 },
+          spacing: { after: 80 },
           children: [
             new ImageRun({
               data: bytes,
-              transformation: { width: 540, height: 280 },
+              transformation: { width: displayW, height: Math.min(displayH, 280) },
               type: "png",
             }),
           ],
         })
       );
     } catch {
-      children.push(p(`[SVG figure: ${fig.title}]`, { italics: true }));
+      body.push(p(`[Figure: ${fig.title}]`, { italics: true, center: true }));
     }
-    children.push(p(fig.caption, { italics: true, size: 20 }));
+    body.push(p(fig.caption, { italics: true, size: 15, center: true }));
   }
 
-  if (paper.references.length) {
-    children.push(heading("References", HeadingLevel.HEADING_1));
-    for (const ref of paper.references) {
-      children.push(p(ref.text, { size: 18 }));
-    }
+  body.push(heading("REFERENCES", HeadingLevel.HEADING_1));
+  for (const ref of paper.references) {
+    body.push(p(ref.text, { size: 16 }));
   }
-
-  children.push(
-    p(
-      `SurveyForge draft · ${paper.metadata.generatedAt} · Validate citations before submission.`,
-      { italics: true, size: 16 }
-    )
-  );
 
   const doc = new Document({
-    sections: [{ properties: {}, children }],
+    sections: [
+      {
+        properties: {
+          type: SectionType.CONTINUOUS,
+          page: {
+            margin: { top: 720, bottom: 720, left: 720, right: 720 },
+          },
+        },
+        children: front,
+      },
+      {
+        properties: {
+          type: SectionType.CONTINUOUS,
+          page: {
+            margin: { top: 720, bottom: 720, left: 720, right: 720 },
+          },
+          column: {
+            count: ieee ? 2 : 1,
+            space: 720,
+            equalWidth: true,
+          },
+        },
+        children: body,
+      },
+    ],
   });
 
   return Packer.toBlob(doc);

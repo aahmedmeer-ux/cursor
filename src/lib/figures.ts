@@ -1,8 +1,8 @@
 import type { DiscoveredPaper, MatrixRow, SurveyFigure, SurveyTable } from "./types";
 import { themeKeysForRow } from "./taxonomy";
 
-const FONT =
-  'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+/** No nested quotes — nested quotes break SVG XML and PDF rasterization. */
+const FONT = "Helvetica, Arial, sans-serif";
 
 function escapeXml(s: string): string {
   return s

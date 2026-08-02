@@ -75,6 +75,16 @@ export type SurveySection = {
   citations: string[];
 };
 
+export type SurveyEquation = {
+  id: string;
+  number: number;
+  label: string;
+  latex: string;
+  plaintext: string;
+  description: string;
+  sectionId: string;
+};
+
 export type SurveyPaper = {
   title: string;
   abstract: string;
@@ -85,6 +95,7 @@ export type SurveyPaper = {
   references: ReferenceEntry[];
   figures: SurveyFigure[];
   tables: SurveyTable[];
+  equations: SurveyEquation[];
   template: JournalTemplateId;
   metadata: {
     generatedAt: string;

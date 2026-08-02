@@ -144,19 +144,38 @@ function humanizeParagraph(paragraph: string, seed: number): string {
 
 export function humanizeText(input: string): string {
   const seed = hashSeed(input);
-  const blocks = input.split(/\n{2,}/);
-  return blocks
+  // Protect IEEE citation markers during rewriting
+  const citeMap = new Map<string, string>();
+  let citeI = 0;
+  const protectedText = input.replace(/\[\d+\](?:–\[\d+\])?/g, (m) => {
+    const key = `{{CITE${citeI++}}}`;
+    citeMap.set(key, m);
+    return key;
+  });
+
+  const blocks = protectedText.split(/\n{2,}/);
+  let out = blocks
     .map((block, i) => {
       const trimmed = block.trim();
       if (!trimmed) return "";
-      // Keep headings / lists mostly intact
-      if (/^#{1,6}\s/.test(trimmed) || /^[-*]\s/.test(trimmed) || /^\d+\.\s/.test(trimmed)) {
+      // Keep headings / lists / equations mostly intact
+      if (
+        /^#{1,6}\s/.test(trimmed) ||
+        /^[-*]\s/.test(trimmed) ||
+        /^\d+\.\s/.test(trimmed) ||
+        /^Equation\s*\(\d+\)/i.test(trimmed)
+      ) {
         return replaceCliches(trimmed, seed + i);
       }
       return humanizeParagraph(trimmed, seed + i * 17);
     })
     .filter(Boolean)
     .join("\n\n");
+
+  for (const [key, cite] of citeMap) {
+    out = out.split(key).join(cite);
+  }
+  return out;
 }
 
 export function humanizePaperSections<T extends { content: string }>(sections: T[]): T[] {

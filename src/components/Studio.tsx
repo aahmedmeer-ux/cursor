@@ -16,7 +16,7 @@ import {
   CheckCircle2,
   FileText,
 } from "lucide-react";
-import { parseMatrixFile, inferTopic } from "@/lib/parse-matrix";
+import { inferTopic } from "@/lib/matrix-utils";
 import { TEMPLATES, paperToHtml, paperToLatex, paperToMarkdown } from "@/lib/templates";
 import type {
   DiscoveredPaper,
@@ -25,6 +25,9 @@ import type {
   PipelineStage,
   SurveyPaper,
 } from "@/lib/types";
+
+const SPREADSHEET_ACCEPT =
+  ".csv,.tsv,.xlsx,.xls,.xlsm,.ods,text/csv,text/tab-separated-values,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.oasis.opendocument.spreadsheet";
 
 const STAGES: { id: PipelineStage; label: string }[] = [
   { id: "parsing", label: "Parse matrix" },
@@ -49,9 +52,11 @@ function downloadBlob(filename: string, content: string, type: string) {
 
 export default function Studio() {
   const inputRef = useRef<HTMLInputElement>(null);
+  const dragDepth = useRef(0);
   const [rows, setRows] = useState<MatrixRow[]>([]);
   const [fileName, setFileName] = useState<string>("");
   const [dragActive, setDragActive] = useState(false);
+  const [parsing, setParsing] = useState(false);
   const [topic, setTopic] = useState("");
   const [authorName, setAuthorName] = useState("Author Name");
   const [template, setTemplate] = useState<JournalTemplateId>("ieee");
@@ -73,27 +78,63 @@ export default function Studio() {
 
   async function handleFile(file: File) {
     setError(null);
+    setParsing(true);
     setStage("parsing");
     try {
-      const parsed = await parseMatrixFile(file);
-      if (!parsed.length) throw new Error("No paper rows found. Check that a Title column exists.");
+      const form = new FormData();
+      form.append("file", file, file.name || "matrix.xlsx");
+
+      const res = await fetch("/api/parse-matrix", {
+        method: "POST",
+        body: form,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to parse matrix");
+
+      const parsed = data.rows as MatrixRow[];
+      if (!parsed?.length) {
+        throw new Error("No paper rows found. Check that a Title column exists.");
+      }
+
       setRows(parsed);
-      setFileName(file.name);
-      setTopic(inferTopic(parsed));
+      setFileName(data.fileName || file.name);
+      setTopic(data.topic || inferTopic(parsed));
       setPaper(null);
       setDiscovered([]);
+      setQueries([]);
+      setWarnings([]);
       setStage("idle");
     } catch (err) {
       setStage("error");
       setError(err instanceof Error ? err.message : "Failed to parse matrix");
+    } finally {
+      setParsing(false);
+      if (inputRef.current) inputRef.current.value = "";
     }
   }
 
-  async function loadSample() {
-    const res = await fetch("/samples/synthesis-matrix-sample.csv");
+  async function loadSample(kind: "csv" | "xlsx" = "csv") {
+    const path =
+      kind === "xlsx"
+        ? "/samples/synthesis-matrix-sample.xlsx"
+        : "/samples/synthesis-matrix-sample.csv";
+    const res = await fetch(path);
+    if (!res.ok) throw new Error(`Could not load sample (${res.status})`);
     const blob = await res.blob();
-    const file = new File([blob], "synthesis-matrix-sample.csv", { type: "text/csv" });
+    const type =
+      kind === "xlsx"
+        ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        : "text/csv";
+    const file = new File(
+      [blob],
+      kind === "xlsx" ? "synthesis-matrix-sample.xlsx" : "synthesis-matrix-sample.csv",
+      { type }
+    );
     await handleFile(file);
+  }
+
+  function openFilePicker() {
+    inputRef.current?.click();
   }
 
   async function runPipeline() {
@@ -194,37 +235,97 @@ export default function Studio() {
             </div>
 
             <div
-              className={`dropzone rounded-xl px-4 py-8 text-center ${dragActive ? "active" : ""}`}
-              onDragOver={(e) => {
+              role="button"
+              tabIndex={0}
+              className={`dropzone relative cursor-pointer rounded-xl px-4 py-8 text-center ${dragActive ? "active" : ""} ${parsing ? "opacity-70" : ""}`}
+              onClick={() => {
+                if (!parsing) openFilePicker();
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  openFilePicker();
+                }
+              }}
+              onDragEnter={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
+                dragDepth.current += 1;
                 setDragActive(true);
               }}
-              onDragLeave={() => setDragActive(false)}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.dataTransfer.dropEffect = "copy";
+                setDragActive(true);
+              }}
+              onDragLeave={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dragDepth.current = Math.max(0, dragDepth.current - 1);
+                if (dragDepth.current === 0) setDragActive(false);
+              }}
               onDrop={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
+                dragDepth.current = 0;
                 setDragActive(false);
-                const file = e.dataTransfer.files?.[0];
+                const file =
+                  e.dataTransfer.files?.[0] ||
+                  // Some browsers expose dragged files via items
+                  Array.from(e.dataTransfer.items || [])
+                    .map((item) => (item.kind === "file" ? item.getAsFile() : null))
+                    .find((f): f is File => Boolean(f));
                 if (file) void handleFile(file);
+                else setError("No file detected in drop. Try Choose file instead.");
               }}
             >
-              <Upload className="mx-auto mb-3 h-8 w-8 text-[var(--sea)]" />
-              <p className="text-sm font-medium">Drop CSV / XLSX here</p>
+              {parsing ? (
+                <Loader2 className="mx-auto mb-3 h-8 w-8 animate-spin text-[var(--sea)]" />
+              ) : (
+                <Upload className="mx-auto mb-3 h-8 w-8 text-[var(--sea)]" />
+              )}
+              <p className="text-sm font-medium">
+                {parsing ? "Parsing spreadsheet…" : "Drop CSV / XLSX here — or click to browse"}
+              </p>
               <p className="mt-1 text-xs text-[var(--muted)]">
                 Columns: Title, Authors, Year, Method, Findings, Gaps, Themes…
               </p>
-              <div className="mt-4 flex flex-wrap justify-center gap-2">
-                <button className="btn btn-primary" onClick={() => inputRef.current?.click()}>
+              <div
+                className="mt-4 flex flex-wrap justify-center gap-2"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={parsing}
+                  onClick={openFilePicker}
+                >
                   Choose file
                 </button>
-                <button className="btn btn-secondary" onClick={() => void loadSample()}>
-                  Load sample
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  disabled={parsing}
+                  onClick={() => void loadSample("csv").catch((err) => setError(String(err)))}
+                >
+                  Sample CSV
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  disabled={parsing}
+                  onClick={() => void loadSample("xlsx").catch((err) => setError(String(err)))}
+                >
+                  Sample XLSX
                 </button>
               </div>
               <input
                 ref={inputRef}
                 type="file"
-                accept=".csv,.tsv,.xlsx,.xls,.ods,text/csv"
-                className="hidden"
+                accept={SPREADSHEET_ACCEPT}
+                className="sr-only"
+                tabIndex={-1}
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) void handleFile(file);

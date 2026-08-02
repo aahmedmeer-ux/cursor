@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { discoverLiterature } from "@/lib/discover";
 import { generateSurveyPaper } from "@/lib/generate-survey";
-import { extractSearchQueries, inferTopic } from "@/lib/parse-matrix";
+import { extractSearchQueries, inferTopic } from "@/lib/matrix-utils";
 import type { JournalTemplateId, MatrixRow } from "@/lib/types";
 
 const MatrixRowSchema = z.object({

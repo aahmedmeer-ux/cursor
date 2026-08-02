@@ -156,6 +156,10 @@ export async function paperToDocxBlob(paper: SurveyPaper): Promise<Blob> {
   const body: (Paragraph | Table)[] = [];
   let major = 0;
   const equations = paper.equations ?? [];
+  const eqDescs = new Set(equations.map((e) => e.description.trim().toLowerCase()));
+  const eqForms = new Set(
+    equations.flatMap((e) => [e.display, e.plaintext].map((s) => s.trim().toLowerCase()))
+  );
 
   for (const section of paper.sections) {
     if (section.level === 1) {
@@ -169,13 +173,15 @@ export async function paperToDocxBlob(paper: SurveyPaper): Promise<Blob> {
     for (const para of section.content.split(/\n{2,}/)) {
       const t = para.trim();
       if (!t) continue;
-      if (/^Equation\s*\(\d+\)/i.test(t)) {
-        const eq = equations.find((e) => t.includes(`(${e.number})`));
-        if (eq) body.push(...(await equationBlocks(eq)));
-        else body.push(p(t));
-      } else {
-        body.push(p(t));
-      }
+      if (/^Equation\s*\(\d+\)/i.test(t)) continue;
+      const lower = t.toLowerCase();
+      if (eqDescs.has(lower) || eqForms.has(lower)) continue;
+      if (/[=∫Σ∑√‖]/.test(t) && t.length < 180) continue;
+      body.push(p(t));
+    }
+
+    for (const eq of equations.filter((e) => e.sectionId === section.id)) {
+      body.push(...(await equationBlocks(eq)));
     }
   }
 

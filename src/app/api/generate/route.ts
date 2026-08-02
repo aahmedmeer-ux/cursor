@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { discoverLiterature } from "@/lib/discover";
 import { enrichPaperMetadata } from "@/lib/enrich-refs";
+import { expertReviewLoop } from "@/lib/expert-review";
 import { generateSurveyPaper } from "@/lib/generate-survey";
 import { extractSearchQueries, inferTopic } from "@/lib/matrix-utils";
 import type { JournalTemplateId, MatrixRow, TaxonomyStyle } from "@/lib/types";
@@ -37,6 +38,7 @@ const BodySchema = z.object({
     .enum(["scientific", "semi-scientific", "simple", "professional"])
     .default("semi-scientific"),
   enrichCitations: z.boolean().default(true),
+  expertReview: z.boolean().default(true),
 });
 
 export async function POST(req: Request) {
@@ -73,7 +75,7 @@ export async function POST(req: Request) {
       }
     }
 
-    const paper = await generateSurveyPaper({
+    let paper = await generateSurveyPaper({
       rows,
       papers,
       options: {
@@ -89,11 +91,33 @@ export async function POST(req: Request) {
       },
     });
 
+    let review = null;
+    if (body.expertReview !== false) {
+      const reviewed = await expertReviewLoop(paper, {
+        maxPasses: 3,
+        openaiApiKey: body.openaiApiKey || process.env.OPENAI_API_KEY,
+      });
+      paper = reviewed.paper;
+      review = {
+        passes: reviewed.passes,
+        perfect: reviewed.perfect,
+        issues: reviewed.issues,
+      };
+      if (!reviewed.perfect) {
+        warnings.push(
+          `Expert review completed ${reviewed.passes} pass(es); ${reviewed.issues.filter((i) => !i.fixed && i.severity === "error").length} issue(s) may still need human attention.`
+        );
+      } else {
+        warnings.push(`Expert review passed after ${reviewed.passes} pass(es).`);
+      }
+    }
+
     return NextResponse.json({
       paper,
       papers,
       queries,
       warnings,
+      review,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Generation failed";

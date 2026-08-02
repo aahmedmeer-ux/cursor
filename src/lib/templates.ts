@@ -187,8 +187,27 @@ export function paperToMarkdown(paper: SurveyPaper): string {
       lines.push(`### ${section.heading}`);
     }
     lines.push("");
-    lines.push(section.content);
-    lines.push("");
+    const eqs = (paper.equations ?? []).filter((e) => e.sectionId === section.id);
+    const eqDump = new Set(
+      eqs.flatMap((e) => [e.display, e.plaintext, e.description].map((s) => s.trim().toLowerCase()))
+    );
+    const prose = section.content
+      .split(/\n{2,}/)
+      .map((b) => b.trim())
+      .filter((t) => t && !/^Equation\s*\(\d+\)/i.test(t) && !eqDump.has(t.toLowerCase()))
+      .join("\n\n");
+    if (prose) {
+      lines.push(prose);
+      lines.push("");
+    }
+    for (const eq of eqs) {
+      lines.push(`**Equation (${eq.number}) — ${eq.label}.**`);
+      lines.push("");
+      lines.push(`$${eq.latex}$`);
+      lines.push("");
+      lines.push(`*${eq.description}*`);
+      lines.push("");
+    }
 
     const attach = attachmentForSection(section.id);
     for (const fig of figures) {
@@ -374,21 +393,40 @@ export function paperToHtml(paper: SurveyPaper): string {
         headingHtml = `<h3>${escapeHtml(section.heading)}</h3>`;
       }
 
+      const equations = paper.equations ?? [];
+      const eqDescs = new Set(equations.map((e) => e.description.trim().toLowerCase()));
+      const eqForms = new Set(
+        equations.flatMap((e) => [e.display, e.plaintext].map((s) => s.trim().toLowerCase()))
+      );
+
       const paras = section.content
         .split(/\n{2,}/)
         .map((block) => {
           const t = block.trim();
           if (!t) return "";
-          if (/^Equation\s*\(\d+\)/i.test(t)) {
-            const parts = t.split(/\n+/).map((x) => x.trim()).filter(Boolean);
-            const head = parts[0] || t;
-            const formula = parts[1] || "";
-            const desc = parts.slice(2).join(" ");
-            return `<div class="equation"><div class="eq-head">${escapeHtml(head)}</div><div class="eq-formula">${escapeHtml(formula)}</div><div class="eq-desc">${escapeHtml(desc)}</div></div>`;
-          }
+          // Skip injected/legacy equation dumps — rendered from structured data below
+          if (/^Equation\s*\(\d+\)/i.test(t)) return "";
+          const lower = t.toLowerCase();
+          if (eqDescs.has(lower) || eqForms.has(lower)) return "";
+          if (/[=∫Σ∑√‖]/.test(t) && t.length < 180) return "";
           return `<p>${escapeHtml(t)}</p>`;
         })
         .join("");
+
+      const eqHtml = equations
+        .filter((e) => e.sectionId === section.id)
+        .map((eq) => {
+          const formula = escapeHtml(eq.display || eq.plaintext);
+          const body = eq.svg
+            ? `<div class="eq-svg">${eq.svg}</div>`
+            : `<div class="eq-formula">${formula}</div>`;
+          return `<div class="equation">
+  <div class="eq-head">(${eq.number}) ${escapeHtml(eq.label)}</div>
+  ${body}
+  <div class="eq-desc">${escapeHtml(eq.description)}</div>
+</div>`;
+        })
+        .join("\n");
 
       const attach = attachmentForSection(section.id);
       const attached: string[] = [];
@@ -405,7 +443,7 @@ export function paperToHtml(paper: SurveyPaper): string {
         attached.push(tableToHtml(table, tblNum));
       }
 
-      return `<section class="${section.level === 1 ? "section" : "subsection"}">${headingHtml}${paras}${attached.join("\n")}</section>`;
+      return `<section class="${section.level === 1 ? "section" : "subsection"}">${headingHtml}${paras}${eqHtml}${attached.join("\n")}</section>`;
     })
     .join("\n");
 
@@ -445,11 +483,11 @@ export function paperToHtml(paper: SurveyPaper): string {
   .abstract { font-size: 12.5px; margin-bottom: 12px; }
   .abstract strong { display: block; text-align: center; margin-bottom: 6px; }
   .keywords { font-size: 12px; margin-bottom: 14px; }
-  .contributions { font-size: 12.5px; margin-bottom: 18px; background: var(--foam); padding: 10px 14px; border-left: 3px solid var(--sea); }
+  .contributions { font-size: 12.5px; margin-bottom: 18px; padding: 0; }
   .contributions ol { margin: 6px 0 0; padding-left: 18px; }
   .contributions li { margin-bottom: 4px; }
-  h2 { font-size: 13px; text-transform: ${paper.template === "ieee" ? "uppercase" : "none"}; margin: 18px 0 8px; }
-  h3 { font-size: 12.5px; margin: 14px 0 6px; font-style: italic; }
+  h2 { font-family: "Times New Roman", Times, serif; font-size: 13px; font-weight: 700; text-transform: ${paper.template === "ieee" ? "uppercase" : "none"}; margin: 18px 0 8px; color: #111; background: transparent; }
+  h3 { font-family: "Times New Roman", Times, serif; font-size: 12.5px; margin: 14px 0 6px; font-style: italic; font-weight: 700; color: #111; background: transparent; }
   p { font-size: 12.5px; line-height: 1.45; text-align: justify; margin: 0 0 8px; }
   .paper-figure, .paper-table { margin: 16px 0; break-inside: avoid; }
   .paper-figure svg { max-width: 100%; height: auto; display: block; margin: 0 auto; min-height: 220px; }
@@ -462,10 +500,13 @@ export function paperToHtml(paper: SurveyPaper): string {
   td { font-weight: 500; }
   ol.refs { padding-left: 18px; font-size: 11.5px; }
   ol.refs li { margin-bottom: 6px; }
-  .equation { margin: 12px 0; padding: 8px 10px; background: var(--foam); border-left: 3px solid var(--sea); break-inside: avoid; }
-  .eq-head { font-size: 11.5px; font-weight: 700; margin-bottom: 4px; }
-  .eq-formula { font-family: "Times New Roman", Times, serif; font-style: italic; font-size: 13px; text-align: center; margin: 8px 0; }
-  .eq-desc { font-size: 11px; color: var(--muted); }
+  /* Equations share the same Times typography as headings — no tinted panel */
+  .equation { margin: 14px 0; padding: 0; background: transparent; border: none; break-inside: avoid; }
+  .eq-head { font-family: "Times New Roman", Times, serif; font-size: 12.5px; font-weight: 700; font-style: italic; margin: 0 0 6px; color: #111; text-align: center; background: transparent; border: none; padding: 0; }
+  .eq-formula { font-family: "Times New Roman", Times, serif; font-style: italic; font-size: 14px; text-align: center; margin: 8px 0; color: #111; }
+  .eq-svg { display: flex; justify-content: center; margin: 6px 0; }
+  .eq-svg svg { max-width: 100%; height: auto; }
+  .eq-desc { font-family: "Times New Roman", Times, serif; font-size: 11px; font-style: italic; color: #333; text-align: center; margin-top: 4px; }
   .tpl-nature h1 { font-family: Georgia, serif; font-size: 26px; }
   .tpl-acm h1 { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 24px; letter-spacing: -0.02em; }
   .tpl-elsevier .abstract { border-left: 3px solid var(--sea); padding-left: 12px; }

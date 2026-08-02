@@ -144,6 +144,7 @@ export type PipelineStage =
   | "drafting"
   | "humanizing"
   | "figuring"
+  | "reviewing"
   | "formatting"
   | "done"
   | "error";

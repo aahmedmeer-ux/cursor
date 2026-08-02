@@ -1,10 +1,5 @@
 import type { MatrixRow, SurveyEquation } from "./types";
 
-/**
- * Domain-aware analytical foundations.
- * `display` is a Word-like readable form; `svg` is used for PDF/DOCX embedding.
- */
-
 function escapeXml(s: string): string {
   return s
     .replace(/&/g, "&amp;")
@@ -13,30 +8,32 @@ function escapeXml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-/** Render a clean Word-style equation card as SVG (no caret ^ or underscore junk). */
+/**
+ * Word/IEEE-like equation graphic — Times family, no tinted heading band.
+ * Matches section-heading typography (bold label + italic formula).
+ */
 export function renderEquationSvg(eq: SurveyEquation): string {
-  const width = 860;
-  const height = 118;
+  const width = 780;
+  const height = 72;
   const formula = eq.display || eq.plaintext;
-  // Split long formulas across two lines if needed
-  const max = 72;
+  const max = 64;
   let line1 = formula;
   let line2 = "";
   if (formula.length > max) {
     const cut = formula.lastIndexOf(" ", max);
-    if (cut > 20) {
+    if (cut > 18) {
       line1 = formula.slice(0, cut);
       line2 = formula.slice(cut + 1);
     }
   }
+  const h = line2 ? 88 : 72;
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="Equation ${eq.number}">
-  <rect width="100%" height="100%" fill="#ffffff" stroke="#0c1f2e" stroke-width="1.5" rx="6"/>
-  <text x="24" y="28" font-size="13" font-weight="700" font-family="Times New Roman, Times, serif" fill="#0c1f2e">(${eq.number})  ${escapeXml(eq.label)}</text>
-  <text x="${width / 2}" y="${line2 ? 62 : 70}" text-anchor="middle" font-size="20" font-style="italic" font-family="Times New Roman, Times, serif" fill="#0c1f2e">${escapeXml(line1)}</text>
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${h}" width="${width}" height="${h}" role="img" aria-label="Equation ${eq.number}">
+  <rect x="0.5" y="0.5" width="${width - 1}" height="${h - 1}" fill="#ffffff" stroke="#111111" stroke-width="0.75"/>
+  <text x="${width / 2}" y="${line2 ? 36 : 44}" text-anchor="middle" font-size="17" font-style="italic" font-family="Times New Roman, Times, serif" fill="#111111">${escapeXml(line1)}</text>
   ${
     line2
-      ? `<text x="${width / 2}" y="88" text-anchor="middle" font-size="20" font-style="italic" font-family="Times New Roman, Times, serif" fill="#0c1f2e">${escapeXml(line2)}</text>`
+      ? `<text x="${width / 2}" y="60" text-anchor="middle" font-size="17" font-style="italic" font-family="Times New Roman, Times, serif" fill="#111111">${escapeXml(line2)}</text>`
       : ""
   }
 </svg>`;
@@ -57,7 +54,7 @@ export function generateEquations(topic: string, rows: MatrixRow[]): SurveyEquat
         number: 1,
         label: "Inter-agent separation",
         latex: "d_{ij}(t)=\\|p_i(t)-p_j(t)\\|_2",
-        plaintext: "d_ij(t) = ||p_i(t) - p_j(t)||_2",
+        plaintext: "d_ij(t) = || p_i(t) - p_j(t) ||_2",
         display: "dᵢⱼ(t) = ‖ pᵢ(t) − pⱼ(t) ‖₂",
         description:
           "Euclidean separation between agents i and j at time t, used for collision avoidance and formation maintenance.",
@@ -80,9 +77,9 @@ export function generateEquations(topic: string, rows: MatrixRow[]): SurveyEquat
         label: "Area coverage objective",
         latex: "J_{cov}=(1/|A|)\\int_A 1(\\min_i\\|q-p_i\\|\\le R_s)\\,dq",
         plaintext: "J_cov = (1/|A|) integral_A 1(min_i ||q - p_i|| <= R_s) dq",
-        display: "J_cov = (1/|A|) ∫ₐ 𝟙( minᵢ ‖q − pᵢ‖ ≤ Rₛ ) dq",
+        display: "Jcov = (1/|A|) ∫ₐ 𝟙( minᵢ ‖q − pᵢ‖ ≤ Rₛ ) dq",
         description:
-          "Fraction of area A covered under sensing radius Rₛ; a recurring evaluation metric in swarm deployment studies.",
+          "Fraction of area A covered under sensing radius Rs; a recurring evaluation metric in swarm deployment studies.",
         sectionId: "comparison",
       }
     );
@@ -159,13 +156,10 @@ export function generateEquations(topic: string, rows: MatrixRow[]): SurveyEquat
     );
   }
 
-  return eqs.map((eq) => ({
-    ...eq,
-    svg: renderEquationSvg(eq),
-  }));
+  return eqs.map((eq) => ({ ...eq, svg: renderEquationSvg(eq) }));
 }
 
+/** Marker kept for markdown/legacy; PDF/Word/HTML render from structured equations. */
 export function formatEquationBlock(eq: SurveyEquation): string {
-  const formula = eq.display || eq.plaintext;
-  return [`Equation (${eq.number}) — ${eq.label}.`, formula, eq.description].join("\n\n");
+  return `Equation (${eq.number}) — ${eq.label}.`;
 }

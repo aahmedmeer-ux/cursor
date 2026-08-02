@@ -6,7 +6,7 @@ import type {
   SurveySection,
 } from "./types";
 import { buildIeeeReferences, cite, citeMany, matchPaper, sanitizePaperTextDeep } from "./citations";
-import { formatEquationBlock, generateEquations } from "./equations";
+import { generateEquations } from "./equations";
 import { generateFiguresAndTables } from "./figures";
 import { humanizePaperSections, humanizeText } from "./humanize";
 import { defaultContributions, OPENAI_SURVEY_SYSTEM_PROMPT } from "./survey-rubric";
@@ -299,21 +299,6 @@ function draftConclusion(topic: string, rows: MatrixRow[], contributions: string
   ].join(" ");
 }
 
-function injectEquationsIntoSections(
-  sections: SurveySection[],
-  equations: ReturnType<typeof generateEquations>
-): SurveySection[] {
-  return sections.map((section) => {
-    const eqs = equations.filter((e) => e.sectionId === section.id);
-    if (!eqs.length) return section;
-    const block = eqs.map((e) => formatEquationBlock(e)).join("\n\n");
-    return {
-      ...section,
-      content: `${section.content}\n\n${block}`,
-    };
-  });
-}
-
 /** Enrich comparison table with IEEE citation numbers. */
 function addCitationColumn(
   tables: ReturnType<typeof generateFiguresAndTables>["tables"],
@@ -502,7 +487,8 @@ export async function generateSurveyPaper(input: {
     },
   ];
 
-  sections = injectEquationsIntoSections(sections, equations);
+  // Equations stay in structured `paper.equations` only — exporters render them once
+  // (injecting formula text into section prose caused PDF duplicates / garbled Unicode).
 
   let paper: SurveyPaper = {
     title: topic,

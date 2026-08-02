@@ -48,6 +48,7 @@ const STAGES: { id: PipelineStage; label: string }[] = [
   { id: "drafting", label: "Draft sections" },
   { id: "humanizing", label: "Humanize prose" },
   { id: "figuring", label: "Compose figures" },
+  { id: "reviewing", label: "Expert review loop" },
   { id: "formatting", label: "Apply template" },
   { id: "done", label: "Ready" },
 ];
@@ -73,6 +74,11 @@ export default function Studio() {
   const [stage, setStage] = useState<PipelineStage>("idle");
   const [error, setError] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
+  const [review, setReview] = useState<{
+    passes: number;
+    perfect: boolean;
+    issues: { id: string; severity: string; message: string; fixed?: boolean }[];
+  } | null>(null);
   const [paper, setPaper] = useState<SurveyPaper | null>(null);
   const [discovered, setDiscovered] = useState<DiscoveredPaper[]>([]);
   const [queries, setQueries] = useState<string[]>([]);
@@ -99,6 +105,7 @@ export default function Studio() {
     }
     setError(null);
     setWarnings([]);
+    setReview(null);
     setPaper(null);
     setGenerating(true);
     setStage("discovering");
@@ -107,8 +114,9 @@ export default function Studio() {
       setTimeout(() => setStage("outlining"), 700),
       setTimeout(() => setStage("drafting"), 1400),
       setTimeout(() => setStage(humanize ? "humanizing" : "figuring"), 2200),
-      setTimeout(() => setStage(includeFigures ? "figuring" : "formatting"), 3000),
-      setTimeout(() => setStage("formatting"), 3800),
+      setTimeout(() => setStage(includeFigures ? "figuring" : "reviewing"), 3000),
+      setTimeout(() => setStage("reviewing"), 4200),
+      setTimeout(() => setStage("formatting"), 5600),
     ];
 
     try {
@@ -127,6 +135,7 @@ export default function Studio() {
           authorName,
           openaiApiKey: openaiApiKey || undefined,
           enrichCitations: true,
+          expertReview: true,
         }),
       });
 
@@ -137,6 +146,7 @@ export default function Studio() {
       setDiscovered(data.papers || []);
       setQueries(data.queries || []);
       setWarnings(data.warnings || []);
+      setReview(data.review || null);
       setStage("done");
       setPreviewMode("formatted");
     } catch (err) {
@@ -268,6 +278,65 @@ export default function Studio() {
               />
             </label>
 
+            <div
+              id="taxonomy-type"
+              className="rounded-xl border-2 border-[var(--sea)] bg-[var(--foam)] p-3 shadow-sm"
+            >
+              <div className="mb-1 flex items-center justify-between gap-2">
+                <div className="text-xs font-bold uppercase tracking-wide text-[var(--ink)]">
+                  Taxonomy type
+                </div>
+                <span className="rounded bg-[var(--sea)] px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                  Required
+                </span>
+              </div>
+              <p className="mb-2 text-[11px] leading-snug text-[var(--muted)]">
+                Choose Scientific, Semi-scientific, Simple, or Professional — this changes the
+                taxonomy figure and organizing schema.
+              </p>
+              <label className="mb-2 block text-[11px] font-medium text-[var(--muted)]">
+                Quick select
+                <select
+                  className="field mt-1"
+                  value={taxonomyStyle}
+                  onChange={(e) => setTaxonomyStyle(e.target.value as TaxonomyStyle)}
+                  aria-label="Taxonomy type"
+                >
+                  {TAXONOMY_STYLES.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.label} — {t.hint}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {TAXONOMY_STYLES.map((t) => {
+                  const active = taxonomyStyle === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setTaxonomyStyle(t.id)}
+                      aria-pressed={active}
+                      className={`rounded-lg border px-2 py-2 text-left text-xs transition ${
+                        active
+                          ? "border-[var(--sea)] bg-[var(--sea)] text-white shadow-sm"
+                          : "border-[var(--line)] bg-white text-[var(--ink)] hover:border-[var(--sea)]"
+                      }`}
+                    >
+                      <div className="font-semibold">{t.label}</div>
+                      <div className={`mt-0.5 leading-snug ${active ? "text-white/85" : "text-[var(--muted)]"}`}>
+                        {t.hint}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-2 text-[11px] font-medium text-[var(--sea)]">
+                Selected: {TAXONOMY_STYLES.find((t) => t.id === taxonomyStyle)?.label}
+              </p>
+            </div>
+
             <label className="block text-xs font-medium text-[var(--muted)]">
               Author name
               <input
@@ -287,21 +356,6 @@ export default function Studio() {
                 {TEMPLATES.map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.name} — {t.venueHint}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="block text-xs font-medium text-[var(--muted)]">
-              Taxonomy type
-              <select
-                className="field mt-1"
-                value={taxonomyStyle}
-                onChange={(e) => setTaxonomyStyle(e.target.value as TaxonomyStyle)}
-              >
-                {TAXONOMY_STYLES.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.label} — {t.hint}
                   </option>
                 ))}
               </select>
@@ -417,6 +471,31 @@ export default function Studio() {
             </div>
           )}
 
+          {review && (
+            <div
+              className={`rounded-xl border px-4 py-3 text-sm ${
+                review.perfect
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+                  : "border-sky-200 bg-sky-50 text-sky-950"
+              }`}
+            >
+              <p className="font-semibold">
+                Expert review · {review.passes} pass{review.passes === 1 ? "" : "es"} ·{" "}
+                {review.perfect ? "passed" : "needs human attention"}
+              </p>
+              {review.issues.length > 0 && (
+                <ul className="mt-1 list-disc pl-5">
+                  {review.issues.slice(0, 8).map((issue) => (
+                    <li key={issue.id}>
+                      [{issue.severity}] {issue.message}
+                      {issue.fixed ? " (auto-fixed)" : ""}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
           {rows.length > 0 && (
             <section className="panel rise rounded-2xl p-5">
               <div className="mb-3 flex items-center justify-between gap-3">
@@ -485,6 +564,7 @@ export default function Studio() {
                       {paper.metadata.discoveredPaperCount} · Humanized{" "}
                       {paper.metadata.humanized ? "yes" : "no"} · Figures{" "}
                       {paper.figures?.length ?? 0} · Tables {paper.tables?.length ?? 0}
+                      {paper.taxonomyStyle ? ` · Taxonomy ${paper.taxonomyStyle}` : ""}
                       {paper.metadata.rubric ? ` · Rubric ${paper.metadata.rubric}` : ""}
                     </p>
                   </div>

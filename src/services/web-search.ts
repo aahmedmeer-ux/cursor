@@ -8,6 +8,8 @@ type ExternalSource = {
   text: string;
   sourceType: "WEB" | "JOURNAL";
   venue?: string;
+  doi?: string;
+  exactDoiMatch?: boolean;
 };
 
 type SerperOrganic = {
@@ -19,38 +21,99 @@ type SerperOrganic = {
 const USER_AGENT =
   "OriginalityPlagiarismBot/1.0 (research; mailto:originality@example.com)";
 
+const DOI_RE = /\b10\.\d{4,9}\/[^\s"'<>)+]+/gi;
+
+function cleanDoi(raw: string): string {
+  return raw
+    .replace(/^\W+/, "")
+    .replace(/[.,;:)\]]+$/g, "")
+    .replace(/\.$/, "");
+}
+
+/** Pull DOIs embedded in PDFs (common in IEEE / journal articles). */
+export function extractDois(text: string): string[] {
+  const found = [...text.matchAll(DOI_RE)].map((m) => cleanDoi(m[0]));
+  return [...new Set(found)].slice(0, 5);
+}
+
+/**
+ * Build title candidates from early document text, stitching wrapped PDF lines.
+ */
 function extractTitleCandidates(text: string): string[] {
   const lines = text
     .split(/\n+/)
     .map((l) => l.trim())
-    .filter((l) => l.length >= 12 && l.length <= 220)
-    .filter((l) => !/^(abstract|introduction|references|keywords)\b/i.test(l));
+    .filter(Boolean);
 
-  const candidates = lines.slice(0, 8);
-  // Also first sentence if it looks title-like
-  const firstSentence = text.split(/(?<=[.!?])\s+/)[0]?.trim();
-  if (firstSentence && firstSentence.length <= 220) {
-    candidates.unshift(firstSentence);
+  const candidates: string[] = [];
+  const skip =
+    /^(https?:|www\.|doi\.org|abstract|introduction|keywords|article info|received:|©|creative commons|orcid)/i;
+
+  // Stitch 1–3 consecutive lines that look like a wrapped title block
+  for (let i = 0; i < Math.min(lines.length, 40); i++) {
+    if (skip.test(lines[i])) continue;
+    if (lines[i].length < 20) continue;
+    if (/@/.test(lines[i])) continue; // email lines
+
+    const parts = [lines[i]];
+    for (let j = 1; j <= 2 && i + j < lines.length; j++) {
+      const next = lines[i + j];
+      if (!next || skip.test(next) || /@/.test(next)) break;
+      if (next.length > 180) break;
+      // Continue title if next line starts lowercase or is a short continuation
+      if (/^[a-z]/.test(next) || next.length < 80 || parts.join(" ").length < 90) {
+        parts.push(next);
+      } else {
+        break;
+      }
+    }
+    const joined = parts.join(" ").replace(/\s+/g, " ").trim();
+    if (joined.length >= 24 && joined.length <= 260) {
+      candidates.push(joined);
+    }
   }
-  return [...new Set(candidates)].slice(0, 6);
+
+  // Abstract-adjacent heuristic: text just before "Abstract"
+  const absIdx = text.search(/\bAbstract\b/i);
+  if (absIdx > 40) {
+    const before = text
+      .slice(Math.max(0, absIdx - 400), absIdx)
+      .split(/\n+/)
+      .map((l) => l.trim())
+      .filter((l) => l && !skip.test(l) && !/@/.test(l));
+    if (before.length) {
+      const stitched = before.slice(-3).join(" ").replace(/\s+/g, " ").trim();
+      if (stitched.length >= 24 && stitched.length <= 260) {
+        candidates.unshift(stitched);
+      }
+    }
+  }
+
+  return [...new Set(candidates)].slice(0, 8);
+}
+
+function extractAbstractSnippet(text: string): string {
+  const m = text.match(
+    /\bAbstract\b[:\s—-]*([\s\S]{80,1800}?)(?:\bKeywords?\b|\bI\.\s+Introduction\b|\b1\.\s+Introduction\b|\bIntroduction\b)/i,
+  );
+  return m?.[1]?.replace(/\s+/g, " ").trim() ?? text.slice(0, 1500);
 }
 
 function extractQueryPhrases(text: string, limit = 6): string[] {
-  const sentences = text
+  const abstract = extractAbstractSnippet(text);
+  const pool = `${abstract}\n${text.slice(0, 5000)}`;
+  const sentences = pool
     .split(/(?<=[.!?])\s+/)
     .map((s) => s.trim())
     .filter((s) => {
       const n = tokenizeWords(s).length;
-      return n >= 10 && n <= 45;
+      return n >= 10 && n <= 40;
     });
 
   const ranked = sentences
     .map((s) => ({
       s,
-      score:
-        Math.min(tokenizeWords(s).length, 28) +
-        (/[A-Z]{2,}/.test(s) ? 4 : 0) +
-        (/\b(UAV|IEEE|neural|survey|algorithm|network)\b/i.test(s) ? 6 : 0),
+      score: Math.min(tokenizeWords(s).length, 28),
     }))
     .sort((a, b) => b.score - a.score);
 
@@ -83,15 +146,20 @@ function findBestSpan(
 ): { start: number; end: number; matchedText: string } {
   const cleanNeedle = needle.trim();
   if (!cleanNeedle) {
-    return { start: 0, end: Math.min(120, haystack.length), matchedText: haystack.slice(0, 120) };
+    return {
+      start: 0,
+      end: Math.min(120, haystack.length),
+      matchedText: haystack.slice(0, 120),
+    };
   }
 
-  // Prefer longest common phrase / direct substring
   const lowerHay = haystack.toLowerCase();
   const lowerNeedle = cleanNeedle.toLowerCase();
-  const direct = lowerHay.indexOf(lowerNeedle.slice(0, Math.min(120, lowerNeedle.length)));
+  const direct = lowerHay.indexOf(
+    lowerNeedle.slice(0, Math.min(160, lowerNeedle.length)),
+  );
   if (direct >= 0) {
-    const end = Math.min(haystack.length, direct + cleanNeedle.length);
+    const end = Math.min(haystack.length, direct + Math.min(cleanNeedle.length, 500));
     return {
       start: direct,
       end,
@@ -100,12 +168,12 @@ function findBestSpan(
   }
 
   const needleTokens = tokenizeWords(cleanNeedle);
-  for (let n = Math.min(12, needleTokens.length); n >= 6; n--) {
+  for (let n = Math.min(14, needleTokens.length); n >= 6; n--) {
     for (let i = 0; i <= needleTokens.length - n; i++) {
       const gram = needleTokens.slice(i, i + n).join(" ");
       const pos = lowerHay.indexOf(gram);
       if (pos >= 0) {
-        const end = Math.min(haystack.length, pos + gram.length + 40);
+        const end = Math.min(haystack.length, pos + gram.length + 80);
         return {
           start: pos,
           end,
@@ -113,6 +181,12 @@ function findBestSpan(
         };
       }
     }
+  }
+
+  const absPos = haystack.search(/\bAbstract\b/i);
+  if (absPos >= 0) {
+    const chunk = haystack.slice(absPos, absPos + 400);
+    return { start: absPos, end: absPos + chunk.length, matchedText: chunk };
   }
 
   const sentence =
@@ -138,11 +212,78 @@ function reconstructOpenAlexAbstract(
   return positions.map(([, w]) => w).join(" ");
 }
 
+function mapOpenAlexWork(w: {
+  display_name?: string;
+  ids?: { doi?: string };
+  primary_location?: {
+    landing_page_url?: string | null;
+    source?: { display_name?: string | null };
+  } | null;
+  abstract_inverted_index?: Record<string, number[]> | null;
+}, exactDoiMatch = false): ExternalSource {
+  const abstract = reconstructOpenAlexAbstract(w.abstract_inverted_index);
+  const doi = w.ids?.doi?.replace(/^https?:\/\/doi\.org\//i, "");
+  const landing =
+    w.primary_location?.landing_page_url ||
+    (doi ? `https://doi.org/${doi}` : "https://openalex.org");
+  return {
+    title: w.display_name ?? "Academic source",
+    url: landing,
+    text: abstract || w.display_name || "",
+    sourceType: "JOURNAL",
+    venue: w.primary_location?.source?.display_name ?? undefined,
+    doi,
+    exactDoiMatch,
+  };
+}
+
+async function lookupOpenAlexByDoi(doi: string): Promise<ExternalSource | null> {
+  const url = `https://api.openalex.org/works/https://doi.org/${encodeURIComponent(doi)}?mailto=originality@example.com`;
+  const res = await fetch(url, {
+    headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
+    signal: AbortSignal.timeout(12000),
+  });
+  if (!res.ok) return null;
+  const data = (await res.json()) as Parameters<typeof mapOpenAlexWork>[0];
+  if (!data?.display_name) return null;
+  return mapOpenAlexWork(data, true);
+}
+
+async function lookupCrossrefByDoi(doi: string): Promise<ExternalSource | null> {
+  const url = `https://api.crossref.org/works/${encodeURIComponent(doi)}?mailto=originality@example.com`;
+  const res = await fetch(url, {
+    headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
+    signal: AbortSignal.timeout(12000),
+  });
+  if (!res.ok) return null;
+  const data = (await res.json()) as {
+    message?: {
+      title?: string[];
+      DOI?: string;
+      URL?: string;
+      abstract?: string;
+      "container-title"?: string[];
+    };
+  };
+  const item = data.message;
+  if (!item) return null;
+  const abstract = (item.abstract ?? "").replace(/<[^>]+>/g, " ").trim();
+  return {
+    title: item.title?.[0] ?? "Crossref work",
+    url: item.URL ?? `https://doi.org/${doi}`,
+    text: abstract || item.title?.[0] || "",
+    sourceType: "JOURNAL",
+    venue: item["container-title"]?.[0],
+    doi,
+    exactDoiMatch: true,
+  };
+}
+
 async function searchOpenAlex(query: string): Promise<ExternalSource[]> {
   const url =
     "https://api.openalex.org/works?" +
     new URLSearchParams({
-      search: query.slice(0, 200),
+      search: query.slice(0, 220),
       "per-page": "5",
       mailto: "originality@example.com",
     });
@@ -157,42 +298,16 @@ async function searchOpenAlex(query: string): Promise<ExternalSource[]> {
   }
 
   const data = (await res.json()) as {
-    results?: Array<{
-      display_name?: string;
-      ids?: { doi?: string };
-      type?: string;
-      primary_location?: {
-        landing_page_url?: string | null;
-        pdf_url?: string | null;
-        source?: { display_name?: string | null };
-      } | null;
-      abstract_inverted_index?: Record<string, number[]> | null;
-    }>;
+    results?: Array<Parameters<typeof mapOpenAlexWork>[0]>;
   };
-
-  return (data.results ?? []).map((w) => {
-    const abstract = reconstructOpenAlexAbstract(w.abstract_inverted_index);
-    const doi = w.ids?.doi;
-    const landing =
-      w.primary_location?.landing_page_url ||
-      doi ||
-      "https://openalex.org";
-    const venue = w.primary_location?.source?.display_name ?? undefined;
-    return {
-      title: w.display_name ?? "Academic source",
-      url: landing,
-      text: abstract || w.display_name || "",
-      sourceType: "JOURNAL" as const,
-      venue,
-    };
-  });
+  return (data.results ?? []).map((w) => mapOpenAlexWork(w, false));
 }
 
 async function searchCrossref(query: string): Promise<ExternalSource[]> {
   const url =
     "https://api.crossref.org/works?" +
     new URLSearchParams({
-      "query.bibliographic": query.slice(0, 200),
+      "query.bibliographic": query.slice(0, 220),
       rows: "5",
       mailto: "originality@example.com",
     });
@@ -226,6 +341,7 @@ async function searchCrossref(query: string): Promise<ExternalSource[]> {
       text: abstract || item.title?.[0] || "",
       sourceType: "JOURNAL" as const,
       venue: item["container-title"]?.[0],
+      doi: item.DOI,
     };
   });
 }
@@ -258,143 +374,129 @@ async function serperSearch(query: string): Promise<ExternalSource[]> {
   }));
 }
 
-/**
- * Optionally pull plaintext from an open PDF URL for stronger evidence.
- * Failures are ignored (paywalls / bot blocks are common).
- */
-async function maybeFetchPdfSnippet(pdfUrl: string): Promise<string> {
-  try {
-    if (!pdfUrl) return "";
-    const res = await fetch(pdfUrl, {
-      headers: { "User-Agent": USER_AGENT },
-      signal: AbortSignal.timeout(8000),
-      redirect: "follow",
-    });
-    if (!res.ok) return "";
-    const ctype = res.headers.get("content-type") ?? "";
-    if (!ctype.includes("pdf") && !ctype.includes("octet-stream")) return "";
-    const buf = Buffer.from(await res.arrayBuffer());
-    if (buf.length < 1000 || buf.length > 8_000_000) return "";
-    const { PDFParse } = await import("pdf-parse");
-    const parser = new PDFParse({ data: buf });
-    try {
-      const result = await parser.getText({ first: 1, last: 2 });
-      return (result.text || "").slice(0, 4000);
-    } finally {
-      await parser.destroy().catch(() => undefined);
-    }
-  } catch {
-    return "";
-  }
-}
-
 function sourceToMatch(
   documentText: string,
   source: ExternalSource,
   colorIdx: number,
-  titleBoost = 0,
 ): SimilarityMatch | null {
   if (!source.text && !source.title) return null;
 
+  const titles = extractTitleCandidates(documentText);
   const titleScore = Math.max(
-    ...extractTitleCandidates(documentText)
-      .slice(0, 4)
-      .map((t) => titleSimilarity(t, source.title)),
-    titleSimilarity(documentText.slice(0, 300), source.title),
+    0,
+    ...titles.slice(0, 6).map((t) => titleSimilarity(t, source.title)),
+    titleSimilarity(documentText.slice(0, 500), source.title),
   );
 
-  const bodyOverlap = overlapScore(
-    documentText.slice(0, 8000),
-    `${source.title}\n${source.text}`,
+  const docAbstract = extractAbstractSnippet(documentText);
+  const bodyOverlap = Math.max(
+    overlapScore(docAbstract, source.text || source.title),
+    overlapScore(documentText.slice(0, 10000), `${source.title}\n${source.text}`),
   );
 
-  // Strong title hit on a published work = clear internet/publication match
   let similarityScore = Math.round(
-    Math.max(bodyOverlap * 100, titleScore * 100 * 0.95) + titleBoost,
+    Math.max(bodyOverlap * 100, titleScore * 100 * 0.95),
   );
+
+  // Exact DOI found in the uploaded PDF = definitive internet/publication hit
+  if (source.exactDoiMatch) {
+    similarityScore = Math.max(
+      similarityScore,
+      bodyOverlap >= 0.35 ? 97 : bodyOverlap >= 0.2 ? 92 : 88,
+    );
+  }
 
   if (titleScore >= 0.72) {
     similarityScore = Math.max(similarityScore, Math.round(78 + titleScore * 20));
   }
   if (titleScore >= 0.88 && bodyOverlap >= 0.25) {
-    similarityScore = Math.max(similarityScore, 92);
+    similarityScore = Math.max(similarityScore, 94);
   }
-  if (titleScore >= 0.92) {
-    similarityScore = Math.max(similarityScore, 96);
+  if (titleScore >= 0.92 || (titleScore >= 0.8 && bodyOverlap >= 0.45)) {
+    similarityScore = Math.max(similarityScore, 97);
   }
 
-  if (similarityScore < 28 && titleScore < 0.55) return null;
+  if (!source.exactDoiMatch && similarityScore < 28 && titleScore < 0.55) {
+    return null;
+  }
 
-  const spanSeed =
-    source.text.length > 40
-      ? source.text
-      : source.title;
+  const spanSeed = source.text.length > 40 ? source.text : source.title;
   const span = findBestSpan(documentText, spanSeed);
-
   const labelVenue = source.venue ? ` — ${source.venue}` : "";
+
   return {
-    sourceUrl: source.url || null,
+    sourceUrl: source.url || (source.doi ? `https://doi.org/${source.doi}` : null),
     sourceTitle: `${source.title}${labelVenue}`,
     sourceType: source.sourceType,
     similarityScore: Math.min(99, similarityScore),
     matchedText: span.matchedText,
-    sourceText: source.text.slice(0, 500) || source.title,
+    sourceText: source.text.slice(0, 700) || source.title,
     startChar: span.start,
     endChar: span.end,
     pageNumber: 1,
     colorHex: colorForIndex(colorIdx),
-    isExactMatch: titleScore >= 0.8 || bodyOverlap >= 0.55,
+    isExactMatch:
+      Boolean(source.exactDoiMatch) || titleScore >= 0.8 || bodyOverlap >= 0.55,
     isQuote: false,
     isBibliography: false,
   };
 }
 
 /**
- * Real external matching:
- * 1) OpenAlex academic graph (IEEE, journals, OA abstracts)
- * 2) Crossref DOI registry
- * 3) Optional Serper Google search when SERPER_API_KEY is set
+ * Real external matching prioritized for published papers:
+ * 1) DOI lookup (OpenAlex + Crossref) when DOI is in the PDF
+ * 2) Title / phrase search on OpenAlex + Crossref
+ * 3) Optional Serper Google results
  */
 export async function findWebMatches(
   documentText: string,
 ): Promise<SimilarityMatch[]> {
+  const dois = extractDois(documentText);
   const titles = extractTitleCandidates(documentText);
-  const phrases = extractQueryPhrases(documentText, 5);
-  const queries = [...titles.slice(0, 2), ...phrases.slice(0, 3)].filter(Boolean);
+  const phrases = extractQueryPhrases(documentText, 4);
 
   const sources: ExternalSource[] = [];
   const seen = new Set<string>();
 
-  // Parallel provider fan-out for the top queries
+  const push = (src: ExternalSource | null | undefined) => {
+    if (!src) return;
+    const key = (src.doi || src.url || src.title).toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    sources.push(src);
+  };
+
+  // 1) Exact DOI resolution first — this is what makes IEEE/journal PDFs reliable
+  for (const doi of dois.slice(0, 3)) {
+    const [oa, cr] = await Promise.all([
+      lookupOpenAlexByDoi(doi).catch(() => null),
+      lookupCrossrefByDoi(doi).catch(() => null),
+    ]);
+    // Prefer the richer abstract text
+    if (oa && cr) {
+      push(oa.text.length >= cr.text.length ? oa : { ...cr, exactDoiMatch: true });
+      // keep the other if different title host
+      if (oa.title !== cr.title) push(oa.text.length >= cr.text.length ? cr : oa);
+    } else {
+      push(oa);
+      push(cr);
+    }
+  }
+
+  // 2) Title + sentence search
+  const queries = [...titles.slice(0, 3), ...phrases.slice(0, 3)].filter(Boolean);
   for (const query of queries.slice(0, 4)) {
     const [oa, cr, web] = await Promise.all([
       searchOpenAlex(query).catch(() => []),
       searchCrossref(query).catch(() => []),
       serperSearch(query).catch(() => []),
     ]);
-
-    for (const src of [...oa, ...cr, ...web]) {
-      const key = `${src.title.toLowerCase()}|${src.url}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      sources.push(src);
-    }
-  }
-
-  // Enrich top OpenAlex-like hits with open PDF text when available via URL heuristics
-  const enriched: ExternalSource[] = [];
-  for (const src of sources.slice(0, 8)) {
-    let text = src.text;
-    if (src.url.includes("pdf") || src.url.includes("ieeexplore")) {
-      const extra = await maybeFetchPdfSnippet(src.url);
-      if (extra.length > text.length) text = extra;
-    }
-    enriched.push({ ...src, text });
+    for (const src of [...oa, ...cr, ...web]) push(src);
   }
 
   const matches: SimilarityMatch[] = [];
   let colorIdx = 0;
-  for (const src of enriched.length ? enriched : sources) {
+  for (const src of sources) {
     const match = sourceToMatch(documentText, src, colorIdx);
     if (!match) continue;
     matches.push(match);

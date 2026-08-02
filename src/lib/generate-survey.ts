@@ -125,7 +125,7 @@ function draftRelatedSurveys(rows: MatrixRow[], papers: DiscoveredPaper[]): stri
     const sample = papers.slice(0, 3);
     const paras = sample.map((p) => {
       const c = cite(papers, p.id);
-      return `${p.authors.slice(0, 2).join(" and ") || "Prior work"} (${p.year ?? "n.d."})${c} provides a related reference point through “${p.title}”, which we use for positioning rather than as a full prior survey.`;
+      return `${p.authors.slice(0, 2).join(" and ") || "Prior work"} (${p.year ?? "n.d."}) ${c} provides a related reference point through “${p.title}”, which we use for positioning rather than as a full prior survey.`;
     });
     return [
       `We did not find a dense cluster of prior survey papers inside the seed matrix; positioning is therefore developed against a few highly relevant discovered works, discussed individually below.`,
@@ -141,7 +141,7 @@ function draftRelatedSurveys(rows: MatrixRow[], papers: DiscoveredPaper[]): stri
     const gap = s.gaps
       ? ` Their remaining limitation is that ${s.gaps.charAt(0).toLowerCase()}${s.gaps.slice(1).replace(/\.$/, "")}.`
       : "";
-    return `${s.authors || "Prior authors"} (${s.year ?? "n.d."})${c} survey “${s.title}”, with primary focus on ${focus}.${gap} We treat this as a complementary slice rather than a substitute for a taxonomy-driven synthesis.`;
+    return `${s.authors || "Prior authors"} (${s.year ?? "n.d."}) ${c} survey “${s.title}”, with primary focus on ${focus}.${gap} We treat this as a complementary slice rather than a substitute for a taxonomy-driven synthesis.`;
   });
 
   return [
@@ -212,7 +212,7 @@ function draftThemeSections(
         : "";
 
       const who = row.authors || matrixPaper?.authors.slice(0, 2).join(" and ") || "The authors";
-      let para = `${who} (${row.year ?? matrixPaper?.year ?? "n.d."})${c} examine “${row.title}”.${method}${finding}${gap}`
+      let para = `${who} (${row.year ?? matrixPaper?.year ?? "n.d."}) ${c} examine “${row.title}”.${method}${finding}${gap}`
         .replace(/\s+\./g, ".")
         .replace(/\.\./g, ".");
 
@@ -223,7 +223,7 @@ function draftThemeSections(
         const c2 = mp2 ? cite(papers, mp2.id) : cite(papers, row2.title);
         const who2 = row2.authors || mp2?.authors.slice(0, 2).join(" and ") || "The authors";
         const method2 = row2.method ? ` using ${row2.method.replace(/\.$/, "")}` : "";
-        para += ` In a closely related line, ${who2} (${row2.year ?? mp2?.year ?? "n.d."})${c2} study “${row2.title}”${method2}. Taken together, the two works illustrate complementary angles under ${theme}.`;
+        para += ` In a closely related line, ${who2} (${row2.year ?? mp2?.year ?? "n.d."}) ${c2} study “${row2.title}”${method2}. Taken together, the two works illustrate complementary angles under ${theme}.`;
         g++;
       } else {
         // Single related work as a follow-up sentence (not a dump)
@@ -245,7 +245,7 @@ function draftThemeSections(
         const bits = chunk.map((r) => {
           const c = cite(papers, r.title);
           const focus = (r.method || r.findings || "related evidence").split(/[.;]/)[0];
-          return `${r.authors || "The authors"} (${r.year ?? "n.d."})${c} (${focus})`;
+          return `${r.authors || "The authors"} (${r.year ?? "n.d."}) ${c} (${focus})`;
         });
         paragraphs.push(
           `A smaller follow-on group under ${theme} includes ${bits.join(" and ")}. We fold their quantitative details into the comparative table while retaining the qualitative takeaway here.`
@@ -294,7 +294,7 @@ function draftChallenges(rows: MatrixRow[], themes: string[], papers: Discovered
     const gap = row.gaps.replace(/\.$/, "");
     const method = row.method ? ` (method: ${row.method.split(/[.;]/)[0]})` : "";
     paras.push(
-      `${who} (${row.year ?? "n.d."})${c}${method} surface a concrete limitation: ${gap.charAt(0).toLowerCase()}${gap.slice(1)}. This matters because unresolved ${row.themes.split(/[,;]/)[0]?.trim() || "theme"} issues prevent fair comparison and weaken deployment claims.`
+      `${who} (${row.year ?? "n.d."}) ${c}${method} surface a concrete limitation: ${gap.charAt(0).toLowerCase()}${gap.slice(1)}. This matters because unresolved ${row.themes.split(/[,;]/)[0]?.trim() || "theme"} issues prevent fair comparison and weaken deployment claims.`
     );
   }
 

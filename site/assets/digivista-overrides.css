@@ -1,0 +1,7 @@
+
+img[src*="digivistaus-logo"], .digivista-logo {
+  max-height: 72px !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain;
+}

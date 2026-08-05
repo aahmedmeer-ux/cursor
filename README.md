@@ -1,17 +1,22 @@
 # digivistaUS
 
-Mid-market ecommerce replatforming and Amazon marketplace agency site — inspired by the ClassyLlama structure, branded as **digivistaUS**, with full Amazon services alongside ecommerce, marketing, integrations, data, B2B portals, and AI.
+Exact visual clone of [ClassyLlama](https://classyllama.com/) rebranded as **digivistaUS**, with full **Amazon Services** added alongside existing offerings.
+
+HTML pages are local; CSS, JS, animations, and imagery load from the ClassyLlama asset CDN so motion and visuals match the original.
 
 ## Develop
 
 ```bash
 npm install
-npm run dev
+npm run build:site   # refresh pages from ClassyLlama + rebrand
+npm run dev          # http://localhost:5173
 ```
 
-## Build
+## Pages
 
-```bash
-npm run build
-npm run preview
-```
+- `/` Home
+- `/services/` Services overview
+- `/amazon-services/` Amazon Services (new)
+- `/ecommerce-development-services/`, `/marketing-services/`, `/software-integrations/`, `/data-management/`, `/b2b-portals/`, `/ai-strategy-consulting/`
+- `/about/`, `/contact/`, `/partners/`, `/client-wins/`
+- Platform pages: Adobe, Shopify, BigCommerce, Magento

@@ -1,26 +1,16 @@
 {
   "name": "digivistaus",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "version": "1.0.0",
+  "description": "digivistaUS — exact ClassyLlama-style ecommerce agency site with Amazon services",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "oxlint",
-    "preview": "vite preview"
+    "build:site": "python3 scripts/build-exact-clone.py",
+    "dev": "serve site -l 5173 --no-clipboard",
+    "build": "python3 scripts/build-exact-clone.py",
+    "preview": "serve site -l 4173 --no-clipboard",
+    "start": "serve site -l 4173 --no-clipboard"
   },
   "dependencies": {
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.2"
-  },
-  "devDependencies": {
-    "@types/node": "^24.13.3",
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.4",
-    "oxlint": "^1.75.0",
-    "typescript": "~6.0.2",
-    "vite": "^8.2.0"
+    "serve": "^14.2.5"
   }
 }

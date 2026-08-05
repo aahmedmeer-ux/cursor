@@ -1501,7 +1501,8 @@ $mobileSpacing: remCalc(30);
         border-bottom-left-radius: 0;
         border: 0;
         margin-bottom: 0;
-        background-color: stencilColor("footer-linkColor-hover");
+        background-color: #C72E2E;
+        color: #ffffff;
         height: remCalc(48px);
         padding: 0;
         display: flex;
@@ -1512,13 +1513,15 @@ $mobileSpacing: remCalc(30);
         .icon {
             width: remCalc(21px);
             height: remCalc(12px);
-            fill: stencilColor("footer-linkColor");
+            fill: #ffffff;
         }
         @include beautify__fixFontBaselineShift;
 
         &:hover,
         &:focus {
-            filter: saturate(70%);
+            background-color: #a82525;
+            color: #ffffff;
+            filter: none;
         }
     }
 }

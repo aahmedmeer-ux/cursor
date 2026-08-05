@@ -525,23 +525,35 @@
         }
 
         .button,
+        .button.button-primary,
         .button-primary {
             width: 100%;
             max-width: 100%;
             box-sizing: border-box;
             border-radius: 0;
-            border: 0;
+            border: 0 !important;
             margin: 0;
             height: remCalc(48px);
             min-width: 0;
             padding: 0 spacing("base");
-            background-color: stencilColor("footer-headingColor");
-            color: #fff;
+            // Match live Jettribe footer: solid red button, white label
+            background-color: #C72E2E !important;
+            background-image: none !important;
+            color: #ffffff !important;
             font-weight: fontWeight("bold");
             letter-spacing: 0.04em;
+            text-transform: uppercase;
             display: flex;
             align-items: center;
             justify-content: center;
+
+            &:hover,
+            &:focus,
+            &:active {
+                background-color: #a82525 !important;
+                color: #ffffff !important;
+                filter: none;
+            }
         }
     }
 }

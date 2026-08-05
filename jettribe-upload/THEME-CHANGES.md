@@ -32,14 +32,16 @@ Both zips ship with **`schema.json` minified under 64 KB** (Stencil pretty-print
 ## Done in this theme package
 
 1. **Popup** — Heading: `VIP Promotions Sign-Up`; image: Jettribe action photo (`nl-popup-jettribe.jpg`).
-2. **Top menu** — Content pages (Customization Form, Returns, VIP Deals, etc.) hidden from primary nav (`hide_content_navigation`).
+2. **Top menu** — Content pages hidden from primary nav; **Home** nav link forced to same URL as logo (`urls.home`).
 3. **Utility bar** — Returns, Wishlists, Gift Certificates added next to Account.
-4. **Footer** — Columns ordered like current site: Categories → Rider Support → Rider Resources → Contact Us → VIP List Sign-Up. Payment icons: Mastercard, Visa, Amex, PayPal, Google Pay, Amazon Pay.
-5. **Category / listing** — Product gallery size is **square** (`600x600`). RRP removed. Price ranges disabled. Size option text forced to **black**.
-6. **Frequently Bought Together** — Inherits price-range / RRP fixes.
-7. **Homepage wording** — Auto-replaces “UNIQUE SPORTS-INSPIRED FASHION” with **QUALITY PWC GEAR AND APPAREL SINCE 1996**.
-8–9. **Featured / top-categories backgrounds** — Replaced with Jettribe action banners.
-13. **Filters** — Country / flag facets hidden.
+4. **Footer** — Matches live Jettribe layout:
+   - CATEGORIES: single Home → store home (no duplicate), then category links
+   - RIDER SUPPORT: Order Status, Shipping, Returns, Warranty, Financing, Privacy
+   - RIDER RESOURCES: Culture, Careers, Blog, Gift Certificates, Legal, Logo Download, Reseller Dropshipping (not all web pages)
+   - CONTACT US + VIP LIST SIGN-UP (duplicate enroll text removed)
+5. **Category / listing** — Square gallery, no RRP, no price ranges, black size labels; **Flags/Country filters removed**.
+6. **Homepage wording** — `UNIQUE SPORT(S)-INSPIRED FASHION` → **QUALITY PWC GEAR AND APPAREL SINCE 1996**.
+7. **Featured / top-categories backgrounds** — Jettribe action banners.
 
 ## Needs BigCommerce Admin / Page Builder (store content)
 

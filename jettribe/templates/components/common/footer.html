@@ -48,11 +48,14 @@
                             <div class="_wrapper {{#unless theme_settings.footer_categories_heading}}is-open{{/unless}}" aria-hidden="true" data-dinosaur-footer-collapsible-content>
                                 {{#if theme_settings.footer_show_categories '>' 0}}
                                 <ul class="footer-info-list">
-                                    <li><a href="/">Home</a></li>
+                                    <li><a href="{{urls.home}}">Home</a></li>
                                     {{#each (limit categories theme_settings.footer_show_categories)}}
-                                    <li>
-                                        <a href="{{url}}">{{name}}</a>
-                                    </li>
+                                        {{!-- Skip duplicate Home category — already linked to store home above --}}
+                                        {{#if name '!==' 'Home'}}
+                                        <li>
+                                            <a href="{{url}}">{{name}}</a>
+                                        </li>
+                                        {{/if}}
                                     {{/each}}
                                 </ul>
                                 {{/if}}
@@ -61,7 +64,7 @@
                         </article>
                     {{/if}}
 
-                    {{!-- 2. RIDER SUPPORT (custom region) --}}
+                    {{!-- 2. RIDER SUPPORT --}}
                     {{#if theme_settings.footer_cs1}}
                     <article class="footer-info--col" data-dinosaur-footer-collapsible>
                         {{#if theme_settings.footer_cs1_title}}
@@ -80,37 +83,38 @@
                                 <li><a href="/warranty-policy/">Warranty Policy</a></li>
                                 <li><a href="/financing/">Financing</a></li>
                                 <li><a href="/privacy-policy/">Privacy Policy</a></li>
-                                {{{region name="footer_cs1--global"}}}
                             </ul>
                         </div>
                     </article>
                     {{/if}}
 
-                    {{!-- 3. RIDER RESOURCES (web pages) --}}
-                    {{#if theme_settings.footer_show_pages '>' -1}}
-                        <article class="footer-info--col" data-dinosaur-footer-collapsible>
-                            {{#if theme_settings.footer_pages_heading}}
-                                <h3 class="footer-info-heading">
-                                    <a href="#" aria-expanded="false" data-dinosaur-footer-collapsible-handler>
-                                        {{theme_settings.footer_pages_heading}}
-                                        {{> components/common/footer-toggle-icon}}
-                                    </a>
-                                </h3>
-                            {{/if}}
-                            <div class="_wrapper {{#unless theme_settings.footer_pages_heading}}is-open{{/unless}}" aria-hidden="true" data-dinosaur-footer-collapsible-content>
-                                {{#if theme_settings.footer_show_pages '>' 0}}
-                                    <ul class="footer-info-list">
-                                        {{#each (limit pages theme_settings.footer_show_pages)}}
-                                            <li>
-                                                <a href="{{url}}">{{name}}</a>
-                                            </li>
-                                        {{/each}}
-                                    </ul>
+                    {{!-- 3. RIDER RESOURCES (hardcoded Jettribe links — not all store web pages) --}}
+                    <article class="footer-info--col" data-dinosaur-footer-collapsible>
+                        {{#if theme_settings.footer_pages_heading}}
+                            <h3 class="footer-info-heading">
+                                <a href="#" aria-expanded="false" data-dinosaur-footer-collapsible-handler>
+                                    {{theme_settings.footer_pages_heading}}
+                                    {{> components/common/footer-toggle-icon}}
+                                </a>
+                            </h3>
+                        {{/if}}
+                        <div class="_wrapper {{#unless theme_settings.footer_pages_heading}}is-open{{/unless}}" aria-hidden="true" data-dinosaur-footer-collapsible-content>
+                            <ul class="footer-info-list footer-info-list--rider-resources">
+                                <li><a href="/culture/">Culture</a></li>
+                                <li><a href="/jettribe-careers/">Jettribe Careers</a></li>
+                                <li><a href="/blog/">Blog</a></li>
+                                {{#if settings.gift_certificates_enabled}}
+                                <li><a href="{{urls.gift_certificate.purchase}}">Gift Certificates</a></li>
+                                {{else}}
+                                <li><a href="/giftcertificates.php">Gift Certificates</a></li>
                                 {{/if}}
-                                {{{region name="footer_below_col4--global"}}}
-                            </div>
-                        </article>
-                    {{/if}}
+                                <li><a href="/legal/">Legal</a></li>
+                                <li><a href="/logo-download/">Logo Download</a></li>
+                                <li><a href="/dropshipping/">Reseller Dropshipping</a></li>
+                            </ul>
+                            {{{region name="footer_below_col4--global"}}}
+                        </div>
+                    </article>
                 </div>
 
                 {{!-- 4. CONTACT US --}}
@@ -121,23 +125,24 @@
                                 {{theme_settings.footer_contactInfo_heading}}
                             </h3>
                         {{/if}}
+                        <div class="footer-info--item footer-info--intro">
+                            <span>Contact Jettribe Rider Support</span>
+                        </div>
                         {{#if settings.phone_number}}
                             <div class="footer-info--item">
-                                <a  href="tel:{{settings.phone_number}}" title="{{lang 'header.call_us' phone_number=settings.phone_number}}">
+                                <a href="tel:{{settings.phone_number}}" title="{{lang 'header.call_us' phone_number=settings.phone_number}}">
                                     <svg class="icon">
                                         <use href="#icon-phone3"></use>
                                     </svg>
                                     <span>
-                                        <strong>Contact Jettribe Rider Support</strong><br>
-                                        {{settings.phone_number}}<br>
-                                        Mon - Fri, 9am - 4pm PST
+                                        {{settings.phone_number}} Mon - Fri, 9am - 4pm PST
                                     </span>
                                 </a>
                             </div>
                         {{/if}}
                         {{#if theme_settings.footer_email '!==' ""}}
                             <div class="footer-info--item">
-                                <a href=mailto:{{theme_settings.footer_email}} title="{{theme_settings.footer_email}}">
+                                <a href="mailto:{{theme_settings.footer_email}}" title="{{theme_settings.footer_email}}">
                                     <svg class="icon">
                                         <use href="#icon-email"></use>
                                     </svg>

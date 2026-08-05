@@ -385,23 +385,78 @@
                                 heading.remove();
                             }
                         }
-                        // Homepage wording update
-                        if (text.indexOf('UNIQUE SPORTS-INSPIRED FASHION') !== -1) {
+                        // Homepage wording (SPORT and SPORTS variants)
+                        if (
+                            text.indexOf('UNIQUE SPORTS-INSPIRED FASHION') !== -1 ||
+                            text.indexOf('UNIQUE SPORT-INSPIRED FASHION') !== -1
+                        ) {
                             heading.textContent = 'QUALITY PWC GEAR AND APPAREL SINCE 1996';
                         }
                     });
 
-                    // Hide Country / flag filters in faceted search
+                    // Also replace the wording in any text nodes / banners
+                    document.querySelectorAll('p, span, div, a, strong, em').forEach(function (el) {
+                        if (!el.childElementCount && el.textContent) {
+                            var t = el.textContent.replace(/\s+/g, ' ').trim();
+                            if (/UNIQUE SPORTS?-INSPIRED FASHION/i.test(t)) {
+                                el.textContent = t.replace(/UNIQUE SPORTS?-INSPIRED FASHION/ig, 'QUALITY PWC GEAR AND APPAREL SINCE 1996');
+                            }
+                        }
+                    });
+
+                    // Hide Country / Flags filters in faceted search
                     document.querySelectorAll('.facetedSearch-facetBlock, ._accordion-block').forEach(function (block) {
                         var key = (block.getAttribute('data-facet-key') || '').toLowerCase();
                         var title = (block.getAttribute('data-facet-title') || '').toLowerCase();
                         var label = '';
-                        var labelEl = block.querySelector('._accordion-label, ._accordion-title');
+                        var labelEl = block.querySelector('._accordion-label, ._accordion-title, .toggleLink, h4, h3');
                         if (labelEl) {
                             label = (labelEl.textContent || '').toLowerCase();
                         }
-                        if (key.indexOf('country') !== -1 || title.indexOf('country') !== -1 || label.indexOf('country') !== -1) {
+                        if (
+                            key.indexOf('country') !== -1 || key.indexOf('flag') !== -1 ||
+                            title.indexOf('country') !== -1 || title.indexOf('flag') !== -1 ||
+                            label.indexOf('country') !== -1 || label.indexOf('flag') !== -1
+                        ) {
                             block.style.display = 'none';
+                            block.setAttribute('hidden', 'hidden');
+                        }
+                    });
+
+                    // Force nav "Home" to the same URL as the logo
+                    var logo = document.querySelector('.header-logo a[href], a.header-logo[href]');
+                    var homeUrl = logo ? logo.getAttribute('href') : '/';
+                    document.querySelectorAll('.navPages-list > .navPages-item > a.navPages-action').forEach(function (link) {
+                        var label = (link.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+                        if (label === 'home') {
+                            link.setAttribute('href', homeUrl);
+                            link.setAttribute('data-instantload', '{"page":"home"}');
+                        }
+                    });
+                    document.querySelectorAll('.footer-info-list a').forEach(function (link) {
+                        var label = (link.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+                        if (label === 'home') {
+                            link.setAttribute('href', homeUrl);
+                        }
+                    });
+
+                    // Remove duplicate VIP enroll copy under the newsletter form
+                    document.querySelectorAll('.beautify__newsletter .page-desc').forEach(function (desc, index) {
+                        if (index > 0) {
+                            desc.remove();
+                        }
+                    });
+                    document.querySelectorAll('.beautify__newsletter [data-content-region*="footer_below_newsletters"]').forEach(function (el) {
+                        el.remove();
+                    });
+                    document.querySelectorAll('.beautify__newsletter p, .beautify__newsletter .page-desc').forEach(function (el) {
+                        var t = (el.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+                        if (t.indexOf('enroll to be notified') !== -1) {
+                            // Keep only the first occurrence (the intentional page-desc)
+                            var first = document.querySelector('.beautify__newsletter > .container > .page-desc, .beautify__newsletter .page-desc');
+                            if (first && el !== first) {
+                                el.remove();
+                            }
                         }
                     });
                 }

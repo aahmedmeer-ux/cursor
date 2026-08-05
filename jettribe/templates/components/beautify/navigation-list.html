@@ -1,6 +1,5 @@
 {{#if children}}
-<a class="navPages-action has-subMenu u-hideMobile u-hideTablet {{#if menu_type '==' 'vertical'}}navPages-action--vertical{{/if}}" href="{{url}}"
-    href="{{url}}"
+<a class="navPages-action has-subMenu u-hideMobile u-hideTablet {{#if menu_type '==' 'vertical'}}navPages-action--vertical{{/if}}" href="{{#if name '===' 'Home'}}{{urls.home}}{{else}}{{url}}{{/if}}"
     {{#if menu_type '!=' 'vertical'}}data-instantload{{/if}}
     {{#if id '==' category.id}}data-current-category{{/if}}
 >{{name}}</a>
@@ -109,5 +108,5 @@
     {{/if}}
 </div>
 {{else}}
-<a class="navPages-action" href="{{url}}" data-instantload {{#if id '==' category.id}}data-current-category{{/if}}>{{name}}</a>
+<a class="navPages-action" href="{{#if name '===' 'Home'}}{{urls.home}}{{else}}{{url}}{{/if}}" data-instantload {{#if id '==' category.id}}data-current-category{{/if}}>{{name}}</a>
 {{/if}}

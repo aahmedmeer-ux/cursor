@@ -91,9 +91,18 @@
                         {{#if (merge this currency_token=../../currency_token show_price_slider=../../show_price_slider)}}{{/if}}
                     {{/if}}
                     {{#if visible}}
+                        {{!-- Skip Country / Flags product filters --}}
+                        {{#unless (if facet '===' 'country')}}
+                        {{#unless (if title '===' 'Flags')}}
+                        {{#unless (if title '===' 'Country')}}
+                        {{#unless (if title '===' 'Flag')}}
                         <div class="facetedSearch-facetBlock" data-facet-key="{{facet}}" data-facet-title="{{title}}">
                             {{{dynamicComponent 'components/faceted-search/facets'}}}
                         </div>
+                        {{/unless}}
+                        {{/unless}}
+                        {{/unless}}
+                        {{/unless}}
                     {{/if}}
                 {{/each}}
             </div>

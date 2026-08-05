@@ -3414,12 +3414,23 @@ html .beautify__calloutIcons {
     color: #000000 !important;
 }
 
-// Hide Country / flag faceted filters
+// Hide Country / Flags faceted filters
 .facetedSearch-facetBlock[data-facet-key*="country"],
+.facetedSearch-facetBlock[data-facet-key*="Country"],
+.facetedSearch-facetBlock[data-facet-key*="flag"],
+.facetedSearch-facetBlock[data-facet-key*="Flag"],
 .facetedSearch-facetBlock[data-facet-title*="Country"],
 .facetedSearch-facetBlock[data-facet-title*="country"],
+.facetedSearch-facetBlock[data-facet-title*="Flag"],
+.facetedSearch-facetBlock[data-facet-title*="flag"],
+.facetedSearch-facetBlock[data-facet-title*="Flags"],
+.facetedSearch-facetBlock[data-facet-title*="flags"],
 #facetedSearch-content--country,
-[id*="facetedSearch-content--country"] {
+#facetedSearch-content--flags,
+#facetedSearch-content--Flags,
+[id*="facetedSearch-content--country"],
+[id*="facetedSearch-content--flag"],
+[id*="facetedSearch-content--Flag"] {
     display: none !important;
 }
 

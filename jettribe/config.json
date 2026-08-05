@@ -344,7 +344,7 @@
     "footer-linkColor": "#FFFFFF",
     "footer-linkColor-hover": "#C72E2E",
     "footer_show_newsletter": true,
-    "footer_show_pages": 20,
+    "footer_show_pages": -1,
     "footer_show_categories": 10,
     "footer_email": "ridersupport@jettribe.com",
     "footer_whatsapp": "",

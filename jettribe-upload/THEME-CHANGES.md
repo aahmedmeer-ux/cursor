@@ -1,18 +1,33 @@
 # Jettribe Theme Changes — Upload Notes
 
-## Upload
-Use **`jettribe-bigcommerce-upload.zip`** (repo root) or `jettribe-theme-no-reviews.zip`.  
-Download the **raw file** (not the GitHub HTML page), then: Storefront → Themes → Upload Theme → Apply.
+## Upload (use the raw download link)
 
-### If you see “A server error occurred”
-BigCommerce rejects themes when **`schema.json` > 64 KB** (often with that generic message).  
-Rebuild with:
+**Jettribe package (with UI fixes):**  
+https://github.com/aahmedmeer-ux/cursor/raw/cursor/remove-home-reviews-268c/jettribe-bigcommerce-upload.zip
 
-```bash
-cd jettribe && python3 scripts/prepare-bc-upload-zip.py
-```
+**Original Drive theme baseline (no UI edits, for A/B upload test):**  
+https://github.com/aahmedmeer-ux/cursor/raw/cursor/remove-home-reviews-268c/jettribe-upload/original-drive-theme-baseline.zip
 
-That runs `stencil bundle` and minifies `schema.json` / `config.json` inside the zip (Stencil re-pretty-prints schema during bundle).
+Download the **raw** file (not the GitHub HTML/blob page) → Storefront → Themes → Upload Theme.
+
+### Cross-match vs original Google Drive folder
+Compared against the original theme from the Drive link (also snapshotted in git commit `905d8d0`):
+
+| Check | Result |
+|------|--------|
+| Templates (`.html`) | **314 / 314 — none missing** |
+| Critical root files (`config.json`, `schema.json`, `package.json`, `meta/*`, `lang/*`, stencil conf) | **All present** |
+| Extra vs Drive source | Expected: full `parsed/templates` (314) from `stencil bundle` (Drive only had a partial leftover `parsed/` with 50 files), plus Jettribe images |
+| Removed from upload zip | Demo assets `mickey.png`, `logo-discover.svg` (moved to `assets/cdn/` so Stencil excludes them); `parsed/stencilContext.json` (not in original package) |
+
+The Drive folder is **source**, not a ready Control Panel zip. It must be packaged with `stencil bundle` (this repo’s prepare script).
+
+### If you still see “A server error occurred”
+1. Try the **original baseline** zip above. If that also fails, the store is likely at the **20 custom theme limit** or hitting a transient TR-100 — delete old custom themes in My Themes, then retry.
+2. In the browser Network tab, check the failed theme job for a `TR-####` code and share it.
+3. Rebuild locally: `cd jettribe && python3 scripts/prepare-bc-upload-zip.py`
+
+Both zips ship with **`schema.json` minified under 64 KB** (Stencil pretty-prints it to ~106 KB, which BigCommerce rejects).
 
 ## Done in this theme package
 
@@ -39,7 +54,7 @@ These cannot be fully fixed by theme files alone:
 | **Country filter definition** | Settings → Products → Product Filters → disable Country (theme also hides it) |
 
 ### Updating collage / homepage widgets (item 11)
-Not hard: open **Page Builder → Homepage**, click the collage/banner widget, replace images and edit text, then **Save & Publish**. No theme rebuild needed for that.
+Open **Page Builder → Homepage**, edit the collage/banner widget, replace images/text, then **Save & Publish**.
 
 ## After upload checklist
 1. Apply the new theme.

@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
-"""Bundle theme and write BigCommerce upload zip with schema.json <= 64KB.
+"""Bundle theme and write a BigCommerce-safe upload zip.
 
-BigCommerce rejects themes when schema.json exceeds 64KB (often as a generic
-"A server error occurred"). stencil bundle pretty-prints schema.json, so we
-must minify it inside the zip after bundling.
+BigCommerce custom-theme upload rejects packages when schema.json exceeds
+64 KB (often as a generic "A server error occurred"). stencil bundle always
+pretty-prints schema.json (~100KB+ for PapaThemes Dinosaur), so this script:
+
+1. Runs `stencil bundle`
+2. Rewrites the zip with minified schema.json / config.json
+3. Drops parsed/stencilContext.json (not present in the original Drive package)
+4. Verifies size limits and required root files
 """
 from __future__ import annotations
 
@@ -13,36 +18,37 @@ import os
 import shutil
 import subprocess
 import sys
-import tempfile
 import zipfile
 from pathlib import Path
 
-LIMIT = 65536
+LIMIT_SCHEMA = 65536
+LIMIT_ZIP = 50 * 1024 * 1024
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def minify(path: Path) -> bytes:
+def minify_bytes(path: Path) -> bytes:
     data = json.loads(path.read_text(encoding="utf-8"))
     return json.dumps(data, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
 
 
-def rewrite_zip(src: Path, dest: Path, schema_bytes: bytes, config_bytes: bytes) -> None:
-    with tempfile.TemporaryDirectory() as td:
-        td_path = Path(td)
-        with zipfile.ZipFile(src, "r") as zin:
-            zin.extractall(td_path)
-        (td_path / "schema.json").write_bytes(schema_bytes + b"\n")
-        (td_path / "config.json").write_bytes(config_bytes + b"\n")
-        tmp = td_path / "out.zip"
-        with zipfile.ZipFile(tmp, "w", compression=zipfile.ZIP_DEFLATED) as zout:
-            for root, _dirs, files in os.walk(td_path):
-                for name in files:
-                    if name == "out.zip":
-                        continue
-                    full = Path(root) / name
-                    zout.write(full, full.relative_to(td_path).as_posix())
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(tmp, dest)
+def rewrite_zip(src: Path, dest: Path, replacements: dict[str, bytes], drop: set[str]) -> None:
+    """Copy stencil zip entry-by-entry, replacing/dropping selected files."""
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    tmp = dest.with_suffix(dest.suffix + ".tmp")
+    with zipfile.ZipFile(src, "r") as zin, zipfile.ZipFile(
+        tmp, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9
+    ) as zout:
+        for info in zin.infolist():
+            name = info.filename
+            if name in drop or name.endswith("/"):
+                continue
+            data = replacements[name] if name in replacements else zin.read(name)
+            out = zipfile.ZipInfo(filename=name, date_time=info.date_time)
+            out.compress_type = zipfile.ZIP_DEFLATED
+            out.external_attr = info.external_attr
+            out.create_system = info.create_system
+            zout.writestr(out, data)
+    tmp.replace(dest)
 
 
 def main() -> int:
@@ -57,32 +63,45 @@ def main() -> int:
     args = parser.parse_args()
 
     os.chdir(ROOT)
-    raw_bundle = ROOT / "Dinosaur-1.3.0.raw.zip"
+    raw_bundle = ROOT / "_stencil-raw-bundle.zip"
+
     if not args.skip_bundle:
         raw_bundle.unlink(missing_ok=True)
-        # stencil appends .zip to -n if missing; use basename without .zip carefully
-        cmd = ["npx", "stencil", "bundle", "-n", "Dinosaur-1.3.0.raw", "-t", "120"]
+        # Clean maps/report so they cannot slip into assets/**
+        dist = ROOT / "assets" / "dist"
+        if dist.exists():
+            for p in dist.glob("*.map"):
+                p.unlink()
+            report = dist / "report.html"
+            if report.exists():
+                report.unlink()
+        cmd = ["npx", "stencil", "bundle", "-n", "_stencil-raw-bundle", "-t", "180"]
         print("Running:", " ".join(cmd), flush=True)
         subprocess.check_call(cmd)
-        # stencil may write Dinosaur-1.3.0.raw.zip
+        # stencil may write name.zip or name.zip.zip depending on version
         if not raw_bundle.exists():
-            alt = ROOT / "Dinosaur-1.3.0.raw.zip.zip"
-            if alt.exists():
-                alt.rename(raw_bundle)
-            else:
-                matches = list(ROOT.glob("Dinosaur-1.3.0.raw*.zip*"))
-                raise SystemExit(f"bundle zip not found; saw {matches}")
+            candidates = sorted(ROOT.glob("_stencil-raw-bundle*.zip*"))
+            if not candidates:
+                raise SystemExit("stencil bundle did not produce a zip")
+            candidates[0].rename(raw_bundle)
 
-    schema_b = minify(ROOT / "schema.json")
-    config_b = minify(ROOT / "config.json")
-    print(f"schema.json minified: {len(schema_b)} / {LIMIT}")
-    print(f"config.json minified: {len(config_b)} / {LIMIT}")
-    if len(schema_b) > LIMIT:
-        raise SystemExit("schema.json exceeds 64KB after minify — trim Theme Editor settings")
-    if len(config_b) > LIMIT:
-        raise SystemExit("config.json exceeds 64KB after minify")
+    schema_b = minify_bytes(ROOT / "schema.json")
+    config_b = minify_bytes(ROOT / "config.json")
+    print(f"schema.json minified: {len(schema_b)} / {LIMIT_SCHEMA}")
+    print(f"config.json minified: {len(config_b)} / {LIMIT_SCHEMA}")
+    if len(schema_b) > LIMIT_SCHEMA:
+        raise SystemExit("schema.json still exceeds 64KB — trim Theme Editor tabs")
+    if len(config_b) > LIMIT_SCHEMA:
+        raise SystemExit("config.json exceeds 64KB")
 
-    rewrite_zip(raw_bundle, args.output, schema_b, config_b)
+    drop = {"parsed/stencilContext.json"}
+    rewrite_zip(
+        raw_bundle,
+        args.output,
+        {"schema.json": schema_b + b"\n", "config.json": config_b + b"\n"},
+        drop,
+    )
+
     also = [
         ROOT / "Dinosaur-1.3.0.zip",
         ROOT.parent / "jettribe-upload" / "jettribe-theme-no-reviews.zip",
@@ -92,11 +111,34 @@ def main() -> int:
         shutil.copy2(args.output, path)
         print("wrote", path, path.stat().st_size)
 
+    # Verify
+    size = args.output.stat().st_size
     with zipfile.ZipFile(args.output) as z:
+        names = set(z.namelist())
         s = len(z.read("schema.json"))
         c = len(z.read("config.json"))
-    print(f"OK {args.output} schema={s} config={c}")
+        assert "config.json" in names and "schema.json" in names
+        assert "parsed/stencilContext.json" not in names
+        assert not any(n.startswith("jettribe/") for n in names)
+        assert any(n.startswith("parsed/templates/") for n in names)
+        empty = [n for n in names if z.getinfo(n).file_size == 0]
+        over5 = [n for n in names if z.getinfo(n).file_size > 5 * 1024 * 1024]
+        print(f"OK {args.output}")
+        print(f"  zip={size} schema={s} config={c} files={len(names)}")
+        print(f"  empty={len(empty)} over5MB={over5}")
+        if size > LIMIT_ZIP:
+            raise SystemExit("zip exceeds 50MB")
+        if empty:
+            raise SystemExit(f"empty files in zip: {empty[:10]}")
+        if over5:
+            raise SystemExit(f"files over 5MB: {over5}")
+        z.testzip()
+
     raw_bundle.unlink(missing_ok=True)
+    artifact = Path("/opt/cursor/artifacts/jettribe-bigcommerce-upload.zip")
+    artifact.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(args.output, artifact)
+    print("wrote", artifact)
     return 0
 
 

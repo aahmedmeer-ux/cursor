@@ -3,3 +3,8 @@ node_modules/
 config.stencil.json
 .stencil
 parsed/
+
+# Local stencil bundles & maps
+Dinosaur-*.zip
+assets/dist/*.map
+package-lock.json

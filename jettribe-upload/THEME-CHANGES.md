@@ -1,8 +1,18 @@
 # Jettribe Theme Changes — Upload Notes
 
 ## Upload
-Use `jettribe-theme-no-reviews.zip` (Stencil-bundled).  
-Storefront → Themes → Upload Theme → Apply.
+Use **`jettribe-bigcommerce-upload.zip`** (repo root) or `jettribe-theme-no-reviews.zip`.  
+Download the **raw file** (not the GitHub HTML page), then: Storefront → Themes → Upload Theme → Apply.
+
+### If you see “A server error occurred”
+BigCommerce rejects themes when **`schema.json` > 64 KB** (often with that generic message).  
+Rebuild with:
+
+```bash
+cd jettribe && python3 scripts/prepare-bc-upload-zip.py
+```
+
+That runs `stencil bundle` and minifies `schema.json` / `config.json` inside the zip (Stencil re-pretty-prints schema during bundle).
 
 ## Done in this theme package
 

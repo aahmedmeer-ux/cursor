@@ -1,97 +1,147 @@
 /**
- * Jettribe Virtual Try-On proxy (Cloudflare Worker example)
+ * Jettribe Nano Banana Try-On proxy (Cloudflare Worker)
  *
- * Why a proxy?
- * Calling fal.ai from the browser would expose your API key in page source.
- * Deploy this worker, set FAL_KEY as a secret, then paste the worker URL into
- * Theme Editor → Virtual Try-On → Proxy URL.
+ * Why?
+ * - Keeps GEMINI_API_KEY / FAL_KEY off the storefront
+ * - Gemini Nano Banana (gemini-2.5-flash-image) is the same family as Nano Banana
  *
  * Deploy:
- *   1. npm i -g wrangler
- *   2. wrangler secret put FAL_KEY
- *   3. wrangler deploy
- *   4. Theme Editor → tryon_proxy_url = https://YOUR_WORKER.workers.dev
+ *   wrangler secret put GEMINI_API_KEY   # preferred (Google AI Studio)
+ *   # OR
+ *   wrangler secret put FAL_KEY
+ *   wrangler deploy
+ *   Theme Editor → tryon_proxy_url = https://YOUR_WORKER.workers.dev
  *
- * Request body (JSON):
- *   {
- *     "person_image": "data:image/jpeg;base64,...",
- *     "clothing_image_url": "https://cdn.../vest.jpg",
- *     "description": "Jettribe UR-20 Vest"
- *   }
- *
+ * POST JSON:
+ *   { prompt, image_urls: [personDataUrl, product1, ...] }
  * Response:
- *   { "result_url": "https://..." }
+ *   { result_url }
  */
-
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') {
       return cors(new Response(null, { status: 204 }));
     }
-
     if (request.method !== 'POST') {
       return cors(json({ error: 'Method not allowed' }, 405));
-    }
-
-    if (!env.FAL_KEY) {
-      return cors(json({ error: 'FAL_KEY not configured on worker' }, 500));
     }
 
     let body;
     try {
       body = await request.json();
     } catch (e) {
-      return cors(json({ error: 'Invalid JSON body' }, 400));
+      return cors(json({ error: 'Invalid JSON' }, 400));
     }
 
-    const person = body.person_image || body.person_image_url;
-    const clothing = body.clothing_image_url || body.garment_image_url;
-    const description = body.description || 'apparel';
-
-    if (!person || !clothing) {
-      return cors(json({ error: 'person_image and clothing_image_url are required' }, 400));
+    const prompt = body.prompt || '';
+    const imageUrls = body.image_urls || [];
+    if (!prompt || !imageUrls.length) {
+      return cors(json({ error: 'prompt and image_urls required' }, 400));
     }
 
-    const endpoint = env.FAL_ENDPOINT || 'https://fal.run/fal-ai/image-apps-v2/virtual-try-on';
-
-    const falRes = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        Authorization: `Key ${env.FAL_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        person_image_url: person,
-        clothing_image_url: clothing,
-        description,
-      }),
-    });
-
-    const text = await falRes.text();
-    let data;
     try {
-      data = JSON.parse(text);
+      if (env.GEMINI_API_KEY) {
+        const resultUrl = await geminiNanoBanana(env.GEMINI_API_KEY, prompt, imageUrls);
+        return cors(json({ result_url: resultUrl }));
+      }
+      if (env.FAL_KEY) {
+        const resultUrl = await falNanoBanana(env.FAL_KEY, prompt, imageUrls);
+        return cors(json({ result_url: resultUrl }));
+      }
+      return cors(json({ error: 'Set GEMINI_API_KEY or FAL_KEY on the worker' }, 500));
     } catch (e) {
-      return cors(json({ error: 'Upstream returned non-JSON', detail: text.slice(0, 300) }, 502));
+      return cors(json({ error: String(e && e.message || e) }, 502));
     }
-
-    if (!falRes.ok) {
-      return cors(json({ error: 'Try-on provider failed', detail: data }, falRes.status));
-    }
-
-    const resultUrl =
-      (data.image && data.image.url) ||
-      data.image_url ||
-      data.url ||
-      (data.images && data.images[0] && (data.images[0].url || data.images[0]));
-
-    if (!resultUrl) {
-      return cors(json({ error: 'No image in provider response', detail: data }, 502));
-    }
-
-    return cors(json({ result_url: resultUrl }));
   },
 };
+
+async function geminiNanoBanana(apiKey, prompt, imageUrls) {
+  const parts = [{ text: prompt }];
+  for (const url of imageUrls.slice(0, 8)) {
+    const { mime, data } = await toInline(url);
+    parts.push({ inline_data: { mime_type: mime, data } });
+  }
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts }],
+        generationConfig: {
+          responseModalities: ['TEXT', 'IMAGE'],
+        },
+      }),
+    },
+  );
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error && data.error.message || `gemini_${res.status}`);
+  }
+  const partsOut = (((data.candidates || [])[0] || {}).content || {}).parts || [];
+  for (const p of partsOut) {
+    const inline = p.inlineData || p.inline_data;
+    if (inline && inline.data) {
+      const mime = inline.mimeType || inline.mime_type || 'image/png';
+      return `data:${mime};base64,${inline.data}`;
+    }
+  }
+  throw new Error('gemini_no_image');
+}
+
+async function falNanoBanana(apiKey, prompt, imageUrls) {
+  const start = await fetch('https://queue.fal.run/fal-ai/nano-banana-2/edit', {
+    method: 'POST',
+    headers: {
+      Authorization: `Key ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      prompt,
+      image_urls: imageUrls,
+      num_images: 1,
+      aspect_ratio: '3:4',
+      resolution: '1K',
+      output_format: 'jpeg',
+      limit_generations: true,
+    }),
+  });
+  const started = await start.json();
+  if (!start.ok) throw new Error(started.detail || `fal_${start.status}`);
+  const statusUrl = started.status_url;
+  const responseUrl = started.response_url;
+  for (let i = 0; i < 90; i += 1) {
+    await new Promise((r) => setTimeout(r, 1500));
+    const st = await fetch(statusUrl, { headers: { Authorization: `Key ${apiKey}` } });
+    const body = await st.json();
+    if (body.status === 'COMPLETED') {
+      const res = await fetch(responseUrl, { headers: { Authorization: `Key ${apiKey}` } });
+      const data = await res.json();
+      const url = data.images && data.images[0] && data.images[0].url;
+      if (!url) throw new Error('fal_empty');
+      return url;
+    }
+    if (body.status === 'FAILED') throw new Error('fal_failed');
+  }
+  throw new Error('fal_timeout');
+}
+
+async function toInline(url) {
+  if (String(url).startsWith('data:')) {
+    const m = String(url).match(/^data:([^;]+);base64,(.+)$/);
+    if (!m) throw new Error('bad_data_url');
+    return { mime: m[1], data: m[2] };
+  }
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`fetch_${res.status}`);
+  const buf = await res.arrayBuffer();
+  const mime = res.headers.get('content-type') || 'image/jpeg';
+  let binary = '';
+  const bytes = new Uint8Array(buf);
+  for (let i = 0; i < bytes.length; i += 1) binary += String.fromCharCode(bytes[i]);
+  return { mime, data: btoa(binary) };
+}
 
 function json(obj, status = 200) {
   return new Response(JSON.stringify(obj), {

@@ -4546,7 +4546,7 @@
     "settings": [
       {
         "type": "paragraph",
-        "content": "Free AI Try It (Hugging Face IDM-VTON): shoppers upload a photo and the product is generatively fitted on them. No API keys or paid credits. Uses a public free GPU demo — may queue when busy."
+        "content": "Nano Banana try-on: shopper photo + product gallery images are edited together (fal.ai nano-banana-2/edit). Add a fal.ai API key, or a proxy URL that wraps Gemini Nano Banana. Requires fal credits or a Gemini key on the proxy."
       },
       {
         "type": "checkbox",
@@ -4557,6 +4557,16 @@
         "type": "text",
         "label": "Button label",
         "id": "tryon_button_label"
+      },
+      {
+        "type": "text",
+        "label": "Proxy URL (optional, keeps keys private)",
+        "id": "tryon_proxy_url"
+      },
+      {
+        "type": "text",
+        "label": "fal.ai API key (Nano Banana 2 Edit)",
+        "id": "tryon_api_key"
       }
     ]
   }

@@ -207,8 +207,11 @@
         {{~inject 'graphQLToken' settings.storefront_api.token}}
         {{~inject 'tryonEnable' theme_settings.tryon_enable}}
         {{~inject 'tryonButtonLabel' theme_settings.tryon_button_label}}
+        {{~inject 'tryonProxyUrl' theme_settings.tryon_proxy_url}}
+        {{~inject 'tryonApiKey' theme_settings.tryon_api_key}}
         {{~inject 'tryonLoading' (lang 'products.tryon.loading')}}
         {{~inject 'tryonErrorGeneric' (lang 'products.tryon.error_generic')}}
+        {{~inject 'tryonErrorNotConfigured' (lang 'products.tryon.error_not_configured')}}
         {{~inject 'tryonErrorNeedPhoto' (lang 'products.tryon.error_need_photo')}}
         {{~inject 'tryonErrorNoProduct' (lang 'products.tryon.error_no_product')}}
         {{~inject 'tryonErrorFileType' (lang 'products.tryon.error_file_type')}}

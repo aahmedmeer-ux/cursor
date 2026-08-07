@@ -11,63 +11,6 @@ function escapeXml(s: string): string {
     .replace(/'/g, "&apos;");
 }
 
-function slidePayload(slide: PresentationSlide): string[] {
-  const lines = [slide.title, ...slide.bullets].map((l) => l.trim()).filter(Boolean);
-  return lines.length ? lines : [slide.title || "Slide"];
-}
-
-/**
- * Replace text runs in a slide XML while preserving theme, layout, images, and styling.
- * Distributes title + bullets across existing <a:t> nodes (or the first N shapes).
- */
-function fillSlideXml(xml: string, slide: PresentationSlide): string {
-  const lines = slidePayload(slide);
-  const matches = [...xml.matchAll(/<a:t([^>]*)>([^<]*)<\/a:t>/g)];
-  if (!matches.length) return xml;
-
-  let out = xml;
-  // Work from the end so index offsets stay valid if we rebuild via sequential replace of unique markers
-  // Safer: rebuild by walking matches in order with a cursor
-  let cursor = 0;
-  let rebuilt = "";
-  let lineIdx = 0;
-
-  for (let i = 0; i < matches.length; i++) {
-    const m = matches[i];
-    const start = m.index ?? 0;
-    const full = m[0];
-    const attrs = m[1] || "";
-    rebuilt += out.slice(cursor, start);
-
-    let nextText = "";
-    if (i === 0) {
-      nextText = lines[0] || "";
-      lineIdx = 1;
-    } else if (lineIdx < lines.length) {
-      nextText = lines[lineIdx++];
-    } else if (i === matches.length - 1 && lineIdx < lines.length) {
-      // last leftover joined — shouldn't happen often
-      nextText = lines.slice(lineIdx).join(" ");
-      lineIdx = lines.length;
-    } else {
-      // Clear leftover placeholder junk in unused runs
-      nextText = "";
-    }
-
-    rebuilt += `<a:t${attrs}>${escapeXml(nextText)}</a:t>`;
-    cursor = start + full.length;
-  }
-  rebuilt += out.slice(cursor);
-
-  // If we still have unused bullet lines and only one text run, append into that run
-  if (matches.length === 1 && lines.length > 1) {
-    const combined = escapeXml(lines.join("\n"));
-    rebuilt = rebuilt.replace(/<a:t([^>]*)>([^<]*)<\/a:t>/, `<a:t$1>${combined}</a:t>`);
-  }
-
-  return rebuilt;
-}
-
 function listSlidePaths(zip: JSZip): string[] {
   return Object.keys(zip.files)
     .filter((n) => /^ppt\/slides\/slide\d+\.xml$/i.test(n))
@@ -78,124 +21,216 @@ function listSlidePaths(zip: JSZip): string[] {
     });
 }
 
+/**
+ * Fill only placeholder text frames (title / body / subtitle / obj).
+ * Leaves logo text, footers, and decorative shapes untouched so the template
+ * remains a true visual duplicate (images, backgrounds, masters intact).
+ */
+function fillPlaceholderText(xml: string, slide: PresentationSlide): string {
+  const title = (slide.title || "").trim();
+  const bullets = slide.bullets.map((b) => b.trim()).filter(Boolean);
+
+  // Split into shapes so we can detect p:ph type per shape
+  const shapeRegex =
+    /<p:sp\b[\s\S]*?<\/p:sp>|<p:pic\b[\s\S]*?<\/p:pic>|<p:cxnSp\b[\s\S]*?<\/p:cxnSp>|<p:grpSp\b[\s\S]*?<\/p:grpSp>/g;
+  const parts: { start: number; end: number; xml: string; kind: "shape" | "other" }[] = [];
+  let last = 0;
+  for (const m of xml.matchAll(shapeRegex)) {
+    const start = m.index ?? 0;
+    if (start > last) parts.push({ start: last, end: start, xml: xml.slice(last, start), kind: "other" });
+    parts.push({ start, end: start + m[0].length, xml: m[0], kind: "shape" });
+    last = start + m[0].length;
+  }
+  if (last < xml.length) parts.push({ start: last, end: xml.length, xml: xml.slice(last), kind: "other" });
+
+  // If we couldn't parse shapes, fall back to light title/body replacement on first runs only
+  if (!parts.some((p) => p.kind === "shape")) {
+    return fillAllTextRunsLightly(xml, title, bullets);
+  }
+
+  let titleFilled = false;
+  let bodyFilled = false;
+  let bulletIdx = 0;
+
+  const out = parts
+    .map((part) => {
+      if (part.kind !== "shape") return part.xml;
+      // Never touch pictures — preserves template images
+      if (/^<p:pic\b/i.test(part.xml)) return part.xml;
+
+      const ph = part.xml.match(/<p:ph\b([^>]*)\/?>/i)?.[1] || "";
+      const phType = (ph.match(/\btype="([^"]+)"/i)?.[1] || "").toLowerCase();
+      const isTitle = /^(title|ctrtitle|centertitle)$/i.test(phType);
+      const isBody =
+        !phType ||
+        /^(body|obj|subTitle|subtitle|chart|clipart|dgm|media|tbl|pic)$/i.test(phType);
+      const hasText = /<a:t[\s>]/.test(part.xml);
+
+      if (!hasText) return part.xml;
+
+      if (isTitle && !titleFilled) {
+        titleFilled = true;
+        return replaceShapeTextRuns(part.xml, [title]);
+      }
+
+      if (isBody && !isTitle && !bodyFilled) {
+        // Fill body placeholder with remaining bullets (one run per paragraph when possible)
+        const lines = bullets.length ? bullets : [title];
+        bodyFilled = true;
+        bulletIdx = lines.length;
+        return replaceShapeTextRuns(part.xml, lines);
+      }
+
+      // Non-placeholder decorative text: leave unchanged
+      if (!phType && !/<p:ph\b/i.test(part.xml)) {
+        return part.xml;
+      }
+
+      return part.xml;
+    })
+    .join("");
+
+  // If no explicit placeholders were found, do a careful first-run title + next-runs body fill
+  if (!titleFilled && !bodyFilled) {
+    return fillAllTextRunsLightly(xml, title, bullets);
+  }
+
+  // Suppress unused var lint
+  void bulletIdx;
+  return out;
+}
+
+function replaceShapeTextRuns(shapeXml: string, lines: string[]): string {
+  const runs = [...shapeXml.matchAll(/<a:t([^>]*)>([^<]*)<\/a:t>/g)];
+  if (!runs.length) return shapeXml;
+
+  // Prefer replacing whole paragraphs if the shape has multiple <a:p>
+  const paras = [...shapeXml.matchAll(/<a:p\b[\s\S]*?<\/a:p>/g)];
+  if (paras.length >= 1 && lines.length >= 1) {
+    let rebuilt = shapeXml;
+    // Replace from the end to keep indices stable
+    const targets = paras.slice(0, Math.max(paras.length, lines.length));
+    for (let i = targets.length - 1; i >= 0; i--) {
+      const p = targets[i];
+      const start = p.index ?? 0;
+      const end = start + p[0].length;
+      const text = lines[i] ?? "";
+      // Keep paragraph properties; replace only text runs inside
+      let para = p[0];
+      const innerRuns = [...para.matchAll(/<a:t([^>]*)>([^<]*)<\/a:t>/g)];
+      if (!innerRuns.length) {
+        // Inject a simple run if paragraph has no text
+        if (text) {
+          para = para.replace(
+            /<\/a:p>/,
+            `<a:r><a:rPr lang="en-US" dirty="0"/><a:t>${escapeXml(text)}</a:t></a:r></a:p>`
+          );
+        }
+      } else {
+        let cursor = 0;
+        let next = "";
+        for (let r = 0; r < innerRuns.length; r++) {
+          const m = innerRuns[r];
+          const rs = m.index ?? 0;
+          next += para.slice(cursor, rs);
+          const attrs = m[1] || "";
+          const value = r === 0 ? text : "";
+          next += `<a:t${attrs}>${escapeXml(value)}</a:t>`;
+          cursor = rs + m[0].length;
+        }
+        next += para.slice(cursor);
+        para = next;
+      }
+      rebuilt = rebuilt.slice(0, start) + para + rebuilt.slice(end);
+    }
+
+    // If we have more lines than paragraphs, append extra paragraphs before </p:txBody>
+    if (lines.length > paras.length) {
+      const extra = lines
+        .slice(paras.length)
+        .map(
+          (line) =>
+            `<a:p><a:pPr marL="0" indent="0"><a:buFont typeface="Arial"/><a:buChar char="•"/></a:pPr><a:r><a:rPr lang="en-US" dirty="0"/><a:t>${escapeXml(line)}</a:t></a:r></a:p>`
+        )
+        .join("");
+      rebuilt = rebuilt.replace(/<\/p:txBody>/, `${extra}</p:txBody>`);
+    }
+    return rebuilt;
+  }
+
+  // Fallback: first run gets joined lines
+  let cursor = 0;
+  let next = "";
+  for (let i = 0; i < runs.length; i++) {
+    const m = runs[i];
+    const start = m.index ?? 0;
+    next += shapeXml.slice(cursor, start);
+    const attrs = m[1] || "";
+    const value = i === 0 ? lines.join("\n") : "";
+    next += `<a:t${attrs}>${escapeXml(value)}</a:t>`;
+    cursor = start + m[0].length;
+  }
+  next += shapeXml.slice(cursor);
+  return next;
+}
+
+function fillAllTextRunsLightly(xml: string, title: string, bullets: string[]): string {
+  const runs = [...xml.matchAll(/<a:t([^>]*)>([^<]*)<\/a:t>/g)];
+  if (!runs.length) return xml;
+  const lines = [title, ...bullets];
+  let cursor = 0;
+  let rebuilt = "";
+  for (let i = 0; i < runs.length; i++) {
+    const m = runs[i];
+    const start = m.index ?? 0;
+    rebuilt += xml.slice(cursor, start);
+    const attrs = m[1] || "";
+    // Only overwrite the first N text runs; leave the rest (footers/logos) alone
+    if (i < lines.length) {
+      rebuilt += `<a:t${attrs}>${escapeXml(lines[i])}</a:t>`;
+    } else {
+      rebuilt += m[0];
+    }
+    cursor = start + m[0].length;
+  }
+  rebuilt += xml.slice(cursor);
+  return rebuilt;
+}
+
+/**
+ * True template duplicate:
+ * - Keep every slide, theme, master, image, and background from the uploaded PPTX
+ * - Only rewrite placeholder text with research content
+ * - Never strip media or slide relationships
+ */
 async function cloneTemplatePptx(
   templateBase64: string,
   presentation: ResearchPresentation
 ): Promise<Buffer> {
   const zip = await JSZip.loadAsync(Buffer.from(templateBase64, "base64"));
-  let slidePaths = listSlidePaths(zip);
+  const slidePaths = listSlidePaths(zip);
   if (!slidePaths.length) {
     throw new Error("Uploaded PPTX template has no slides to duplicate.");
   }
 
-  // If we need more slides than the template, duplicate the last content slide file
-  const presentationXmlPath = "ppt/presentation.xml";
-  const contentTypesPath = "[Content_Types].xml";
-  let presentationXml = (await zip.file(presentationXmlPath)?.async("string")) || "";
-  let contentTypes = (await zip.file(contentTypesPath)?.async("string")) || "";
-
-  while (slidePaths.length < presentation.slides.length) {
-    const srcPath = slidePaths[slidePaths.length - 1];
-    const srcXml = await zip.file(srcPath)!.async("string");
-    const nextNum = slidePaths.length + 1;
-    const destPath = `ppt/slides/slide${nextNum}.xml`;
-    zip.file(destPath, srcXml);
-    slidePaths = listSlidePaths(zip);
-
-    // Content_Types override
-    if (contentTypes && !contentTypes.includes(`slide${nextNum}.xml`)) {
-      contentTypes = contentTypes.replace(
-        "</Types>",
-        `<Override PartName="/ppt/slides/slide${nextNum}.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/></Types>`
-      );
-    }
-
-    // presentation.xml relationship — also need ppt/_rels/presentation.xml.rels
-    const relsPath = "ppt/_rels/presentation.xml.rels";
-    const rels = (await zip.file(relsPath)?.async("string")) || "";
-    if (rels && !rels.includes(`slide${nextNum}.xml`)) {
-      const ids = [...rels.matchAll(/Id="rId(\d+)"/g)].map((m) => Number(m[1]));
-      const nextId = (ids.length ? Math.max(...ids) : 1) + 1;
-      const relLine = `<Relationship Id="rId${nextId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide${nextNum}.xml"/>`;
-      const updatedRels = rels.replace("</Relationships>", `${relLine}</Relationships>`);
-      zip.file(relsPath, updatedRels);
-
-      if (presentationXml.includes("<p:sldIdLst>") && !presentationXml.includes(`slide${nextNum}`)) {
-        // sldId uses rId references
-        const sldIds = [...presentationXml.matchAll(/id="(\d+)"/g)].map((m) => Number(m[1]));
-        const nextSldId = (sldIds.length ? Math.max(...sldIds) : 255) + 1;
-        presentationXml = presentationXml.replace(
-          "</p:sldIdLst>",
-          `<p:sldId id="${nextSldId}" r:id="rId${nextId}"/></p:sldIdLst>`
-        );
-      }
-    }
-  }
-
-  // If template has extra slides beyond our content, leave them but clear text / or trim
-  // Prefer trimming extras so the deck matches our research content length
-  if (slidePaths.length > presentation.slides.length && presentationXml) {
-    const keep = presentation.slides.length;
-    // Remove trailing slide files from package references only (keep files harmless)
-    const relsPath = "ppt/_rels/presentation.xml.rels";
-    let rels = (await zip.file(relsPath)?.async("string")) || "";
-    for (let n = keep + 1; n <= slidePaths.length; n++) {
-      rels = rels.replace(
-        new RegExp(
-          `<Relationship[^>]*Target="slides/slide${n}\\.xml"[^>]*/>`,
-          "i"
-        ),
-        ""
-      );
-      presentationXml = presentationXml.replace(
-        new RegExp(`<p:sldId[^>]*r:id="rId\\d+"[^>]*/>`, "i"),
-        (match) => {
-          // We'll rebuild sldIdLst more carefully below if needed
-          return match;
-        }
-      );
-    }
-    // Rebuild sldIdLst from remaining slide relationships
-    const slideRels = [
-      ...rels.matchAll(
-        /<Relationship([^>]*Type="[^"]*relationships\/slide"[^>]*)\/>/g
-      ),
-    ]
-      .map((m) => {
-        const attrs = m[1];
-        const id = attrs.match(/Id="(rId\d+)"/i)?.[1];
-        const target = attrs.match(/Target="([^"]+)"/i)?.[1] || "";
-        const num = Number(target.match(/slide(\d+)/i)?.[1] || 0);
-        return { id, num };
-      })
-      .filter((x) => x.id && x.num > 0 && x.num <= keep)
-      .sort((a, b) => a.num - b.num);
-
-    if (slideRels.length) {
-      const lst = slideRels
-        .map((s, i) => `<p:sldId id="${256 + i}" r:id="${s.id}"/>`)
-        .join("");
-      presentationXml = presentationXml.replace(
-        /<p:sldIdLst>[\s\S]*?<\/p:sldIdLst>/,
-        `<p:sldIdLst>${lst}</p:sldIdLst>`
-      );
-      zip.file(relsPath, rels);
-    }
-  }
-
-  if (presentationXml) zip.file(presentationXmlPath, presentationXml);
-  if (contentTypes) zip.file(contentTypesPath, contentTypes);
-
-  // Fill text into the slides we keep
-  const finalPaths = listSlidePaths(zip).slice(0, presentation.slides.length);
-  for (let i = 0; i < finalPaths.length; i++) {
-    const path = finalPaths[i];
+  // Exact template length: map our content onto the template's own slides.
+  // Extra research slides wrap; missing ones reuse the last content.
+  for (let i = 0; i < slidePaths.length; i++) {
+    const path = slidePaths[i];
+    const content =
+      presentation.slides[i] ||
+      presentation.slides[presentation.slides.length - 1] || {
+        id: `slide-${i + 1}`,
+        title: presentation.title,
+        bullets: [presentation.subtitle, presentation.authorsPlaceholder],
+        kind: "results" as const,
+      };
     const xml = await zip.file(path)!.async("string");
-    const filled = fillSlideXml(xml, presentation.slides[i]);
-    zip.file(path, filled);
+    zip.file(path, fillPlaceholderText(xml, content));
   }
 
-  const out = await zip.generateAsync({ type: "nodebuffer" });
+  // Touch nothing else: theme, media, slideMasters, slideLayouts, notes, backgrounds stay intact
+  const out = await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" });
   return Buffer.from(out);
 }
 
@@ -316,6 +351,9 @@ export async function presentationToPptxBuffer(
       return await cloneTemplatePptx(templateBase64, presentation);
     } catch (err) {
       console.error("PPTX template clone failed, falling back:", err);
+      throw err instanceof Error
+        ? err
+        : new Error("Failed to duplicate the uploaded presentation template.");
     }
   }
   return fallbackGeneratedPptx(presentation);

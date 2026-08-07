@@ -21,7 +21,7 @@ import MatrixUploader, { type SheetEmbedInfo } from "@/components/MatrixUploader
 import GuideUploader from "@/components/GuideUploader";
 import { downloadBlob, downloadFromApi, slugify } from "@/lib/download";
 import { inferTopic } from "@/lib/matrix-utils";
-import { TEMPLATES, paperToHtml, paperToLatex, paperToMarkdown } from "@/lib/templates";
+import { TEMPLATES, paperToHtml, paperToMarkdown } from "@/lib/templates";
 import {
   HIGH_IMPACT_SURVEY_PRINCIPLES,
   REQUIRED_SURVEY_ARTIFACTS,
@@ -107,7 +107,9 @@ export default function Studio() {
     "formatted"
   );
   const [generating, setGenerating] = useState(false);
-  const [exporting, setExporting] = useState<"pdf" | "docx" | "proposal" | "pptx" | null>(null);
+  const [exporting, setExporting] = useState<"pdf" | "docx" | "proposal" | "pptx" | "latex" | null>(
+    null
+  );
   const [isInsecureHttp, setIsInsecureHttp] = useState(false);
 
   /** Sequential product wizard — survey first, then proposal, then presentation */
@@ -376,17 +378,39 @@ export default function Studio() {
     setExporting("pptx");
     setError(null);
     try {
+      if (!presentationTemplate?.originalBase64) {
+        throw new Error(
+          "Re-upload your PPTX template before downloading. Export needs the original file to duplicate images and backgrounds."
+        );
+      }
       await downloadFromApi(
         "/api/export-pptx",
         {
           presentation,
-          // Duplicate the uploaded PPTX theme/layout; fill with research content
-          templateBase64: presentationTemplate?.originalBase64 || null,
+          // True duplicate of the uploaded PPTX (images, backgrounds, masters kept)
+          templateBase64: presentationTemplate.originalBase64,
         },
         `${slugify(presentation.title)}.pptx`
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : "PPTX export failed");
+    } finally {
+      setExporting(null);
+    }
+  }
+
+  async function exportLatex() {
+    if (!paper) return;
+    setExporting("latex");
+    setError(null);
+    try {
+      await downloadFromApi(
+        "/api/export-latex",
+        { paper },
+        `${slugify(paper.title)}-latex.zip`
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "LaTeX export failed");
     } finally {
       setExporting(null);
     }
@@ -934,15 +958,15 @@ export default function Studio() {
                     </button>
                     <button
                       className="btn btn-secondary"
-                      onClick={() =>
-                        downloadText(
-                          `${slugify(paper.title)}.tex`,
-                          paperToLatex(paper),
-                          "application/x-tex;charset=utf-8"
-                        )
-                      }
+                      disabled={!!exporting}
+                      onClick={() => void exportLatex()}
                     >
-                      <Download className="h-4 w-4" /> LaTeX
+                      {exporting === "latex" ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Download className="h-4 w-4" />
+                      )}
+                      LaTeX ZIP
                     </button>
                   </div>
                 </div>
@@ -1288,7 +1312,7 @@ export default function Studio() {
                     <div className="mt-4 space-y-3">
                       <GuideUploader
                         label="Presentation template"
-                        hint="Upload your PPTX — we duplicate that exact template (theme & layouts) and fill research content"
+                        hint="Upload your PPTX — download is a true duplicate (images, backgrounds, masters kept), with research text filled into placeholders"
                         accept=".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation"
                         kind="template"
                         guide={presentationTemplate}

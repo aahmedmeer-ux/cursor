@@ -13,6 +13,15 @@ export async function POST(req: Request) {
     if (!presentation?.title || !Array.isArray(presentation.slides)) {
       return NextResponse.json({ error: "Missing presentation payload." }, { status: 400 });
     }
+    if (!templateBase64) {
+      return NextResponse.json(
+        {
+          error:
+            "Missing uploaded PPTX template bytes. Re-upload your presentation template, then download again so images and backgrounds are duplicated.",
+        },
+        { status: 400 }
+      );
+    }
     const buf = await presentationToPptxBuffer(presentation, templateBase64);
     const filename = `${String(presentation.title)
       .toLowerCase()

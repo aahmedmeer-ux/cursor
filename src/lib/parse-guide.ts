@@ -192,6 +192,7 @@ export async function parseGuideFile(
   let text = "";
   let structureNotes: string[] | undefined;
   let originalBase64: string | undefined;
+  let slideCount: number | undefined;
   let warnings: string[] = [];
 
   if (lower.endsWith(".docx") || mimeType.includes("wordprocessingml")) {
@@ -199,15 +200,20 @@ export async function parseGuideFile(
   } else if (lower.endsWith(".pptx") || mimeType.includes("presentationml")) {
     const extracted = await extractPptxSlides(data);
     text = sanitizeExtractedText(extracted.text);
-    structureNotes = extracted.slideTitles.filter(isCleanHeading).length
+    structureNotes = extracted.slideTitles.length
       ? extracted.slideTitles.map((t, i) =>
-          isCleanHeading(t) ? t : `Slide ${i + 1}`
+          isCleanHeading(t) || isReadablePlainText(t) ? t : `Slide ${i + 1}`
         )
       : extracted.notes;
-    // Keep original bytes so export can duplicate this exact template
+    // Keep original bytes so export can duplicate this exact template (images + backgrounds)
     originalBase64 = data.toString("base64");
+    slideCount = extracted.slideCount;
     if (!extracted.slideCount) {
       warnings.push("PPTX had no readable slides; a standard outline will be used.");
+    } else {
+      warnings.push(
+        `Template locked: export will duplicate all ${extracted.slideCount} slides with images and backgrounds preserved.`
+      );
     }
   } else if (
     lower.endsWith(".txt") ||
@@ -252,6 +258,7 @@ export async function parseGuideFile(
     structureNotes,
     byteLength: data.byteLength,
     originalBase64,
+    slideCount,
     warnings: warnings.length ? warnings : undefined,
   };
 }

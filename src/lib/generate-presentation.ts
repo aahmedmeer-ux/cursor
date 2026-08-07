@@ -75,12 +75,25 @@ export function generateResearchPresentation(input: {
 }): ResearchPresentation {
   const topic = (input.topic || input.paper.metadata.topic || input.paper.title).trim();
   const f = field(topic);
-  // Prefer exact slide labels from the uploaded PPTX so the deck mirrors the template
+  // Prefer exact slide labels / count from the uploaded PPTX so export is a true clone
   const fromTemplate = templateSlideHeadings(input.templateGuide);
-  const headings =
+  let headings =
     fromTemplate.length > 0
       ? fromTemplate
       : inferSectionHeadings(input.templateGuide ? [input.templateGuide] : [], DEFAULT_SLIDES);
+  const templateCount = input.templateGuide?.slideCount || fromTemplate.length;
+  if (templateCount > 0) {
+    // Lock content slide count to the template so every visual slide is filled, none invented
+    if (headings.length < templateCount) {
+      const pad = DEFAULT_SLIDES.filter((h) => !headings.includes(h));
+      headings = [...headings, ...pad].slice(0, templateCount);
+      while (headings.length < templateCount) {
+        headings.push(`Slide ${headings.length + 1}`);
+      }
+    } else if (headings.length > templateCount) {
+      headings = headings.slice(0, templateCount);
+    }
+  }
 
   const proposalSections = (input.proposal?.sections || []).filter((s) =>
     isReadablePlainText(s.heading)

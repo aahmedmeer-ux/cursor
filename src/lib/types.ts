@@ -169,6 +169,8 @@ export type UploadedGuide = {
   byteLength: number;
   /** Original file bytes (base64) — used to duplicate PPTX templates on export */
   originalBase64?: string;
+  /** Slide count detected in an uploaded PPTX template */
+  slideCount?: number;
   warnings?: string[];
 };
 

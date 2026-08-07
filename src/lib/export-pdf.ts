@@ -458,50 +458,51 @@ async function drawFigure(doc: jsPDF, state: ColState, fig: SurveyFigure, index:
 }
 
 function drawTable(doc: jsPDF, state: ColState, table: SurveyTable, index: number) {
-  if (state.y > BOTTOM - 45) {
-    doc.addPage();
-    state.y = TOP;
-  }
+  // Full-page table: always break two-column flow onto a fresh page so tables
+  // never overwrite body text or each other in a column band.
+  doc.addPage();
+  state.y = TOP;
   state.col = "left";
-  state.pageTop = state.y;
+  state.pageTop = TOP;
 
   const romans = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
   const roman = romans[index - 1] ?? String(index);
   setTimes(doc, "bold", 9);
   doc.text(`TABLE ${roman}`, PAGE_W / 2, state.y, { align: "center" });
-  state.y += 4;
+  state.y += 5;
   setTimes(doc, "bold", 8.5);
   for (const line of doc.splitTextToSize(table.title, FULL_W) as string[]) {
     doc.text(line, PAGE_W / 2, state.y, { align: "center" });
-    state.y += 3.6;
+    state.y += 3.8;
   }
   setTimes(doc, "italic", 8);
   for (const line of doc.splitTextToSize(table.caption, FULL_W) as string[]) {
     doc.text(line, PAGE_W / 2, state.y, { align: "center" });
-    state.y += 3.4;
+    state.y += 3.5;
   }
-  state.y += 2;
+  state.y += 3;
 
   autoTable(doc, {
     startY: state.y,
     head: [table.headers],
     body: table.rows.map((row) => row.map((cell) => String(cell ?? "").replace(/\s+/g, " ").trim())),
     styles: {
-      fontSize: 6.5,
-      cellPadding: 1.1,
+      fontSize: 7.5,
+      cellPadding: 1.4,
       overflow: "linebreak",
       font: "times",
       valign: "top",
-      minCellHeight: 5,
+      minCellHeight: 6,
     },
-    headStyles: { fillColor: [20, 40, 55], textColor: 255, fontStyle: "bold", fontSize: 7 },
+    headStyles: { fillColor: [20, 40, 55], textColor: 255, fontStyle: "bold", fontSize: 8 },
     alternateRowStyles: { fillColor: [245, 248, 250] },
-    margin: { left: MARGIN, right: MARGIN },
+    margin: { left: MARGIN, right: MARGIN, top: TOP, bottom: 15 },
     tableWidth: FULL_W,
     showHead: "everyPage",
+    pageBreak: "auto",
   });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  state.y = (((doc as any).lastAutoTable?.finalY as number) || state.y) + 5;
+  state.y = (((doc as any).lastAutoTable?.finalY as number) || state.y) + 6;
   state.pageTop = state.y;
   state.col = "left";
 }

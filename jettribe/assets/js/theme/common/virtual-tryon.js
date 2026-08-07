@@ -454,10 +454,17 @@ export default class VirtualTryOn {
         } catch (err) {
             // eslint-disable-next-line no-console
             console.error('Virtual try-on failed', err);
-            const timedOut = err && (err.name === 'AbortError' || String(err.message || '').indexOf('abort') !== -1);
-            const msg = timedOut
-                ? 'Try-on timed out. Please try a smaller photo or try again.'
-                : (this.context.tryonErrorGeneric || 'Sorry — try-on could not be generated. Please try another photo or check your AI proxy/API key.');
+            const errText = String((err && err.message) || err || '');
+            const timedOut = err && (err.name === 'AbortError' || errText.indexOf('abort') !== -1);
+            let msg = this.context.tryonErrorGeneric
+                || 'Sorry — try-on could not be generated. Please try another photo or check your AI proxy/API key.';
+            if (timedOut) {
+                msg = 'Try-on timed out. Please try a smaller photo or try again.';
+            } else if (/exhausted|balance|billing|locked|402|403/i.test(errText)) {
+                msg = 'AI try-on is ready, but the fal.ai account needs credits. Top up at fal.ai/dashboard/billing, then try again.';
+            } else if (/401|unauthorized|invalid.*key/i.test(errText)) {
+                msg = 'Virtual Try-On API key was rejected. Update Theme Editor → Virtual Try-On → fal.ai API key.';
+            }
             this.showStatus(msg, true);
         } finally {
             window.clearTimeout(timeoutId);

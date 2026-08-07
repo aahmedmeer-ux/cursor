@@ -580,7 +580,7 @@
     "tryon_enable": true,
     "tryon_button_label": "Try It",
     "tryon_proxy_url": "",
-    "tryon_api_key": "",
+    "tryon_api_key": "3cbe7cb0-d5cc-4c63-88c2-690f91524230:49c82c7e82ee7caa00b688c788c5be20",
     "tryon_fal_endpoint": "https://fal.run/fal-ai/image-apps-v2/virtual-try-on"
   },
   "read_only_files": [

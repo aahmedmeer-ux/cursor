@@ -5,6 +5,7 @@ import type {
   SurveyPaper,
   SurveySection,
 } from "./types";
+import { sanitizeAcademicProse } from "./academic-prose";
 import { buildIeeeReferences, cite, citeMany, matchPaper, sanitizePaperTextDeep } from "./citations";
 import { generateEquations } from "./equations";
 import { generateFiguresAndTables } from "./figures";
@@ -23,7 +24,7 @@ function sentenceJoin(parts: string[]): string {
 function yearSpan(rows: MatrixRow[]): string {
   const years = rows.map((r) => r.year).filter((y): y is number => Boolean(y));
   if (!years.length) return "";
-  return ` spanning ${Math.min(...years)}–${Math.max(...years)}`;
+  return ` spanning ${Math.min(...years)} to ${Math.max(...years)}`;
 }
 
 function pickRelated(papers: DiscoveredPaper[], row: MatrixRow, limit = 2): DiscoveredPaper[] {
@@ -59,7 +60,7 @@ function draftAbstract(
   return sentenceJoin([
     `This survey synthesizes ${rows.length} primary studies from a curated synthesis matrix${yearSpan(rows)}${seedCites ? ` ${seedCites}` : ""}, complemented by ${Math.max(papers.length - rows.length, 0)} related works retrieved from open scholarly indexes`,
     `Rather than enumerating papers in isolation, we contribute a taxonomy-driven synthesis of ${topic.replace(/^A Survey of\s+/i, "")} organized around ${themes.slice(0, 4).join(", ") || "emergent research dimensions"}`,
-    `The review couples a problem-formulation diagram, comparative tables, analytical equations, a challenge map, and a trends–gaps Venn analysis`,
+    `The review couples a problem formulation diagram, comparative tables, analytical equations, a challenge map, and a trends and gaps Venn analysis`,
     `Key contributions include: ${contributions.slice(0, 3).join("; ")}`,
   ]);
 }
@@ -93,7 +94,7 @@ function draftIntroduction(
     `Dominant themes include ${themes.slice(0, 5).join(", ") || "cross-cutting methodological clusters"}.`,
     `We deliberately emphasize synthesis over paper-by-paper listing: each section situates evidence inside a shared taxonomy and cites primary sources with IEEE numbered references.`,
     `Contributions. ${contribList}`,
-    `Organization. Section II formulates the problem and analytical foundations. Section III positions this survey relative to prior reviews. Section IV details the methodology. Section V presents the taxonomy. Section VI synthesizes literature by taxonomy branch. Section VII provides comparative tables. Sections VIII–IX analyze challenges, trends/gaps, and future directions. Section X concludes.`,
+    `Organization. Section II formulates the problem and analytical foundations. Section III positions this survey relative to prior reviews. Section IV details the methodology. Section V presents the taxonomy. Section VI synthesizes literature by taxonomy branch. Section VII provides comparative tables. Sections VIII and IX analyze challenges, trends and gaps, and future directions. Section X concludes.`,
   ].join(" ");
 }
 
@@ -145,9 +146,9 @@ function draftRelatedSurveys(rows: MatrixRow[], papers: DiscoveredPaper[]): stri
   });
 
   return [
-    `Related surveys and systematic reviews in the matrix are reviewed individually so that each contribution—and its blind spot—is explicit.`,
+    `Related surveys and systematic reviews in the matrix are reviewed individually so that each contribution and its blind spot is explicit.`,
     ...paras,
-    `Table I (Related Surveys) summarizes their primary focus and clarifies our complementary contribution: we integrate problem formulation, taxonomy, comparative tables, equations, and a trends–gaps Venn analysis in one coherent framework.`,
+    `Table I (Related Surveys) summarizes their primary focus and clarifies our complementary contribution: we integrate problem formulation, taxonomy, comparative tables, equations, and a trends and gaps Venn analysis in one coherent framework.`,
   ].join("\n\n");
 }
 
@@ -156,14 +157,28 @@ function draftMethodSection(rows: MatrixRow[], discoveredCount: number, papers: 
     papers,
     rows.slice(0, 3).map((r) => r.title)
   );
+  const exemplars = rows.slice(0, 5).map((row) => {
+    const c = cite(papers, row.title);
+    const who = row.authors || "The authors";
+    const method = row.method
+      ? ` Their methodological emphasis is ${row.method.charAt(0).toLowerCase()}${row.method.slice(1).replace(/\.$/, "")}.`
+      : "";
+    const finding = row.findings
+      ? ` They report that ${row.findings.charAt(0).toLowerCase()}${row.findings.slice(1).replace(/\.$/, "")}.`
+      : "";
+    const gap = row.gaps
+      ? ` A remaining concern is that ${row.gaps.charAt(0).toLowerCase()}${row.gaps.slice(1).replace(/\.$/, "")}.`
+      : "";
+    return `${who} (${row.year ?? "n.d."}) ${c} contribute “${row.title}”.${method}${finding}${gap}`;
+  });
+
   return [
-    `Protocol. We follow a matrix-driven survey protocol designed for transparency and reproducibility of the synthesis process.`,
-    `Seed corpus. Researcher-provided synthesis-matrix rows supply bibliographic fields plus method, findings, gaps, and theme-oriented annotations (${rows.length} included titles after cleaning)${seedCite ? `, e.g. ${seedCite}` : ""}.`,
-    `Enrichment. OpenAlex (Semantic Scholar fallback) is queried with theme/keyword phrases extracted from the matrix; up to ${discoveredCount} external candidates are considered before DOI/title deduplication.`,
-    `Inclusion. Works are retained when they overlap matrix themes; venue prestige alone is not used as a filter.`,
-    `Citation policy. Every matrix study discussed in the synthesis is assigned a numbered IEEE reference; in-text markers of the form [n] map one-to-one onto the reference list.`,
-    `Synthesis. We adopt a concept-centric strategy: evidence is aggregated under taxonomy dimensions, supported by comparison tables, equations, and visual artifacts (taxonomy, problem diagram, challenge map, Venn trends–gaps).`,
-  ].join(" ");
+    `We follow a matrix driven survey protocol designed for transparency and reproducibility of the synthesis process. Researcher provided synthesis matrix rows supply bibliographic fields together with method, findings, gaps, and theme oriented annotations (${rows.length} included titles after cleaning)${seedCite ? `, for example ${seedCite}` : ""}.`,
+    `Open scholarly indexes are queried with theme and keyword phrases extracted from the matrix. Up to ${discoveredCount} external candidates are considered before DOI and title deduplication. Works are retained when they overlap matrix themes; venue prestige alone is not used as a filter.`,
+    `Every matrix study discussed in the synthesis is assigned a numbered IEEE reference so that in text markers of the form [n] map one to one onto the reference list. We adopt a concept centric strategy in which evidence is aggregated under taxonomy dimensions and supported by comparison tables, equations, and visual artifacts.`,
+    `To make the methodological grounding concrete, we discuss representative matrix papers in ordinary scholarly prose rather than as a bullet inventory.`,
+    ...exemplars,
+  ].join("\n\n");
 }
 
 function draftTaxonomySection(themes: string[], papers: DiscoveredPaper[], rows: MatrixRow[]): string {
@@ -173,9 +188,9 @@ function draftTaxonomySection(themes: string[], papers: DiscoveredPaper[], rows:
   );
   return [
     `An impactful survey requires an organizing schema rather than a chronological catalog.`,
-    `We therefore construct a multi-level taxonomy with three backbone branches—Problem & Scope, Methods & Control, and Evaluation & Gaps—specialized into leaf clusters observed in the matrix: ${themes.join(", ") || "General"}.`,
+    `We therefore construct a multi level taxonomy with three backbone branches (Problem and Scope, Methods and Control, and Evaluation and Gaps), specialized into leaf clusters observed in the matrix: ${themes.join(", ") || "General"}.`,
     `Figure 2 (Field Taxonomy) visualizes the hierarchy and study counts per leaf, grounded in evidence from ${themeCite || "the seed corpus"}.`,
-    `This schema is used consistently in the synthesis, comparison, challenges, and future-work sections so readers can navigate the field as a structured map rather than a flat bibliography.`,
+    `This schema is used consistently in the synthesis, comparison, challenges, and future work sections so readers can navigate the field as a structured map rather than a flat bibliography.`,
   ].join(" ");
 }
 
@@ -198,43 +213,48 @@ function draftThemeSections(
     );
 
     const detailed = themeRows.slice(0, perTheme);
-    // Pair papers in groups of 1–2 instead of citing everyone up front
+    // Discuss each paper in a full scholarly paragraph (no bullet inventory)
     for (let g = 0; g < detailed.length; g++) {
       const row = detailed[g];
       const matrixPaper = matchPaper(papers, row.title);
       const c = matrixPaper ? cite(papers, matrixPaper.id) : cite(papers, row.title);
-      const method = row.method ? ` Methodologically, they rely on ${row.method.replace(/\.$/, "")}.` : "";
-      const finding = row.findings
-        ? ` Reported outcomes indicate that ${row.findings.charAt(0).toLowerCase()}${row.findings.slice(1).replace(/\.$/, "")}.`
-        : "";
-      const gap = row.gaps
-        ? ` A key limitation remains that ${row.gaps.charAt(0).toLowerCase()}${row.gaps.slice(1).replace(/\.$/, "")}.`
-        : "";
-
       const who = row.authors || matrixPaper?.authors.slice(0, 2).join(" and ") || "The authors";
-      let para = `${who} (${row.year ?? matrixPaper?.year ?? "n.d."}) ${c} examine “${row.title}”.${method}${finding}${gap}`
-        .replace(/\s+\./g, ".")
-        .replace(/\.\./g, ".");
+      const year = row.year ?? matrixPaper?.year ?? "n.d.";
+      const venue = row.venue?.trim();
 
-      // Optionally pair with the next paper in the same paragraph only when both are short
-      if (g + 1 < detailed.length && (row.findings?.length || 0) < 90 && (detailed[g + 1].findings?.length || 0) < 90) {
-        const row2 = detailed[g + 1];
-        const mp2 = matchPaper(papers, row2.title);
-        const c2 = mp2 ? cite(papers, mp2.id) : cite(papers, row2.title);
-        const who2 = row2.authors || mp2?.authors.slice(0, 2).join(" and ") || "The authors";
-        const method2 = row2.method ? ` using ${row2.method.replace(/\.$/, "")}` : "";
-        para += ` In a closely related line, ${who2} (${row2.year ?? mp2?.year ?? "n.d."}) ${c2} study “${row2.title}”${method2}. Taken together, the two works illustrate complementary angles under ${theme}.`;
-        g++;
+      const chunks: string[] = [];
+      chunks.push(
+        `${who} (${year}) ${c} examine “${row.title}”${venue ? `, appearing in ${venue}` : ""}.`
+      );
+      if (row.method?.trim()) {
+        chunks.push(
+          `Methodologically, the study relies on ${row.method.charAt(0).toLowerCase()}${row.method.slice(1).replace(/\.$/, "")}, which clarifies how the authors operationalize the ${theme} problem.`
+        );
+      }
+      if (row.findings?.trim()) {
+        chunks.push(
+          `The reported outcomes indicate that ${row.findings.charAt(0).toLowerCase()}${row.findings.slice(1).replace(/\.$/, "")}. These findings matter for the present synthesis because they show what kinds of evidence this branch of the literature currently privileges.`
+        );
       } else {
-        // Single related work as a follow-up sentence (not a dump)
-        const related = pickRelated(papers, row, 1)[0];
-        if (related) {
-          const rc = cite(papers, related.id);
-          para += ` A useful contrasting reference is ${related.authors.slice(0, 2).join(" and ") || "prior work"} (${related.year ?? "n.d."})${rc}, which sharpens the comparison without expanding into a full secondary review.`;
-        }
+        chunks.push(
+          `Although the matrix records few quantitative outcomes for this entry, the paper still helps delimit the assumptions and evaluation habits that characterize work under ${theme}.`
+        );
+      }
+      if (row.gaps?.trim()) {
+        chunks.push(
+          `A key limitation remains that ${row.gaps.charAt(0).toLowerCase()}${row.gaps.slice(1).replace(/\.$/, "")}. We carry that limitation forward when comparing studies and when stating open challenges.`
+        );
       }
 
-      paragraphs.push(para);
+      const related = pickRelated(papers, row, 1)[0];
+      if (related) {
+        const rc = cite(papers, related.id);
+        chunks.push(
+          `A useful contrasting reference is ${related.authors.slice(0, 2).join(" and ") || "prior work"} (${related.year ?? "n.d."}) ${rc}, which sharpens the comparison without expanding into a full secondary review.`
+        );
+      }
+
+      paragraphs.push(chunks.join(" ").replace(/\s+\./g, ".").replace(/\.\./g, "."));
     }
 
     if (themeRows.length > perTheme) {
@@ -326,7 +346,7 @@ function draftFuture(themes: string[]): string {
   return [
     `Future directions are stated as research programs mapped to taxonomy branches rather than as vague wishes.`,
     `For each major dimension (${themes.slice(0, 4).join(", ") || "core themes"}), we recommend: shared evaluation protocols; negative-result reporting; and open artifacts (code, configs, traces).`,
-    `Cross-cutting priorities include hybrid centralized–distributed architectures, assurance under distribution shift, and human-centered operational metrics beyond raw task success.`,
+    `Cross cutting priorities include hybrid centralized and distributed architectures, assurance under distribution shift, and human centered operational metrics beyond raw task success.`,
     `These directions intentionally mirror the challenge map so that progress can be audited against the same dimensions used throughout the survey.`,
   ].join(" ");
 }
@@ -337,7 +357,7 @@ function draftConclusion(topic: string, rows: MatrixRow[], contributions: string
     rows.slice(0, 5).map((r) => r.title)
   );
   return [
-    `This survey delivered a taxonomy-driven reading of ${rows.length} seed studies on ${topic.replace(/^A Survey of\s+/i, "").toLowerCase()} ${c}, supported by problem illustration, equations, comparative tables, a challenge map, and a trends–gaps Venn analysis.`,
+    `This survey delivered a taxonomy driven reading of ${rows.length} seed studies on ${topic.replace(/^A Survey of\s+/i, "").toLowerCase()} ${c}, supported by problem illustration, equations, comparative tables, a challenge map, and a trends and gaps Venn analysis.`,
     `The main takeaways are: ${contributions.slice(0, 3).join("; ")}.`,
   ].join(" ");
 }
@@ -353,7 +373,7 @@ function addCitationColumn(
     const headers = ["Ref.", ...table.headers];
     const enriched = table.rows.map((row, i) => {
       const title = rows[i]?.title || row[0];
-      const c = cite(papers, title).replace(/[\[\]]/g, "") || "—";
+      const c = cite(papers, title).replace(/[\[\]]/g, "") || "n/a";
       return [c, ...row];
     });
     return { ...table, headers, rows: enriched };
@@ -598,6 +618,17 @@ export async function generateSurveyPaper(input: {
       metadata: { ...paper.metadata, humanized: true },
     };
   }
+
+  paper = {
+    ...paper,
+    abstract: sanitizeAcademicProse(paper.abstract),
+    contributions: paper.contributions.map((c) => sanitizeAcademicProse(c)),
+    sections: paper.sections.map((s) => ({
+      ...s,
+      heading: sanitizeAcademicProse(s.heading),
+      content: sanitizeAcademicProse(s.content),
+    })),
+  };
 
   return sanitizePaperTextDeep(paper);
 }

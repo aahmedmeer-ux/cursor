@@ -152,18 +152,25 @@ async function extractPdfText(buf: Buffer): Promise<string> {
   return "";
 }
 
-async function extractImageText(buf: Buffer, mimeType: string): Promise<string> {
+async function extractImageText(buf: Buffer, mimeType: string): Promise<{ text: string; warning?: string }> {
   try {
     const Tesseract = await import("tesseract.js");
+    // Avoid Next.js broken worker path by running recognize in-process when possible
     const result = await Tesseract.recognize(buf, "eng", {
       logger: () => undefined,
     });
     const cleaned = sanitizeExtractedText(result.data.text || "");
-    if (cleaned.length >= 10) return cleaned;
-    return `Image guidelines uploaded (${mimeType || "image"}). Limited OCR text; using standard proposal section outline with any detected words: ${cleaned || "(none)"}`;
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "OCR failed";
-    throw new Error(`Could not read text from image guidelines: ${message}`);
+    if (cleaned.length >= 10) return { text: cleaned };
+    return {
+      text: cleaned,
+      warning:
+        "Image guidelines uploaded with limited OCR text. Using the standard proposal outline plus any detected words.",
+    };
+  } catch {
+    return {
+      text: "",
+      warning: `Image “guidelines” uploaded (${mimeType || "image"}), but OCR is unavailable in this environment. Using the standard proposal outline. Prefer DOCX or TXT for full guideline text.`,
+    };
   }
 }
 
@@ -218,8 +225,10 @@ export async function parseGuideFile(
       );
     }
   } else if (isImageFile(fileName, mimeType)) {
-    text = await extractImageText(data, mimeType);
-    originalBase64 = data.toString("base64");
+    const imaged = await extractImageText(data, mimeType);
+    text = imaged.text;
+    if (imaged.warning) warnings.push(imaged.warning);
+    // Do not keep image bytes in the guide payload (keeps generate requests small)
   } else {
     throw new Error(
       `Unsupported guide format for "${fileName}". Upload .txt, .md, .docx, .pptx, .pdf, or an image (PNG/JPG/WEBP).`

@@ -5,6 +5,7 @@ import type {
   SurveyPaper,
   UploadedGuide,
 } from "./types";
+import { sanitizeAcademicProse } from "./academic-prose";
 import { inferSectionHeadings, isCleanHeading, isReadablePlainText } from "./parse-guide";
 
 function field(topic: string): string {
@@ -167,14 +168,14 @@ export function generateResearchPresentation(input: {
         bullets = bulletsFromText(input.paper.abstract, 3);
     }
 
-    const safeBullets = bullets.filter((b) => isReadablePlainText(b.slice(0, 160)));
+    const safeBullets = bullets
+      .map((b) => sanitizeAcademicProse(b))
+      .filter((b) => isReadablePlainText(b.slice(0, 160)));
     return {
       id: `slide-${i + 1}`,
-      title: kind === "title" ? `Research Presentation: ${f}` : title,
+      title: sanitizeAcademicProse(kind === "title" ? `Research Presentation: ${f}` : title),
       bullets: safeBullets.length ? safeBullets : [`Key points on ${f}`],
-      notes: input.templateGuide?.originalBase64
-        ? "Filled into your uploaded presentation template (theme & layout preserved)."
-        : undefined,
+      notes: "Filled into your uploaded presentation template (theme and layout preserved).",
       kind,
     };
   });

@@ -9,9 +9,10 @@ const GuideSchema = z.object({
   fileName: z.string(),
   kind: z.enum(["template", "guidelines", "notes"]),
   mimeType: z.string(),
-  text: z.string(),
+  text: z.string().default(""),
   structureNotes: z.array(z.string()).optional(),
-  byteLength: z.number(),
+  byteLength: z.number().optional().default(0),
+  // Accept but ignore large binary payloads from older clients
   originalBase64: z.string().optional(),
   warnings: z.array(z.string()).optional(),
 });
@@ -27,7 +28,8 @@ const BodySchema = z.object({
 
 export async function POST(req: Request) {
   try {
-    const body = BodySchema.parse(await req.json());
+    const json = await req.json();
+    const body = BodySchema.parse(json);
     if (!body.paper?.title || !Array.isArray(body.paper.sections)) {
       return NextResponse.json({ error: "Survey paper is required first." }, { status: 400 });
     }
@@ -38,18 +40,41 @@ export async function POST(req: Request) {
       );
     }
 
+    const strip = (g: z.infer<typeof GuideSchema> | null | undefined): UploadedGuide | null => {
+      if (!g) return null;
+      return {
+        fileName: g.fileName,
+        kind: g.kind,
+        mimeType: g.mimeType,
+        text: g.text || "",
+        structureNotes: g.structureNotes,
+        byteLength: g.byteLength || 0,
+        warnings: g.warnings,
+      };
+    };
+
     const proposal = generateResearchProposal({
       paper: body.paper,
       rows: body.rows as MatrixRow[],
-      templateGuide: (body.templateGuide as UploadedGuide | null) || null,
-      guidelinesGuide: (body.guidelinesGuide as UploadedGuide | null) || null,
+      templateGuide: strip(body.templateGuide),
+      guidelinesGuide: strip(body.guidelinesGuide),
       authorName: body.authorName,
       topic: body.topic,
     });
 
+    if (!proposal?.title || !proposal.sections?.length) {
+      return NextResponse.json({ error: "Proposal generator returned an empty document." }, { status: 500 });
+    }
+
     return NextResponse.json({ proposal });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Proposal generation failed";
+    const message =
+      err instanceof z.ZodError
+        ? `Invalid proposal request: ${err.issues.slice(0, 3).map((i) => i.message).join("; ")}`
+        : err instanceof Error
+          ? err.message
+          : "Proposal generation failed";
+    console.error("generate-proposal error:", err);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

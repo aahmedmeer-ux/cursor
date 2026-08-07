@@ -4,6 +4,7 @@ import type {
   SurveyPaper,
   UploadedGuide,
 } from "./types";
+import { joinParagraphs, sanitizeAcademicProse } from "./academic-prose";
 import { inferSectionHeadings, isReadablePlainText } from "./parse-guide";
 
 const DEFAULT_PROPOSAL_SECTIONS = [
@@ -24,9 +25,7 @@ function field(topic: string): string {
 }
 
 function topGaps(rows: MatrixRow[], limit = 5): string[] {
-  const gaps = rows
-    .map((r) => r.gaps.trim())
-    .filter((g) => g.length > 12);
+  const gaps = rows.map((r) => r.gaps.trim()).filter((g) => g.length > 12);
   const uniq: string[] = [];
   const seen = new Set<string>();
   for (const g of gaps) {
@@ -47,13 +46,74 @@ function topThemes(paper: SurveyPaper, rows: MatrixRow[]): string[] {
   return [...new Set(fromRows)].slice(0, 6);
 }
 
-function guideExcerpt(guides: UploadedGuide[], max = 900): string {
+function guideExcerpt(guides: UploadedGuide[], max = 700): string {
   const lines = guides
     .flatMap((g) => g.text.split("\n"))
     .map((l) => l.trim())
     .filter((l) => l.length > 20 && isReadablePlainText(l.slice(0, 160)));
-  const blob = lines.join(" ").replace(/\s+/g, " ").trim();
-  return blob.slice(0, max);
+  return sanitizeAcademicProse(lines.join(" ").replace(/\s+/g, " ")).slice(0, max);
+}
+
+function discussPaper(row: MatrixRow): string {
+  const who = row.authors?.trim() || "The authors";
+  const year = row.year ?? "n.d.";
+  const method = row.method?.trim();
+  const findings = row.findings?.trim();
+  const gaps = row.gaps?.trim();
+  const venue = row.venue?.trim();
+
+  const sentences: string[] = [];
+  sentences.push(
+    `${who} (${year}) present “${row.title}”${venue ? ` in ${venue}` : ""}.`
+  );
+  if (method) {
+    sentences.push(
+      `Their study is organized around ${method.charAt(0).toLowerCase()}${method.slice(1).replace(/\.$/, "")}, which situates the contribution within the broader methodological landscape of the field.`
+    );
+  }
+  if (findings) {
+    sentences.push(
+      `The reported results indicate that ${findings.charAt(0).toLowerCase()}${findings.slice(1).replace(/\.$/, "")}.`
+    );
+  } else {
+    sentences.push(
+      `While detailed numerical outcomes are only sparsely recorded in the synthesis matrix, the work nonetheless clarifies how this line of inquiry frames the problem and what kinds of evidence it privileges.`
+    );
+  }
+  if (gaps) {
+    sentences.push(
+      `Importantly, the authors leave open that ${gaps.charAt(0).toLowerCase()}${gaps.slice(1).replace(/\.$/, "")}, a limitation that directly informs the design choices in the present proposal.`
+    );
+  }
+  return sanitizeAcademicProse(sentences.join(" "));
+}
+
+function draftMethodologyNarrative(rows: MatrixRow[], fieldName: string, themes: string[]): string {
+  const focus = rows.slice(0, 8);
+  const paras: string[] = [];
+
+  paras.push(
+    `The proposed methodology begins from a close reading of the primary studies already curated in the synthesis matrix for ${fieldName}. Rather than reducing those studies to short labels, we treat each as a substantive research contribution whose design choices, evidence, and residual limitations must be understood before any new protocol is fixed.`
+  );
+
+  if (focus.length) {
+    paras.push(
+      `We first revisit the most informative matrix papers in narrative form so that the protocol inherits their concrete lessons.`
+    );
+    for (const row of focus) {
+      paras.push(discussPaper(row));
+    }
+  }
+
+  paras.push(
+    `Synthesizing across these accounts, the working themes of ${themes.slice(0, 4).join(", ") || "the surveyed domain"} suggest a staged inquiry. The first stage formalizes constructs and success criteria using the comparative dimensions that emerged in the survey. The second stage carries out data collection, secondary analysis, or controlled evaluation as appropriate to the research questions. The third stage validates outcomes against the challenge map developed in the survey and revises the gap narrative with new evidence.`
+  );
+
+  paras.push(
+    `Throughout, every claim will be tied either to a matrix study discussed above or to newly collected results. Inclusion criteria, analysis scripts, and reporting conventions will be documented so that the study remains reproducible and so that later readers can see exactly how the proposal moves from prior literature to a concrete research design.`
+  );
+
+  return joinParagraphs(paras);
 }
 
 function draftSection(
@@ -69,97 +129,97 @@ function draftSection(
   }
 ): string {
   const h = heading.toLowerCase();
-  const citeHint =
-    ctx.paper.references.slice(0, 4).map((r) => r.key || r.id).filter(Boolean).join(", ") ||
-    "the surveyed corpus";
 
   if (/abstract/.test(h)) {
-    return [
-      `This research proposal develops a focused investigation on ${ctx.field}, grounded in a freshly rewritten synthesis of ${ctx.paper.metadata.matrixPaperCount} matrix studies and related literature.`,
-      `Building on the survey “${ctx.paper.title}”, we identify unresolved gaps around ${ctx.gaps.slice(0, 2).join("; ") || ctx.themes.slice(0, 2).join(" and ") || "methodological rigor and evaluation depth"}.`,
-      `We propose objectives, a methods plan, and expected contributions aligned with the uploaded proposal guidelines.`,
-    ].join(" ");
+    return joinParagraphs([
+      `This research proposal develops a focused investigation on ${ctx.field}, grounded in a rewritten synthesis of ${ctx.paper.metadata.matrixPaperCount} matrix studies and related literature.`,
+      `Building on the survey “${ctx.paper.title}”, we concentrate on unresolved issues around ${ctx.gaps.slice(0, 2).join("; ") || ctx.themes.slice(0, 2).join(" and ") || "methodological rigor and evaluation depth"}.`,
+      `The proposal states clear objectives, a literature informed methods plan, and expected contributions aligned with the uploaded guidelines.`,
+    ]);
   }
 
   if (/introduction|motivation|background/.test(h)) {
-    return [
-      `${ctx.field} has matured into a dense research space, yet practice still lacks a coherent agenda that connects taxonomy-level findings to executable research designs.`,
-      `Our survey draft establishes the problem landscape, comparative methods, and open challenges; this proposal translates those findings into a concrete research programme.`,
+    return joinParagraphs([
+      `${ctx.field} has grown into a dense research space, yet the community still needs a coherent agenda that turns taxonomy level findings into executable research designs.`,
+      `Our survey establishes the problem landscape, comparative methods, and open challenges. This proposal converts those findings into a concrete research programme rather than restating the survey as a catalogue.`,
       ctx.guideHint
-        ? `Template and guideline cues emphasize: ${ctx.guideHint.slice(0, 280)}.`
-        : `We follow a standard academic proposal structure while remaining faithful to the survey evidence base.`,
-      `The motivation is not incremental cataloguing, but closing the highest-leverage gaps surfaced in the synthesis (${citeHint}).`,
-    ].join(" ");
+        ? `The uploaded template and guideline materials emphasize expectations such as the following: ${ctx.guideHint.slice(0, 260)}.`
+        : `We follow a conventional academic proposal structure while remaining faithful to the survey evidence base.`,
+      `The motivation is therefore to close the highest leverage gaps surfaced in the synthesis, not merely to incrementally extend prior catalogues.`,
+    ]);
   }
 
   if (/problem|gap|related work|literature/.test(h)) {
-    const gapList = ctx.gaps.length
-      ? ctx.gaps.map((g, i) => `(${i + 1}) ${g}`).join(" ")
-      : `(1) Limited cross-study comparison protocols; (2) weak linkage between taxonomy categories and evaluation metrics; (3) insufficient longitudinal evidence.`;
-    return [
-      `Prior work covered in the survey shows progress along ${ctx.themes.slice(0, 4).join(", ") || "core themes"}, but evidence remains fragmented.`,
-      `Critical gaps motivating this proposal include: ${gapList}`,
-      `We therefore redefine the research problem as designing, validating, and reporting a study programme that systematically addresses these gaps rather than restating the survey narrative.`,
-    ].join(" ");
+    const gapNarrative = ctx.gaps.length
+      ? ctx.gaps
+          .map((g) => sanitizeAcademicProse(g))
+          .map((g, i) => {
+            if (i === 0) return `One persistent difficulty is that ${g.charAt(0).toLowerCase()}${g.slice(1).replace(/\.$/, "")}.`;
+            if (i === 1) return `A second difficulty is that ${g.charAt(0).toLowerCase()}${g.slice(1).replace(/\.$/, "")}.`;
+            return `A further difficulty is that ${g.charAt(0).toLowerCase()}${g.slice(1).replace(/\.$/, "")}.`;
+          })
+          .join(" ")
+      : `Prior studies often diverge in evaluation protocols, leave taxonomy categories weakly linked to measurable outcomes, and offer limited longitudinal evidence.`;
+
+    const paperBits = ctx.rows.slice(0, 4).map((r) => discussPaper(r));
+
+    return joinParagraphs([
+      `Prior work covered in the survey shows progress along ${ctx.themes.slice(0, 4).join(", ") || "core themes"}, but the evidence remains fragmented when read study by study.`,
+      ...paperBits,
+      gapNarrative,
+      `We therefore define the research problem as designing, validating, and reporting a study programme that systematically addresses these gaps, rather than reprinting the survey narrative.`,
+    ]);
   }
 
   if (/objective|aim|question|hypothesis/.test(h)) {
-    return [
-      `Primary aim: advance a rigorous, evidence-grounded contribution in ${ctx.field} that directly responds to the gaps identified in the rewritten survey.`,
-      `Research questions: (RQ1) Which methodological choices most strongly explain divergent findings across the surveyed corpus? (RQ2) How can a taxonomy-guided experimental or analytical design close the top evaluation gaps? (RQ3) What transferable guidelines emerge for future work?`,
-      `Objectives: (O1) formalize constructs from the survey taxonomy; (O2) design a study protocol with measurable success criteria; (O3) produce publishable artifacts (analysis, datasets/protocol notes, and implications) aligned with venue expectations.`,
-    ].join(" ");
+    return joinParagraphs([
+      `The primary aim is to advance a rigorous, evidence grounded contribution in ${ctx.field} that responds directly to the gaps identified in the rewritten survey.`,
+      `The first research question asks which methodological choices most strongly explain divergent findings across the surveyed corpus. The second asks how a taxonomy guided experimental or analytical design can close the most urgent evaluation gaps. The third asks what transferable guidelines emerge for subsequent work.`,
+      `In practical terms, the objectives are to formalize constructs from the survey taxonomy, to design a study protocol with measurable success criteria, and to produce publishable artifacts including analysis, protocol notes, and implications that match venue expectations.`,
+    ]);
   }
 
   if (/method|approach|design/.test(h)) {
-    return [
-      `We adopt a mixed synthesis-to-experiment pathway: start from the survey taxonomy and comparison tables, then operationalize the highest-priority gap into a concrete study design.`,
-      `Phase A — construct definition and protocol design using the survey’s comparative dimensions. Phase B — data collection / secondary analysis / controlled evaluation as appropriate to ${ctx.field}. Phase C — validation against the challenge map and trends–gaps analysis from the survey.`,
-      `Quality controls include explicit inclusion criteria, reproducibility notes, and mapping every claim back to matrix evidence or newly collected results.`,
-      ctx.rows[0]?.method
-        ? `Seed methodological cues from the matrix include approaches such as ${[...new Set(ctx.rows.map((r) => r.method).filter(Boolean))].slice(0, 4).join(", ")}.`
-        : `Method selection will be justified against alternatives documented in the survey comparison tables.`,
-    ].join(" ");
+    return draftMethodologyNarrative(ctx.rows, ctx.field, ctx.themes);
   }
 
   if (/contribution|outcome|expected|deliverable|significance|innovation/.test(h)) {
     const contribs = ctx.paper.contributions?.slice(0, 3) || [];
-    return [
-      `Expected contributions extend—not copy—the survey contributions: ${contribs.join("; ") || "a clarified problem framing, comparative evidence, and a forward research agenda"}.`,
-      `Deliverables include a detailed protocol, empirical or analytical results addressing RQ1–RQ3, and a discussion that revises the survey’s gap map with new evidence.`,
-      `Significance: the work converts a literature synthesis into an actionable research trajectory with clear evaluation criteria and transferable guidance for the community.`,
-    ].join(" ");
+    return joinParagraphs([
+      `Expected contributions extend the survey rather than copy it. In particular, we build on ${contribs.join("; ") || "a clarified problem framing, comparative evidence, and a forward research agenda"} by converting those insights into an executable study with new evidence.`,
+      `Deliverables include a detailed protocol, empirical or analytical results that answer the research questions, and a discussion that revises the survey gap map in light of those results.`,
+      `The significance of the work lies in turning a literature synthesis into an actionable research trajectory with clear evaluation criteria and guidance that other researchers can reuse.`,
+    ]);
   }
 
   if (/timeline|work plan|schedule|plan/.test(h)) {
-    return [
-      `Month 1–2: finalize constructs, success metrics, and ethics/reproducibility checklist from the survey gap analysis.`,
-      `Month 3–5: execute the core study design (data gathering, experiments, or structured secondary analysis).`,
-      `Month 6–7: analyze results against taxonomy dimensions; draft manuscripts and revise proposal claims.`,
-      `Month 8: package artifacts, limitations, and a revised research agenda for presentation and submission.`,
-    ].join(" ");
+    return joinParagraphs([
+      `In the opening months we finalize constructs, success metrics, and a reproducibility checklist drawn from the survey gap analysis.`,
+      `The middle phase executes the core study design through data gathering, experiments, or structured secondary analysis, depending on which path best answers the research questions.`,
+      `Later months are reserved for analysis against the taxonomy dimensions, manuscript drafting, revision of proposal claims, and packaging of artifacts, limitations, and a revised research agenda for presentation and submission.`,
+    ]);
   }
 
   if (/resource|budget|feasibility|risk|ethic/.test(h)) {
-    return [
-      `Feasibility rests on the already-completed synthesis matrix and survey draft, which supply themes, candidate methods, and citation scaffolding.`,
-      `Required resources are primarily compute/analysis tooling, access to literature indexes, and researcher time for protocol execution and writing.`,
-      `Risks (scope creep, sparse data, shifting venue requirements) are mitigated by anchoring every milestone to a survey-identified gap and keeping deliverables modular.`,
-    ].join(" ");
+    return joinParagraphs([
+      `Feasibility rests on the completed synthesis matrix and survey draft, which already supply themes, candidate methods, and citation scaffolding.`,
+      `Required resources are mainly analysis tooling, access to literature indexes, and researcher time for protocol execution and writing.`,
+      `Risks such as scope creep, sparse data, or shifting venue requirements are mitigated by anchoring every milestone to a survey identified gap and by keeping deliverables modular.`,
+    ]);
   }
 
   if (/reference/.test(h)) {
-    return `References are carried forward from the rewritten survey paper and will be expanded with proposal-specific citations during execution. Key anchors include ${citeHint}.`;
+    return sanitizeAcademicProse(
+      `References are carried forward from the rewritten survey paper and will be expanded with proposal specific citations during execution.`
+    );
   }
 
-  return [
-    `This section addresses “${heading}” in light of the survey on ${ctx.field}.`,
-    `We rewrite the proposal content from scratch using the latest survey synthesis, matrix evidence (${ctx.rows.length} studies), and uploaded template/guideline cues.`,
-    ctx.guideHint ? `Guideline signal: ${ctx.guideHint.slice(0, 220)}.` : "",
-    `Content remains proposal-oriented: objectives, methods, and expected outcomes—not a reprint of survey sections.`,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  return joinParagraphs([
+    `This section develops “${heading}” in light of the survey on ${ctx.field}.`,
+    `We rewrite the proposal content from scratch using the latest survey synthesis, matrix evidence from ${ctx.rows.length} studies, and uploaded template or guideline cues.`,
+    ctx.guideHint ? `Guideline materials highlight: ${ctx.guideHint.slice(0, 220)}.` : "",
+    `The focus remains proposal oriented: objectives, methods, and expected outcomes rather than a reprint of survey sections.`,
+  ]);
 }
 
 export function generateResearchProposal(input: {
@@ -175,14 +235,10 @@ export function generateResearchProposal(input: {
   const f = field(topic);
   const gaps = topGaps(input.rows);
   const themes = topThemes(input.paper, input.rows);
-  const headings = inferSectionHeadings(guides, DEFAULT_PROPOSAL_SECTIONS).filter(
+  const inferred = inferSectionHeadings(guides, DEFAULT_PROPOSAL_SECTIONS).filter(
     (h) => isReadablePlainText(h) && !/Identity\s*Adobe/i.test(h)
   );
-  // Sparse/garbled PDF extracts often yield only 1–3 real headings — use full outline then
-  const safeHeadings =
-    headings.length >= 5
-      ? headings
-      : DEFAULT_PROPOSAL_SECTIONS;
+  const outline = inferred.length >= 5 ? inferred : DEFAULT_PROPOSAL_SECTIONS;
   const guideHint = guideExcerpt(guides);
   const ctx = {
     topic,
@@ -194,25 +250,20 @@ export function generateResearchProposal(input: {
     guideHint,
   };
 
-  const sections = safeHeadings
+  const sections = outline
     .filter((h) => !/^title$/i.test(h.trim()))
-    .map((heading, i) => {
-      const content = draftSection(heading, ctx);
-      return {
-        id: `prop-s${i + 1}`,
-        heading,
-        level: 1 as const,
-        content,
-      };
-    });
+    .map((heading, i) => ({
+      id: `prop-s${i + 1}`,
+      heading: sanitizeAcademicProse(heading),
+      level: 1 as const,
+      content: draftSection(heading, ctx),
+    }));
 
   const abstractSection = sections.find((s) => /abstract/i.test(s.heading));
-  const abstract =
-    abstractSection?.content ||
-    draftSection("Abstract", ctx);
+  const abstract = abstractSection?.content || draftSection("Abstract", ctx);
 
   return {
-    title: `Research Proposal: Advancing ${f}`,
+    title: sanitizeAcademicProse(`Research Proposal: Advancing ${f}`),
     authorsPlaceholder: input.authorName || input.paper.authorsPlaceholder || "Author Name",
     abstract,
     sections: sections.filter((s) => !/abstract/i.test(s.heading)),

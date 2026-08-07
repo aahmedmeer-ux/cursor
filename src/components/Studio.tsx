@@ -207,6 +207,36 @@ export default function Studio() {
     }
   }
 
+  function slimGuide(guide: UploadedGuide | null) {
+    if (!guide) return null;
+    // Keep text/structure only. Base64 template bytes are for PPTX export, not generate.
+    return {
+      fileName: guide.fileName,
+      kind: guide.kind,
+      mimeType: guide.mimeType,
+      text: guide.text?.slice(0, 80_000) || "",
+      structureNotes: guide.structureNotes?.slice(0, 30),
+      byteLength: guide.byteLength,
+      warnings: guide.warnings,
+    };
+  }
+
+  function slimPaperForProposal(src: SurveyPaper) {
+    return {
+      ...src,
+      figures: (src.figures || []).map((f) => ({
+        ...f,
+        svg: "",
+        html: undefined,
+        mermaid: undefined,
+      })),
+      equations: (src.equations || []).map((e) => ({
+        ...e,
+        svg: undefined,
+      })),
+    };
+  }
+
   async function runProposal() {
     if (!paper) {
       setError("Generate the survey paper first.");
@@ -226,16 +256,22 @@ export default function Studio() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          paper,
+          paper: slimPaperForProposal(paper),
           rows,
-          templateGuide: proposalTemplate,
-          guidelinesGuide: proposalGuidelines,
+          templateGuide: slimGuide(proposalTemplate),
+          guidelinesGuide: slimGuide(proposalGuidelines),
           authorName,
           topic: topic || suggestedTopic,
         }),
       });
-      const data = await res.json();
+      let data: { error?: string; proposal?: ResearchProposal } = {};
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error(`Proposal generation failed (HTTP ${res.status}). Try re-uploading smaller guideline files.`);
+      }
       if (!res.ok) throw new Error(data.error || "Proposal generation failed");
+      if (!data.proposal?.title) throw new Error("Proposal generation returned an empty document.");
       setProposal(data.proposal);
       setWorkflowStep("proposal");
     } catch (err) {
@@ -262,15 +298,23 @@ export default function Studio() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          paper,
+          paper: slimPaperForProposal(paper),
           proposal,
-          templateGuide: presentationTemplate,
+          templateGuide: slimGuide(presentationTemplate),
           authorName,
           topic: topic || suggestedTopic,
         }),
       });
-      const data = await res.json();
+      let data: { error?: string; presentation?: ResearchPresentation } = {};
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error(`Presentation generation failed (HTTP ${res.status}).`);
+      }
       if (!res.ok) throw new Error(data.error || "Presentation generation failed");
+      if (!data.presentation?.slides?.length) {
+        throw new Error("Presentation generation returned an empty deck.");
+      }
       setPresentation(data.presentation);
       setWorkflowStep("presentation");
     } catch (err) {

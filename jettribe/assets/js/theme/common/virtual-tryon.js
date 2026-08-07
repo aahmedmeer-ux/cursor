@@ -1,13 +1,12 @@
 /**
- * Virtual Try-On — generative AI fit (free via Hugging Face IDM-VTON).
+ * Virtual Try-On — generative fit via free Hugging Face IDM-VTON.
  *
- * Improves product fidelity by:
- *  - Loading ALL product gallery images
- *  - Scoring / letting shoppers pick the best garment reference
- *  - Building a style prompt from title + colors across the gallery
- *  - Preparing a cleaned, torso-focused garment reference image
- *
- * Modal MUST open with { pending: false, clearContent: false }.
+ * Quality rules (tested):
+ *  - Prefer studio/mannequin product photos (white bg) over lifestyle shots
+ *  - NEVER send a multi-image collage as the garment (causes wrong designs)
+ *  - Put shopper on white canvas (scaled by height) before AI
+ *  - Return full person on white background after AI
+ *  - Retry when the free GPU queue errors
  */
 import $ from 'jquery';
 import modalFactory, { ModalEvents } from '../global/modal';
@@ -15,20 +14,10 @@ import modalFactory, { ModalEvents } from '../global/modal';
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
 const MAX_EDGE = 896;
 const TRYON_TIMEOUT_MS = 210000;
-const DENOISE_STEPS = 30;
-
-const TRYON_HOSTS = [
-    'yisol-idm-vton.hf.space',
-];
-
-const BRAND_STYLE_HINTS = [
-    'Jettribe',
-    'competition race PFD life vest',
-    'technical watersports apparel',
-    'preserve exact brand lettering logos color panels straps buckles and stitching from the garment photo',
-    'fit the vest naturally on the upper body chest and shoulders',
-    'do not invent a different vest design',
-];
+const DENOISE_STEPS = 28;
+const DEFAULT_HEIGHT_CM = 175;
+const TRYON_HOSTS = ['yisol-idm-vton.hf.space'];
+const IMGLY_REMBG = 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.8/+esm';
 
 function isTruthy(value) {
     return value !== false && value !== 'false' && value !== 0 && value !== '0' && value != null && value !== '';
@@ -61,284 +50,230 @@ function canvasToBlob(canvas, type = 'image/jpeg', quality = 0.94) {
     });
 }
 
-function rgbToHex(r, g, b) {
-    const h = (n) => n.toString(16).padStart(2, '0');
-    return `#${h(r)}${h(g)}${h(b)}`;
+function blobToDataUrl(blob) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
 }
 
-function colorNameHint(r, g, b) {
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    if (max < 40) return 'black';
-    if (min > 220) return 'white';
-    if (max - min < 25) return r > 160 ? 'light gray' : 'gray';
-    if (b > r + 25 && b > g + 10) return b > 180 && g > 140 ? 'aqua blue' : 'blue';
-    if (r > g + 40 && r > b + 40) return 'red';
-    if (g > r + 30 && g > b + 20) return 'green';
-    if (r > 180 && g > 140 && b < 100) return 'gold';
-    if (r > 150 && g > 100 && b < 90) return 'tan';
-    return null;
-}
-
-/**
- * Sample dominant non-background colors from an image (for style prompt).
- */
-function extractPalette(img, limit = 4) {
-    const canvas = document.createElement('canvas');
-    const size = 64;
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    try {
-        ctx.drawImage(img, 0, 0, size, size);
-        const { data } = ctx.getImageData(0, 0, size, size);
-        const buckets = new Map();
-        for (let i = 0; i < data.length; i += 4) {
-            const r = data[i];
-            const g = data[i + 1];
-            const b = data[i + 2];
-            // Skip near-white / near-black studio extremes lightly
-            if ((r > 245 && g > 245 && b > 245) || (r < 12 && g < 12 && b < 12)) continue;
-            const key = `${r >> 4},${g >> 4},${b >> 4}`;
-            const prev = buckets.get(key) || { n: 0, r: 0, g: 0, b: 0 };
-            prev.n += 1;
-            prev.r += r;
-            prev.g += g;
-            prev.b += b;
-            buckets.set(key, prev);
-        }
-        return [...buckets.values()]
-            .sort((a, b) => b.n - a.n)
-            .slice(0, limit)
-            .map((c) => {
-                const r = Math.round(c.r / c.n);
-                const g = Math.round(c.g / c.n);
-                const b = Math.round(c.b / c.n);
-                return {
-                    hex: rgbToHex(r, g, b),
-                    name: colorNameHint(r, g, b),
-                    r,
-                    g,
-                    b,
-                    weight: c.n,
-                };
+let rembgPromise = null;
+async function removeBackground(blobOrUrl) {
+    if (!rembgPromise) {
+        rembgPromise = import(/* webpackIgnore: true */ IMGLY_REMBG)
+            .then((mod) => mod.removeBackground || mod.default)
+            .catch((err) => {
+                rembgPromise = null;
+                throw err;
             });
-    } catch (e) {
-        return [];
     }
+    const removeBackgroundFn = await rembgPromise;
+    return removeBackgroundFn(blobOrUrl, {
+        model: 'small',
+        output: { format: 'image/png', quality: 0.9 },
+    });
+}
+
+async function imageToCanvas(src) {
+    const img = await loadImage(typeof src === 'string' ? src : await blobToDataUrl(src), true);
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth || img.width;
+    canvas.height = img.naturalHeight || img.height;
+    canvas.getContext('2d').drawImage(img, 0, 0);
+    return { canvas, img };
 }
 
 /**
- * Score how suitable an image is as a garment reference for VTON.
- * Prefers torso-centered product shots over wide lifestyle/action scenes.
+ * Score garment suitability. Studio / mannequin / white-bg wins over lifestyle.
  */
 function scoreGarmentImage(img) {
     const w = img.naturalWidth || img.width;
     const h = img.naturalHeight || img.height;
-    if (!w || !h) return { score: 0, palette: [] };
+    if (!w || !h) return { score: -999, whiteRatio: 0, isStudio: false };
 
-    let score = 50;
+    let score = 40;
     const aspect = w / h;
-    // Prefer portrait / near-square product frames
-    if (aspect >= 0.65 && aspect <= 1.15) score += 18;
-    else if (aspect > 1.4) score -= 18; // wide action shots
-    else if (aspect < 0.55) score -= 6;
+    if (aspect >= 0.85 && aspect <= 1.15) score += 12; // product square
+    if (aspect > 1.35) score -= 20; // wide lifestyle
 
-    const canvas = document.createElement('canvas');
     const sw = 48;
-    const sh = 64;
-    canvas.width = sw;
-    canvas.height = sh;
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    let palette = [];
+    const sh = 48;
+    const c = document.createElement('canvas');
+    c.width = sw;
+    c.height = sh;
+    const ctx = c.getContext('2d', { willReadFrequently: true });
+    let whiteRatio = 0;
+    let isStudio = false;
     try {
         ctx.drawImage(img, 0, 0, sw, sh);
         const { data } = ctx.getImageData(0, 0, sw, sh);
-        palette = extractPalette(img, 5);
-
-        // Corner brightness vs center — studio/product shots often have quieter corners
-        const sampleAvg = (x0, y0, x1, y1) => {
-            let s = 0;
-            let n = 0;
-            for (let y = y0; y < y1; y += 1) {
-                for (let x = x0; x < x1; x += 1) {
-                    const i = (y * sw + x) * 4;
-                    s += (data[i] + data[i + 1] + data[i + 2]) / 3;
-                    n += 1;
-                }
-            }
-            return n ? s / n : 0;
-        };
-        const corner = (
-            sampleAvg(0, 0, 8, 8)
-            + sampleAvg(sw - 8, 0, sw, 8)
-            + sampleAvg(0, sh - 8, 8, sh)
-            + sampleAvg(sw - 8, sh - 8, sw, sh)
-        ) / 4;
-        const center = sampleAvg(14, 16, 34, 48);
-        if (Math.abs(corner - center) > 35) score += 8;
-        // Penalize very busy frames (high variance)
-        let sum = 0;
-        let sum2 = 0;
-        const total = sw * sh;
+        let white = 0;
+        let dark = 0;
         for (let i = 0; i < data.length; i += 4) {
-            const v = (data[i] + data[i + 1] + data[i + 2]) / 3;
-            sum += v;
-            sum2 += v * v;
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            if (r > 235 && g > 235 && b > 235) white += 1;
+            if (r < 35 && g < 35 && b < 35) dark += 1;
         }
-        const mean = sum / total;
-        const variance = sum2 / total - mean * mean;
-        if (variance > 5500) score -= 10;
-        if (variance < 1800) score += 4;
+        const total = sw * sh;
+        whiteRatio = white / total;
+        const darkRatio = dark / total;
+        // Mannequin-on-white / flat-lay product shots
+        if (whiteRatio > 0.28) {
+            score += 35;
+            isStudio = true;
+        } else if (whiteRatio > 0.15) {
+            score += 15;
+            isStudio = true;
+        }
+        // Black mannequin + garment often has moderate dark ratio with white bg
+        if (isStudio && darkRatio > 0.05 && darkRatio < 0.45) score += 10;
+        // Busy outdoor scenes: lower white, higher mid variance
+        if (whiteRatio < 0.08) score -= 18;
     } catch (e) {
-        score -= 5;
+        score -= 8;
     }
 
-    return { score, palette, width: w, height: h };
+    return { score, whiteRatio, isStudio, width: w, height: h };
+}
+
+function parseHeightCm(raw) {
+    const text = String(raw || '').trim().toLowerCase();
+    if (!text) return DEFAULT_HEIGHT_CM;
+    // 5'11" or 5 11
+    const ft = text.match(/^(\d)\s*[\'’ft]\s*(\d{1,2})/);
+    if (ft) {
+        return Math.round((parseInt(ft[1], 10) * 12 + parseInt(ft[2], 10)) * 2.54);
+    }
+    const cm = text.match(/(\d{2,3})\s*cm/);
+    if (cm) return parseInt(cm[1], 10);
+    const n = parseInt(text, 10);
+    if (n >= 120 && n <= 230) return n; // cm
+    if (n >= 48 && n <= 90) return Math.round(n * 2.54); // inches
+    return DEFAULT_HEIGHT_CM;
 }
 
 /**
- * Crop toward the torso / center and drop corner badges (e.g. LIMITED STOCK).
+ * Place cutout (or image) on a full-body white canvas sized by height.
  */
-function prepareGarmentCanvas(img) {
-    const w = img.naturalWidth || img.width;
-    const h = img.naturalHeight || img.height;
-    // Trim outer 8% to drop corner banners; keep upper-mid bias for vests
-    const x0 = Math.floor(w * 0.08);
-    const x1 = Math.floor(w * 0.92);
-    const y0 = Math.floor(h * 0.04);
-    const y1 = Math.floor(h * 0.88);
-    const cw = Math.max(1, x1 - x0);
-    const ch = Math.max(1, y1 - y0);
-
-    const scale = Math.min(1, MAX_EDGE / Math.max(cw, ch));
-    const canvas = document.createElement('canvas');
-    canvas.width = Math.max(1, Math.round(cw * scale));
-    canvas.height = Math.max(1, Math.round(ch * scale));
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, x0, y0, cw, ch, 0, 0, canvas.width, canvas.height);
-    return canvas;
-}
-
-/**
- * Build a multi-view style reference: large primary garment + 2–3 secondary
- * product views. Helps the model lock onto Jettribe color/logo trends.
- */
-async function buildStyleMatchedGarmentBlob(primaryImg, secondaryImgs) {
-    const primary = prepareGarmentCanvas(primaryImg);
-    const extras = [];
-    for (let i = 0; i < secondaryImgs.length && extras.length < 3; i += 1) {
-        try {
-            extras.push(prepareGarmentCanvas(secondaryImgs[i]));
-        } catch (e) {
-            // skip
-        }
+async function placeOnWhiteCanvas(source, heightCm = DEFAULT_HEIGHT_CM, fullBodyBias = true) {
+    let img;
+    if (source instanceof HTMLCanvasElement) {
+        img = source;
+    } else if (typeof source === 'string' || source instanceof Blob) {
+        const loaded = await imageToCanvas(source);
+        img = loaded.canvas;
+    } else {
+        throw new Error('bad_source');
     }
 
-    if (!extras.length) {
-        return canvasToBlob(primary);
-    }
-
-    const stripH = Math.round(primary.height * 0.28);
+    const aspect = Math.max(1.3, Math.min(2.05, heightCm / 95));
+    const targetH = 1400;
+    const targetW = Math.round(targetH / aspect);
     const canvas = document.createElement('canvas');
-    canvas.width = primary.width;
-    canvas.height = primary.height + stripH + 4;
+    canvas.width = targetW;
+    canvas.height = targetH;
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(primary, 0, 0);
+    ctx.fillRect(0, 0, targetW, targetH);
 
-    const gap = 4;
-    const cellW = Math.floor((canvas.width - gap * (extras.length - 1)) / extras.length);
-    extras.forEach((ex, idx) => {
-        const dx = idx * (cellW + gap);
-        const dy = primary.height + 4;
-        // cover-fit each secondary into its cell
-        const scale = Math.max(cellW / ex.width, stripH / ex.height);
-        const dw = ex.width * scale;
-        const dh = ex.height * scale;
-        const sx = (dw - cellW) / 2;
-        const sy = (dh - stripH) / 2;
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(dx, dy, cellW, stripH);
-        ctx.clip();
-        ctx.drawImage(ex, dx - sx, dy - sy, dw, dh);
-        ctx.restore();
-    });
-
+    const maxW = Math.round(targetW * 0.88);
+    const maxH = Math.round(targetH * (fullBodyBias ? 0.94 : 0.72));
+    const scale = Math.min(maxW / img.width, maxH / img.height);
+    const dw = Math.round(img.width * scale);
+    const dh = Math.round(img.height * scale);
+    const dx = Math.round((targetW - dw) / 2);
+    const dy = fullBodyBias
+        ? Math.round(targetH - dh - targetH * 0.02)
+        : Math.round((targetH - dh) / 2);
+    ctx.drawImage(img, dx, dy, dw, dh);
     return canvasToBlob(canvas);
 }
 
-async function imageSourceToJpegBlob(src, maxEdge = MAX_EDGE) {
-    const img = await loadImage(src, src.indexOf('data:') !== 0);
-    const w = img.naturalWidth || img.width;
-    const h = img.naturalHeight || img.height;
-    const scale = Math.min(1, maxEdge / Math.max(w, h));
-    const canvas = document.createElement('canvas');
-    canvas.width = Math.max(1, Math.round(w * scale));
-    canvas.height = Math.max(1, Math.round(h * scale));
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+async function preparePersonBlob(dataUrl, heightCm) {
+    // Detect crop: very short images are bust shots
+    const { img } = await imageToCanvas(dataUrl);
+    const aspect = (img.naturalHeight || img.height) / Math.max(1, img.naturalWidth || img.width);
+    const looksFullBody = aspect >= 1.25;
+
+    let cutBlob = null;
     try {
-        return await canvasToBlob(canvas);
+        cutBlob = await removeBackground(dataUrl);
     } catch (e) {
-        if (typeof src === 'string' && /^https?:/i.test(src)) {
-            const res = await fetch(src);
-            if (!res.ok) throw new Error(`garment_fetch_${res.status}`);
-            return res.blob();
-        }
-        if (typeof src === 'string' && src.indexOf('data:') === 0) {
-            const res = await fetch(src);
-            return res.blob();
-        }
-        throw e;
+        // eslint-disable-next-line no-console
+        console.warn('Try-on: background removal unavailable for person', e);
     }
+
+    const source = cutBlob || dataUrl;
+    return {
+        blob: await placeOnWhiteCanvas(source, heightCm, true),
+        looksFullBody,
+    };
 }
 
-function buildGarmentDescription(title, palettes) {
+async function prepareGarmentBlob(url) {
+    const { img } = await imageToCanvas(url);
+    // Mild center crop to drop corner badges (LIMITED STOCK)
+    const w = img.naturalWidth || img.width;
+    const h = img.naturalHeight || img.height;
+    const x0 = Math.floor(w * 0.06);
+    const y0 = Math.floor(h * 0.02);
+    const cw = Math.floor(w * 0.88);
+    const ch = Math.floor(h * 0.96);
+    const canvas = document.createElement('canvas');
+    const scale = Math.min(1, MAX_EDGE / Math.max(cw, ch));
+    canvas.width = Math.max(1, Math.round(cw * scale));
+    canvas.height = Math.max(1, Math.round(ch * scale));
+    canvas.getContext('2d').drawImage(img, x0, y0, cw, ch, 0, 0, canvas.width, canvas.height);
+
+    // Keep RGB on white — do NOT rembg studio mannequin shots (hurts identity)
+    // Only rembg when background is busy (low white ratio)
+    const meta = scoreGarmentImage(img);
+    if (!meta.isStudio) {
+        try {
+            const blob = await canvasToBlob(canvas);
+            const cut = await removeBackground(blob);
+            const cutCanvas = (await imageToCanvas(cut)).canvas;
+            // Composite cutout onto white
+            const white = document.createElement('canvas');
+            white.width = cutCanvas.width;
+            white.height = cutCanvas.height;
+            const ctx = white.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, white.width, white.height);
+            ctx.drawImage(cutCanvas, 0, 0);
+            return canvasToBlob(white);
+        } catch (e) {
+            // fall through
+        }
+    }
+    return canvasToBlob(canvas);
+}
+
+function buildGarmentDescription(title) {
+    const clean = String(title || '').replace(/\s+/g, ' ').trim();
     const parts = [];
-    const cleanTitle = String(title || '').replace(/\s+/g, ' ').trim();
-    if (cleanTitle) {
-        parts.push(`exact product: ${cleanTitle}`);
-    }
-
-    const names = [];
-    const hexes = [];
-    (palettes || []).forEach((p) => {
-        (p || []).forEach((c) => {
-            if (c.name && names.indexOf(c.name) === -1) names.push(c.name);
-            if (c.hex && hexes.indexOf(c.hex) === -1) hexes.push(c.hex);
-        });
-    });
-    if (names.length) {
-        parts.push(`product colors: ${names.slice(0, 5).join(', ')}`);
-    }
-    if (hexes.length) {
-        parts.push(`palette ${hexes.slice(0, 5).join(' ')}`);
-    }
-
-    parts.push(...BRAND_STYLE_HINTS);
-
-    // IDM-VTON description field is a short text prompt — keep under ~400 chars
-    return parts.join('. ').slice(0, 420);
+    if (clean) parts.push(clean);
+    parts.push(
+        'Jettribe competition race PFD life vest',
+        'preserve exact brand lettering logos color panels straps and buckles from the garment photo',
+        'do not invent a different vest design',
+        'fit naturally on the upper body',
+    );
+    return parts.join('. ').slice(0, 380);
 }
 
 async function uploadToSpace(host, blob, filename) {
     const form = new FormData();
     form.append('files', blob, filename);
-    const res = await fetch(`https://${host}/upload`, {
-        method: 'POST',
-        body: form,
-    });
-    if (!res.ok) {
-        throw new Error(`upload_${res.status}`);
-    }
+    const res = await fetch(`https://${host}/upload`, { method: 'POST', body: form });
+    if (!res.ok) throw new Error(`upload_${res.status}`);
     const json = await res.json();
     const path = Array.isArray(json) ? json[0] : json;
-    if (!path) {
-        throw new Error('upload_empty');
-    }
+    if (!path) throw new Error('upload_empty');
     return path;
 }
 
@@ -348,11 +283,7 @@ function parseSseComplete(text) {
         const block = blocks[i];
         if (!block || block.indexOf('data:') === -1) continue;
         if (block.indexOf('event: error') !== -1) {
-            const errLine = block.split('\n').find((l) => l.indexOf('data:') === 0);
-            throw new Error(`provider_error:${(errLine || '').slice(5).trim().slice(0, 200)}`);
-        }
-        if (block.indexOf('event: complete') === -1 && i !== blocks.length - 1) {
-            continue;
+            throw new Error('provider_error');
         }
         const dataLine = block.split('\n').filter((l) => l.indexOf('data:') === 0).pop();
         if (!dataLine) continue;
@@ -364,26 +295,8 @@ function parseSseComplete(text) {
         } catch (e) {
             continue;
         }
-        if (Array.isArray(payload) && payload[0]) {
-            const first = payload[0];
-            if (typeof first === 'string' && /^https?:/i.test(first)) return first;
-            if (first && first.url) return first.url;
-            if (first && first.path && typeof first.path === 'string') {
-                return first.url || first.path;
-            }
-        }
-        if (payload && payload.url) return payload.url;
-    }
-    for (let i = blocks.length - 1; i >= 0; i -= 1) {
-        const dataLine = (blocks[i] || '').split('\n').filter((l) => l.indexOf('data:') === 0).pop();
-        if (!dataLine) continue;
-        try {
-            const payload = JSON.parse(dataLine.slice(5).trim());
-            if (Array.isArray(payload) && payload[0] && payload[0].url) {
-                return payload[0].url;
-            }
-        } catch (e) {
-            // continue
+        if (Array.isArray(payload) && payload[0] && payload[0].url) {
+            return payload[0].url;
         }
     }
     return null;
@@ -402,68 +315,89 @@ async function callIdmVton(host, personPath, garmentPath, description, signal) {
                 },
                 { path: garmentPath, meta: { _type: 'gradio.FileData' } },
                 description || 'Jettribe apparel',
-                true, // auto-masking
-                true, // crop person for better upper-body fit
+                true,
+                true,
                 DENOISE_STEPS,
                 Math.floor(Math.random() * 1e9),
             ],
         }),
         signal,
     });
-    if (!joinRes.ok) {
-        throw new Error(`tryon_join_${joinRes.status}`);
-    }
-    const joinJson = await joinRes.json();
-    const eventId = joinJson.event_id;
-    if (!eventId) {
-        throw new Error('tryon_no_event');
-    }
+    if (!joinRes.ok) throw new Error(`tryon_join_${joinRes.status}`);
+    const { event_id: eventId } = await joinRes.json();
+    if (!eventId) throw new Error('tryon_no_event');
 
     const streamRes = await fetch(`https://${host}/call/tryon/${eventId}`, { signal });
-    if (!streamRes.ok) {
-        throw new Error(`tryon_stream_${streamRes.status}`);
-    }
+    if (!streamRes.ok) throw new Error(`tryon_stream_${streamRes.status}`);
     const text = await streamRes.text();
+    if (text.indexOf('event: error') !== -1) throw new Error('provider_error');
     const resultUrl = parseSseComplete(text);
-    if (!resultUrl) {
-        throw new Error('tryon_empty_result');
-    }
-    if (resultUrl.indexOf('http') === 0) {
+    if (!resultUrl) throw new Error('tryon_empty_result');
+    if (resultUrl.indexOf('http') === 0) return resultUrl;
+    return `https://${host}/file=${String(resultUrl).replace(/^\/file=/, '')}`;
+}
+
+async function finalizeWhiteResult(resultUrl, heightCm) {
+    // Download result, rembg, place on white full-body canvas
+    let blob;
+    try {
+        const res = await fetch(resultUrl);
+        if (!res.ok) throw new Error('result_fetch');
+        blob = await res.blob();
+    } catch (e) {
+        // CORS fallback — return remote URL
         return resultUrl;
     }
-    if (resultUrl.indexOf('/file=') === 0 || resultUrl.indexOf('/tmp/') === 0) {
-        return `https://${host}/file=${resultUrl.replace(/^\/file=/, '')}`;
+
+    try {
+        const cut = await removeBackground(blob);
+        const outBlob = await placeOnWhiteCanvas(cut, heightCm, true);
+        return blobToDataUrl(outBlob);
+    } catch (e) {
+        // If rembg fails, still pad onto white
+        try {
+            return blobToDataUrl(await placeOnWhiteCanvas(blob, heightCm, true));
+        } catch (e2) {
+            return resultUrl;
+        }
     }
-    return `https://${host}/file=${resultUrl}`;
 }
 
 async function runGenerativeTryOn({
-    personDataUrl,
+    personBlob,
     garmentBlob,
     description,
+    heightCm,
     signal,
     onStatus,
 }) {
-    if (onStatus) onStatus('Preparing photos for exact product match…');
-    const personBlob = await imageSourceToJpegBlob(personDataUrl);
-
     let lastError;
-    for (let i = 0; i < TRYON_HOSTS.length; i += 1) {
-        const host = TRYON_HOSTS[i];
-        try {
-            if (onStatus) onStatus('Uploading product style + your photo…');
-            const [personPath, garmentPath] = await Promise.all([
-                uploadToSpace(host, personBlob, 'person.jpg'),
-                uploadToSpace(host, garmentBlob, 'garment.jpg'),
-            ]);
-            if (onStatus) {
-                onStatus('AI is fitting this exact Jettribe product on you… usually 20–60 seconds.');
+    for (let hostIdx = 0; hostIdx < TRYON_HOSTS.length; hostIdx += 1) {
+        const host = TRYON_HOSTS[hostIdx];
+        for (let attempt = 1; attempt <= 3; attempt += 1) {
+            try {
+                if (onStatus) {
+                    onStatus(attempt === 1
+                        ? 'Uploading photos to free AI…'
+                        : `Free AI queue busy — retry ${attempt}/3…`);
+                }
+                const [personPath, garmentPath] = await Promise.all([
+                    uploadToSpace(host, personBlob, 'person.jpg'),
+                    uploadToSpace(host, garmentBlob, 'garment.jpg'),
+                ]);
+                if (onStatus) {
+                    onStatus('AI is fitting the exact product on you… usually 20–60 seconds.');
+                }
+                const resultUrl = await callIdmVton(host, personPath, garmentPath, description, signal);
+                if (onStatus) onStatus('Finishing white-background full-body image…');
+                return finalizeWhiteResult(resultUrl, heightCm);
+            } catch (err) {
+                lastError = err;
+                // eslint-disable-next-line no-console
+                console.warn('Try-on attempt failed', host, attempt, err);
+                if (signal && signal.aborted) throw err;
+                await new Promise((r) => setTimeout(r, 1200 * attempt));
             }
-            return await callIdmVton(host, personPath, garmentPath, description, signal);
-        } catch (err) {
-            lastError = err;
-            // eslint-disable-next-line no-console
-            console.warn('Try-on host failed', host, err);
         }
     }
     throw lastError || new Error('tryon_failed');
@@ -482,14 +416,12 @@ export default class VirtualTryOn {
         this.imageGallery = productDetails.imageGallery;
         this.enabled = isTruthy(this.context.tryonEnable);
 
-        if (!this.enabled) {
-            return;
-        }
+        if (!this.enabled) return;
 
         this.userImageDataUrl = null;
         this.productImages = [];
         this.selectedGarmentUrl = '';
-        this.imageMeta = {}; // url -> { score, palette }
+        this.imageMeta = {};
         this.modal = null;
         this.$root = null;
         this.opening = false;
@@ -508,31 +440,22 @@ export default class VirtualTryOn {
 
         $actions.each((_, el) => {
             const $wrap = $(el);
-            if ($wrap.find('[data-virtual-tryon]').length) {
-                return;
-            }
+            if ($wrap.find('[data-virtual-tryon]').length) return;
             const $atc = $wrap.find('.form-action--addToCart').first();
             const $btn = $(`
                 <div class="form-action form-action--tryOn">
-                    <button type="button" class="button button--tryOn" data-virtual-tryon>
-                        ${label}
-                    </button>
+                    <button type="button" class="button button--tryOn" data-virtual-tryon>${label}</button>
                 </div>
             `);
-            if ($atc.length) {
-                $atc.before($btn);
-            } else {
-                $wrap.append($btn);
-            }
+            if ($atc.length) $atc.before($btn);
+            else $wrap.append($btn);
         });
 
         const $sticky = this.$scope.find('#form-action-addToCartSticky');
         if ($sticky.length && !$sticky.closest('.form-action--addToCart').parent().find('[data-virtual-tryon]').length) {
             $sticky.closest('.form-action--addToCart').before(`
                 <div class="form-action form-action--tryOn">
-                    <button type="button" class="button button--tryOn" data-virtual-tryon>
-                        ${label}
-                    </button>
+                    <button type="button" class="button button--tryOn" data-virtual-tryon>${label}</button>
                 </div>
             `);
         }
@@ -548,18 +471,13 @@ export default class VirtualTryOn {
 
     ensureModal() {
         const $modalEl = $('#virtual-tryon-modal');
-        if (!$modalEl.length) {
-            return null;
-        }
+        if (!$modalEl.length) return null;
 
         if (!this.modal) {
             this.modal = modalFactory('#virtual-tryon-modal')[0];
-            if (!this.modal) {
-                return null;
-            }
+            if (!this.modal) return null;
             this.$root = $modalEl.find('[data-tryon-root]');
             this.bindModalEvents();
-
             this.modal.$modal.on(ModalEvents.opened, () => {
                 this.modal.pending = false;
                 this.opening = false;
@@ -568,20 +486,15 @@ export default class VirtualTryOn {
                 this.opening = false;
             });
         }
-
         return this.modal;
     }
 
     open() {
-        if (this.opening) {
-            return;
-        }
+        if (this.opening) return;
         this.opening = true;
-
         const modal = this.ensureModal();
         if (!modal || !this.$root || !this.$root.length) {
             this.opening = false;
-            // eslint-disable-next-line no-alert
             window.alert('Virtual Try-On is unavailable on this page. Please refresh and try again.');
             return;
         }
@@ -590,13 +503,8 @@ export default class VirtualTryOn {
         this.populateProductPreviewSync();
         this.loadProductStyleLibrary();
 
-        modal.open({
-            size: 'large',
-            pending: false,
-            clearContent: false,
-        });
+        modal.open({ size: 'large', pending: false, clearContent: false });
         modal.pending = false;
-
         window.setTimeout(() => {
             modal.pending = false;
             this.opening = false;
@@ -605,9 +513,7 @@ export default class VirtualTryOn {
 
     bindModalEvents() {
         const $root = this.$root;
-        if (!$root || $root.data('tryonBound')) {
-            return;
-        }
+        if (!$root || $root.data('tryonBound')) return;
         $root.data('tryonBound', true);
 
         const $file = $root.find('[data-tryon-file]');
@@ -615,9 +521,7 @@ export default class VirtualTryOn {
 
         $file.on('change', (e) => {
             const file = e.target.files && e.target.files[0];
-            if (file) {
-                this.handleFile(file);
-            }
+            if (file) this.handleFile(file);
         });
 
         $drop.on('dragover', (e) => {
@@ -629,9 +533,7 @@ export default class VirtualTryOn {
             $drop.removeClass('is-dragover');
             if (e.type === 'drop') {
                 const file = e.originalEvent.dataTransfer.files[0];
-                if (file) {
-                    this.handleFile(file);
-                }
+                if (file) this.handleFile(file);
             }
         });
 
@@ -643,9 +545,11 @@ export default class VirtualTryOn {
         $root.on('click', '[data-tryon-garment-thumb]', (e) => {
             e.preventDefault();
             const url = $(e.currentTarget).attr('data-url');
-            if (url) {
-                this.selectGarment(url);
-            }
+            if (url) this.selectGarment(url);
+        });
+
+        $root.on('input change', '[data-tryon-height]', () => {
+            this.updateHeightHint();
         });
 
         $root.on('click', '[data-tryon-submit]', (e) => {
@@ -665,13 +569,13 @@ export default class VirtualTryOn {
         this.userImageDataUrl = null;
         const $root = this.$root;
         if (!$root) return;
-
         $root.find('[data-tryon-user-preview]').addClass('is-hidden');
         $root.find('[data-tryon-dropzone]').removeClass('is-hidden');
         $root.find('[data-tryon-result]').addClass('is-hidden');
         $root.find('[data-tryon-status]').addClass('is-hidden').removeClass('is-error is-loading').empty();
         $root.find('[data-tryon-submit]').prop('disabled', true);
         $root.find('[data-tryon-result-image]').attr('src', '');
+        $root.find('[data-tryon-height-wrap]').addClass('is-hidden');
         if (clearFile) {
             $root.find('[data-tryon-file]').val('');
             $root.find('[data-tryon-user-image]').attr('src', '');
@@ -684,11 +588,23 @@ export default class VirtualTryOn {
             || '';
     }
 
+    getHeightCm() {
+        const raw = this.$root && this.$root.find('[data-tryon-height]').val();
+        return parseHeightCm(raw);
+    }
+
+    updateHeightHint() {
+        if (!this.$root) return;
+        const cm = this.getHeightCm();
+        this.$root.find('[data-tryon-height-hint]').text(
+            `Using ${cm} cm to scale a full-body white-background result.`,
+        );
+    }
+
     populateProductPreviewSync() {
         if (!this.$root) return;
         const title = this.getProductTitle();
         this.$root.find('[data-tryon-product-title]').text(title);
-
         const imageUrl = this.getGarmentImageUrlSync();
         if (imageUrl) {
             this.selectedGarmentUrl = imageUrl;
@@ -702,32 +618,24 @@ export default class VirtualTryOn {
             const abs = this.absoluteUrl(u);
             if (abs && urls.indexOf(abs) === -1) urls.push(abs);
         };
-
         if (this.imageGallery && Array.isArray(this.imageGallery.images)) {
             this.imageGallery.images.forEach((img) => {
-                push(img.mainImageUrl || img.data && (img.data.zoomImageUrl || img.data.mainImageUrl));
+                push(img.mainImageUrl || (img.data && (img.data.zoomImageUrl || img.data.mainImageUrl)));
             });
         }
         if (this.imageGallery && this.imageGallery.currentImage) {
             push(this.imageGallery.currentImage.mainImageUrl);
         }
-
         this.$scope.find('[data-image-gallery-main] a, [data-image-gallery-item] a, .productView-thumbnail a').each((_, el) => {
             const $a = $(el);
             push($a.data('originalImg') || $a.attr('data-original-img') || $a.attr('href') || $a.find('img').attr('src'));
         });
-
-        const fromBtn = this.$scope.find('[data-virtual-tryon]').first().attr('data-product-image');
-        push(fromBtn);
-
+        push(this.$scope.find('[data-virtual-tryon]').first().attr('data-product-image'));
         return urls;
     }
 
     async fetchProductImages() {
-        if (!this.context.graphQLToken || !this.productId) {
-            return [];
-        }
-
+        if (!this.context.graphQLToken || !this.productId) return [];
         const optionValueIds = [];
         (this.$form.serializeArray() || []).forEach(({ name, value }) => {
             const match = name.match(/attribute\[(\d+)\]/);
@@ -738,7 +646,6 @@ export default class VirtualTryOn {
                 });
             }
         });
-
         const response = await $.ajax({
             url: '/graphql',
             method: 'POST',
@@ -749,9 +656,7 @@ export default class VirtualTryOn {
                             name
                             brand { name }
                             defaultImage { url(width: 1200) }
-                            images {
-                                edges { node { url(width: 1200) urlOriginal isDefault altText } }
-                            }
+                            images { edges { node { url(width: 1200) urlOriginal isDefault } } }
                         }
                     }
                 }`,
@@ -763,33 +668,22 @@ export default class VirtualTryOn {
             },
             xhrFields: { withCredentials: true },
         });
-
         const product = response && response.data && response.data.site && response.data.site.product;
         if (!product) return [];
-
-        if (product.name) {
-            this.graphProductName = product.name;
-        }
-        if (product.brand && product.brand.name) {
-            this.graphBrandName = product.brand.name;
-        }
-
+        if (product.name) this.graphProductName = product.name;
+        if (product.brand && product.brand.name) this.graphBrandName = product.brand.name;
         const urls = [];
-        if (product.defaultImage && product.defaultImage.url) {
-            urls.push(product.defaultImage.url);
-        }
+        if (product.defaultImage && product.defaultImage.url) urls.push(product.defaultImage.url);
         ((product.images && product.images.edges) || []).forEach((edge) => {
-            if (edge.node) {
-                if (edge.node.url) urls.push(edge.node.url);
-                if (edge.node.urlOriginal) urls.push(edge.node.urlOriginal);
-            }
+            if (edge.node && edge.node.url) urls.push(edge.node.url);
+            if (edge.node && edge.node.urlOriginal) urls.push(edge.node.urlOriginal);
         });
         return [...new Set(urls.map((u) => this.absoluteUrl(u)).filter(Boolean))];
     }
 
     async loadProductStyleLibrary() {
         if (!this.$root) return;
-        this.$root.find('[data-tryon-style-note]').text('Reading all product photos for exact style match…');
+        this.$root.find('[data-tryon-style-note]').text('Finding the clearest studio product photo…');
 
         const domUrls = this.collectDomGalleryUrls();
         let gqlUrls = [];
@@ -806,34 +700,29 @@ export default class VirtualTryOn {
         });
         this.productImages = merged.slice(0, 12);
 
-        // Score images in parallel (best-effort)
         const metas = await Promise.all(this.productImages.map(async (url) => {
             try {
                 const img = await loadImage(url, true);
-                const meta = scoreGarmentImage(img);
-                return { url, ...meta, img };
+                return { url, ...scoreGarmentImage(img) };
             } catch (e) {
-                return { url, score: 0, palette: [], img: null };
+                return { url, score: -999, whiteRatio: 0, isStudio: false };
             }
         }));
-
         this.imageMeta = {};
-        metas.forEach((m) => {
-            this.imageMeta[m.url] = m;
-        });
-
+        metas.forEach((m) => { this.imageMeta[m.url] = m; });
         metas.sort((a, b) => b.score - a.score);
-        if (metas.length && metas[0].score > 0) {
+
+        if (metas.length && metas[0].score > -100) {
             this.selectGarment(metas[0].url);
         } else if (this.productImages[0]) {
             this.selectGarment(this.productImages[0]);
         }
 
         this.renderGarmentThumbs();
-        const n = this.productImages.length;
-        const note = n > 1
-            ? `Using ${n} product photos to match Jettribe colors, logos & panel layout. Pick the clearest front vest shot.`
-            : 'Tip: a clear front-facing product photo gives the best exact match.';
+        const best = metas[0];
+        const note = best && best.isStudio
+            ? 'Using a studio/mannequin product photo for exact vest match. You can pick another below.'
+            : 'Tip: pick a studio/mannequin product photo (white background) for the most exact vest match.';
         this.$root.find('[data-tryon-style-note]').text(note);
     }
 
@@ -841,15 +730,20 @@ export default class VirtualTryOn {
         if (!this.$root) return;
         const $strip = this.$root.find('[data-tryon-garment-strip]');
         if (!$strip.length) return;
-
         if (this.productImages.length < 2) {
             $strip.addClass('is-hidden').empty();
             return;
         }
-
-        const html = this.productImages.map((url) => {
+        // Sort thumbs: studio first
+        const ordered = this.productImages.slice().sort((a, b) => {
+            const sa = (this.imageMeta[a] && this.imageMeta[a].score) || 0;
+            const sb = (this.imageMeta[b] && this.imageMeta[b].score) || 0;
+            return sb - sa;
+        });
+        const html = ordered.map((url) => {
             const selected = url === this.selectedGarmentUrl ? ' is-selected' : '';
-            return `<button type="button" class="tryOn-garmentThumb${selected}" data-tryon-garment-thumb data-url="${url}">
+            const studio = this.imageMeta[url] && this.imageMeta[url].isStudio ? ' is-studio' : '';
+            return `<button type="button" class="tryOn-garmentThumb${selected}${studio}" data-tryon-garment-thumb data-url="${url}">
                 <img src="${url}" alt="">
             </button>`;
         }).join('');
@@ -861,40 +755,29 @@ export default class VirtualTryOn {
         const title = this.getProductTitle();
         this.$root.find('[data-tryon-product-image]').attr({ src: url, alt: title });
         this.$root.find('[data-tryon-garment-thumb]').removeClass('is-selected');
-        this.$root.find(`[data-tryon-garment-thumb][data-url="${url}"]`).addClass('is-selected');
+        this.$root.find(`[data-tryon-garment-thumb][data-url="${CSS.escape ? CSS.escape(url) : url}"]`).addClass('is-selected');
+        // Fallback if CSS.escape attribute selector fails on special chars
+        this.$root.find('[data-tryon-garment-thumb]').each((_, el) => {
+            if (el.getAttribute('data-url') === url) el.classList.add('is-selected');
+        });
     }
 
     getGarmentImageUrlSync() {
-        if (this.selectedGarmentUrl) {
-            return this.selectedGarmentUrl;
-        }
+        if (this.selectedGarmentUrl) return this.selectedGarmentUrl;
         if (this.imageGallery && this.imageGallery.currentImage && this.imageGallery.currentImage.mainImageUrl) {
             return this.absoluteUrl(this.imageGallery.currentImage.mainImageUrl);
         }
-
         const $main = this.$scope.find('[data-image-gallery-main] .slick-current a, [data-image-gallery-main] a').first();
         const fromDom = $main.data('originalImg') || $main.attr('data-original-img') || $main.find('img').attr('src');
-        if (fromDom) {
-            return this.absoluteUrl(fromDom);
-        }
-
-        const fromBtn = this.$scope.find('[data-virtual-tryon]').first().attr('data-product-image')
-            || this.$scope.find('[data-virtual-tryon]').first().data('product-image');
-        if (fromBtn) {
-            return this.absoluteUrl(fromBtn);
-        }
-
-        return '';
+        if (fromDom) return this.absoluteUrl(fromDom);
+        const fromBtn = this.$scope.find('[data-virtual-tryon]').first().attr('data-product-image');
+        return fromBtn ? this.absoluteUrl(fromBtn) : '';
     }
 
     absoluteUrl(url) {
         if (!url) return '';
-        if (/^https?:\/\//i.test(url) || url.indexOf('data:') === 0) {
-            return url;
-        }
-        if (url.indexOf('//') === 0) {
-            return `${window.location.protocol}${url}`;
-        }
+        if (/^https?:\/\//i.test(url) || url.indexOf('data:') === 0) return url;
+        if (url.indexOf('//') === 0) return `${window.location.protocol}${url}`;
         try {
             return new URL(url, window.location.origin).href;
         } catch (e) {
@@ -913,7 +796,7 @@ export default class VirtualTryOn {
         }
 
         const reader = new FileReader();
-        reader.onload = () => {
+        reader.onload = async () => {
             this.userImageDataUrl = reader.result;
             this.$root.find('[data-tryon-user-image]').attr('src', this.userImageDataUrl);
             this.$root.find('[data-tryon-user-preview]').removeClass('is-hidden');
@@ -921,6 +804,27 @@ export default class VirtualTryOn {
             this.$root.find('[data-tryon-submit]').prop('disabled', false);
             this.$root.find('[data-tryon-status]').addClass('is-hidden');
             this.$root.find('[data-tryon-result]').addClass('is-hidden');
+
+            // Always show height — critical when photo crop ≠ product framing
+            this.$root.find('[data-tryon-height-wrap]').removeClass('is-hidden');
+            if (!this.$root.find('[data-tryon-height]').val()) {
+                this.$root.find('[data-tryon-height]').val(String(DEFAULT_HEIGHT_CM));
+            }
+            this.updateHeightHint();
+
+            try {
+                const { img } = await imageToCanvas(this.userImageDataUrl);
+                const aspect = (img.naturalHeight || img.height) / Math.max(1, img.naturalWidth || img.width);
+                if (aspect < 1.25) {
+                    this.showStatus(
+                        'Your photo looks cropped (not full-body). Enter your height below so we can build a complete person on a white background. A standing full-body photo gives the best fit.',
+                        false,
+                        false,
+                    );
+                }
+            } catch (e) {
+                // ignore
+            }
         };
         reader.onerror = () => {
             this.showStatus(this.context.tryonErrorGeneric || 'Could not read that photo. Please try another.', true);
@@ -937,58 +841,26 @@ export default class VirtualTryOn {
             .html(isLoading ? `<span class="tryOn-spinner" aria-hidden="true"></span> ${message}` : message);
     }
 
-    async prepareExactGarmentBlob() {
-        const primaryUrl = this.selectedGarmentUrl || this.getGarmentImageUrlSync();
-        if (!primaryUrl) {
-            throw new Error('no_garment');
-        }
-
-        // Rank others by score for secondary style strip
-        const ranked = this.productImages
-            .map((url) => ({ url, score: (this.imageMeta[url] && this.imageMeta[url].score) || 0 }))
-            .sort((a, b) => b.score - a.score)
-            .map((x) => x.url);
-
-        const secondaryUrls = ranked.filter((u) => u !== primaryUrl).slice(0, 3);
-        const primaryImg = await loadImage(primaryUrl, true);
-        const secondaryImgs = [];
-        await Promise.all(secondaryUrls.map(async (url) => {
-            try {
-                secondaryImgs.push(await loadImage(url, true));
-            } catch (e) {
-                // skip
-            }
-        }));
-
-        return buildStyleMatchedGarmentBlob(primaryImg, secondaryImgs);
-    }
-
-    buildDescription() {
-        const title = [this.graphBrandName, this.graphProductName || this.getProductTitle()]
-            .filter(Boolean)
-            .join(' ');
-        const palettes = this.productImages.map((url) => (this.imageMeta[url] && this.imageMeta[url].palette) || []);
-        return buildGarmentDescription(title, palettes);
-    }
-
     async runTryOn() {
         if (!this.userImageDataUrl) {
             this.showStatus(this.context.tryonErrorNeedPhoto || 'Upload a full-body photo first.', true);
             return;
         }
-
         if (!this.selectedGarmentUrl && !this.getGarmentImageUrlSync()) {
             this.showStatus(this.context.tryonErrorNoProduct || 'Could not load the product image.', true);
             return;
         }
 
+        const heightCm = this.getHeightCm();
+        if (!heightCm || heightCm < 120 || heightCm > 230) {
+            this.$root.find('[data-tryon-height-wrap]').removeClass('is-hidden');
+            this.showStatus('Please enter your height (cm) so we can scale a complete full-body result.', true);
+            return;
+        }
+
         const $submit = this.$root.find('[data-tryon-submit]');
         $submit.prop('disabled', true);
-        this.showStatus(
-            this.context.tryonLoading || 'Matching Jettribe product style, then fitting on you…',
-            false,
-            true,
-        );
+        this.showStatus('Preparing white-background photos for exact product fit…', false, true);
 
         const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
         const timeoutId = window.setTimeout(() => {
@@ -996,31 +868,47 @@ export default class VirtualTryOn {
         }, TRYON_TIMEOUT_MS);
 
         try {
-            const [garmentBlob, description] = await Promise.all([
-                this.prepareExactGarmentBlob(),
-                Promise.resolve(this.buildDescription()),
+            const title = [this.graphBrandName, this.graphProductName || this.getProductTitle()].filter(Boolean).join(' ');
+            const description = buildGarmentDescription(title);
+            const garmentUrl = this.selectedGarmentUrl || this.getGarmentImageUrlSync();
+
+            const [personPrep, garmentBlob] = await Promise.all([
+                preparePersonBlob(this.userImageDataUrl, heightCm),
+                prepareGarmentBlob(garmentUrl),
             ]);
 
+            if (!personPrep.looksFullBody) {
+                this.showStatus(
+                    `Cropped photo detected — using height ${heightCm} cm for full-body framing. Fitting product…`,
+                    false,
+                    true,
+                );
+            }
+
             const resultUrl = await runGenerativeTryOn({
-                personDataUrl: this.userImageDataUrl,
+                personBlob: personPrep.blob,
                 garmentBlob,
                 description,
+                heightCm,
                 signal: controller && controller.signal,
                 onStatus: (msg) => this.showStatus(msg, false, true),
             });
 
-            if (!resultUrl) {
-                throw new Error('empty_result');
-            }
+            if (!resultUrl) throw new Error('empty_result');
 
             const $resultImg = this.$root.find('[data-tryon-result-image]');
             $resultImg.one('load', () => {
                 this.$root.find('[data-tryon-status]').addClass('is-hidden');
             });
             $resultImg.attr('src', resultUrl);
-            this.$root.find('[data-tryon-download]').attr({ href: resultUrl, download: 'jettribe-tryon.jpg', target: '_blank', rel: 'noopener' });
+            this.$root.find('[data-tryon-download]').attr({
+                href: resultUrl,
+                download: 'jettribe-tryon.jpg',
+                target: '_blank',
+                rel: 'noopener',
+            });
             this.$root.find('[data-tryon-result]').removeClass('is-hidden');
-            this.showStatus('Done — scroll down to see your try-on.', false, false);
+            this.showStatus('Done — full person on white background with your product.', false, false);
             window.setTimeout(() => {
                 this.$root.find('[data-tryon-status]').addClass('is-hidden');
             }, 2500);
@@ -1030,9 +918,10 @@ export default class VirtualTryOn {
             const errText = String((err && err.message) || err || '');
             const timedOut = err && (err.name === 'AbortError' || /abort/i.test(errText));
             let msg = this.context.tryonErrorGeneric
-                || 'Sorry — try-on could not be generated. Try another photo, or pick a clearer front product shot, then try again.';
-            if (timedOut) {
-                msg = 'Try-on timed out waiting on the free AI queue. Please try again in a minute.';
+                || 'Sorry — try-on could not be generated. Pick a studio product photo, enter height, and try again in a minute.';
+            if (timedOut) msg = 'Try-on timed out on the free AI queue. Please try again in a minute.';
+            if (/provider_error/i.test(errText)) {
+                msg = 'Free AI queue was busy. Please tap Try Now again in a few seconds.';
             }
             this.showStatus(msg, true);
         } finally {

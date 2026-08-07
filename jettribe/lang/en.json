@@ -903,24 +903,26 @@
     "link_guide_popup": "<a href=\"{href}\" data-papathemes-popup>{value}</a> or check out our size guide.",
     "tryon": {
       "title": "Virtual Try-On",
-      "intro": "Upload a standing photo. Free AI fits this exact Jettribe product on you using all product photos for colors, logos, and style (usually 20–60 seconds).",
+      "intro": "Upload a standing photo and enter your height. Free AI fits this Jettribe product on you and returns a complete person on a white background.",
       "product_heading": "Selected product",
       "upload_heading": "Your photo",
       "upload_hint": "Click or drag a full-body photo here",
-      "upload_note": "JPG, PNG, or WebP · standing, face+torso visible · max 8MB",
+      "upload_note": "Standing full-body works best · JPG/PNG/WebP · max 8MB",
       "change_photo": "Change photo",
       "submit": "Try Now",
-      "loading": "Matching product style across gallery photos, then fitting on you…",
-      "result_heading": "Your AI try-on",
+      "loading": "Preparing photos, then fitting the exact product on you…",
+      "result_heading": "Your try-on (white background)",
       "result_alt": "AI virtual try-on result",
       "download": "Download image",
       "try_again": "Try another photo",
-      "error_generic": "Sorry — try-on could not be generated. Pick a clearer front product photo below, try another standing photo, or retry in a minute.",
+      "error_generic": "Sorry — try-on failed. Pick a studio/mannequin product photo, confirm height, and try again (free AI queue may be busy).",
       "error_need_photo": "Upload a full-body photo first.",
       "error_no_product": "Could not load the product image.",
       "error_file_type": "Please upload a JPG, PNG, or WebP photo.",
       "error_file_size": "Photo must be under 8MB.",
-      "garment_picker": "Choose product photo for exact match"
+      "garment_picker": "Choose product photo for exact match",
+      "height_label": "Your height (required for full-body scaling)",
+      "height_hint": "Example: 175 for 175 cm, or 5'11. Used to build a complete person on white."
     }
   },
   "design_tool": {

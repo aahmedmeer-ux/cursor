@@ -140,6 +140,49 @@
     &.is-selected {
         border-color: #C72E2E;
     }
+
+    &.is-studio {
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+    }
+}
+
+.tryOn-heightWrap {
+    margin-top: spacing("base");
+    padding-top: spacing("half");
+    border-top: 1px solid #eee;
+}
+
+.tryOn-heightLabel {
+    display: block;
+    margin-bottom: spacing("quarter");
+    font-size: fontSize("smaller");
+    font-weight: fontWeight("bold");
+}
+
+.tryOn-heightRow {
+    display: flex;
+    align-items: center;
+    gap: spacing("half");
+}
+
+.tryOn-heightInput {
+    max-width: remCalc(120px);
+}
+
+.tryOn-heightUnit {
+    font-size: fontSize("smaller");
+    color: #666;
+}
+
+.tryOn-heightHint {
+    margin: spacing("quarter") 0 0;
+    font-size: fontSize("tiny");
+    color: #666;
+    line-height: 1.4;
+}
+
+.tryOn-resultPreview {
+    background: #ffffff;
 }
 
 .tryOn-dropzone {

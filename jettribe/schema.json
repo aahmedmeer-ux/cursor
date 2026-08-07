@@ -4546,7 +4546,7 @@
     "settings": [
       {
         "type": "paragraph",
-        "content": "Free in-browser Try It: shoppers upload a photo and the product is fitted using on-device pose detection. No API keys or paid AI credits."
+        "content": "Free AI Try It (Hugging Face IDM-VTON): shoppers upload a photo and the product is generatively fitted on them. No API keys or paid credits. Uses a public free GPU demo — may queue when busy."
       },
       {
         "type": "checkbox",

@@ -1,9 +1,9 @@
 /**
- * Virtual Try-On (100% free, runs in the shopper's browser).
+ * Virtual Try-On — generative AI fit (free via Hugging Face IDM-VTON Space).
  *
- * Uses Google MediaPipe Pose Landmarker (CDN) to find shoulders/hips, then
- * composites the product image onto the shopper photo with canvas.
- * No fal.ai, no proxy, no API keys, no paid credits.
+ * Uploads the shopper photo + product image to the public IDM-VTON demo
+ * (ZeroGPU, no API key / no paid credits) and shows the real try-on result.
+ * This is NOT a simple image overlay.
  *
  * Modal MUST open with { pending: false, clearContent: false }.
  */
@@ -11,18 +11,13 @@ import $ from 'jquery';
 import modalFactory, { ModalEvents } from '../global/modal';
 
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
-const MEDIAPIPE_VERSION = '0.10.18';
-const MEDIAPIPE_ESM = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MEDIAPIPE_VERSION}/+esm`;
-const MEDIAPIPE_WASM = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MEDIAPIPE_VERSION}/wasm`;
-const POSE_MODEL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
+const MAX_EDGE = 768;
+const TRYON_TIMEOUT_MS = 180000;
 
-// MediaPipe landmark indices
-const LS = 11; // left shoulder
-const RS = 12; // right shoulder
-const LH = 23; // left hip
-const RH = 24; // right hip
-
-let poseLandmarkerPromise = null;
+/** Free public Gradio Spaces that implement IDM-VTON-compatible /tryon */
+const TRYON_HOSTS = [
+    'yisol-idm-vton.hf.space',
+];
 
 function isTruthy(value) {
     return value !== false && value !== 'false' && value !== 0 && value !== '0' && value != null && value !== '';
@@ -37,7 +32,6 @@ function loadImage(src, useCors = true) {
         img.onload = () => resolve(img);
         img.onerror = () => {
             if (useCors) {
-                // Retry without CORS (may limit soft-key / export edge cases)
                 loadImage(src, false).then(resolve).catch(reject);
                 return;
             }
@@ -47,165 +41,187 @@ function loadImage(src, useCors = true) {
     });
 }
 
-async function getPoseLandmarker() {
-    if (!poseLandmarkerPromise) {
-        poseLandmarkerPromise = (async () => {
-            // webpackIgnore keeps this off the theme bundle (loaded free from CDN)
-            const vision = await import(/* webpackIgnore: true */ MEDIAPIPE_ESM);
-            const { FilesetResolver, PoseLandmarker } = vision;
-            const fileset = await FilesetResolver.forVisionTasks(MEDIAPIPE_WASM);
-            try {
-                return await PoseLandmarker.createFromOptions(fileset, {
-                    baseOptions: {
-                        modelAssetPath: POSE_MODEL,
-                        delegate: 'GPU',
-                    },
-                    runningMode: 'IMAGE',
-                    numPoses: 1,
-                });
-            } catch (gpuErr) {
-                // Some devices reject GPU delegate — fall back to CPU
-                return PoseLandmarker.createFromOptions(fileset, {
-                    baseOptions: {
-                        modelAssetPath: POSE_MODEL,
-                        delegate: 'CPU',
-                    },
-                    runningMode: 'IMAGE',
-                    numPoses: 1,
-                });
-            }
-        })().catch((err) => {
-            poseLandmarkerPromise = null;
-            throw err;
-        });
-    }
-    return poseLandmarkerPromise;
+function canvasToBlob(canvas, type = 'image/jpeg', quality = 0.92) {
+    return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error('toBlob_failed'));
+        }, type, quality);
+    });
 }
 
-/**
- * Soft-key near-white / corner-sampled studio backgrounds from product shots.
- */
-function softKeyGarment(img) {
-    const canvas = document.createElement('canvas');
+/** Downscale large photos so free GPU demos finish faster. */
+async function imageSourceToJpegBlob(src, maxEdge = MAX_EDGE) {
+    const img = await loadImage(src, src.indexOf('data:') !== 0);
     const w = img.naturalWidth || img.width;
     const h = img.naturalHeight || img.height;
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0);
-
-    let imageData;
-    try {
-        imageData = ctx.getImageData(0, 0, w, h);
-    } catch (e) {
-        // Tainted canvas (CORS) — return unkeyed image
-        return canvas;
-    }
-
-    const { data } = imageData;
-    const sample = (x, y) => {
-        const i = (Math.min(h - 1, Math.max(0, y)) * w + Math.min(w - 1, Math.max(0, x))) * 4;
-        return [data[i], data[i + 1], data[i + 2]];
-    };
-
-    const corners = [
-        sample(2, 2),
-        sample(w - 3, 2),
-        sample(2, h - 3),
-        sample(w - 3, h - 3),
-        sample(Math.floor(w / 2), 2),
-        sample(2, Math.floor(h / 2)),
-    ];
-    const avg = corners.reduce((a, c) => [a[0] + c[0], a[1] + c[1], a[2] + c[2]], [0, 0, 0])
-        .map((v) => v / corners.length);
-
-    const threshold = 42;
-    for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        const dist = Math.abs(r - avg[0]) + Math.abs(g - avg[1]) + Math.abs(b - avg[2]);
-        const nearWhite = r > 235 && g > 235 && b > 235;
-        const nearBg = dist < threshold;
-        if (nearWhite || nearBg) {
-            const t = nearWhite ? (255 - Math.min(r, g, b)) / 20 : dist / threshold;
-            data[i + 3] = Math.max(0, Math.min(255, Math.floor(t * 255)));
-        }
-    }
-
-    ctx.putImageData(imageData, 0, 0);
-    return canvas;
-}
-
-function landmarkPoint(landmarks, index, width, height) {
-    const p = landmarks[index];
-    if (!p) return null;
-    return { x: p.x * width, y: p.y * height, vis: p.visibility == null ? 1 : p.visibility };
-}
-
-function compositeTryOn(personImg, garmentCanvas, landmarks) {
-    const width = personImg.naturalWidth || personImg.width;
-    const height = personImg.naturalHeight || personImg.height;
+    const scale = Math.min(1, maxEdge / Math.max(w, h));
     const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = Math.max(1, Math.round(w * scale));
+    canvas.height = Math.max(1, Math.round(h * scale));
     const ctx = canvas.getContext('2d');
-    ctx.drawImage(personImg, 0, 0, width, height);
-
-    const gW = garmentCanvas.width;
-    const gH = garmentCanvas.height;
-    const aspect = gW / Math.max(1, gH);
-
-    const leftS = landmarks && landmarkPoint(landmarks, LS, width, height);
-    const rightS = landmarks && landmarkPoint(landmarks, RS, width, height);
-    const leftH = landmarks && landmarkPoint(landmarks, LH, width, height);
-    const rightH = landmarks && landmarkPoint(landmarks, RH, width, height);
-
-    const shouldersOk = leftS && rightS && (leftS.vis > 0.35 || rightS.vis > 0.35);
-
-    if (shouldersOk) {
-        const midSx = (leftS.x + rightS.x) / 2;
-        const midSy = (leftS.y + rightS.y) / 2;
-        const shoulderW = Math.hypot(rightS.x - leftS.x, rightS.y - leftS.y);
-        const angle = Math.atan2(rightS.y - leftS.y, rightS.x - leftS.x);
-
-        let torsoH = shoulderW * 1.35;
-        if (leftH && rightH) {
-            const midHx = (leftH.x + rightH.x) / 2;
-            const midHy = (leftH.y + rightH.y) / 2;
-            torsoH = Math.max(torsoH, Math.hypot(midHx - midSx, midHy - midSy));
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    try {
+        return await canvasToBlob(canvas);
+    } catch (e) {
+        // Tainted canvas — fall back to fetch for http(s) URLs
+        if (typeof src === 'string' && /^https?:/i.test(src)) {
+            const res = await fetch(src);
+            if (!res.ok) throw new Error(`garment_fetch_${res.status}`);
+            return res.blob();
         }
-
-        let drawW = Math.max(shoulderW * 1.8, width * 0.18);
-        let drawH = drawW / aspect;
-        if (drawH < torsoH * 1.25) {
-            drawH = torsoH * 1.25;
-            drawW = drawH * aspect;
+        if (typeof src === 'string' && src.indexOf('data:') === 0) {
+            const res = await fetch(src);
+            return res.blob();
         }
-        // Cap so we don't cover the whole frame on close-ups
-        drawW = Math.min(drawW, width * 0.72);
-        drawH = drawW / aspect;
+        throw e;
+    }
+}
 
-        ctx.save();
-        ctx.translate(midSx, midSy + drawH * 0.12);
-        ctx.rotate(angle);
-        ctx.globalAlpha = 0.94;
-        ctx.drawImage(garmentCanvas, -drawW / 2, -drawH * 0.12, drawW, drawH);
-        ctx.restore();
-    } else {
-        // Heuristic: upper-torso centered overlay when pose is missing
-        let drawW = width * 0.4;
-        let drawH = drawW / aspect;
-        if (drawH > height * 0.45) {
-            drawH = height * 0.45;
-            drawW = drawH * aspect;
+async function uploadToSpace(host, blob, filename) {
+    const form = new FormData();
+    form.append('files', blob, filename);
+    const res = await fetch(`https://${host}/upload`, {
+        method: 'POST',
+        body: form,
+    });
+    if (!res.ok) {
+        throw new Error(`upload_${res.status}`);
+    }
+    const json = await res.json();
+    const path = Array.isArray(json) ? json[0] : json;
+    if (!path) {
+        throw new Error('upload_empty');
+    }
+    return path;
+}
+
+function parseSseComplete(text) {
+    const blocks = String(text || '').split(/\n\n+/);
+    for (let i = blocks.length - 1; i >= 0; i -= 1) {
+        const block = blocks[i];
+        if (!block || block.indexOf('data:') === -1) continue;
+        if (block.indexOf('event: error') !== -1) {
+            const errLine = block.split('\n').find((l) => l.indexOf('data:') === 0);
+            throw new Error(`provider_error:${(errLine || '').slice(5).trim().slice(0, 200)}`);
         }
-        ctx.globalAlpha = 0.92;
-        ctx.drawImage(garmentCanvas, (width - drawW) / 2, height * 0.2, drawW, drawH);
-        ctx.globalAlpha = 1;
+        if (block.indexOf('event: complete') === -1 && i !== blocks.length - 1) {
+            // Prefer explicit complete; last data block as fallback
+            continue;
+        }
+        const dataLine = block.split('\n').filter((l) => l.indexOf('data:') === 0).pop();
+        if (!dataLine) continue;
+        const raw = dataLine.slice(5).trim();
+        if (!raw || raw === 'null') continue;
+        let payload;
+        try {
+            payload = JSON.parse(raw);
+        } catch (e) {
+            continue;
+        }
+        if (Array.isArray(payload) && payload[0]) {
+            const first = payload[0];
+            if (typeof first === 'string' && /^https?:/i.test(first)) return first;
+            if (first && first.url) return first.url;
+            if (first && first.path && typeof first.path === 'string') {
+                // Relative gradio path — caller will absolutize
+                return first.url || first.path;
+            }
+        }
+        if (payload && payload.url) return payload.url;
+    }
+    // Fallback: any data array with url
+    for (let i = blocks.length - 1; i >= 0; i -= 1) {
+        const dataLine = (blocks[i] || '').split('\n').filter((l) => l.indexOf('data:') === 0).pop();
+        if (!dataLine) continue;
+        try {
+            const payload = JSON.parse(dataLine.slice(5).trim());
+            if (Array.isArray(payload) && payload[0] && payload[0].url) {
+                return payload[0].url;
+            }
+        } catch (e) {
+            // continue
+        }
+    }
+    return null;
+}
+
+async function callIdmVton(host, personPath, garmentPath, description, signal) {
+    const joinRes = await fetch(`https://${host}/call/tryon`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            data: [
+                {
+                    background: { path: personPath, meta: { _type: 'gradio.FileData' } },
+                    layers: [],
+                    composite: null,
+                },
+                { path: garmentPath, meta: { _type: 'gradio.FileData' } },
+                description || 'apparel',
+                true, // auto-masking
+                false, // crop
+                20, // denoise steps (faster on free GPU)
+                Math.floor(Math.random() * 1e9),
+            ],
+        }),
+        signal,
+    });
+    if (!joinRes.ok) {
+        throw new Error(`tryon_join_${joinRes.status}`);
+    }
+    const joinJson = await joinRes.json();
+    const eventId = joinJson.event_id;
+    if (!eventId) {
+        throw new Error('tryon_no_event');
     }
 
-    return canvas.toDataURL('image/jpeg', 0.92);
+    const streamRes = await fetch(`https://${host}/call/tryon/${eventId}`, { signal });
+    if (!streamRes.ok) {
+        throw new Error(`tryon_stream_${streamRes.status}`);
+    }
+    const text = await streamRes.text();
+    const resultUrl = parseSseComplete(text);
+    if (!resultUrl) {
+        throw new Error('tryon_empty_result');
+    }
+    if (resultUrl.indexOf('http') === 0) {
+        return resultUrl;
+    }
+    // Absolute file URL on the space
+    if (resultUrl.indexOf('/file=') === 0 || resultUrl.indexOf('/tmp/') === 0) {
+        return `https://${host}/file=${resultUrl.replace(/^\/file=/, '')}`;
+    }
+    return `https://${host}/file=${resultUrl}`;
+}
+
+async function runGenerativeTryOn({ personDataUrl, garmentUrl, description, signal, onStatus }) {
+    if (onStatus) onStatus('Preparing photos…');
+    const [personBlob, garmentBlob] = await Promise.all([
+        imageSourceToJpegBlob(personDataUrl),
+        imageSourceToJpegBlob(garmentUrl),
+    ]);
+
+    let lastError;
+    for (let i = 0; i < TRYON_HOSTS.length; i += 1) {
+        const host = TRYON_HOSTS[i];
+        try {
+            if (onStatus) onStatus('Uploading to free AI try-on…');
+            const [personPath, garmentPath] = await Promise.all([
+                uploadToSpace(host, personBlob, 'person.jpg'),
+                uploadToSpace(host, garmentBlob, 'garment.jpg'),
+            ]);
+            if (onStatus) {
+                onStatus('AI is fitting the product on you… usually 20–60 seconds (free).');
+            }
+            return await callIdmVton(host, personPath, garmentPath, description, signal);
+        } catch (err) {
+            lastError = err;
+            // eslint-disable-next-line no-console
+            console.warn('Try-on host failed', host, err);
+        }
+    }
+    throw lastError || new Error('tryon_failed');
 }
 
 export default class VirtualTryOn {
@@ -236,8 +252,6 @@ export default class VirtualTryOn {
         this.ensureButtons();
         this.bindOpeners();
         this.ensureModal();
-        // Warm MediaPipe in the background so first Try Now feels snappy
-        getPoseLandmarker().catch(() => {});
     }
 
     ensureButtons() {
@@ -592,32 +606,26 @@ export default class VirtualTryOn {
         const $submit = this.$root.find('[data-tryon-submit]');
         $submit.prop('disabled', true);
         this.showStatus(
-            this.context.tryonLoading || 'Fitting the product on your photo…',
+            this.context.tryonLoading || 'AI is fitting the product on you… usually 20–60 seconds.',
             false,
             true,
         );
 
+        const productTitle = this.$root.find('[data-tryon-product-title]').text().trim();
+        const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const timeoutId = window.setTimeout(() => {
+            if (controller) controller.abort();
+        }, TRYON_TIMEOUT_MS);
+
         try {
-            const [personImg, garmentImg] = await Promise.all([
-                loadImage(this.userImageDataUrl, false),
-                loadImage(garmentUrl, true),
-            ]);
+            const resultUrl = await runGenerativeTryOn({
+                personDataUrl: this.userImageDataUrl,
+                garmentUrl,
+                description: productTitle || 'Jettribe apparel',
+                signal: controller && controller.signal,
+                onStatus: (msg) => this.showStatus(msg, false, true),
+            });
 
-            const garmentCanvas = softKeyGarment(garmentImg);
-
-            let landmarks = null;
-            try {
-                const landmarker = await getPoseLandmarker();
-                const detection = landmarker.detect(personImg);
-                if (detection && detection.landmarks && detection.landmarks[0]) {
-                    landmarks = detection.landmarks[0];
-                }
-            } catch (poseErr) {
-                // eslint-disable-next-line no-console
-                console.warn('Try-on: pose detection unavailable, using fallback placement', poseErr);
-            }
-
-            const resultUrl = compositeTryOn(personImg, garmentCanvas, landmarks);
             if (!resultUrl) {
                 throw new Error('empty_result');
             }
@@ -627,21 +635,25 @@ export default class VirtualTryOn {
                 this.$root.find('[data-tryon-status]').addClass('is-hidden');
             });
             $resultImg.attr('src', resultUrl);
-            this.$root.find('[data-tryon-download]').attr({ href: resultUrl, download: 'jettribe-tryon.jpg' });
+            this.$root.find('[data-tryon-download]').attr({ href: resultUrl, download: 'jettribe-tryon.jpg', target: '_blank', rel: 'noopener' });
             this.$root.find('[data-tryon-result]').removeClass('is-hidden');
-            this.showStatus('Done — scroll down to see your preview.', false, false);
+            this.showStatus('Done — scroll down to see your try-on.', false, false);
             window.setTimeout(() => {
                 this.$root.find('[data-tryon-status]').addClass('is-hidden');
-            }, 2000);
+            }, 2500);
         } catch (err) {
             // eslint-disable-next-line no-console
             console.error('Virtual try-on failed', err);
-            this.showStatus(
-                this.context.tryonErrorGeneric
-                || 'Sorry — try-on could not be generated. Please try another full-body photo.',
-                true,
-            );
+            const errText = String((err && err.message) || err || '');
+            const timedOut = err && (err.name === 'AbortError' || /abort/i.test(errText));
+            let msg = this.context.tryonErrorGeneric
+                || 'Sorry — try-on could not be generated. Please try another full-body photo, or try again in a minute (free AI queue may be busy).';
+            if (timedOut) {
+                msg = 'Try-on timed out waiting on the free AI queue. Please try again in a minute.';
+            }
+            this.showStatus(msg, true);
         } finally {
+            window.clearTimeout(timeoutId);
             $submit.prop('disabled', !this.userImageDataUrl);
         }
     }

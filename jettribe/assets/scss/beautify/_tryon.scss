@@ -166,6 +166,9 @@
     margin-bottom: spacing("base");
     background: #f5f5f5;
     border-left: 3px solid #333;
+    display: flex;
+    align-items: center;
+    gap: spacing("half");
 
     &.is-loading {
         border-left-color: #C72E2E;
@@ -175,6 +178,30 @@
         background: #fff1f1;
         border-left-color: #C72E2E;
         color: #8a1f1f;
+    }
+}
+
+.tryOn-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(199, 46, 46, 0.25);
+    border-top-color: #C72E2E;
+    border-radius: 50%;
+    animation: tryOn-spin 0.7s linear infinite;
+    flex: 0 0 auto;
+}
+
+@keyframes tryOn-spin {
+    to { transform: rotate(360deg); }
+}
+
+.modal--tryOn {
+    .loadingOverlay {
+        display: none !important;
+    }
+
+    .modal-content {
+        padding: spacing("single");
     }
 }
 

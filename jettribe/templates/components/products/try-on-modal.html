@@ -1,60 +1,63 @@
 {{#if theme_settings.tryon_enable}}
-<div id="virtual-tryon-modal" class="modal modal--tryOn" data-reveal data-prevent-quick-search-close aria-hidden="true" role="dialog" aria-labelledby="virtual-tryon-title">
-    <div class="modal-header">
-        <h2 id="virtual-tryon-title" class="modal-header-title">{{lang 'products.tryon.title'}}</h2>
-        <a href="#" class="modal-close" aria-label="{{lang 'common.close'}}" data-reveal-close>
-            <span aria-hidden="true">&#215;</span>
-        </a>
-    </div>
-    <div class="modal-body">
-        <div class="tryOn" data-tryon-root>
-            <p class="tryOn-intro">{{lang 'products.tryon.intro'}}</p>
+<div id="virtual-tryon-modal" class="modal modal--large modal--tryOn" data-reveal data-prevent-quick-search-close role="dialog" aria-labelledby="virtual-tryon-title">
+    <a href="#" class="modal-close" aria-label="{{lang 'common.close'}}" role="button">
+        <span aria-hidden="true">&#215;</span>
+    </a>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="virtual-tryon-title" class="modal-header-title">{{lang 'products.tryon.title'}}</h2>
+        </div>
+        <div class="modal-body">
+            <div class="tryOn" data-tryon-root>
+                <p class="tryOn-intro">{{lang 'products.tryon.intro'}}</p>
 
-            <div class="tryOn-grid">
-                <div class="tryOn-panel tryOn-panel--product">
-                    <h3 class="tryOn-panel-title">{{lang 'products.tryon.product_heading'}}</h3>
-                    <div class="tryOn-productPreview">
-                        <img src="" alt="" data-tryon-product-image>
+                <div class="tryOn-grid">
+                    <div class="tryOn-panel tryOn-panel--product">
+                        <h3 class="tryOn-panel-title">{{lang 'products.tryon.product_heading'}}</h3>
+                        <div class="tryOn-productPreview">
+                            <img src="" alt="" data-tryon-product-image>
+                        </div>
+                        <p class="tryOn-productTitle" data-tryon-product-title></p>
                     </div>
-                    <p class="tryOn-productTitle" data-tryon-product-title></p>
-                </div>
 
-                <div class="tryOn-panel tryOn-panel--upload">
-                    <h3 class="tryOn-panel-title">{{lang 'products.tryon.upload_heading'}}</h3>
-                    <label class="tryOn-dropzone" data-tryon-dropzone for="tryon-file-input">
-                        <input id="tryon-file-input" class="u-hidden" type="file" accept="image/jpeg,image/png,image/webp" data-tryon-file>
-                        <span class="tryOn-dropzone-icon" aria-hidden="true">
-                            <svg class="icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16"/></svg>
-                        </span>
-                        <span class="tryOn-dropzone-text" data-tryon-drop-text>{{lang 'products.tryon.upload_hint'}}</span>
-                        <span class="tryOn-dropzone-note">{{lang 'products.tryon.upload_note'}}</span>
-                    </label>
-                    <div class="tryOn-userPreview is-hidden" data-tryon-user-preview>
-                        <img src="" alt="" data-tryon-user-image>
-                        <button type="button" class="button button--tiny tryOn-changePhoto" data-tryon-change>{{lang 'products.tryon.change_photo'}}</button>
+                    <div class="tryOn-panel tryOn-panel--upload">
+                        <h3 class="tryOn-panel-title">{{lang 'products.tryon.upload_heading'}}</h3>
+                        <label class="tryOn-dropzone" data-tryon-dropzone for="tryon-file-input">
+                            <input id="tryon-file-input" class="u-hidden" type="file" accept="image/jpeg,image/png,image/webp" data-tryon-file>
+                            <span class="tryOn-dropzone-icon" aria-hidden="true">
+                                <svg class="icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16"/></svg>
+                            </span>
+                            <span class="tryOn-dropzone-text" data-tryon-drop-text>{{lang 'products.tryon.upload_hint'}}</span>
+                            <span class="tryOn-dropzone-note">{{lang 'products.tryon.upload_note'}}</span>
+                        </label>
+                        <div class="tryOn-userPreview is-hidden" data-tryon-user-preview>
+                            <img src="" alt="" data-tryon-user-image>
+                            <button type="button" class="button button--tiny tryOn-changePhoto" data-tryon-change>{{lang 'products.tryon.change_photo'}}</button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="tryOn-actions">
-                <button type="button" class="button button--primary tryOn-submit" data-tryon-submit disabled>
-                    {{lang 'products.tryon.submit'}}
-                </button>
-            </div>
-
-            <div class="tryOn-status is-hidden" data-tryon-status role="status" aria-live="polite"></div>
-
-            <div class="tryOn-result is-hidden" data-tryon-result>
-                <h3 class="tryOn-panel-title">{{lang 'products.tryon.result_heading'}}</h3>
-                <div class="tryOn-resultPreview">
-                    <img src="" alt="{{lang 'products.tryon.result_alt'}}" data-tryon-result-image>
+                <div class="tryOn-actions">
+                    <button type="button" class="button button--primary tryOn-submit" data-tryon-submit disabled>
+                        {{lang 'products.tryon.submit'}}
+                    </button>
                 </div>
-                <div class="tryOn-resultActions">
-                    <a class="button button--primary" href="#" download="jettribe-tryon.jpg" data-tryon-download>{{lang 'products.tryon.download'}}</a>
-                    <button type="button" class="button" data-tryon-retry>{{lang 'products.tryon.try_again'}}</button>
+
+                <div class="tryOn-status is-hidden" data-tryon-status role="status" aria-live="polite"></div>
+
+                <div class="tryOn-result is-hidden" data-tryon-result>
+                    <h3 class="tryOn-panel-title">{{lang 'products.tryon.result_heading'}}</h3>
+                    <div class="tryOn-resultPreview">
+                        <img src="" alt="{{lang 'products.tryon.result_alt'}}" data-tryon-result-image>
+                    </div>
+                    <div class="tryOn-resultActions">
+                        <a class="button button--primary" href="#" download="jettribe-tryon.jpg" data-tryon-download>{{lang 'products.tryon.download'}}</a>
+                        <button type="button" class="button" data-tryon-retry>{{lang 'products.tryon.try_again'}}</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="loadingOverlay" style="display: none;"></div>
 </div>
 {{/if}}

@@ -1,12 +1,19 @@
 /**
  * Virtual Try-On — upload a full-body photo and preview the product on you via AI.
- * Uses a merchant proxy URL (recommended) or fal.ai when an API key is configured.
+ *
+ * Modal MUST open with { pending: false, clearContent: false } — the theme Modal
+ * helper defaults to pending/clearContent true, which shows an endless spinner
+ * and empties the pre-rendered try-on markup.
  */
 import $ from 'jquery';
-import modalFactory from '../global/modal';
+import modalFactory, { ModalEvents } from '../global/modal';
 
 const FAL_DEFAULT_ENDPOINT = 'https://fal.run/fal-ai/image-apps-v2/virtual-try-on';
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
+
+function isTruthy(value) {
+    return value !== false && value !== 'false' && value !== 0 && value !== '0' && value != null && value !== '';
+}
 
 export default class VirtualTryOn {
     constructor(productDetails) {
@@ -19,9 +26,7 @@ export default class VirtualTryOn {
         this.productId = productDetails.productId;
         this.context = productDetails.context;
         this.imageGallery = productDetails.imageGallery;
-        this.enabled = this.context.tryonEnable !== false
-            && this.context.tryonEnable !== 'false'
-            && this.context.tryonEnable !== 0;
+        this.enabled = isTruthy(this.context.tryonEnable);
 
         if (!this.enabled) {
             return;
@@ -30,12 +35,15 @@ export default class VirtualTryOn {
         this.userImageDataUrl = null;
         this.modal = null;
         this.$root = null;
+        this.opening = false;
         this.init();
     }
 
     init() {
         this.ensureButtons();
         this.bindOpeners();
+        // Pre-warm modal instance so first click is instant
+        this.ensureModal();
     }
 
     ensureButtons() {
@@ -62,13 +70,14 @@ export default class VirtualTryOn {
             }
         });
 
-        // Sticky ATC bar
         const $sticky = this.$scope.find('#form-action-addToCartSticky');
-        if ($sticky.length && !$sticky.closest('.productView-stickyATC').find('[data-virtual-tryon]').length) {
-            $sticky.before(`
-                <button type="button" class="button button--tryOn" data-virtual-tryon>
-                    ${label}
-                </button>
+        if ($sticky.length && !$sticky.closest('.productView-qtyAddWrapper, .productView-stickyATC, .formView-action').parent().find('[data-virtual-tryon]').length) {
+            $sticky.closest('.form-action--addToCart').before(`
+                <div class="form-action form-action--tryOn">
+                    <button type="button" class="button button--tryOn" data-virtual-tryon>
+                        ${label}
+                    </button>
+                </div>
             `);
         }
     }
@@ -76,31 +85,80 @@ export default class VirtualTryOn {
     bindOpeners() {
         this.$scope.on('click', '[data-virtual-tryon]', (event) => {
             event.preventDefault();
+            event.stopPropagation();
             this.open();
         });
     }
 
-    open() {
+    ensureModal() {
         const $modalEl = $('#virtual-tryon-modal');
         if (!$modalEl.length) {
-            // eslint-disable-next-line no-console
-            console.warn('Virtual Try-On modal markup missing');
-            return;
+            return null;
         }
 
         if (!this.modal) {
+            // Match newsletter popup: keep existing markup, no loading overlay lock
             this.modal = modalFactory('#virtual-tryon-modal')[0];
+            if (!this.modal) {
+                return null;
+            }
             this.$root = $modalEl.find('[data-tryon-root]');
             this.bindModalEvents();
+
+            this.modal.$modal.on(ModalEvents.opened, () => {
+                this.modal.pending = false;
+                this.opening = false;
+            });
+            this.modal.$modal.on(ModalEvents.closed, () => {
+                this.opening = false;
+            });
+        }
+
+        return this.modal;
+    }
+
+    open() {
+        if (this.opening) {
+            return;
+        }
+        this.opening = true;
+
+        const modal = this.ensureModal();
+        if (!modal || !this.$root || !this.$root.length) {
+            this.opening = false;
+            // eslint-disable-next-line no-alert
+            window.alert('Virtual Try-On is unavailable on this page. Please refresh and try again.');
+            return;
         }
 
         this.resetState();
+        // Sync fill from DOM first so UI appears immediately
+        this.populateProductPreviewSync();
+        // Then refresh from gallery/GraphQL in background
         this.populateProductPreview();
-        this.modal.open({ size: 'large' });
+
+        // CRITICAL: pending/clearContent default to true and break pre-rendered modals
+        modal.open({
+            size: 'large',
+            pending: false,
+            clearContent: false,
+        });
+        modal.pending = false;
+
+        // Safety: if overlay somehow shows, hide within a tick
+        window.setTimeout(() => {
+            modal.pending = false;
+            this.opening = false;
+        }, 50);
     }
 
     bindModalEvents() {
         const $root = this.$root;
+        if (!$root || $root.data('tryonBound')) {
+            return;
+        }
+        $root.data('tryonBound', true);
+
         const $file = $root.find('[data-tryon-file]');
         const $drop = $root.find('[data-tryon-dropzone]');
 
@@ -139,6 +197,7 @@ export default class VirtualTryOn {
         $root.on('click', '[data-tryon-retry]', (e) => {
             e.preventDefault();
             this.resetState(false);
+            this.populateProductPreviewSync();
             this.populateProductPreview();
         });
     }
@@ -151,7 +210,7 @@ export default class VirtualTryOn {
         $root.find('[data-tryon-user-preview]').addClass('is-hidden');
         $root.find('[data-tryon-dropzone]').removeClass('is-hidden');
         $root.find('[data-tryon-result]').addClass('is-hidden');
-        $root.find('[data-tryon-status]').addClass('is-hidden').removeClass('is-error is-loading').text('');
+        $root.find('[data-tryon-status]').addClass('is-hidden').removeClass('is-error is-loading').empty();
         $root.find('[data-tryon-submit]').prop('disabled', true);
         $root.find('[data-tryon-result-image]').attr('src', '');
         if (clearFile) {
@@ -160,37 +219,58 @@ export default class VirtualTryOn {
         }
     }
 
-    async populateProductPreview() {
+    populateProductPreviewSync() {
+        if (!this.$root) return;
         const title = this.$scope.find('.productView-title').first().text().trim()
-            || this.$scope.find('[data-virtual-tryon]').data('product-title')
+            || this.$scope.find('[data-virtual-tryon]').first().attr('data-product-title')
             || '';
         this.$root.find('[data-tryon-product-title]').text(title);
 
-        const imageUrl = await this.getGarmentImageUrl();
-        const $img = this.$root.find('[data-tryon-product-image]');
+        const imageUrl = this.getGarmentImageUrlSync();
         if (imageUrl) {
-            $img.attr({ src: imageUrl, alt: title });
+            this.$root.find('[data-tryon-product-image]').attr({ src: imageUrl, alt: title });
         }
     }
 
-    async getGarmentImageUrl() {
-        // Prefer current gallery image (selected color/variant)
+    async populateProductPreview() {
+        if (!this.$root) return;
+        try {
+            const imageUrl = await this.getGarmentImageUrl();
+            const title = this.$root.find('[data-tryon-product-title]').text();
+            if (imageUrl) {
+                this.$root.find('[data-tryon-product-image]').attr({ src: imageUrl, alt: title });
+            }
+        } catch (err) {
+            // Non-blocking — sync preview already shown
+        }
+    }
+
+    getGarmentImageUrlSync() {
         if (this.imageGallery && this.imageGallery.currentImage && this.imageGallery.currentImage.mainImageUrl) {
             return this.absoluteUrl(this.imageGallery.currentImage.mainImageUrl);
         }
 
         const $main = this.$scope.find('[data-image-gallery-main] .slick-current a, [data-image-gallery-main] a').first();
-        const fromDom = $main.data('originalImg') || $main.find('img').attr('src');
+        const fromDom = $main.data('originalImg') || $main.attr('data-original-img') || $main.find('img').attr('src');
         if (fromDom) {
             return this.absoluteUrl(fromDom);
         }
 
-        const fromBtn = this.$scope.find('[data-virtual-tryon]').first().data('product-image');
+        const fromBtn = this.$scope.find('[data-virtual-tryon]').first().attr('data-product-image')
+            || this.$scope.find('[data-virtual-tryon]').first().data('product-image');
         if (fromBtn) {
             return this.absoluteUrl(fromBtn);
         }
 
-        // GraphQL fallback (variant-aware)
+        return '';
+    }
+
+    async getGarmentImageUrl() {
+        const sync = this.getGarmentImageUrlSync();
+        if (sync) {
+            return sync;
+        }
+
         try {
             const images = await this.fetchProductImages();
             if (images.length) {
@@ -250,7 +330,7 @@ export default class VirtualTryOn {
         if (product.defaultImage && product.defaultImage.url) {
             urls.push(product.defaultImage.url);
         }
-        (product.images && product.images.edges || []).forEach((edge) => {
+        ((product.images && product.images.edges) || []).forEach((edge) => {
             if (edge.node && edge.node.url) {
                 urls.push(edge.node.url);
             }
@@ -305,12 +385,25 @@ export default class VirtualTryOn {
             .removeClass('is-hidden is-error is-loading')
             .toggleClass('is-error', !!isError)
             .toggleClass('is-loading', !!isLoading)
-            .text(message);
+            .html(isLoading ? `<span class="tryOn-spinner" aria-hidden="true"></span> ${message}` : message);
+    }
+
+    isConfigured() {
+        return !!(String(this.context.tryonProxyUrl || '').trim() || String(this.context.tryonApiKey || '').trim());
     }
 
     async runTryOn() {
         if (!this.userImageDataUrl) {
             this.showStatus(this.context.tryonErrorNeedPhoto || 'Upload a full-body photo first.', true);
+            return;
+        }
+
+        if (!this.isConfigured()) {
+            this.showStatus(
+                this.context.tryonErrorNotConfigured
+                || 'Virtual Try-On needs an AI connection. In Theme Editor → Virtual Try-On, add a Proxy URL (recommended) or fal.ai API key, then Save.',
+                true,
+            );
             return;
         }
 
@@ -322,9 +415,17 @@ export default class VirtualTryOn {
 
         const $submit = this.$root.find('[data-tryon-submit]');
         $submit.prop('disabled', true);
-        this.showStatus(this.context.tryonLoading || 'AI is fitting the product on your photo… this can take up to a minute.', false, true);
+        this.showStatus(
+            this.context.tryonLoading || 'AI is fitting the product on your photo… usually 15–45 seconds.',
+            false,
+            true,
+        );
 
         const productTitle = this.$root.find('[data-tryon-product-title]').text().trim();
+        const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const timeoutId = window.setTimeout(() => {
+            if (controller) controller.abort();
+        }, 90000);
 
         try {
             const resultUrl = await this.requestTryOn({
@@ -332,32 +433,41 @@ export default class VirtualTryOn {
                 garmentImageUrl: garmentUrl,
                 description: productTitle || 'apparel',
                 productId: this.productId,
+                signal: controller && controller.signal,
             });
 
             if (!resultUrl) {
                 throw new Error('empty_result');
             }
 
-            this.$root.find('[data-tryon-result-image]').attr('src', resultUrl);
+            const $resultImg = this.$root.find('[data-tryon-result-image]');
+            $resultImg.one('load', () => {
+                this.$root.find('[data-tryon-status]').addClass('is-hidden');
+            });
+            $resultImg.attr('src', resultUrl);
             this.$root.find('[data-tryon-download]').attr({ href: resultUrl, download: 'jettribe-tryon.jpg' });
             this.$root.find('[data-tryon-result]').removeClass('is-hidden');
-            this.$root.find('[data-tryon-status]').addClass('is-hidden');
+            this.showStatus('Done — scroll down to see your preview.', false, false);
+            window.setTimeout(() => {
+                this.$root.find('[data-tryon-status]').addClass('is-hidden');
+            }, 2000);
         } catch (err) {
             // eslint-disable-next-line no-console
             console.error('Virtual try-on failed', err);
-            const configured = !!(this.context.tryonProxyUrl || this.context.tryonApiKey);
-            const msg = configured
-                ? (this.context.tryonErrorGeneric || 'Sorry — try-on could not be generated. Please try another photo or try again later.')
-                : (this.context.tryonErrorNotConfigured || 'Virtual Try-On is not configured yet. Add a try-on proxy URL or fal.ai API key in Theme Settings.');
+            const timedOut = err && (err.name === 'AbortError' || String(err.message || '').indexOf('abort') !== -1);
+            const msg = timedOut
+                ? 'Try-on timed out. Please try a smaller photo or try again.'
+                : (this.context.tryonErrorGeneric || 'Sorry — try-on could not be generated. Please try another photo or check your AI proxy/API key.');
             this.showStatus(msg, true);
         } finally {
+            window.clearTimeout(timeoutId);
             $submit.prop('disabled', !this.userImageDataUrl);
         }
     }
 
-    async requestTryOn({ personImage, garmentImageUrl, description, productId }) {
-        const proxyUrl = (this.context.tryonProxyUrl || '').trim();
-        const apiKey = (this.context.tryonApiKey || '').trim();
+    async requestTryOn({ personImage, garmentImageUrl, description, productId, signal }) {
+        const proxyUrl = String(this.context.tryonProxyUrl || '').trim();
+        const apiKey = String(this.context.tryonApiKey || '').trim();
 
         if (proxyUrl) {
             const response = await fetch(proxyUrl, {
@@ -369,17 +479,19 @@ export default class VirtualTryOn {
                     description,
                     product_id: productId,
                 }),
+                signal,
             });
             if (!response.ok) {
                 throw new Error(`proxy_${response.status}`);
             }
             const data = await response.json();
-            return data.result_url || data.image_url || data.url || (data.images && data.images[0] && data.images[0].url);
+            return data.result_url || data.image_url || data.url
+                || (data.image && data.image.url)
+                || (data.images && data.images[0] && (data.images[0].url || data.images[0]));
         }
 
         if (apiKey) {
-            // Direct fal.ai call (API key will be visible in the storefront — prefer proxy in production)
-            const endpoint = (this.context.tryonFalEndpoint || '').trim() || FAL_DEFAULT_ENDPOINT;
+            const endpoint = String(this.context.tryonFalEndpoint || '').trim() || FAL_DEFAULT_ENDPOINT;
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
@@ -391,13 +503,14 @@ export default class VirtualTryOn {
                     clothing_image_url: garmentImageUrl,
                     description,
                 }),
+                signal,
             });
             if (!response.ok) {
                 const text = await response.text();
                 throw new Error(`fal_${response.status}:${text.slice(0, 200)}`);
             }
             const data = await response.json();
-            return data.image && data.image.url
+            return (data.image && data.image.url)
                 || data.image_url
                 || data.url
                 || (data.images && data.images[0] && (data.images[0].url || data.images[0]));

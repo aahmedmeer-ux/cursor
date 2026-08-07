@@ -12,6 +12,8 @@ const GuideSchema = z.object({
   text: z.string(),
   structureNotes: z.array(z.string()).optional(),
   byteLength: z.number(),
+  originalBase64: z.string().optional(),
+  warnings: z.array(z.string()).optional(),
 });
 
 const BodySchema = z.object({
@@ -30,7 +32,7 @@ export async function POST(req: Request) {
     }
     if (!body.templateGuide) {
       return NextResponse.json(
-        { error: "Upload a presentation template (.pptx, .docx, .pdf, or .txt) first." },
+        { error: "Upload a presentation template (.pptx preferred) first." },
         { status: 400 }
       );
     }

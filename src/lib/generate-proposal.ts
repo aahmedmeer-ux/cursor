@@ -4,7 +4,7 @@ import type {
   SurveyPaper,
   UploadedGuide,
 } from "./types";
-import { inferSectionHeadings } from "./parse-guide";
+import { inferSectionHeadings, isReadablePlainText } from "./parse-guide";
 
 const DEFAULT_PROPOSAL_SECTIONS = [
   "Abstract",
@@ -48,11 +48,11 @@ function topThemes(paper: SurveyPaper, rows: MatrixRow[]): string[] {
 }
 
 function guideExcerpt(guides: UploadedGuide[], max = 900): string {
-  const blob = guides
-    .map((g) => g.text)
-    .join("\n")
-    .replace(/\s+/g, " ")
-    .trim();
+  const lines = guides
+    .flatMap((g) => g.text.split("\n"))
+    .map((l) => l.trim())
+    .filter((l) => l.length > 20 && isReadablePlainText(l.slice(0, 160)));
+  const blob = lines.join(" ").replace(/\s+/g, " ").trim();
   return blob.slice(0, max);
 }
 
@@ -175,7 +175,14 @@ export function generateResearchProposal(input: {
   const f = field(topic);
   const gaps = topGaps(input.rows);
   const themes = topThemes(input.paper, input.rows);
-  const headings = inferSectionHeadings(guides, DEFAULT_PROPOSAL_SECTIONS);
+  const headings = inferSectionHeadings(guides, DEFAULT_PROPOSAL_SECTIONS).filter(
+    (h) => isReadablePlainText(h) && !/Identity\s*Adobe/i.test(h)
+  );
+  // Sparse/garbled PDF extracts often yield only 1–3 real headings — use full outline then
+  const safeHeadings =
+    headings.length >= 5
+      ? headings
+      : DEFAULT_PROPOSAL_SECTIONS;
   const guideHint = guideExcerpt(guides);
   const ctx = {
     topic,
@@ -187,7 +194,7 @@ export function generateResearchProposal(input: {
     guideHint,
   };
 
-  const sections = headings
+  const sections = safeHeadings
     .filter((h) => !/^title$/i.test(h.trim()))
     .map((heading, i) => {
       const content = draftSection(heading, ctx);

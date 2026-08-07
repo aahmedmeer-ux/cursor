@@ -334,7 +334,11 @@ export default function Studio() {
     try {
       await downloadFromApi(
         "/api/export-pptx",
-        { presentation },
+        {
+          presentation,
+          // Duplicate the uploaded PPTX theme/layout; fill with research content
+          templateBase64: presentationTemplate?.originalBase64 || null,
+        },
         `${slugify(presentation.title)}.pptx`
       );
     } catch (err) {
@@ -1118,20 +1122,26 @@ export default function Studio() {
                       <div className="grid gap-3 sm:grid-cols-2">
                         <GuideUploader
                           label="Proposal template"
-                          hint="DOCX / PDF / TXT / MD — section structure for the proposal"
-                          accept=".docx,.pdf,.txt,.md,.markdown,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown"
+                          hint="DOCX / TXT / MD / PDF / image — section structure for the proposal"
+                          accept=".docx,.pdf,.txt,.md,.markdown,.png,.jpg,.jpeg,.webp,.gif,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown,image/*"
                           kind="template"
                           guide={proposalTemplate}
-                          onUploaded={setProposalTemplate}
+                          onUploaded={(g) => {
+                            setProposalTemplate(g);
+                            if (g?.warnings?.length) setWarnings((w) => [...w, ...g.warnings!]);
+                          }}
                           onError={(m) => setError(m || null)}
                         />
                         <GuideUploader
                           label="Proposal guidelines"
-                          hint="Agency or university rules, page limits, required sections"
-                          accept=".docx,.pdf,.txt,.md,.markdown,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown"
+                          hint="DOCX / TXT / PDF or a photo/screenshot of guidelines (PNG/JPG)"
+                          accept=".docx,.pdf,.txt,.md,.markdown,.png,.jpg,.jpeg,.webp,.gif,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown,image/*"
                           kind="guidelines"
                           guide={proposalGuidelines}
-                          onUploaded={setProposalGuidelines}
+                          onUploaded={(g) => {
+                            setProposalGuidelines(g);
+                            if (g?.warnings?.length) setWarnings((w) => [...w, ...g.warnings!]);
+                          }}
                           onError={(m) => setError(m || null)}
                         />
                       </div>
@@ -1234,11 +1244,14 @@ export default function Studio() {
                     <div className="mt-4 space-y-3">
                       <GuideUploader
                         label="Presentation template"
-                        hint="PPTX preferred — we read slide structure cues and generate a new deck"
-                        accept=".pptx,.docx,.pdf,.txt,.md,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/pdf,text/plain"
+                        hint="Upload your PPTX — we duplicate that exact template (theme & layouts) and fill research content"
+                        accept=".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation"
                         kind="template"
                         guide={presentationTemplate}
-                        onUploaded={setPresentationTemplate}
+                        onUploaded={(g) => {
+                          setPresentationTemplate(g);
+                          if (g?.warnings?.length) setWarnings((w) => [...w, ...g.warnings!]);
+                        }}
                         onError={(m) => setError(m || null)}
                       />
                       <button

@@ -167,6 +167,9 @@ export type UploadedGuide = {
   /** For PPTX/DOCX we keep a short structure summary extracted from the file */
   structureNotes?: string[];
   byteLength: number;
+  /** Original file bytes (base64) — used to duplicate PPTX templates on export */
+  originalBase64?: string;
+  warnings?: string[];
 };
 
 export type ProposalSection = {

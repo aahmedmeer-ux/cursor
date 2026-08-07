@@ -12,6 +12,8 @@ const GuideSchema = z.object({
   text: z.string(),
   structureNotes: z.array(z.string()).optional(),
   byteLength: z.number(),
+  originalBase64: z.string().optional(),
+  warnings: z.array(z.string()).optional(),
 });
 
 const BodySchema = z.object({

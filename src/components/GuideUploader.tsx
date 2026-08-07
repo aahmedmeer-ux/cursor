@@ -75,7 +75,7 @@ export default function GuideUploader({
         {uploading ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            Reading file…
+            {kind === "guidelines" ? "Reading guidelines…" : "Reading template…"}
           </>
         ) : (
           <>
@@ -86,9 +86,15 @@ export default function GuideUploader({
       </button>
       {guide ? (
         <p className="mt-2 truncate text-[11px] text-[var(--muted)]">
-          {guide.fileName} · {Math.round(guide.byteLength / 1024)}KB ·{" "}
-          {guide.structureNotes?.length || 0} structure cues
+          {guide.fileName} · {Math.round(guide.byteLength / 1024)}KB
+          {guide.originalBase64 ? " · template kept for duplicate export" : ""}
+          {guide.structureNotes?.length
+            ? ` · ${guide.structureNotes.length} structure cues`
+            : ""}
         </p>
+      ) : null}
+      {guide?.warnings?.length ? (
+        <p className="mt-1 text-[11px] leading-snug text-amber-800">{guide.warnings[0]}</p>
       ) : null}
     </div>
   );

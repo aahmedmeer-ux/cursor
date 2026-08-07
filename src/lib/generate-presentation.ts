@@ -5,7 +5,7 @@ import type {
   SurveyPaper,
   UploadedGuide,
 } from "./types";
-import { inferSectionHeadings } from "./parse-guide";
+import { inferSectionHeadings, isCleanHeading, isReadablePlainText } from "./parse-guide";
 
 function field(topic: string): string {
   return topic.replace(/^A Survey of\s+/i, "").trim() || topic;
@@ -15,17 +15,18 @@ function bulletsFromText(text: string, max = 4): string[] {
   const parts = text
     .split(/(?<=[.!;])\s+/)
     .map((s) => s.trim())
-    .filter((s) => s.length > 28);
+    .filter((s) => s.length > 28 && isReadablePlainText(s.slice(0, 160)));
   const out: string[] = [];
   for (const p of parts) {
     out.push(p.length > 160 ? `${p.slice(0, 157)}…` : p);
     if (out.length >= max) break;
   }
-  return out.length ? out : [text.slice(0, 140)];
+  return out.length ? out : [text.slice(0, 140)].filter((t) => isReadablePlainText(t));
 }
 
 function slideTitleFromHeading(h: string): string {
-  return h.replace(/^slide\s*\d+:\s*/i, "").slice(0, 80);
+  const t = h.replace(/^slide\s*\d+:\s*/i, "").trim().slice(0, 80);
+  return isCleanHeading(t) || isReadablePlainText(t) ? t : "Research slide";
 }
 
 function kindFor(title: string, index: number): ResearchPresentation["slides"][number]["kind"] {
@@ -57,6 +58,13 @@ const DEFAULT_SLIDES = [
   "Thank You & Questions",
 ];
 
+function templateSlideHeadings(guide?: UploadedGuide | null): string[] {
+  if (!guide?.structureNotes?.length) return [];
+  return guide.structureNotes
+    .map((n) => n.replace(/^slide\s*\d+:\s*/i, "").trim())
+    .filter((n) => isReadablePlainText(n) || /^Slide \d+$/i.test(n));
+}
+
 export function generateResearchPresentation(input: {
   paper: SurveyPaper;
   proposal?: ResearchProposal | null;
@@ -66,10 +74,16 @@ export function generateResearchPresentation(input: {
 }): ResearchPresentation {
   const topic = (input.topic || input.paper.metadata.topic || input.paper.title).trim();
   const f = field(topic);
-  const guides = input.templateGuide ? [input.templateGuide] : [];
-  const headings = inferSectionHeadings(guides, DEFAULT_SLIDES);
+  // Prefer exact slide labels from the uploaded PPTX so the deck mirrors the template
+  const fromTemplate = templateSlideHeadings(input.templateGuide);
+  const headings =
+    fromTemplate.length > 0
+      ? fromTemplate
+      : inferSectionHeadings(input.templateGuide ? [input.templateGuide] : [], DEFAULT_SLIDES);
 
-  const proposalSections = input.proposal?.sections || [];
+  const proposalSections = (input.proposal?.sections || []).filter((s) =>
+    isReadablePlainText(s.heading)
+  );
   const surveyIntro =
     input.paper.sections.find((s) => /introduction/i.test(s.heading))?.content ||
     input.paper.abstract;
@@ -86,7 +100,6 @@ export function generateResearchPresentation(input: {
     const title = slideTitleFromHeading(raw);
     const kind = kindFor(title, i);
     let bullets: string[] = [];
-    let notes: string | undefined;
 
     switch (kind) {
       case "title":
@@ -98,9 +111,9 @@ export function generateResearchPresentation(input: {
         break;
       case "agenda":
         bullets = headings
-          .slice(1, 7)
+          .slice(1, Math.min(7, headings.length))
           .map((h) => slideTitleFromHeading(h))
-          .filter((h) => !/agenda|title/i.test(h));
+          .filter((h) => !/agenda|title/i.test(h) && isReadablePlainText(h));
         break;
       case "motivation":
         bullets = bulletsFromText(surveyIntro, 4);
@@ -148,31 +161,25 @@ export function generateResearchPresentation(input: {
         );
         break;
       case "closing":
-        bullets = [
-          "Thank you",
-          "Questions and discussion welcome",
-          `Topic: ${f}`,
-        ];
+        bullets = ["Thank you", "Questions and discussion welcome", `Topic: ${f}`];
         break;
       default:
         bullets = bulletsFromText(input.paper.abstract, 3);
     }
 
-    if (input.templateGuide?.structureNotes?.[i]) {
-      notes = `Template cue: ${input.templateGuide.structureNotes[i]}`;
-    }
-
+    const safeBullets = bullets.filter((b) => isReadablePlainText(b.slice(0, 160)));
     return {
       id: `slide-${i + 1}`,
       title: kind === "title" ? `Research Presentation: ${f}` : title,
-      bullets,
-      notes,
+      bullets: safeBullets.length ? safeBullets : [`Key points on ${f}`],
+      notes: input.templateGuide?.originalBase64
+        ? "Filled into your uploaded presentation template (theme & layout preserved)."
+        : undefined,
       kind,
     };
   });
 
-  // Ensure title slide first and closing last
-  if (!slides.some((s) => s.kind === "closing")) {
+  if (!slides.some((s) => s.kind === "closing") && !fromTemplate.length) {
     slides.push({
       id: `slide-${slides.length + 1}`,
       title: "Thank You & Questions",

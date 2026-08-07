@@ -87,7 +87,7 @@ export default function GuideUploader({
       {guide ? (
         <p className="mt-2 truncate text-[11px] text-[var(--muted)]">
           {guide.fileName} · {Math.round(guide.byteLength / 1024)}KB
-          {guide.originalBase64 ? " · template kept for duplicate export" : ""}
+          {guide.templateId ? " · template stored for download" : ""}
           {guide.structureNotes?.length
             ? ` · ${guide.structureNotes.length} structure cues`
             : ""}

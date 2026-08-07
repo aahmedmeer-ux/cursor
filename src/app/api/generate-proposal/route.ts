@@ -14,6 +14,8 @@ const GuideSchema = z.object({
   byteLength: z.number().optional().default(0),
   // Accept but ignore large binary payloads from older clients
   originalBase64: z.string().optional(),
+  templateId: z.string().optional(),
+  slideCount: z.number().optional(),
   warnings: z.array(z.string()).optional(),
 });
 

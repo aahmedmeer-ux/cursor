@@ -13,6 +13,7 @@ const GuideSchema = z.object({
   structureNotes: z.array(z.string()).optional(),
   byteLength: z.number(),
   originalBase64: z.string().optional(),
+  templateId: z.string().optional(),
   slideCount: z.number().optional(),
   warnings: z.array(z.string()).optional(),
 });

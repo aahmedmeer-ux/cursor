@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "")
       .slice(0, 80) || "research-proposal"}.docx`;
-    return new NextResponse(buf, {
+    return new NextResponse(new Uint8Array(buf), {
       status: 200,
       headers: {
         "Content-Type":
@@ -29,6 +29,7 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Proposal Word export failed";
+    console.error("export-proposal-docx:", err);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

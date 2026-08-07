@@ -211,7 +211,7 @@ export default function Studio() {
 
   function slimGuide(guide: UploadedGuide | null) {
     if (!guide) return null;
-    // Keep text/structure only. Base64 template bytes are for PPTX export, not generate.
+    // Keep text/structure + server templateId. Never ship multi-MB base64 in generate calls.
     return {
       fileName: guide.fileName,
       kind: guide.kind,
@@ -219,6 +219,8 @@ export default function Studio() {
       text: guide.text?.slice(0, 80_000) || "",
       structureNotes: guide.structureNotes?.slice(0, 30),
       byteLength: guide.byteLength,
+      templateId: guide.templateId,
+      slideCount: guide.slideCount,
       warnings: guide.warnings,
     };
   }
@@ -357,7 +359,10 @@ export default function Studio() {
   }
 
   async function exportProposalDocx() {
-    if (!proposal) return;
+    if (!proposal) {
+      setError("Generate a research proposal first, then download.");
+      return;
+    }
     setExporting("proposal");
     setError(null);
     try {
@@ -374,21 +379,21 @@ export default function Studio() {
   }
 
   async function exportPptx() {
-    if (!presentation) return;
+    if (!presentation) {
+      setError("Generate a presentation first, then download.");
+      return;
+    }
     setExporting("pptx");
     setError(null);
     try {
-      if (!presentationTemplate?.originalBase64) {
-        throw new Error(
-          "Re-upload your PPTX template before downloading. Export needs the original file to duplicate images and backgrounds."
-        );
-      }
       await downloadFromApi(
         "/api/export-pptx",
         {
           presentation,
-          // True duplicate of the uploaded PPTX (images, backgrounds, masters kept)
-          templateBase64: presentationTemplate.originalBase64,
+          // Server-stored template id (preferred) — avoids huge base64 POST bodies
+          templateId:
+            presentationTemplate?.templateId || presentation.metadata.templateId || null,
+          templateBase64: presentationTemplate?.originalBase64 || null,
         },
         `${slugify(presentation.title)}.pptx`
       );
@@ -1257,8 +1262,9 @@ export default function Studio() {
                       </p>
                     </div>
                     <button
+                      type="button"
                       className="btn btn-primary"
-                      disabled={!!exporting}
+                      disabled={!!exporting || !proposal}
                       onClick={() => void exportProposalDocx()}
                     >
                       {exporting === "proposal" ? (
@@ -1266,7 +1272,7 @@ export default function Studio() {
                       ) : (
                         <Download className="h-4 w-4" />
                       )}
-                      Proposal Word
+                      Download Proposal Word
                     </button>
                   </div>
                   <div className="scroll-thin mt-4 max-h-[50vh] space-y-4 overflow-auto rounded-xl border border-[var(--line)] bg-white p-4 text-sm">
@@ -1363,8 +1369,9 @@ export default function Studio() {
                       </p>
                     </div>
                     <button
+                      type="button"
                       className="btn btn-primary"
-                      disabled={!!exporting}
+                      disabled={!!exporting || !presentation}
                       onClick={() => void exportPptx()}
                     >
                       {exporting === "pptx" ? (

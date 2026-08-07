@@ -213,6 +213,7 @@ export function generateResearchPresentation(input: {
       surveyTitle: input.paper.title,
       proposalTitle: input.proposal?.title,
       templateFileName: input.templateGuide?.fileName,
+      templateId: input.templateGuide?.templateId,
       rewrittenFromScratch: true,
     },
   };

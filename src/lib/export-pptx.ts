@@ -350,10 +350,9 @@ export async function presentationToPptxBuffer(
     try {
       return await cloneTemplatePptx(templateBase64, presentation);
     } catch (err) {
-      console.error("PPTX template clone failed, falling back:", err);
-      throw err instanceof Error
-        ? err
-        : new Error("Failed to duplicate the uploaded presentation template.");
+      console.error("PPTX template clone failed, falling back to generated deck:", err);
+      // Still return a downloadable deck so the button never "does nothing"
+      return fallbackGeneratedPptx(presentation);
     }
   }
   return fallbackGeneratedPptx(presentation);

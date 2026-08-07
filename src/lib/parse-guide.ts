@@ -1,5 +1,6 @@
 import JSZip from "jszip";
 import mammoth from "mammoth";
+import { saveTemplateFile } from "./template-store";
 import type { UploadedGuide } from "./types";
 
 const KNOWN_HEADING =
@@ -192,6 +193,7 @@ export async function parseGuideFile(
   let text = "";
   let structureNotes: string[] | undefined;
   let originalBase64: string | undefined;
+  let templateId: string | undefined;
   let slideCount: number | undefined;
   let warnings: string[] = [];
 
@@ -205,14 +207,14 @@ export async function parseGuideFile(
           isCleanHeading(t) || isReadablePlainText(t) ? t : `Slide ${i + 1}`
         )
       : extracted.notes;
-    // Keep original bytes so export can duplicate this exact template (images + backgrounds)
-    originalBase64 = data.toString("base64");
+    // Store on disk — do NOT return multi-MB base64 to the browser (breaks download POST)
+    templateId = saveTemplateFile(data, "pptx");
     slideCount = extracted.slideCount;
     if (!extracted.slideCount) {
       warnings.push("PPTX had no readable slides; a standard outline will be used.");
     } else {
       warnings.push(
-        `Template locked: export will duplicate all ${extracted.slideCount} slides with images and backgrounds preserved.`
+        `Template stored (${extracted.slideCount} slides). Download will duplicate images and backgrounds.`
       );
     }
   } else if (
@@ -257,6 +259,7 @@ export async function parseGuideFile(
     text: text.slice(0, 120_000),
     structureNotes,
     byteLength: data.byteLength,
+    templateId,
     originalBase64,
     slideCount,
     warnings: warnings.length ? warnings : undefined,

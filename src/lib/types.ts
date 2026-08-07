@@ -167,7 +167,12 @@ export type UploadedGuide = {
   /** For PPTX/DOCX we keep a short structure summary extracted from the file */
   structureNotes?: string[];
   byteLength: number;
-  /** Original file bytes (base64) — used to duplicate PPTX templates on export */
+  /**
+   * Server-side id for the uploaded binary template (preferred).
+   * Avoids shipping multi‑MB base64 through the browser on download.
+   */
+  templateId?: string;
+  /** @deprecated Prefer templateId — kept only for tiny templates */
   originalBase64?: string;
   /** Slide count detected in an uploaded PPTX template */
   slideCount?: number;
@@ -227,6 +232,8 @@ export type ResearchPresentation = {
     surveyTitle: string;
     proposalTitle?: string;
     templateFileName?: string;
+    /** Server-side stored PPTX template id for true-clone download */
+    templateId?: string;
     rewrittenFromScratch: true;
   };
 };

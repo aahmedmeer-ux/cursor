@@ -1,18 +1,211 @@
 /**
- * Virtual Try-On — upload a full-body photo and preview the product on you via AI.
+ * Virtual Try-On (100% free, runs in the shopper's browser).
  *
- * Modal MUST open with { pending: false, clearContent: false } — the theme Modal
- * helper defaults to pending/clearContent true, which shows an endless spinner
- * and empties the pre-rendered try-on markup.
+ * Uses Google MediaPipe Pose Landmarker (CDN) to find shoulders/hips, then
+ * composites the product image onto the shopper photo with canvas.
+ * No fal.ai, no proxy, no API keys, no paid credits.
+ *
+ * Modal MUST open with { pending: false, clearContent: false }.
  */
 import $ from 'jquery';
 import modalFactory, { ModalEvents } from '../global/modal';
 
-const FAL_DEFAULT_ENDPOINT = 'https://fal.run/fal-ai/image-apps-v2/virtual-try-on';
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
+const MEDIAPIPE_VERSION = '0.10.18';
+const MEDIAPIPE_ESM = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MEDIAPIPE_VERSION}/+esm`;
+const MEDIAPIPE_WASM = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MEDIAPIPE_VERSION}/wasm`;
+const POSE_MODEL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
+
+// MediaPipe landmark indices
+const LS = 11; // left shoulder
+const RS = 12; // right shoulder
+const LH = 23; // left hip
+const RH = 24; // right hip
+
+let poseLandmarkerPromise = null;
 
 function isTruthy(value) {
     return value !== false && value !== 'false' && value !== 0 && value !== '0' && value != null && value !== '';
+}
+
+function loadImage(src, useCors = true) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        if (useCors && src && src.indexOf('data:') !== 0) {
+            img.crossOrigin = 'anonymous';
+        }
+        img.onload = () => resolve(img);
+        img.onerror = () => {
+            if (useCors) {
+                // Retry without CORS (may limit soft-key / export edge cases)
+                loadImage(src, false).then(resolve).catch(reject);
+                return;
+            }
+            reject(new Error('image_load_failed'));
+        };
+        img.src = src;
+    });
+}
+
+async function getPoseLandmarker() {
+    if (!poseLandmarkerPromise) {
+        poseLandmarkerPromise = (async () => {
+            // webpackIgnore keeps this off the theme bundle (loaded free from CDN)
+            const vision = await import(/* webpackIgnore: true */ MEDIAPIPE_ESM);
+            const { FilesetResolver, PoseLandmarker } = vision;
+            const fileset = await FilesetResolver.forVisionTasks(MEDIAPIPE_WASM);
+            try {
+                return await PoseLandmarker.createFromOptions(fileset, {
+                    baseOptions: {
+                        modelAssetPath: POSE_MODEL,
+                        delegate: 'GPU',
+                    },
+                    runningMode: 'IMAGE',
+                    numPoses: 1,
+                });
+            } catch (gpuErr) {
+                // Some devices reject GPU delegate — fall back to CPU
+                return PoseLandmarker.createFromOptions(fileset, {
+                    baseOptions: {
+                        modelAssetPath: POSE_MODEL,
+                        delegate: 'CPU',
+                    },
+                    runningMode: 'IMAGE',
+                    numPoses: 1,
+                });
+            }
+        })().catch((err) => {
+            poseLandmarkerPromise = null;
+            throw err;
+        });
+    }
+    return poseLandmarkerPromise;
+}
+
+/**
+ * Soft-key near-white / corner-sampled studio backgrounds from product shots.
+ */
+function softKeyGarment(img) {
+    const canvas = document.createElement('canvas');
+    const w = img.naturalWidth || img.width;
+    const h = img.naturalHeight || img.height;
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+
+    let imageData;
+    try {
+        imageData = ctx.getImageData(0, 0, w, h);
+    } catch (e) {
+        // Tainted canvas (CORS) — return unkeyed image
+        return canvas;
+    }
+
+    const { data } = imageData;
+    const sample = (x, y) => {
+        const i = (Math.min(h - 1, Math.max(0, y)) * w + Math.min(w - 1, Math.max(0, x))) * 4;
+        return [data[i], data[i + 1], data[i + 2]];
+    };
+
+    const corners = [
+        sample(2, 2),
+        sample(w - 3, 2),
+        sample(2, h - 3),
+        sample(w - 3, h - 3),
+        sample(Math.floor(w / 2), 2),
+        sample(2, Math.floor(h / 2)),
+    ];
+    const avg = corners.reduce((a, c) => [a[0] + c[0], a[1] + c[1], a[2] + c[2]], [0, 0, 0])
+        .map((v) => v / corners.length);
+
+    const threshold = 42;
+    for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const dist = Math.abs(r - avg[0]) + Math.abs(g - avg[1]) + Math.abs(b - avg[2]);
+        const nearWhite = r > 235 && g > 235 && b > 235;
+        const nearBg = dist < threshold;
+        if (nearWhite || nearBg) {
+            const t = nearWhite ? (255 - Math.min(r, g, b)) / 20 : dist / threshold;
+            data[i + 3] = Math.max(0, Math.min(255, Math.floor(t * 255)));
+        }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+    return canvas;
+}
+
+function landmarkPoint(landmarks, index, width, height) {
+    const p = landmarks[index];
+    if (!p) return null;
+    return { x: p.x * width, y: p.y * height, vis: p.visibility == null ? 1 : p.visibility };
+}
+
+function compositeTryOn(personImg, garmentCanvas, landmarks) {
+    const width = personImg.naturalWidth || personImg.width;
+    const height = personImg.naturalHeight || personImg.height;
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(personImg, 0, 0, width, height);
+
+    const gW = garmentCanvas.width;
+    const gH = garmentCanvas.height;
+    const aspect = gW / Math.max(1, gH);
+
+    const leftS = landmarks && landmarkPoint(landmarks, LS, width, height);
+    const rightS = landmarks && landmarkPoint(landmarks, RS, width, height);
+    const leftH = landmarks && landmarkPoint(landmarks, LH, width, height);
+    const rightH = landmarks && landmarkPoint(landmarks, RH, width, height);
+
+    const shouldersOk = leftS && rightS && (leftS.vis > 0.35 || rightS.vis > 0.35);
+
+    if (shouldersOk) {
+        const midSx = (leftS.x + rightS.x) / 2;
+        const midSy = (leftS.y + rightS.y) / 2;
+        const shoulderW = Math.hypot(rightS.x - leftS.x, rightS.y - leftS.y);
+        const angle = Math.atan2(rightS.y - leftS.y, rightS.x - leftS.x);
+
+        let torsoH = shoulderW * 1.35;
+        if (leftH && rightH) {
+            const midHx = (leftH.x + rightH.x) / 2;
+            const midHy = (leftH.y + rightH.y) / 2;
+            torsoH = Math.max(torsoH, Math.hypot(midHx - midSx, midHy - midSy));
+        }
+
+        let drawW = Math.max(shoulderW * 1.8, width * 0.18);
+        let drawH = drawW / aspect;
+        if (drawH < torsoH * 1.25) {
+            drawH = torsoH * 1.25;
+            drawW = drawH * aspect;
+        }
+        // Cap so we don't cover the whole frame on close-ups
+        drawW = Math.min(drawW, width * 0.72);
+        drawH = drawW / aspect;
+
+        ctx.save();
+        ctx.translate(midSx, midSy + drawH * 0.12);
+        ctx.rotate(angle);
+        ctx.globalAlpha = 0.94;
+        ctx.drawImage(garmentCanvas, -drawW / 2, -drawH * 0.12, drawW, drawH);
+        ctx.restore();
+    } else {
+        // Heuristic: upper-torso centered overlay when pose is missing
+        let drawW = width * 0.4;
+        let drawH = drawW / aspect;
+        if (drawH > height * 0.45) {
+            drawH = height * 0.45;
+            drawW = drawH * aspect;
+        }
+        ctx.globalAlpha = 0.92;
+        ctx.drawImage(garmentCanvas, (width - drawW) / 2, height * 0.2, drawW, drawH);
+        ctx.globalAlpha = 1;
+    }
+
+    return canvas.toDataURL('image/jpeg', 0.92);
 }
 
 export default class VirtualTryOn {
@@ -42,8 +235,9 @@ export default class VirtualTryOn {
     init() {
         this.ensureButtons();
         this.bindOpeners();
-        // Pre-warm modal instance so first click is instant
         this.ensureModal();
+        // Warm MediaPipe in the background so first Try Now feels snappy
+        getPoseLandmarker().catch(() => {});
     }
 
     ensureButtons() {
@@ -71,7 +265,7 @@ export default class VirtualTryOn {
         });
 
         const $sticky = this.$scope.find('#form-action-addToCartSticky');
-        if ($sticky.length && !$sticky.closest('.productView-qtyAddWrapper, .productView-stickyATC, .formView-action').parent().find('[data-virtual-tryon]').length) {
+        if ($sticky.length && !$sticky.closest('.form-action--addToCart').parent().find('[data-virtual-tryon]').length) {
             $sticky.closest('.form-action--addToCart').before(`
                 <div class="form-action form-action--tryOn">
                     <button type="button" class="button button--tryOn" data-virtual-tryon>
@@ -97,7 +291,6 @@ export default class VirtualTryOn {
         }
 
         if (!this.modal) {
-            // Match newsletter popup: keep existing markup, no loading overlay lock
             this.modal = modalFactory('#virtual-tryon-modal')[0];
             if (!this.modal) {
                 return null;
@@ -132,12 +325,9 @@ export default class VirtualTryOn {
         }
 
         this.resetState();
-        // Sync fill from DOM first so UI appears immediately
         this.populateProductPreviewSync();
-        // Then refresh from gallery/GraphQL in background
         this.populateProductPreview();
 
-        // CRITICAL: pending/clearContent default to true and break pre-rendered modals
         modal.open({
             size: 'large',
             pending: false,
@@ -145,7 +335,6 @@ export default class VirtualTryOn {
         });
         modal.pending = false;
 
-        // Safety: if overlay somehow shows, hide within a tick
         window.setTimeout(() => {
             modal.pending = false;
             this.opening = false;
@@ -241,7 +430,7 @@ export default class VirtualTryOn {
                 this.$root.find('[data-tryon-product-image]').attr({ src: imageUrl, alt: title });
             }
         } catch (err) {
-            // Non-blocking — sync preview already shown
+            // Non-blocking
         }
     }
 
@@ -388,22 +577,9 @@ export default class VirtualTryOn {
             .html(isLoading ? `<span class="tryOn-spinner" aria-hidden="true"></span> ${message}` : message);
     }
 
-    isConfigured() {
-        return !!(String(this.context.tryonProxyUrl || '').trim() || String(this.context.tryonApiKey || '').trim());
-    }
-
     async runTryOn() {
         if (!this.userImageDataUrl) {
             this.showStatus(this.context.tryonErrorNeedPhoto || 'Upload a full-body photo first.', true);
-            return;
-        }
-
-        if (!this.isConfigured()) {
-            this.showStatus(
-                this.context.tryonErrorNotConfigured
-                || 'Virtual Try-On needs an AI connection. In Theme Editor → Virtual Try-On, add a Proxy URL (recommended) or fal.ai API key, then Save.',
-                true,
-            );
             return;
         }
 
@@ -416,26 +592,32 @@ export default class VirtualTryOn {
         const $submit = this.$root.find('[data-tryon-submit]');
         $submit.prop('disabled', true);
         this.showStatus(
-            this.context.tryonLoading || 'AI is fitting the product on your photo… usually 15–45 seconds.',
+            this.context.tryonLoading || 'Fitting the product on your photo…',
             false,
             true,
         );
 
-        const productTitle = this.$root.find('[data-tryon-product-title]').text().trim();
-        const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-        const timeoutId = window.setTimeout(() => {
-            if (controller) controller.abort();
-        }, 90000);
-
         try {
-            const resultUrl = await this.requestTryOn({
-                personImage: this.userImageDataUrl,
-                garmentImageUrl: garmentUrl,
-                description: productTitle || 'apparel',
-                productId: this.productId,
-                signal: controller && controller.signal,
-            });
+            const [personImg, garmentImg] = await Promise.all([
+                loadImage(this.userImageDataUrl, false),
+                loadImage(garmentUrl, true),
+            ]);
 
+            const garmentCanvas = softKeyGarment(garmentImg);
+
+            let landmarks = null;
+            try {
+                const landmarker = await getPoseLandmarker();
+                const detection = landmarker.detect(personImg);
+                if (detection && detection.landmarks && detection.landmarks[0]) {
+                    landmarks = detection.landmarks[0];
+                }
+            } catch (poseErr) {
+                // eslint-disable-next-line no-console
+                console.warn('Try-on: pose detection unavailable, using fallback placement', poseErr);
+            }
+
+            const resultUrl = compositeTryOn(personImg, garmentCanvas, landmarks);
             if (!resultUrl) {
                 throw new Error('empty_result');
             }
@@ -454,75 +636,13 @@ export default class VirtualTryOn {
         } catch (err) {
             // eslint-disable-next-line no-console
             console.error('Virtual try-on failed', err);
-            const errText = String((err && err.message) || err || '');
-            const timedOut = err && (err.name === 'AbortError' || errText.indexOf('abort') !== -1);
-            let msg = this.context.tryonErrorGeneric
-                || 'Sorry — try-on could not be generated. Please try another photo or check your AI proxy/API key.';
-            if (timedOut) {
-                msg = 'Try-on timed out. Please try a smaller photo or try again.';
-            } else if (/exhausted|balance|billing|locked|402|403/i.test(errText)) {
-                msg = 'AI try-on is ready, but the fal.ai account needs credits. Top up at fal.ai/dashboard/billing, then try again.';
-            } else if (/401|unauthorized|invalid.*key/i.test(errText)) {
-                msg = 'Virtual Try-On API key was rejected. Update Theme Editor → Virtual Try-On → fal.ai API key.';
-            }
-            this.showStatus(msg, true);
+            this.showStatus(
+                this.context.tryonErrorGeneric
+                || 'Sorry — try-on could not be generated. Please try another full-body photo.',
+                true,
+            );
         } finally {
-            window.clearTimeout(timeoutId);
             $submit.prop('disabled', !this.userImageDataUrl);
         }
-    }
-
-    async requestTryOn({ personImage, garmentImageUrl, description, productId, signal }) {
-        const proxyUrl = String(this.context.tryonProxyUrl || '').trim();
-        const apiKey = String(this.context.tryonApiKey || '').trim();
-
-        if (proxyUrl) {
-            const response = await fetch(proxyUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    person_image: personImage,
-                    clothing_image_url: garmentImageUrl,
-                    description,
-                    product_id: productId,
-                }),
-                signal,
-            });
-            if (!response.ok) {
-                throw new Error(`proxy_${response.status}`);
-            }
-            const data = await response.json();
-            return data.result_url || data.image_url || data.url
-                || (data.image && data.image.url)
-                || (data.images && data.images[0] && (data.images[0].url || data.images[0]));
-        }
-
-        if (apiKey) {
-            const endpoint = String(this.context.tryonFalEndpoint || '').trim() || FAL_DEFAULT_ENDPOINT;
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Key ${apiKey}`,
-                },
-                body: JSON.stringify({
-                    person_image_url: personImage,
-                    clothing_image_url: garmentImageUrl,
-                    description,
-                }),
-                signal,
-            });
-            if (!response.ok) {
-                const text = await response.text();
-                throw new Error(`fal_${response.status}:${text.slice(0, 200)}`);
-            }
-            const data = await response.json();
-            return (data.image && data.image.url)
-                || data.image_url
-                || data.url
-                || (data.images && data.images[0] && (data.images[0].url || data.images[0]));
-        }
-
-        throw new Error('not_configured');
     }
 }

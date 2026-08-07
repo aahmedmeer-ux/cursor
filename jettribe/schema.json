@@ -4546,7 +4546,7 @@
     "settings": [
       {
         "type": "paragraph",
-        "content": "Shows a Try It button next to Add to Cart. Prefer a proxy URL so your API key is not exposed in the storefront."
+        "content": "Free in-browser Try It: shoppers upload a photo and the product is fitted using on-device pose detection. No API keys or paid AI credits."
       },
       {
         "type": "checkbox",
@@ -4557,21 +4557,6 @@
         "type": "text",
         "label": "Button label",
         "id": "tryon_button_label"
-      },
-      {
-        "type": "text",
-        "label": "Proxy URL (recommended)",
-        "id": "tryon_proxy_url"
-      },
-      {
-        "type": "text",
-        "label": "fal.ai API key (optional, less secure)",
-        "id": "tryon_api_key"
-      },
-      {
-        "type": "text",
-        "label": "fal.ai endpoint",
-        "id": "tryon_fal_endpoint"
       }
     ]
   }

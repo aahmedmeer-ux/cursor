@@ -8,11 +8,20 @@ The storefront Try It button uses **Nano Banana–style multi-image editing**:
 
 ## Options
 
-### A) fal.ai (direct from theme)
-Theme Editor → **fal.ai API key** = your key for `fal-ai/nano-banana-2/edit`  
+### A) Google Gemini (recommended — direct from theme)
+
+Theme Editor → **API key** = your Gemini API key from Google AI Studio  
+(`AQ.…` or `AIza…`). The theme calls `gemini-2.5-flash-image` (Nano Banana) in the browser.
+
+**Billing required for image generation.** Free-tier image quota is often `0` — enable billing on the Google Cloud / AI Studio project that owns the key, then retry.
+
+### B) fal.ai (direct from theme)
+
+Theme Editor → **API key** = your key for `fal-ai/nano-banana-2/edit`  
 Requires fal credits: https://fal.ai/dashboard/billing
 
-### B) Proxy (recommended — hides keys)
+### C) Proxy (hides keys)
+
 This Cloudflare Worker can use:
 
 - `GEMINI_API_KEY` → Google `gemini-2.5-flash-image` (Nano Banana)
@@ -27,4 +36,5 @@ wrangler deploy
 Then set Theme Editor → **Proxy URL** to the worker URL.
 
 ## Removed
+
 Hugging Face IDM-VTON public queues (caused “Free AI queue was busy”).

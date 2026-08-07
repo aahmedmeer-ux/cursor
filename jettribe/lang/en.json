@@ -915,7 +915,7 @@
       "result_alt": "Nano Banana virtual try-on result",
       "download": "Download image",
       "try_again": "Try another photo",
-      "error_generic": "Sorry — Nano Banana could not generate the try-on. Try another photo, or check fal.ai credits / API key.",
+      "error_generic": "Sorry — Nano Banana could not generate the try-on. Try another photo, or check your Gemini / fal.ai API key and billing.",
       "error_need_photo": "Upload a full-body photo first.",
       "error_no_product": "Could not load the product image.",
       "error_file_type": "Please upload a JPG, PNG, or WebP photo.",
@@ -923,7 +923,7 @@
       "garment_picker": "Choose product photo for exact match",
       "height_label": "Your height (for full-body scaling)",
       "height_hint": "Example: 175 (cm). Used so the final image is a complete person on white.",
-      "error_not_configured": "Virtual Try-On needs Nano Banana. Add a fal.ai API key (nano-banana-2/edit) or a proxy URL in Theme Editor → Virtual Try-On."
+      "error_not_configured": "Virtual Try-On needs Nano Banana. Add a Gemini API key (preferred), fal.ai key, or proxy URL in Theme Editor → Virtual Try-On."
     }
   },
   "design_tool": {

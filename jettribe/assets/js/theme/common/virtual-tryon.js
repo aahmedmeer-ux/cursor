@@ -1,15 +1,14 @@
 /**
- * Virtual Try-On — redesigned around Nano Banana–style multi-image editing.
+ * Virtual Try-On — Nano Banana–style multi-image editing.
  *
- * Pipeline (from scratch):
+ * Pipeline:
  *  1. Collect shopper photo + height + product gallery images
- *  2. Build a Nano Banana edit prompt (dress person in exact product, white BG)
+ *  2. Build a try-on edit prompt (dress person in exact product, white BG)
  *  3. Send person + product reference images together to:
- *       A) fal.ai  fal-ai/nano-banana-2/edit   (browser-ready)
- *       B) optional proxy URL (Gemini Nano Banana worker)
+ *       A) Google Gemini Nano Banana (gemini-*-flash-image) — browser CORS OK
+ *       B) fal.ai fal-ai/nano-banana-2/edit
+ *       C) optional proxy URL (Cloudflare worker)
  *  4. Show the edited full-body result
- *
- * Hugging Face IDM-VTON queues are removed (busy / unreliable).
  */
 import $ from 'jquery';
 import modalFactory, { ModalEvents } from '../global/modal';
@@ -19,7 +18,31 @@ const MAX_EDGE = 1024;
 const MAX_PRODUCT_REFS = 6;
 const TRYON_TIMEOUT_MS = 180000;
 const FAL_MODEL = 'fal-ai/nano-banana-2/edit';
+const GEMINI_MODELS = [
+    'gemini-2.5-flash-image',
+    'gemini-3.1-flash-image',
+    'gemini-3.1-flash-image-preview',
+    'nano-banana-pro-preview',
+];
 const DEFAULT_HEIGHT_CM = 175;
+
+function isGeminiApiKey(key) {
+    const k = String(key || '').trim();
+    return /^AIza/i.test(k) || /^AQ\./.test(k);
+}
+
+function isFalApiKey(key) {
+    const k = String(key || '').trim();
+    if (!k || isGeminiApiKey(k)) return false;
+    // fal keys are typically uuid:secret
+    return k.indexOf(':') !== -1 || /^[0-9a-f-]{8,}:/i.test(k) || k.length > 20;
+}
+
+function parseDataUrl(dataUrl) {
+    const m = String(dataUrl || '').match(/^data:([^;]+);base64,(.+)$/);
+    if (!m) throw new Error('bad_data_url');
+    return { mime: m[1], data: m[2] };
+}
 
 function isTruthy(v) {
     return v !== false && v !== 'false' && v !== 0 && v !== '0' && v != null && v !== '';
@@ -124,6 +147,60 @@ function buildNanoBananaPrompt({ title, heightCm, productCount }) {
         `Output a complete full-body standing person (about ${heightCm} cm tall proportions) centered on a pure white seamless studio background.`,
         'E-commerce catalog quality, natural lighting, sharp details, no text overlays, no watermarks, no collage borders.',
     ].join(' ');
+}
+
+/** Google Gemini Nano Banana image edit (direct from browser — CORS enabled) */
+async function geminiNanoBananaEdit({ apiKey, imageUrls, prompt, signal, onStatus }) {
+    const parts = [{ text: prompt }];
+    imageUrls.slice(0, 8).forEach((url) => {
+        const { mime, data } = parseDataUrl(url);
+        parts.push({ inline_data: { mime_type: mime, data } });
+    });
+    const body = JSON.stringify({
+        contents: [{ role: 'user', parts }],
+        generationConfig: { responseModalities: ['TEXT', 'IMAGE'] },
+    });
+
+    let lastErr = 'gemini_failed';
+    for (let i = 0; i < GEMINI_MODELS.length; i += 1) {
+        const model = GEMINI_MODELS[i];
+        if (onStatus) onStatus(`Nano Banana (${model}) is editing your try-on…`);
+        const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-goog-api-key': apiKey,
+                },
+                body,
+                signal,
+            },
+        );
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            const msg = (data.error && data.error.message) || `gemini_${res.status}`;
+            lastErr = msg;
+            // try next model on quota / not found; hard-fail on auth
+            if (res.status === 401 || res.status === 403) throw new Error(`gemini_auth:${msg}`);
+            if (/quota|rate|resource_exhausted|429/i.test(msg) || res.status === 429) {
+                lastErr = `gemini_quota:${msg}`;
+                continue;
+            }
+            if (/not found|not supported/i.test(msg)) continue;
+            throw new Error(`gemini_${res.status}:${String(msg).slice(0, 160)}`);
+        }
+        const partsOut = (((data.candidates || [])[0] || {}).content || {}).parts || [];
+        for (let p = 0; p < partsOut.length; p += 1) {
+            const inline = partsOut[p].inlineData || partsOut[p].inline_data;
+            if (inline && inline.data) {
+                const mime = inline.mimeType || inline.mime_type || 'image/png';
+                return `data:${mime};base64,${inline.data}`;
+            }
+        }
+        lastErr = 'gemini_no_image';
+    }
+    throw new Error(lastErr);
 }
 
 /** fal queue client for Nano Banana 2 Edit */
@@ -596,7 +673,7 @@ export default class VirtualTryOn {
         if (!this.isConfigured()) {
             this.showStatus(
                 this.context.tryonErrorNotConfigured
-                || 'Virtual Try-On needs a Nano Banana connection. Add a fal.ai API key (Nano Banana 2 Edit) or a proxy URL in Theme Editor → Virtual Try-On.',
+                || 'Virtual Try-On needs a Nano Banana connection. Add a Gemini API key, fal.ai API key, or proxy URL in Theme Editor → Virtual Try-On.',
                 true,
             );
             return;
@@ -635,7 +712,7 @@ export default class VirtualTryOn {
             });
 
             const proxyUrl = String(this.context.tryonProxyUrl || '').trim();
-            const falKey = String(this.context.tryonApiKey || '').trim();
+            const apiKey = String(this.context.tryonApiKey || this.context.tryonGeminiApiKey || '').trim();
             let resultUrl;
 
             if (proxyUrl) {
@@ -648,9 +725,17 @@ export default class VirtualTryOn {
                     signal: controller && controller.signal,
                     onStatus: (m) => this.showStatus(m, false, true),
                 });
-            } else if (falKey) {
+            } else if (isGeminiApiKey(apiKey)) {
+                resultUrl = await geminiNanoBananaEdit({
+                    apiKey,
+                    imageUrls,
+                    prompt,
+                    signal: controller && controller.signal,
+                    onStatus: (m) => this.showStatus(m, false, true),
+                });
+            } else if (isFalApiKey(apiKey) || apiKey) {
                 resultUrl = await falNanoBananaEdit({
-                    apiKey: falKey,
+                    apiKey,
                     imageUrls,
                     prompt,
                     signal: controller && controller.signal,
@@ -680,12 +765,16 @@ export default class VirtualTryOn {
                 || 'Sorry — try-on could not be generated. Please try another photo.';
             if (err && err.name === 'AbortError' || /abort|timeout/i.test(msgText)) {
                 msg = 'Try-on timed out. Please try again.';
+            } else if (/gemini_quota|quota|RESOURCE_EXHAUSTED/i.test(msgText)) {
+                msg = 'Gemini image quota is exhausted. In Google AI Studio, enable billing for this API key’s project, then try again.';
+            } else if (/gemini_auth/i.test(msgText)) {
+                msg = 'Gemini API key was rejected. Update Theme Editor → Virtual Try-On → API key.';
             } else if (/fal_balance|exhausted|billing|locked/i.test(msgText)) {
-                msg = 'Nano Banana needs fal.ai credits. Top up at fal.ai/dashboard/billing (or add a Gemini proxy URL), then try again.';
+                msg = 'Nano Banana needs fal.ai credits (or a Gemini API key with billing). Top up at fal.ai/dashboard/billing, then try again.';
             } else if (/fal_auth|401|403/i.test(msgText)) {
-                msg = 'Nano Banana API key was rejected. Update Theme Editor → Virtual Try-On → fal.ai API key.';
+                msg = 'API key was rejected. Update Theme Editor → Virtual Try-On → API key (Gemini or fal.ai).';
             } else if (/not_configured/i.test(msgText)) {
-                msg = 'Add a fal.ai API key or proxy URL in Theme Editor → Virtual Try-On.';
+                msg = 'Add a Gemini API key, fal.ai API key, or proxy URL in Theme Editor → Virtual Try-On.';
             }
             this.showStatus(msg, true);
         } finally {

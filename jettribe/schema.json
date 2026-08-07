@@ -4546,7 +4546,7 @@
     "settings": [
       {
         "type": "paragraph",
-        "content": "Nano Banana try-on: shopper photo + product gallery images are edited together (fal.ai nano-banana-2/edit). Add a fal.ai API key, or a proxy URL that wraps Gemini Nano Banana. Requires fal credits or a Gemini key on the proxy."
+        "content": "Nano Banana try-on: shopper photo + product gallery images are edited together. Prefer a Google Gemini API key (gemini-2.5-flash-image). fal.ai nano-banana-2/edit also works. Optional proxy URL keeps keys off the storefront. Gemini image models require billing enabled in Google AI Studio."
       },
       {
         "type": "checkbox",
@@ -4565,7 +4565,7 @@
       },
       {
         "type": "text",
-        "label": "fal.ai API key (Nano Banana 2 Edit)",
+        "label": "API key (Gemini preferred, or fal.ai)",
         "id": "tryon_api_key"
       }
     ]

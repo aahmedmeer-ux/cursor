@@ -12,11 +12,20 @@
  *   wrangler deploy
  *   Theme Editor → tryon_proxy_url = https://YOUR_WORKER.workers.dev
  *
+ * Note: Gemini image models need billing enabled (free-tier image quota is often 0).
+ *
  * POST JSON:
  *   { prompt, image_urls: [personDataUrl, product1, ...] }
  * Response:
  *   { result_url }
  */
+const GEMINI_MODELS = [
+  'gemini-2.5-flash-image',
+  'gemini-3.1-flash-image',
+  'gemini-3.1-flash-image-preview',
+  'nano-banana-pro-preview',
+];
+
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') {
@@ -62,32 +71,43 @@ async function geminiNanoBanana(apiKey, prompt, imageUrls) {
     parts.push({ inline_data: { mime_type: mime, data } });
   }
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts }],
-        generationConfig: {
-          responseModalities: ['TEXT', 'IMAGE'],
+  let lastErr = 'gemini_no_image';
+  for (const model of GEMINI_MODELS) {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-goog-api-key': apiKey,
         },
-      }),
-    },
-  );
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(data.error && data.error.message || `gemini_${res.status}`);
-  }
-  const partsOut = (((data.candidates || [])[0] || {}).content || {}).parts || [];
-  for (const p of partsOut) {
-    const inline = p.inlineData || p.inline_data;
-    if (inline && inline.data) {
-      const mime = inline.mimeType || inline.mime_type || 'image/png';
-      return `data:${mime};base64,${inline.data}`;
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts }],
+          generationConfig: {
+            responseModalities: ['TEXT', 'IMAGE'],
+          },
+        }),
+      },
+    );
+    const data = await res.json();
+    if (!res.ok) {
+      const msg = (data.error && data.error.message) || `gemini_${res.status}`;
+      lastErr = msg;
+      if (res.status === 401 || res.status === 403) throw new Error(msg);
+      if (/quota|rate|RESOURCE_EXHAUSTED|429/i.test(msg) || res.status === 429) continue;
+      if (/not found|not supported/i.test(msg)) continue;
+      throw new Error(msg);
+    }
+    const partsOut = (((data.candidates || [])[0] || {}).content || {}).parts || [];
+    for (const p of partsOut) {
+      const inline = p.inlineData || p.inline_data;
+      if (inline && inline.data) {
+        const mime = inline.mimeType || inline.mime_type || 'image/png';
+        return `data:${mime};base64,${inline.data}`;
+      }
     }
   }
-  throw new Error('gemini_no_image');
+  throw new Error(lastErr);
 }
 
 async function falNanoBanana(apiKey, prompt, imageUrls) {

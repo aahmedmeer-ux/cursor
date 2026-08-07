@@ -578,9 +578,10 @@
     "shipping_tz": "America/Los_Angeles",
     "infiniteScroll": "no",
     "tryon_enable": true,
-    "tryon_button_label": "Try It",
+    "tryon_button_label": "Try it On AI",
     "tryon_proxy_url": "",
-    "tryon_api_key": ""
+    "tryon_api_key": "",
+    "tryon_hf_token": ""
   },
   "read_only_files": [
     "/assets/scss/components/citadel",

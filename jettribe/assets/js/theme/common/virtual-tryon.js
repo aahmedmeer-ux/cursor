@@ -1,51 +1,41 @@
 /**
- * Virtual Try-On — Nano Banana–style multi-image editing.
+ * Virtual Try-On — free Hugging Face IDM-VTON (Gradio Space)
  *
- * Pipeline:
- *  1. Collect shopper photo + height + product gallery images
- *  2. Build a try-on edit prompt (dress person in exact product, white BG)
- *  3. Send person + product reference images together to:
- *       A) Google Gemini Nano Banana (gemini-*-flash-image) — browser CORS OK
- *       B) fal.ai fal-ai/nano-banana-2/edit
- *       C) optional proxy URL (Cloudflare worker)
- *  4. Show the edited full-body result
+ * Flow:
+ *  1. User clicks "Try it On AI" near Add to Cart
+ *  2. Uploads a photo (FileReader preview)
+ *  3. We send person + product image to the free IDM-VTON Space
+ *  4. Show the generated result (or a friendly free-tier error)
+ *
+ * Note: yisol/IDM-VTON is not a simple Inference API model. The free public
+ * endpoint is the Gradio Space queue API (same model, free ZeroGPU).
+ * Optional: Theme Editor → Hugging Face token for better rate limits.
  */
 import $ from 'jquery';
 import modalFactory, { ModalEvents } from '../global/modal';
 
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
-const MAX_EDGE = 1024;
-const MAX_PRODUCT_REFS = 6;
+const MAX_EDGE = 768;
 const TRYON_TIMEOUT_MS = 180000;
-const FAL_MODEL = 'fal-ai/nano-banana-2/edit';
-const GEMINI_MODELS = [
-    'gemini-2.5-flash-image',
-    'gemini-3.1-flash-image',
-    'gemini-3.1-flash-image-preview',
-    'nano-banana-pro-preview',
-];
-const DEFAULT_HEIGHT_CM = 175;
-
-function isGeminiApiKey(key) {
-    const k = String(key || '').trim();
-    return /^AIza/i.test(k) || /^AQ\./.test(k);
-}
-
-function isFalApiKey(key) {
-    const k = String(key || '').trim();
-    if (!k || isGeminiApiKey(k)) return false;
-    // fal keys are typically uuid:secret
-    return k.indexOf(':') !== -1 || /^[0-9a-f-]{8,}:/i.test(k) || k.length > 20;
-}
-
-function parseDataUrl(dataUrl) {
-    const m = String(dataUrl || '').match(/^data:([^;]+);base64,(.+)$/);
-    if (!m) throw new Error('bad_data_url');
-    return { mime: m[1], data: m[2] };
-}
+/** Free IDM-VTON Gradio Space (ZeroGPU). Not a simple Inference API model. */
+const HF_SPACE = 'https://yisol-idm-vton.hf.space';
+const HF_FN_INDEX = 2; // /tryon
 
 function isTruthy(v) {
     return v !== false && v !== 'false' && v !== 0 && v !== '0' && v != null && v !== '';
+}
+
+function randomSessionHash() {
+    return `jt${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function dataUrlToBlob(dataUrl) {
+    const m = String(dataUrl).match(/^data:([^;]+);base64,(.+)$/);
+    if (!m) throw new Error('bad_data_url');
+    const bin = atob(m[2]);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i += 1) bytes[i] = bin.charCodeAt(i);
+    return new Blob([bytes], { type: m[1] || 'image/jpeg' });
 }
 
 function loadImage(src, useCors = true) {
@@ -88,25 +78,11 @@ async function resizeToDataUrl(src, maxEdge = MAX_EDGE) {
     try {
         return blobToDataUrl(await canvasToBlob(canvas));
     } catch (e) {
-        // tainted canvas — return original if already data URL
         if (String(src).indexOf('data:') === 0) return src;
         const res = await fetch(src);
         if (!res.ok) throw new Error(`fetch_${res.status}`);
         return blobToDataUrl(await res.blob());
     }
-}
-
-function parseHeightCm(raw) {
-    const text = String(raw || '').trim().toLowerCase();
-    if (!text) return DEFAULT_HEIGHT_CM;
-    const ft = text.match(/^(\d)\s*[\'’ft]\s*(\d{1,2})/);
-    if (ft) return Math.round((parseInt(ft[1], 10) * 12 + parseInt(ft[2], 10)) * 2.54);
-    const cm = text.match(/(\d{2,3})\s*cm/);
-    if (cm) return parseInt(cm[1], 10);
-    const n = parseInt(text, 10);
-    if (n >= 120 && n <= 230) return n;
-    if (n >= 48 && n <= 90) return Math.round(n * 2.54);
-    return DEFAULT_HEIGHT_CM;
 }
 
 function scoreStudio(img) {
@@ -117,7 +93,8 @@ function scoreStudio(img) {
     if (aspect >= 0.85 && aspect <= 1.15) score += 12;
     if (aspect > 1.35) score -= 20;
     const c = document.createElement('canvas');
-    c.width = 40; c.height = 40;
+    c.width = 40;
+    c.height = 40;
     const ctx = c.getContext('2d', { willReadFrequently: true });
     try {
         ctx.drawImage(img, 0, 0, 40, 40);
@@ -136,172 +113,172 @@ function scoreStudio(img) {
     return score;
 }
 
-function buildNanoBananaPrompt({ title, heightCm, productCount }) {
-    const product = String(title || 'Jettribe product').replace(/\s+/g, ' ').trim();
-    return [
-        'You are performing a photorealistic virtual try-on edit.',
-        'Image 1 is the shopper (keep their exact face, skin tone, hair, body identity, and pose).',
-        `Images 2${productCount > 2 ? `–${productCount}` : ''} are product reference photos of the SAME item: ${product}.`,
-        'Dress the shopper in that EXACT product. Preserve logos, lettering, colors, panels, straps, buckles, and materials from the product references. Do not invent a different design.',
-        'Replace only the clothing needed to wear this product (for a vest/PFD: upper torso over existing layers as appropriate).',
-        `Output a complete full-body standing person (about ${heightCm} cm tall proportions) centered on a pure white seamless studio background.`,
-        'E-commerce catalog quality, natural lighting, sharp details, no text overlays, no watermarks, no collage borders.',
-    ].join(' ');
-}
-
-/** Google Gemini Nano Banana image edit (direct from browser — CORS enabled) */
-async function geminiNanoBananaEdit({ apiKey, imageUrls, prompt, signal, onStatus }) {
-    const parts = [{ text: prompt }];
-    imageUrls.slice(0, 8).forEach((url) => {
-        const { mime, data } = parseDataUrl(url);
-        parts.push({ inline_data: { mime_type: mime, data } });
-    });
-    const body = JSON.stringify({
-        contents: [{ role: 'user', parts }],
-        generationConfig: { responseModalities: ['TEXT', 'IMAGE'] },
-    });
-
-    let lastErr = 'gemini_failed';
-    for (let i = 0; i < GEMINI_MODELS.length; i += 1) {
-        const model = GEMINI_MODELS[i];
-        if (onStatus) onStatus(`Nano Banana (${model}) is editing your try-on…`);
-        const res = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-goog-api-key': apiKey,
-                },
-                body,
-                signal,
-            },
-        );
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-            const msg = (data.error && data.error.message) || `gemini_${res.status}`;
-            lastErr = msg;
-            // try next model on quota / not found; hard-fail on auth
-            if (res.status === 401 || res.status === 403) throw new Error(`gemini_auth:${msg}`);
-            if (/quota|rate|resource_exhausted|429/i.test(msg) || res.status === 429) {
-                lastErr = `gemini_quota:${msg}`;
-                continue;
-            }
-            if (/not found|not supported/i.test(msg)) continue;
-            throw new Error(`gemini_${res.status}:${String(msg).slice(0, 160)}`);
-        }
-        const partsOut = (((data.candidates || [])[0] || {}).content || {}).parts || [];
-        for (let p = 0; p < partsOut.length; p += 1) {
-            const inline = partsOut[p].inlineData || partsOut[p].inline_data;
-            if (inline && inline.data) {
-                const mime = inline.mimeType || inline.mime_type || 'image/png';
-                return `data:${mime};base64,${inline.data}`;
-            }
-        }
-        lastErr = 'gemini_no_image';
-    }
-    throw new Error(lastErr);
-}
-
-/** fal queue client for Nano Banana 2 Edit */
-async function falNanoBananaEdit({ apiKey, imageUrls, prompt, signal, onStatus }) {
-    const start = await fetch(`https://queue.fal.run/${FAL_MODEL}`, {
+/** Upload a data-URL image to the Gradio Space; returns server filepath. */
+async function hfUploadDataUrl(dataUrl, filename, hfToken, signal) {
+    const blob = dataUrlToBlob(dataUrl);
+    const form = new FormData();
+    form.append('files', blob, filename);
+    const headers = {};
+    if (hfToken) headers.Authorization = `Bearer ${hfToken}`;
+    const res = await fetch(`${HF_SPACE}/upload`, {
         method: 'POST',
-        headers: {
-            Authorization: `Key ${apiKey}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            prompt,
-            image_urls: imageUrls,
-            num_images: 1,
-            aspect_ratio: '3:4',
-            resolution: '1K',
-            output_format: 'jpeg',
-            limit_generations: true,
-            safety_tolerance: '5',
-        }),
+        headers,
+        body: form,
         signal,
     });
-
-    if (start.status === 401 || start.status === 403) {
-        const detail = await start.text();
-        if (/exhausted|balance|locked|billing/i.test(detail)) {
-            throw new Error('fal_balance');
-        }
-        throw new Error(`fal_auth_${start.status}`);
-    }
-    if (!start.ok) {
-        const detail = await start.text();
-        throw new Error(`fal_start_${start.status}:${detail.slice(0, 160)}`);
-    }
-
-    const started = await start.json();
-    const statusUrl = started.status_url
-        || (started.request_id ? `https://queue.fal.run/${FAL_MODEL}/requests/${started.request_id}/status` : null);
-    const responseUrl = started.response_url
-        || (started.request_id ? `https://queue.fal.run/${FAL_MODEL}/requests/${started.request_id}` : null);
-    if (!statusUrl || !responseUrl) throw new Error('fal_bad_queue');
-
-    const began = Date.now();
-    while (Date.now() - began < TRYON_TIMEOUT_MS - 5000) {
-        if (signal && signal.aborted) throw new Error('aborted');
-        const st = await fetch(statusUrl, {
-            headers: { Authorization: `Key ${apiKey}` },
-            signal,
-        });
-        if (!st.ok) throw new Error(`fal_status_${st.status}`);
-        const body = await st.json();
-        const status = body.status || body.detail || '';
-        if (onStatus) {
-            if (status === 'IN_QUEUE') onStatus('Nano Banana queued…');
-            else if (status === 'IN_PROGRESS') onStatus('Nano Banana is editing your try-on…');
-        }
-        if (status === 'COMPLETED') {
-            const res = await fetch(responseUrl, {
-                headers: { Authorization: `Key ${apiKey}` },
-                signal,
-            });
-            if (!res.ok) throw new Error(`fal_result_${res.status}`);
-            const data = await res.json();
-            const url = (data.images && data.images[0] && data.images[0].url)
-                || (data.image && data.image.url)
-                || data.url;
-            if (!url) throw new Error('fal_empty');
-            return url;
-        }
-        if (status === 'FAILED' || status === 'CANCELLED') {
-            throw new Error(`fal_${String(status).toLowerCase()}`);
-        }
-        await new Promise((r) => setTimeout(r, 1500));
-    }
-    throw new Error('fal_timeout');
-}
-
-/** Optional proxy (Cloudflare worker) — Gemini Nano Banana or private fal key */
-async function proxyNanoBananaEdit({ proxyUrl, imageUrls, prompt, heightCm, productTitle, signal, onStatus }) {
-    if (onStatus) onStatus('Sending to Nano Banana…');
-    const res = await fetch(proxyUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            provider: 'nano-banana',
-            prompt,
-            image_urls: imageUrls,
-            height_cm: heightCm,
-            product_title: productTitle,
-        }),
-        signal,
-    });
+    if (res.status === 401 || res.status === 403) throw new Error('hf_auth');
+    if (res.status === 429) throw new Error('hf_rate_limit');
     if (!res.ok) {
         const text = await res.text();
-        throw new Error(`proxy_${res.status}:${text.slice(0, 160)}`);
+        if (/busy|gpu|quota|overload|503|529/i.test(text)) throw new Error('hf_busy');
+        throw new Error(`hf_upload_${res.status}`);
     }
-    const data = await res.json();
-    const url = data.result_url || data.image_url || data.url
-        || (data.images && data.images[0] && (data.images[0].url || data.images[0]));
-    if (!url) throw new Error('proxy_empty');
-    return url;
+    const json = await res.json();
+    const path = Array.isArray(json) ? json[0] : json;
+    if (!path) throw new Error('hf_upload_empty');
+    return path;
+}
+
+function resolveSpaceFileUrl(fileRef) {
+    if (!fileRef) return '';
+    if (typeof fileRef === 'string') {
+        if (/^https?:\/\//i.test(fileRef) || fileRef.indexOf('data:') === 0) return fileRef;
+        if (fileRef.indexOf('/tmp/') === 0 || fileRef.indexOf('tmp/') === 0) {
+            return `${HF_SPACE}/file=${fileRef}`;
+        }
+        return fileRef;
+    }
+    if (fileRef.url) return resolveSpaceFileUrl(fileRef.url);
+    if (fileRef.path) return resolveSpaceFileUrl(fileRef.path);
+    return '';
+}
+
+/**
+ * Free Hugging Face IDM-VTON via Gradio Space queue (upload + queue/join).
+ * This is the working free path for yisol/IDM-VTON (not api-inference.huggingface.co).
+ */
+async function hfIdmVtonTryOn({
+    hfToken,
+    personDataUrl,
+    garmentDataUrl,
+    garmentDes,
+    signal,
+    onStatus,
+}) {
+    if (onStatus) onStatus('AI is working its magic… (uploading photos)');
+    const personPath = await hfUploadDataUrl(personDataUrl, 'person.jpg', hfToken, signal);
+    const garmentPath = await hfUploadDataUrl(garmentDataUrl, 'garment.jpg', hfToken, signal);
+
+    // ImageEditor: background filepath, empty layers, no composite
+    const human = { background: personPath, layers: [], composite: null };
+    const payload = {
+        data: [
+            human,
+            garmentPath,
+            String(garmentDes || 'product').slice(0, 120),
+            true, // auto-masking
+            true, // auto-crop
+            30,
+            42,
+        ],
+        fn_index: HF_FN_INDEX,
+        session_hash: randomSessionHash(),
+    };
+
+    if (onStatus) onStatus('AI is working its magic… (queueing free GPU)');
+
+    const headers = { 'Content-Type': 'application/json' };
+    if (hfToken) headers.Authorization = `Bearer ${hfToken}`;
+
+    const join = await fetch(`${HF_SPACE}/queue/join`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+        signal,
+    });
+    if (join.status === 401 || join.status === 403) throw new Error('hf_auth');
+    if (join.status === 429) throw new Error('hf_rate_limit');
+    if (!join.ok) {
+        const text = await join.text();
+        if (/busy|gpu|quota|overload|503|529/i.test(text)) throw new Error('hf_busy');
+        throw new Error(`hf_join_${join.status}:${text.slice(0, 120)}`);
+    }
+
+    const streamHeaders = {};
+    if (hfToken) streamHeaders.Authorization = `Bearer ${hfToken}`;
+    const stream = await fetch(
+        `${HF_SPACE}/queue/data?session_hash=${encodeURIComponent(payload.session_hash)}`,
+        { headers: streamHeaders, signal },
+    );
+    if (stream.status === 429) throw new Error('hf_rate_limit');
+    if (!stream.ok) throw new Error(`hf_stream_${stream.status}`);
+
+    const reader = stream.body && stream.body.getReader
+        ? stream.body.getReader()
+        : null;
+    const decoder = new TextDecoder();
+    let buffer = '';
+    const began = Date.now();
+
+    const handlePayload = (msgObj) => {
+        const msg = msgObj && msgObj.msg;
+        if (msg === 'estimation' && onStatus) {
+            const eta = msgObj.rank_eta ? ` ~${Math.round(msgObj.rank_eta)}s` : '';
+            onStatus(`AI is working its magic… (in free queue${eta})`);
+        }
+        if (msg === 'process_starts' && onStatus) {
+            onStatus('AI is working its magic…');
+        }
+        if (msg === 'process_completed') {
+            if (!msgObj.success) {
+                const err = (msgObj.output && msgObj.output.error) || 'hf_failed';
+                if (/busy|gpu|quota|ZeroGPU|queue/i.test(String(err))) throw new Error('hf_busy');
+                throw new Error(`hf_error:${String(err).slice(0, 160)}`);
+            }
+            const dataOut = (msgObj.output && msgObj.output.data) || [];
+            const url = resolveSpaceFileUrl(dataOut[0]);
+            if (!url) throw new Error('hf_empty');
+            return url;
+        }
+        return null;
+    };
+
+    if (!reader) {
+        // Fallback for older browsers: read full text
+        const raw = await stream.text();
+        const lines = raw.split('\n');
+        for (let i = 0; i < lines.length; i += 1) {
+            if (lines[i].indexOf('data:') !== 0) continue;
+            const result = handlePayload(JSON.parse(lines[i].slice(5).trim()));
+            if (result) return result;
+        }
+        throw new Error('hf_empty');
+    }
+
+    while (Date.now() - began < TRYON_TIMEOUT_MS - 3000) {
+        if (signal && signal.aborted) throw new Error('aborted');
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split('\n');
+        buffer = parts.pop() || '';
+        for (let i = 0; i < parts.length; i += 1) {
+            const line = parts[i].trim();
+            if (line.indexOf('data:') !== 0) continue;
+            let msgObj;
+            try {
+                msgObj = JSON.parse(line.slice(5).trim());
+            } catch (e) {
+                continue;
+            }
+            const result = handlePayload(msgObj);
+            if (result) {
+                try { reader.cancel(); } catch (e) { /* ignore */ }
+                return result;
+            }
+        }
+    }
+    throw new Error('hf_timeout');
 }
 
 export default class VirtualTryOn {
@@ -331,29 +308,29 @@ export default class VirtualTryOn {
         this.ensureModal();
     }
 
+    /** Free HF path works with or without a token; token improves rate limits */
     isConfigured() {
-        return !!(
-            String(this.context.tryonProxyUrl || '').trim()
-            || String(this.context.tryonApiKey || '').trim()
-            || String(this.context.tryonGeminiApiKey || '').trim()
-        );
+        return true;
+    }
+
+    hfToken() {
+        return String(
+            this.context.tryonHfToken
+            || this.context.tryonApiKey
+            || '',
+        ).trim();
     }
 
     ensureButtons() {
-        const label = this.context.tryonButtonLabel || 'Try It';
+        const label = this.context.tryonButtonLabel || 'Try it On AI';
         this.$scope.find('.formView-action._designTools').each((_, el) => {
             const $wrap = $(el);
             if ($wrap.find('[data-virtual-tryon]').length) return;
             const $atc = $wrap.find('.form-action--addToCart').first();
             const $btn = $(`<div class="form-action form-action--tryOn"><button type="button" class="button button--tryOn" data-virtual-tryon>${label}</button></div>`);
-            if ($atc.length) $atc.before($btn); else $wrap.append($btn);
+            if ($atc.length) $atc.before($btn);
+            else $wrap.append($btn);
         });
-        const $sticky = this.$scope.find('#form-action-addToCartSticky');
-        if ($sticky.length && !$sticky.closest('.form-action--addToCart').parent().find('[data-virtual-tryon]').length) {
-            $sticky.closest('.form-action--addToCart').before(
-                `<div class="form-action form-action--tryOn"><button type="button" class="button button--tryOn" data-virtual-tryon>${label}</button></div>`,
-            );
-        }
     }
 
     bindOpeners() {
@@ -421,7 +398,6 @@ export default class VirtualTryOn {
             const url = e.currentTarget.getAttribute('data-url');
             if (url) this.selectGarment(url);
         });
-        $root.on('input change', '[data-tryon-height]', () => this.updateHeightHint());
         $root.on('click', '[data-tryon-submit]', (e) => { e.preventDefault(); this.runTryOn(); });
         $root.on('click', '[data-tryon-retry]', (e) => {
             e.preventDefault();
@@ -440,7 +416,6 @@ export default class VirtualTryOn {
         this.$root.find('[data-tryon-status]').addClass('is-hidden').removeClass('is-error is-loading').empty();
         this.$root.find('[data-tryon-submit]').prop('disabled', true);
         this.$root.find('[data-tryon-result-image]').attr('src', '');
-        this.$root.find('[data-tryon-height-wrap]').addClass('is-hidden');
         if (clearFile) {
             this.$root.find('[data-tryon-file]').val('');
             this.$root.find('[data-tryon-user-image]').attr('src', '');
@@ -453,15 +428,11 @@ export default class VirtualTryOn {
             || '';
     }
 
-    getHeightCm() {
-        return parseHeightCm(this.$root && this.$root.find('[data-tryon-height]').val());
-    }
-
-    updateHeightHint() {
-        if (!this.$root) return;
-        this.$root.find('[data-tryon-height-hint]').text(
-            `Using ${this.getHeightCm()} cm for full-body proportions on a white background.`,
-        );
+    absoluteUrl(url) {
+        if (!url) return '';
+        if (/^https?:\/\//i.test(url) || String(url).indexOf('data:') === 0) return url;
+        if (String(url).indexOf('//') === 0) return `${window.location.protocol}${url}`;
+        try { return new URL(url, window.location.origin).href; } catch (e) { return url; }
     }
 
     populateProductPreviewSync() {
@@ -472,14 +443,8 @@ export default class VirtualTryOn {
         if (imageUrl) {
             this.selectedGarmentUrl = imageUrl;
             this.$root.find('[data-tryon-product-image]').attr({ src: imageUrl, alt: title });
+            this.$root.find('[data-tryon-product-url]').val(imageUrl);
         }
-    }
-
-    absoluteUrl(url) {
-        if (!url) return '';
-        if (/^https?:\/\//i.test(url) || String(url).indexOf('data:') === 0) return url;
-        if (String(url).indexOf('//') === 0) return `${window.location.protocol}${url}`;
-        try { return new URL(url, window.location.origin).href; } catch (e) { return url; }
     }
 
     collectDomGalleryUrls() {
@@ -551,7 +516,7 @@ export default class VirtualTryOn {
 
     async loadProductLibrary() {
         if (!this.$root) return;
-        this.$root.find('[data-tryon-style-note]').text('Loading product photos for Nano Banana references…');
+        this.$root.find('[data-tryon-style-note]').text('Loading product photos…');
         const domUrls = this.collectDomGalleryUrls();
         let gqlUrls = [];
         try { gqlUrls = await this.fetchProductImages(); } catch (e) { /* ignore */ }
@@ -574,8 +539,8 @@ export default class VirtualTryOn {
         this.renderGarmentThumbs();
         this.$root.find('[data-tryon-style-note]').text(
             metas[0] && metas[0].score > 60
-                ? 'Studio product photo selected as primary Nano Banana reference. Extra gallery photos are also sent for exact logos/colors.'
-                : 'Select the clearest product photo (studio/mannequin preferred). All gallery photos help Nano Banana match the exact product.',
+                ? 'Studio product photo selected (best for exact logos/colors).'
+                : 'Select the clearest product photo (studio/mannequin preferred).',
         );
     }
 
@@ -596,6 +561,7 @@ export default class VirtualTryOn {
     selectGarment(url) {
         this.selectedGarmentUrl = url;
         this.$root.find('[data-tryon-product-image]').attr({ src: url, alt: this.getProductTitle() });
+        this.$root.find('[data-tryon-product-url]').val(url);
         this.$root.find('[data-tryon-garment-thumb]').each((_, el) => {
             el.classList.toggle('is-selected', el.getAttribute('data-url') === url);
         });
@@ -603,6 +569,8 @@ export default class VirtualTryOn {
 
     getGarmentImageUrlSync() {
         if (this.selectedGarmentUrl) return this.selectedGarmentUrl;
+        const hidden = this.$root && this.$root.find('[data-tryon-product-url]').val();
+        if (hidden) return this.absoluteUrl(hidden);
         if (this.imageGallery && this.imageGallery.currentImage && this.imageGallery.currentImage.mainImageUrl) {
             return this.absoluteUrl(this.imageGallery.currentImage.mainImageUrl);
         }
@@ -614,8 +582,8 @@ export default class VirtualTryOn {
     }
 
     handleFile(file) {
-        if (!file || !file.type || file.type.indexOf('image/') !== 0) {
-            this.showStatus(this.context.tryonErrorFileType || 'Please upload a JPG, PNG, or WebP photo.', true);
+        if (!file || !file.type || !/^image\/(jpeg|png|jpg)/i.test(file.type)) {
+            this.showStatus(this.context.tryonErrorFileType || 'Please upload a JPG or PNG photo.', true);
             return;
         }
         if (file.size > MAX_FILE_BYTES) {
@@ -631,11 +599,6 @@ export default class VirtualTryOn {
             this.$root.find('[data-tryon-submit]').prop('disabled', false);
             this.$root.find('[data-tryon-status]').addClass('is-hidden');
             this.$root.find('[data-tryon-result]').addClass('is-hidden');
-            this.$root.find('[data-tryon-height-wrap]').removeClass('is-hidden');
-            if (!this.$root.find('[data-tryon-height]').val()) {
-                this.$root.find('[data-tryon-height]').val(String(DEFAULT_HEIGHT_CM));
-            }
-            this.updateHeightHint();
         };
         reader.onerror = () => {
             this.showStatus(this.context.tryonErrorGeneric || 'Could not read that photo.', true);
@@ -652,98 +615,36 @@ export default class VirtualTryOn {
             .html(isLoading ? `<span class="tryOn-spinner" aria-hidden="true"></span> ${message}` : message);
     }
 
-    async buildReferenceUrls() {
-        const primary = this.selectedGarmentUrl || this.getGarmentImageUrlSync();
-        const ranked = this.productImages
-            .slice()
-            .sort((a, b) => ((this.imageMeta[b] && this.imageMeta[b].score) || 0) - ((this.imageMeta[a] && this.imageMeta[a].score) || 0));
-        const refs = [];
-        if (primary) refs.push(primary);
-        ranked.forEach((u) => {
-            if (refs.indexOf(u) === -1) refs.push(u);
-        });
-        return refs.slice(0, MAX_PRODUCT_REFS);
-    }
-
     async runTryOn() {
         if (!this.userImageDataUrl) {
             this.showStatus(this.context.tryonErrorNeedPhoto || 'Upload a photo first.', true);
             return;
         }
-        if (!this.isConfigured()) {
-            this.showStatus(
-                this.context.tryonErrorNotConfigured
-                || 'Virtual Try-On needs a Nano Banana connection. Add a Gemini API key, fal.ai API key, or proxy URL in Theme Editor → Virtual Try-On.',
-                true,
-            );
-            return;
-        }
 
-        const heightCm = this.getHeightCm();
         const $submit = this.$root.find('[data-tryon-submit]');
         $submit.prop('disabled', true);
-        this.showStatus(this.context.tryonLoading || 'Preparing Nano Banana try-on…', false, true);
+        this.showStatus(this.context.tryonLoading || 'AI is working its magic…', false, true);
 
         const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
         const timeoutId = window.setTimeout(() => { if (controller) controller.abort(); }, TRYON_TIMEOUT_MS);
 
         try {
             const title = [this.graphBrandName, this.graphProductName || this.getProductTitle()].filter(Boolean).join(' ');
-            const productRefs = await this.buildReferenceUrls();
-            if (!productRefs.length) throw new Error('no_product');
+            const garmentUrl = this.selectedGarmentUrl || this.getGarmentImageUrlSync();
+            if (!garmentUrl) throw new Error('no_product');
 
-            this.showStatus('Encoding photos for Nano Banana…', false, true);
+            this.showStatus('Preparing photos…', false, true);
             const personUrl = await resizeToDataUrl(this.userImageDataUrl);
-            const productDataUrls = [];
-            for (let i = 0; i < productRefs.length; i += 1) {
-                try {
-                    productDataUrls.push(await resizeToDataUrl(productRefs[i]));
-                } catch (e) {
-                    // skip bad ref
-                }
-            }
-            if (!productDataUrls.length) throw new Error('no_product');
+            const garmentDataUrl = await resizeToDataUrl(garmentUrl);
 
-            const imageUrls = [personUrl, ...productDataUrls];
-            const prompt = buildNanoBananaPrompt({
-                title,
-                heightCm,
-                productCount: imageUrls.length,
+            const resultUrl = await hfIdmVtonTryOn({
+                hfToken: this.hfToken(),
+                personDataUrl: personUrl,
+                garmentDataUrl,
+                garmentDes: title || 'Jettribe product',
+                signal: controller && controller.signal,
+                onStatus: (m) => this.showStatus(m, false, true),
             });
-
-            const proxyUrl = String(this.context.tryonProxyUrl || '').trim();
-            const apiKey = String(this.context.tryonApiKey || this.context.tryonGeminiApiKey || '').trim();
-            let resultUrl;
-
-            if (proxyUrl) {
-                resultUrl = await proxyNanoBananaEdit({
-                    proxyUrl,
-                    imageUrls,
-                    prompt,
-                    heightCm,
-                    productTitle: title,
-                    signal: controller && controller.signal,
-                    onStatus: (m) => this.showStatus(m, false, true),
-                });
-            } else if (isGeminiApiKey(apiKey)) {
-                resultUrl = await geminiNanoBananaEdit({
-                    apiKey,
-                    imageUrls,
-                    prompt,
-                    signal: controller && controller.signal,
-                    onStatus: (m) => this.showStatus(m, false, true),
-                });
-            } else if (isFalApiKey(apiKey) || apiKey) {
-                resultUrl = await falNanoBananaEdit({
-                    apiKey,
-                    imageUrls,
-                    prompt,
-                    signal: controller && controller.signal,
-                    onStatus: (m) => this.showStatus(m, false, true),
-                });
-            } else {
-                throw new Error('not_configured');
-            }
 
             const $resultImg = this.$root.find('[data-tryon-result-image]');
             $resultImg.one('load', () => this.$root.find('[data-tryon-status]').addClass('is-hidden'));
@@ -755,26 +656,24 @@ export default class VirtualTryOn {
                 rel: 'noopener',
             });
             this.$root.find('[data-tryon-result]').removeClass('is-hidden');
-            this.showStatus('Done — Nano Banana try-on ready.', false, false);
+            this.showStatus('Done — your try-on is ready.', false, false);
             window.setTimeout(() => this.$root.find('[data-tryon-status]').addClass('is-hidden'), 2000);
         } catch (err) {
             // eslint-disable-next-line no-console
-            console.error('Nano Banana try-on failed', err);
+            console.error('Virtual try-on failed', err);
             const msgText = String((err && err.message) || err || '');
             let msg = this.context.tryonErrorGeneric
                 || 'Sorry — try-on could not be generated. Please try another photo.';
-            if (err && err.name === 'AbortError' || /abort|timeout/i.test(msgText)) {
-                msg = 'Try-on timed out. Please try again.';
-            } else if (/gemini_quota|quota|RESOURCE_EXHAUSTED/i.test(msgText)) {
-                msg = 'Gemini image quota is exhausted. In Google AI Studio, enable billing for this API key’s project, then try again.';
-            } else if (/gemini_auth/i.test(msgText)) {
-                msg = 'Gemini API key was rejected. Update Theme Editor → Virtual Try-On → API key.';
-            } else if (/fal_balance|exhausted|billing|locked/i.test(msgText)) {
-                msg = 'Nano Banana needs fal.ai credits (or a Gemini API key with billing). Top up at fal.ai/dashboard/billing, then try again.';
-            } else if (/fal_auth|401|403/i.test(msgText)) {
-                msg = 'API key was rejected. Update Theme Editor → Virtual Try-On → API key (Gemini or fal.ai).';
-            } else if (/not_configured/i.test(msgText)) {
-                msg = 'Add a Gemini API key, fal.ai API key, or proxy URL in Theme Editor → Virtual Try-On.';
+            if ((err && err.name === 'AbortError') || /abort|timeout|hf_timeout/i.test(msgText)) {
+                msg = 'The free AI took too long. Please try again in a minute.';
+            } else if (/hf_busy|queue|ZeroGPU|gpu/i.test(msgText)) {
+                msg = 'Free AI queue is busy right now. Wait a minute and try again — or add a free Hugging Face token in Theme Editor for better limits.';
+            } else if (/hf_rate_limit|429/i.test(msgText)) {
+                msg = 'Free AI rate limit hit. Wait a bit, or add your free Hugging Face token in Theme Editor → Virtual Try-On.';
+            } else if (/hf_auth|401|403/i.test(msgText)) {
+                msg = 'Hugging Face token was rejected. Create a free token at huggingface.co/settings/tokens and paste it in Theme Editor.';
+            } else if (/no_product/i.test(msgText)) {
+                msg = this.context.tryonErrorNoProduct || 'Could not load the product image.';
             }
             this.showStatus(msg, true);
         } finally {

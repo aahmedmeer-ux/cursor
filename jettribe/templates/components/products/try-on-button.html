@@ -1,3 +1,6 @@
+{{!--
+  Virtual Try-On trigger — place near Add to Cart.
+--}}
 {{#if theme_settings.tryon_enable}}
 <div class="form-action form-action--tryOn">
     <button
@@ -7,11 +10,11 @@
         data-virtual-tryon
         data-product-id="{{product.id}}"
         data-product-title="{{product.title}}"
-        data-product-image="{{getImage product.main_image 'product_size' (cdn theme_settings.default_image_product)}}"
+        data-product-image="{{getImage product.main_image 'original' (cdn theme_settings.default_image_product)}}"
         aria-haspopup="dialog"
         aria-controls="virtual-tryon-modal"
     >
-        {{#if theme_settings.tryon_button_label}}{{theme_settings.tryon_button_label}}{{else}}Try It{{/if}}
+        {{#if theme_settings.tryon_button_label}}{{theme_settings.tryon_button_label}}{{else}}Try it On AI{{/if}}
     </button>
 </div>
 {{/if}}

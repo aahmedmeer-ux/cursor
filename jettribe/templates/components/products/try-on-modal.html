@@ -1,5 +1,9 @@
+{{!--
+  Virtual Try-On modal (free Hugging Face IDM-VTON).
+  Included once from layout — product fields are filled by JS from the Try On button.
+--}}
 {{#if theme_settings.tryon_enable}}
-<div id="virtual-tryon-modal" class="modal modal--large modal--tryOn" data-reveal data-prevent-quick-search-close role="dialog" aria-labelledby="virtual-tryon-title">
+<div id="virtual-tryon-modal" class="modal modal--large modal--tryOn" data-reveal data-prevent-quick-search-close role="dialog" aria-labelledby="virtual-tryon-title" aria-modal="true">
     <a href="#" class="modal-close" aria-label="{{lang 'common.close'}}" role="button">
         <span aria-hidden="true">&#215;</span>
     </a>
@@ -11,6 +15,9 @@
             <div class="tryOn" data-tryon-root>
                 <p class="tryOn-intro">{{lang 'products.tryon.intro'}}</p>
 
+                {{!-- Filled by JS from data-product-image on the trigger button / live gallery --}}
+                <input type="hidden" id="tryon-product-image-url" data-tryon-product-url value="">
+
                 <div class="tryOn-grid">
                     <div class="tryOn-panel tryOn-panel--product">
                         <h3 class="tryOn-panel-title">{{lang 'products.tryon.product_heading'}}</h3>
@@ -18,14 +25,20 @@
                             <img src="" alt="" data-tryon-product-image>
                         </div>
                         <p class="tryOn-productTitle" data-tryon-product-title></p>
-                        <p class="tryOn-styleNote" data-tryon-style-note></p>
+                        <p class="tryOn-styleNote" data-tryon-style-note>{{lang 'products.tryon.garment_picker'}}</p>
                         <div class="tryOn-garmentStrip is-hidden" data-tryon-garment-strip aria-label="{{lang 'products.tryon.garment_picker'}}"></div>
                     </div>
 
                     <div class="tryOn-panel tryOn-panel--upload">
                         <h3 class="tryOn-panel-title">{{lang 'products.tryon.upload_heading'}}</h3>
                         <label class="tryOn-dropzone" data-tryon-dropzone for="tryon-file-input">
-                            <input id="tryon-file-input" class="u-hidden" type="file" accept="image/jpeg,image/png,image/webp" data-tryon-file>
+                            <input
+                                id="tryon-file-input"
+                                class="u-hidden"
+                                type="file"
+                                accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                                data-tryon-file
+                            >
                             <span class="tryOn-dropzone-icon" aria-hidden="true">
                                 <svg class="icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16"/></svg>
                             </span>
@@ -33,16 +46,8 @@
                             <span class="tryOn-dropzone-note">{{lang 'products.tryon.upload_note'}}</span>
                         </label>
                         <div class="tryOn-userPreview is-hidden" data-tryon-user-preview>
-                            <img src="" alt="" data-tryon-user-image>
+                            <img src="" alt="Your photo preview" data-tryon-user-image>
                             <button type="button" class="button button--tiny tryOn-changePhoto" data-tryon-change>{{lang 'products.tryon.change_photo'}}</button>
-                        </div>
-                        <div class="tryOn-heightWrap is-hidden" data-tryon-height-wrap>
-                            <label class="tryOn-heightLabel" for="tryon-height-input">{{lang 'products.tryon.height_label'}}</label>
-                            <div class="tryOn-heightRow">
-                                <input id="tryon-height-input" class="form-input tryOn-heightInput" type="text" inputmode="numeric" placeholder="175" data-tryon-height value="175">
-                                <span class="tryOn-heightUnit">cm</span>
-                            </div>
-                            <p class="tryOn-heightHint" data-tryon-height-hint>{{lang 'products.tryon.height_hint'}}</p>
                         </div>
                     </div>
                 </div>

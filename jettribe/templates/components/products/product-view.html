@@ -535,13 +535,7 @@
                                                         </button>
                                                     </div>
                                                 {{/if}}
-                                                {{#if theme_settings.tryon_enable}}
-                                                    <div class="form-action form-action--tryOn">
-                                                        <button type="button" class="button button--tryOn" data-virtual-tryon>
-                                                            {{#if theme_settings.tryon_button_label}}{{theme_settings.tryon_button_label}}{{else}}Try It{{/if}}
-                                                        </button>
-                                                    </div>
-                                                {{/if}}
+                                                {{> components/products/try-on-button}}
                                                 {{#or customer (unless settings.hide_price_from_guests)}}
                                                     <div class="formView-action">
                                                         <div class="form-action form-action--addToCart">

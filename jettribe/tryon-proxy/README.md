@@ -1,40 +1,34 @@
-# Nano Banana Virtual Try-On proxy
+# Virtual Try-On (free Hugging Face)
 
-The storefront Try It button uses **Nano Banana–style multi-image editing**:
+## What it uses
+Free **IDM-VTON** via the public Gradio Space `yisol-idm-vton.hf.space` (ZeroGPU).  
+This is the working free path — the model is not a simple `api-inference.huggingface.co` endpoint.
 
-1. Shopper photo (image 1)
-2. Product gallery photos (images 2+)
-3. Prompt: dress the person in the exact product on a white full-body background
+## Theme files
+| File | Role |
+|------|------|
+| `templates/components/products/try-on-button.html` | Button near Add to Cart |
+| `templates/components/products/try-on-modal.html` | Modal UI |
+| `templates/components/products/product-view-actions.html` | Includes the button |
+| `templates/components/products/product-view.html` | Sticky ATC also includes the button |
+| `templates/components/common/body.html` | Includes the modal once |
+| `assets/js/theme/common/virtual-tryon.js` | Logic + HF Gradio `fetch` |
+| `assets/scss/beautify/_tryon.scss` | Styles |
 
-## Options
-
-### A) Google Gemini (recommended — direct from theme)
-
-Theme Editor → **API key** = your Gemini API key from Google AI Studio  
-(`AQ.…` or `AIza…`). The theme calls `gemini-2.5-flash-image` (Nano Banana) in the browser.
-
-**Billing required for image generation.** Free-tier image quota is often `0` — enable billing on the Google Cloud / AI Studio project that owns the key, then retry.
-
-### B) fal.ai (direct from theme)
-
-Theme Editor → **API key** = your key for `fal-ai/nano-banana-2/edit`  
-Requires fal credits: https://fal.ai/dashboard/billing
-
-### C) Proxy (hides keys)
-
-This Cloudflare Worker can use:
-
-- `GEMINI_API_KEY` → Google `gemini-2.5-flash-image` (Nano Banana)
-- or `FAL_KEY` → fal Nano Banana 2 Edit
-
-```bash
-npm i -g wrangler
-wrangler secret put GEMINI_API_KEY
-wrangler deploy
+## Product image (Handlebars)
+On the button:
+```handlebars
+data-product-image="{{getImage product.main_image 'original' (cdn theme_settings.default_image_product)}}"
 ```
+JS also syncs the live gallery image and prefers studio/mannequin shots.
 
-Then set Theme Editor → **Proxy URL** to the worker URL.
+## Setup (Theme Editor)
+1. Upload the theme zip (or `stencil push`).
+2. **Storefront → Themes → Customize → Virtual Try-On**
+3. Enable **Try it On AI**
+4. (Recommended) Paste a **free** HF token from https://huggingface.co/settings/tokens  
+   → field **Hugging Face token**
+5. Save & publish
 
-## Removed
-
-Hugging Face IDM-VTON public queues (caused “Free AI queue was busy”).
+## Limits
+Free ZeroGPU queues get busy. Errors show a friendly message to retry or add an HF token.

@@ -13,8 +13,12 @@ import {
   AlertTriangle,
   CheckCircle2,
   FileText,
+  Presentation,
+  ScrollText,
+  ArrowRight,
 } from "lucide-react";
 import MatrixUploader, { type SheetEmbedInfo } from "@/components/MatrixUploader";
+import GuideUploader from "@/components/GuideUploader";
 import { downloadBlob, downloadFromApi, slugify } from "@/lib/download";
 import { inferTopic } from "@/lib/matrix-utils";
 import { TEMPLATES, paperToHtml, paperToLatex, paperToMarkdown } from "@/lib/templates";
@@ -28,9 +32,19 @@ import type {
   JournalTemplateId,
   MatrixRow,
   PipelineStage,
+  ResearchPresentation,
+  ResearchProposal,
   SurveyPaper,
   TaxonomyStyle,
+  UploadedGuide,
+  WorkflowStep,
 } from "@/lib/types";
+
+const WORKFLOW_STEPS: { id: WorkflowStep; label: string; hint: string }[] = [
+  { id: "survey", label: "1 · Survey paper", hint: "Write the survey from your matrix" },
+  { id: "proposal", label: "2 · Research proposal", hint: "Upload template + guidelines" },
+  { id: "presentation", label: "3 · Presentation", hint: "Upload slide template" },
+];
 
 const TAXONOMY_STYLES: { id: TaxonomyStyle; label: string; hint: string }[] = [
   { id: "scientific", label: "Scientific", hint: "Multi-axis: phenomena, mechanisms, methods, evidence" },
@@ -93,8 +107,27 @@ export default function Studio() {
     "formatted"
   );
   const [generating, setGenerating] = useState(false);
-  const [exporting, setExporting] = useState<"pdf" | "docx" | null>(null);
+  const [exporting, setExporting] = useState<"pdf" | "docx" | "proposal" | "pptx" | null>(null);
   const [isInsecureHttp, setIsInsecureHttp] = useState(false);
+
+  /** Sequential product wizard — survey first, then proposal, then presentation */
+  const [workflowStep, setWorkflowStep] = useState<WorkflowStep>("survey");
+  const [proposal, setProposal] = useState<ResearchProposal | null>(null);
+  const [presentation, setPresentation] = useState<ResearchPresentation | null>(null);
+  const [proposalTemplate, setProposalTemplate] = useState<UploadedGuide | null>(null);
+  const [proposalGuidelines, setProposalGuidelines] = useState<UploadedGuide | null>(null);
+  const [presentationTemplate, setPresentationTemplate] = useState<UploadedGuide | null>(null);
+  const [generatingProposal, setGeneratingProposal] = useState(false);
+  const [generatingPresentation, setGeneratingPresentation] = useState(false);
+
+  function clearDownstreamArtifacts() {
+    setProposal(null);
+    setPresentation(null);
+    setProposalTemplate(null);
+    setProposalGuidelines(null);
+    setPresentationTemplate(null);
+    setWorkflowStep("survey");
+  }
 
   useEffect(() => {
     const host = window.location.hostname;
@@ -114,9 +147,12 @@ export default function Studio() {
     setWarnings([]);
     setReview(null);
     setDocumentQc(null);
+    // Always rewrite the survey from scratch, and invalidate proposal/presentation
     setPaper(null);
+    clearDownstreamArtifacts();
     setGenerating(true);
     setStage("discovering");
+    setWorkflowStep("survey");
 
     const timers = [
       setTimeout(() => setStage("outlining"), 700),
@@ -161,12 +197,86 @@ export default function Studio() {
       setDocumentQc(data.documentQc || null);
       setStage("done");
       setPreviewMode("formatted");
+      setWorkflowStep("survey");
     } catch (err) {
       setStage("error");
       setError(err instanceof Error ? err.message : "Generation failed");
     } finally {
       timers.forEach(clearTimeout);
       setGenerating(false);
+    }
+  }
+
+  async function runProposal() {
+    if (!paper) {
+      setError("Generate the survey paper first.");
+      return;
+    }
+    if (!proposalTemplate && !proposalGuidelines) {
+      setError("Upload a proposal template and/or proposal guidelines.");
+      return;
+    }
+    setError(null);
+    setGeneratingProposal(true);
+    setProposal(null);
+    setPresentation(null);
+    setPresentationTemplate(null);
+    try {
+      const res = await fetch("/api/generate-proposal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          paper,
+          rows,
+          templateGuide: proposalTemplate,
+          guidelinesGuide: proposalGuidelines,
+          authorName,
+          topic: topic || suggestedTopic,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Proposal generation failed");
+      setProposal(data.proposal);
+      setWorkflowStep("proposal");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Proposal generation failed");
+    } finally {
+      setGeneratingProposal(false);
+    }
+  }
+
+  async function runPresentation() {
+    if (!paper) {
+      setError("Generate the survey paper first.");
+      return;
+    }
+    if (!presentationTemplate) {
+      setError("Upload a presentation template first.");
+      return;
+    }
+    setError(null);
+    setGeneratingPresentation(true);
+    setPresentation(null);
+    try {
+      const res = await fetch("/api/generate-presentation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          paper,
+          proposal,
+          templateGuide: presentationTemplate,
+          authorName,
+          topic: topic || suggestedTopic,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Presentation generation failed");
+      setPresentation(data.presentation);
+      setWorkflowStep("presentation");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Presentation generation failed");
+    } finally {
+      setGeneratingPresentation(false);
     }
   }
 
@@ -200,6 +310,40 @@ export default function Studio() {
     }
   }
 
+  async function exportProposalDocx() {
+    if (!proposal) return;
+    setExporting("proposal");
+    setError(null);
+    try {
+      await downloadFromApi(
+        "/api/export-proposal-docx",
+        { proposal },
+        `${slugify(proposal.title)}.docx`
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Proposal Word export failed");
+    } finally {
+      setExporting(null);
+    }
+  }
+
+  async function exportPptx() {
+    if (!presentation) return;
+    setExporting("pptx");
+    setError(null);
+    try {
+      await downloadFromApi(
+        "/api/export-pptx",
+        { presentation },
+        `${slugify(presentation.title)}.pptx`
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "PPTX export failed");
+    } finally {
+      setExporting(null);
+    }
+  }
+
   return (
     <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-6 sm:px-6 lg:px-8">
       {isInsecureHttp && (
@@ -213,21 +357,21 @@ export default function Studio() {
         <div>
           <div className="mb-4 inline-flex items-center gap-2 text-sm text-[var(--sea)]">
             <Sparkles className="h-4 w-4" />
-            Synthesis matrix → journal-ready survey draft
+            Survey → research proposal → presentation
           </div>
           <h1 className="brand-display text-5xl leading-[0.95] text-[var(--ink)] sm:text-6xl md:text-7xl">
             SurveyForge
           </h1>
           <p className="serif mt-5 max-w-xl text-lg leading-relaxed text-[var(--muted)]">
-            Upload your synthesis matrix. We draft a high-impact survey structure—taxonomy, problem
-            diagram, comparison tables, challenges map, and trends–gaps Venn—then discover literature,
-            humanize prose, and format to IEEE/ACM and other journal styles.
+            First forge the survey from your synthesis matrix. Then upload proposal templates and
+            guidelines to draft the research proposal. Finally upload a presentation template for
+            slides. Every new matrix feed rewrites the paper from scratch.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
-            <span className="chip">Taxonomy + problem diagram</span>
-            <span className="chip">Comparison &amp; challenges tables</span>
-            <span className="chip">Trends–gaps Venn</span>
-            <span className="chip">IEEE · ACM · Springer · Elsevier</span>
+            <span className="chip">1 Survey paper</span>
+            <span className="chip">2 Research proposal</span>
+            <span className="chip">3 Presentation deck</span>
+            <span className="chip">Rewrite from scratch</span>
           </div>
         </div>
 
@@ -265,14 +409,70 @@ export default function Studio() {
               setFileName(name);
               setSheetEmbed(sheet ?? null);
               setTopic(inferred || inferTopic(parsed));
+              // New data → rewrite survey from scratch; drop proposal & presentation
               setPaper(null);
               setDiscovered([]);
               setQueries([]);
               setWarnings([]);
+              setReview(null);
+              setDocumentQc(null);
               setError(null);
               setStage("idle");
+              clearDownstreamArtifacts();
             }}
           />
+
+          <section className="panel rounded-2xl p-5">
+            <div className="mb-3 text-sm font-semibold">Workflow</div>
+            <ol className="space-y-2">
+              {WORKFLOW_STEPS.map((step) => {
+                const unlocked =
+                  step.id === "survey" ||
+                  (step.id === "proposal" && !!paper && stage === "done") ||
+                  (step.id === "presentation" && !!proposal);
+                const complete =
+                  (step.id === "survey" && !!paper && stage === "done") ||
+                  (step.id === "proposal" && !!proposal) ||
+                  (step.id === "presentation" && !!presentation);
+                const active = workflowStep === step.id;
+                return (
+                  <li key={step.id}>
+                    <button
+                      type="button"
+                      disabled={!unlocked}
+                      onClick={() => setWorkflowStep(step.id)}
+                      className={`flex w-full items-start gap-3 rounded-lg border px-3 py-2 text-left text-sm transition ${
+                        active
+                          ? "border-[var(--sea)] bg-[var(--foam)]"
+                          : unlocked
+                            ? "border-[var(--line)] bg-white hover:border-[var(--sea)]"
+                            : "cursor-not-allowed border-[var(--line)] bg-[var(--mist)] opacity-60"
+                      }`}
+                    >
+                      <span
+                        className={`mt-0.5 stage-dot ${complete ? "done" : ""} ${active ? "active" : ""}`}
+                      />
+                      <span>
+                        <span
+                          className={
+                            active ? "font-semibold text-[var(--ink)]" : "text-[var(--muted)]"
+                          }
+                        >
+                          {step.label}
+                        </span>
+                        <span className="mt-0.5 block text-[11px] text-[var(--muted)]">
+                          {step.hint}
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+            <p className="mt-3 text-[11px] leading-snug text-[var(--muted)]">
+              Finish the survey, then unlock proposal uploads, then the presentation template.
+            </p>
+          </section>
 
           <section className="panel rise rise-delay-2 rounded-2xl p-5 space-y-3">
             <div className="flex items-center gap-2 font-semibold">
@@ -450,15 +650,19 @@ export default function Studio() {
               {generating ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Forging survey…
+                  Forging survey from scratch…
                 </>
               ) : (
                 <>
                   <BookOpen className="h-4 w-4" />
-                  Generate survey paper
+                  {paper ? "Rewrite survey from scratch" : "Generate survey paper"}
                 </>
               )}
             </button>
+            <p className="text-[11px] leading-snug text-[var(--muted)]">
+              Regenerating always rebuilds the survey from scratch and clears any proposal or
+              presentation built from the previous draft.
+            </p>
           </section>
 
           <section className="panel rounded-2xl p-5">
@@ -738,6 +942,7 @@ export default function Studio() {
                 </section>
               )}
 
+              {(workflowStep === "survey" || !proposal) && (
               <section className="paper-shell rise overflow-hidden rounded-2xl">
                 {previewMode === "formatted" && (
                   <iframe
@@ -882,6 +1087,233 @@ export default function Studio() {
                   </div>
                 )}
               </section>
+              )}
+
+              {stage === "done" && (
+                <section className="panel rounded-2xl p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2 text-sm text-[var(--sea)]">
+                        <ScrollText className="h-4 w-4" />
+                        Next: research proposal
+                      </div>
+                      <h3 className="brand-display mt-1 text-2xl">Upload proposal materials</h3>
+                      <p className="mt-1 text-sm text-[var(--muted)]">
+                        Survey is ready. Upload your proposal template and/or guidelines so we can
+                        draft a fresh research proposal from this survey.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => setWorkflowStep("proposal")}
+                    >
+                      Open proposal step
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  {(workflowStep === "proposal" || workflowStep === "presentation" || proposal) && (
+                    <div className="mt-4 space-y-3">
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <GuideUploader
+                          label="Proposal template"
+                          hint="DOCX / PDF / TXT / MD — section structure for the proposal"
+                          accept=".docx,.pdf,.txt,.md,.markdown,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown"
+                          kind="template"
+                          guide={proposalTemplate}
+                          onUploaded={setProposalTemplate}
+                          onError={(m) => setError(m || null)}
+                        />
+                        <GuideUploader
+                          label="Proposal guidelines"
+                          hint="Agency or university rules, page limits, required sections"
+                          accept=".docx,.pdf,.txt,.md,.markdown,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown"
+                          kind="guidelines"
+                          guide={proposalGuidelines}
+                          onUploaded={setProposalGuidelines}
+                          onError={(m) => setError(m || null)}
+                        />
+                      </div>
+                      <button
+                        className="btn btn-primary w-full sm:w-auto"
+                        disabled={
+                          generatingProposal || (!proposalTemplate && !proposalGuidelines)
+                        }
+                        onClick={() => void runProposal()}
+                      >
+                        {generatingProposal ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Writing proposal from scratch…
+                          </>
+                        ) : (
+                          <>
+                            <ScrollText className="h-4 w-4" />
+                            {proposal ? "Rewrite proposal from scratch" : "Generate research proposal"}
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </section>
+              )}
+
+              {proposal && (
+                <section className="panel rounded-2xl p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2 text-sm text-[var(--ok)]">
+                        <CheckCircle2 className="h-4 w-4" />
+                        Proposal ready · rewritten from scratch
+                      </div>
+                      <h3 className="brand-display mt-1 text-2xl">{proposal.title}</h3>
+                      <p className="text-xs text-[var(--muted)]">
+                        From survey “{proposal.metadata.surveyTitle}”
+                        {proposal.metadata.templateFileName
+                          ? ` · Template ${proposal.metadata.templateFileName}`
+                          : ""}
+                        {proposal.metadata.guidelinesFileName
+                          ? ` · Guidelines ${proposal.metadata.guidelinesFileName}`
+                          : ""}
+                      </p>
+                    </div>
+                    <button
+                      className="btn btn-primary"
+                      disabled={!!exporting}
+                      onClick={() => void exportProposalDocx()}
+                    >
+                      {exporting === "proposal" ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Download className="h-4 w-4" />
+                      )}
+                      Proposal Word
+                    </button>
+                  </div>
+                  <div className="scroll-thin mt-4 max-h-[50vh] space-y-4 overflow-auto rounded-xl border border-[var(--line)] bg-white p-4 text-sm">
+                    <div>
+                      <h4 className="font-semibold">Abstract</h4>
+                      <p className="mt-1 leading-relaxed text-[var(--muted)]">{proposal.abstract}</p>
+                    </div>
+                    {proposal.sections.map((s) => (
+                      <div key={s.id}>
+                        <h4 className="font-semibold">{s.heading}</h4>
+                        <p className="mt-1 leading-relaxed text-[var(--muted)]">{s.content}</p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {proposal && (
+                <section className="panel rounded-2xl p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2 text-sm text-[var(--sea)]">
+                        <Presentation className="h-4 w-4" />
+                        Next: presentation
+                      </div>
+                      <h3 className="brand-display mt-1 text-2xl">Upload presentation template</h3>
+                      <p className="mt-1 text-sm text-[var(--muted)]">
+                        Proposal is ready. Upload a PPTX/DOCX/PDF/TXT template so we can build slides
+                        from the survey and proposal.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => setWorkflowStep("presentation")}
+                    >
+                      Open presentation step
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  {(workflowStep === "presentation" || presentation) && (
+                    <div className="mt-4 space-y-3">
+                      <GuideUploader
+                        label="Presentation template"
+                        hint="PPTX preferred — we read slide structure cues and generate a new deck"
+                        accept=".pptx,.docx,.pdf,.txt,.md,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/pdf,text/plain"
+                        kind="template"
+                        guide={presentationTemplate}
+                        onUploaded={setPresentationTemplate}
+                        onError={(m) => setError(m || null)}
+                      />
+                      <button
+                        className="btn btn-primary w-full sm:w-auto"
+                        disabled={generatingPresentation || !presentationTemplate}
+                        onClick={() => void runPresentation()}
+                      >
+                        {generatingPresentation ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Building presentation from scratch…
+                          </>
+                        ) : (
+                          <>
+                            <Presentation className="h-4 w-4" />
+                            {presentation
+                              ? "Rewrite presentation from scratch"
+                              : "Generate presentation"}
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </section>
+              )}
+
+              {presentation && (
+                <section className="panel rounded-2xl p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2 text-sm text-[var(--ok)]">
+                        <CheckCircle2 className="h-4 w-4" />
+                        Presentation ready · {presentation.slides.length} slides
+                      </div>
+                      <h3 className="brand-display mt-1 text-2xl">{presentation.title}</h3>
+                      <p className="text-xs text-[var(--muted)]">
+                        {presentation.subtitle}
+                        {presentation.metadata.templateFileName
+                          ? ` · Template ${presentation.metadata.templateFileName}`
+                          : ""}
+                      </p>
+                    </div>
+                    <button
+                      className="btn btn-primary"
+                      disabled={!!exporting}
+                      onClick={() => void exportPptx()}
+                    >
+                      {exporting === "pptx" ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Download className="h-4 w-4" />
+                      )}
+                      Download PPTX
+                    </button>
+                  </div>
+                  <div className="scroll-thin mt-4 grid max-h-[50vh] gap-3 overflow-auto md:grid-cols-2">
+                    {presentation.slides.map((slide, i) => (
+                      <div
+                        key={slide.id}
+                        className="rounded-xl border border-[var(--line)] bg-white px-3 py-3 text-sm"
+                      >
+                        <div className="text-[11px] font-medium uppercase tracking-wide text-[var(--muted)]">
+                          Slide {i + 1} · {slide.kind}
+                        </div>
+                        <div className="mt-1 font-semibold">{slide.title}</div>
+                        <ul className="mt-2 list-disc space-y-1 pl-4 text-[var(--muted)]">
+                          {slide.bullets.map((b) => (
+                            <li key={b.slice(0, 40)}>{b}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
             </>
           )}
         </main>

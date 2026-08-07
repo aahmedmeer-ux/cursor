@@ -14,7 +14,8 @@ export default function Home() {
       </nav>
       <Studio />
       <footer className="mt-auto border-t border-[var(--line)]/70 px-4 py-6 text-center text-xs text-[var(--muted)]">
-        SurveyForge drafts are research assistants — verify sources, originality, and venue rules before submission.
+        SurveyForge drafts survey papers, research proposals, and presentations — verify sources,
+        originality, and venue rules before submission.
       </footer>
     </div>
   );

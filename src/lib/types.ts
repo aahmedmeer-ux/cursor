@@ -155,3 +155,73 @@ export type PipelineStage =
   | "documentQc"
   | "done"
   | "error";
+
+/** Top-level product wizard: survey → proposal → presentation */
+export type WorkflowStep = "survey" | "proposal" | "presentation";
+
+export type UploadedGuide = {
+  fileName: string;
+  kind: "template" | "guidelines" | "notes";
+  mimeType: string;
+  text: string;
+  /** For PPTX/DOCX we keep a short structure summary extracted from the file */
+  structureNotes?: string[];
+  byteLength: number;
+};
+
+export type ProposalSection = {
+  id: string;
+  heading: string;
+  level: 1 | 2 | 3;
+  content: string;
+};
+
+export type ResearchProposal = {
+  title: string;
+  authorsPlaceholder: string;
+  abstract: string;
+  sections: ProposalSection[];
+  references: ReferenceEntry[];
+  metadata: {
+    generatedAt: string;
+    topic: string;
+    surveyTitle: string;
+    templateFileName?: string;
+    guidelinesFileName?: string;
+    rewrittenFromScratch: true;
+  };
+};
+
+export type PresentationSlide = {
+  id: string;
+  title: string;
+  bullets: string[];
+  notes?: string;
+  kind:
+    | "title"
+    | "agenda"
+    | "motivation"
+    | "gap"
+    | "objectives"
+    | "method"
+    | "taxonomy"
+    | "results"
+    | "contribution"
+    | "timeline"
+    | "closing";
+};
+
+export type ResearchPresentation = {
+  title: string;
+  subtitle: string;
+  authorsPlaceholder: string;
+  slides: PresentationSlide[];
+  metadata: {
+    generatedAt: string;
+    topic: string;
+    surveyTitle: string;
+    proposalTitle?: string;
+    templateFileName?: string;
+    rewrittenFromScratch: true;
+  };
+};

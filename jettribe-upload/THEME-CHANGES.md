@@ -29,6 +29,30 @@ The Drive folder is **source**, not a ready Control Panel zip. It must be packag
 
 Both zips ship with **`schema.json` minified under 64 KB** (Stencil pretty-prints it to ~106 KB, which BigCommerce rejects).
 
+## Virtual Try-On (Try It)
+
+On product pages, a **Try It** button appears next to **Add to Cart**.
+
+1. Shopper clicks **Try It**
+2. Uploads a full-body photo
+3. AI returns a preview of the product on them
+
+### Enable / configure (Theme Editor → Virtual Try-On)
+- **Enable Try It button** — on by default
+- **Proxy URL (recommended)** — Cloudflare Worker URL that holds your fal.ai key
+- **fal.ai API key** — optional shortcut (key is visible in storefront HTML; use only for testing)
+
+### Deploy the proxy (recommended)
+```bash
+cd jettribe/tryon-proxy
+npm i -g wrangler
+wrangler secret put FAL_KEY   # paste your fal.ai key
+wrangler deploy
+```
+Paste the worker URL into **Proxy URL**, save theme, and re-apply if needed.
+
+Get a fal.ai key at https://fal.ai (model used: `fal-ai/image-apps-v2/virtual-try-on`).
+
 ## Done in this theme package
 
 1. **Popup** — Heading: `VIP Promotions Sign-Up`; image: Jettribe action photo (`nl-popup-jettribe.jpg`).

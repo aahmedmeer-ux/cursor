@@ -576,7 +576,12 @@
     "contact_url": "/contact-us/",
     "shipping_countdown": "12:00:00",
     "shipping_tz": "America/Los_Angeles",
-    "infiniteScroll": "no"
+    "infiniteScroll": "no",
+    "tryon_enable": true,
+    "tryon_button_label": "Try It",
+    "tryon_proxy_url": "",
+    "tryon_api_key": "",
+    "tryon_fal_endpoint": "https://fal.run/fal-ai/image-apps-v2/virtual-try-on"
   },
   "read_only_files": [
     "/assets/scss/components/citadel",

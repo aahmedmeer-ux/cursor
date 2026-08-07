@@ -17,6 +17,7 @@ import { loadPromoTicket, actionPromoTicket } from '../../dinosaur/coupon';
 import { listenQuantityBulkPricing, bulkPricingInfo } from '../../dinosaur/bulk-pricing';
 import SaleCountdown from '../../papathemes/sale-countdown';
 import ProductDesignTool from './product-design-integration';
+import VirtualTryOn from './virtual-tryon';
 
 const mediumMediaQueryList = mediaQueryListFactory('medium'); // papathemes-beautify
 const smallMediaQueryList = mediaQueryListFactory('small'); // papathemes-kitchenary
@@ -280,6 +281,7 @@ export default class ProductDetails {
 
         // papathemes-dinosaur
         this.designTool = new ProductDesignTool(this);
+        this.virtualTryOn = new VirtualTryOn(this);
 
         compareProducts(context);
     }

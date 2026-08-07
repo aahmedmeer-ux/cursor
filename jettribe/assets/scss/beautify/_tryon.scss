@@ -1,0 +1,190 @@
+// Virtual Try-On (PDP)
+.form-action--tryOn {
+    display: flex;
+    align-items: stretch;
+}
+
+.button--tryOn {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border: 1px solid #000000 !important;
+    font-weight: fontWeight("bold");
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    min-width: remCalc(120px);
+
+    &:hover,
+    &:focus,
+    &:active {
+        background-color: #C72E2E !important;
+        border-color: #C72E2E !important;
+        color: #ffffff !important;
+    }
+}
+
+.productView-qtyAtcWrapper .formView-action._designTools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: spacing("half");
+    align-items: stretch;
+
+    .form-action--tryOn,
+    .form-action--addToCart,
+    .form-action--designTool {
+        flex: 1 1 auto;
+    }
+
+    .button--tryOn,
+    .button--primary {
+        width: 100%;
+    }
+}
+
+.modal--tryOn {
+    .modal-body {
+        max-height: 80vh;
+        overflow: auto;
+    }
+}
+
+.tryOn {
+    color: #1a1a1a;
+}
+
+.tryOn-intro {
+    margin: 0 0 spacing("base");
+    font-size: fontSize("base");
+    line-height: 1.5;
+}
+
+.tryOn-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: spacing("single");
+    margin-bottom: spacing("base");
+
+    @media (max-width: (screenSize("medium") - 1px)) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.tryOn-panel-title {
+    margin: 0 0 spacing("half");
+    font-size: fontSize("base");
+    font-weight: fontWeight("bold");
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.tryOn-productPreview,
+.tryOn-userPreview,
+.tryOn-resultPreview {
+    background: #f3f3f3;
+    border: 1px solid #e5e5e5;
+    aspect-ratio: 3 / 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+}
+
+.tryOn-productTitle {
+    margin: spacing("half") 0 0;
+    font-size: fontSize("smaller");
+}
+
+.tryOn-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: spacing("half");
+    min-height: remCalc(280px);
+    padding: spacing("single");
+    border: 2px dashed #c7c7c7;
+    background: #fafafa;
+    cursor: pointer;
+    text-align: center;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+
+    &:hover,
+    &.is-dragover {
+        border-color: #C72E2E;
+        background: #fff5f5;
+    }
+}
+
+.tryOn-dropzone-text {
+    font-weight: fontWeight("bold");
+}
+
+.tryOn-dropzone-note {
+    font-size: fontSize("smaller");
+    color: #666;
+}
+
+.tryOn-userPreview {
+    position: relative;
+}
+
+.tryOn-changePhoto {
+    position: absolute;
+    right: spacing("half");
+    bottom: spacing("half");
+    background: rgba(0, 0, 0, 0.8) !important;
+    color: #fff !important;
+}
+
+.tryOn-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: spacing("base");
+
+    .tryOn-submit {
+        min-width: remCalc(160px);
+        background-color: #C72E2E !important;
+        color: #fff !important;
+        border: 0 !important;
+        text-transform: uppercase;
+        font-weight: fontWeight("bold");
+
+        &:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+    }
+}
+
+.tryOn-status {
+    padding: spacing("half") spacing("base");
+    margin-bottom: spacing("base");
+    background: #f5f5f5;
+    border-left: 3px solid #333;
+
+    &.is-loading {
+        border-left-color: #C72E2E;
+    }
+
+    &.is-error {
+        background: #fff1f1;
+        border-left-color: #C72E2E;
+        color: #8a1f1f;
+    }
+}
+
+.tryOn-resultActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: spacing("half");
+    margin-top: spacing("base");
+}
+
+.is-hidden {
+    display: none !important;
+}

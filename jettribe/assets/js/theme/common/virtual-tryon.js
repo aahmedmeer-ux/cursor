@@ -1,9 +1,11 @@
 /**
- * Virtual Try-On — generative AI fit (free via Hugging Face IDM-VTON Space).
+ * Virtual Try-On — generative AI fit (free via Hugging Face IDM-VTON).
  *
- * Uploads the shopper photo + product image to the public IDM-VTON demo
- * (ZeroGPU, no API key / no paid credits) and shows the real try-on result.
- * This is NOT a simple image overlay.
+ * Improves product fidelity by:
+ *  - Loading ALL product gallery images
+ *  - Scoring / letting shoppers pick the best garment reference
+ *  - Building a style prompt from title + colors across the gallery
+ *  - Preparing a cleaned, torso-focused garment reference image
  *
  * Modal MUST open with { pending: false, clearContent: false }.
  */
@@ -11,12 +13,21 @@ import $ from 'jquery';
 import modalFactory, { ModalEvents } from '../global/modal';
 
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
-const MAX_EDGE = 768;
-const TRYON_TIMEOUT_MS = 180000;
+const MAX_EDGE = 896;
+const TRYON_TIMEOUT_MS = 210000;
+const DENOISE_STEPS = 30;
 
-/** Free public Gradio Spaces that implement IDM-VTON-compatible /tryon */
 const TRYON_HOSTS = [
     'yisol-idm-vton.hf.space',
+];
+
+const BRAND_STYLE_HINTS = [
+    'Jettribe',
+    'competition race PFD life vest',
+    'technical watersports apparel',
+    'preserve exact brand lettering logos color panels straps buckles and stitching from the garment photo',
+    'fit the vest naturally on the upper body chest and shoulders',
+    'do not invent a different vest design',
 ];
 
 function isTruthy(value) {
@@ -41,7 +52,7 @@ function loadImage(src, useCors = true) {
     });
 }
 
-function canvasToBlob(canvas, type = 'image/jpeg', quality = 0.92) {
+function canvasToBlob(canvas, type = 'image/jpeg', quality = 0.94) {
     return new Promise((resolve, reject) => {
         canvas.toBlob((blob) => {
             if (blob) resolve(blob);
@@ -50,7 +61,215 @@ function canvasToBlob(canvas, type = 'image/jpeg', quality = 0.92) {
     });
 }
 
-/** Downscale large photos so free GPU demos finish faster. */
+function rgbToHex(r, g, b) {
+    const h = (n) => n.toString(16).padStart(2, '0');
+    return `#${h(r)}${h(g)}${h(b)}`;
+}
+
+function colorNameHint(r, g, b) {
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    if (max < 40) return 'black';
+    if (min > 220) return 'white';
+    if (max - min < 25) return r > 160 ? 'light gray' : 'gray';
+    if (b > r + 25 && b > g + 10) return b > 180 && g > 140 ? 'aqua blue' : 'blue';
+    if (r > g + 40 && r > b + 40) return 'red';
+    if (g > r + 30 && g > b + 20) return 'green';
+    if (r > 180 && g > 140 && b < 100) return 'gold';
+    if (r > 150 && g > 100 && b < 90) return 'tan';
+    return null;
+}
+
+/**
+ * Sample dominant non-background colors from an image (for style prompt).
+ */
+function extractPalette(img, limit = 4) {
+    const canvas = document.createElement('canvas');
+    const size = 64;
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    try {
+        ctx.drawImage(img, 0, 0, size, size);
+        const { data } = ctx.getImageData(0, 0, size, size);
+        const buckets = new Map();
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            // Skip near-white / near-black studio extremes lightly
+            if ((r > 245 && g > 245 && b > 245) || (r < 12 && g < 12 && b < 12)) continue;
+            const key = `${r >> 4},${g >> 4},${b >> 4}`;
+            const prev = buckets.get(key) || { n: 0, r: 0, g: 0, b: 0 };
+            prev.n += 1;
+            prev.r += r;
+            prev.g += g;
+            prev.b += b;
+            buckets.set(key, prev);
+        }
+        return [...buckets.values()]
+            .sort((a, b) => b.n - a.n)
+            .slice(0, limit)
+            .map((c) => {
+                const r = Math.round(c.r / c.n);
+                const g = Math.round(c.g / c.n);
+                const b = Math.round(c.b / c.n);
+                return {
+                    hex: rgbToHex(r, g, b),
+                    name: colorNameHint(r, g, b),
+                    r,
+                    g,
+                    b,
+                    weight: c.n,
+                };
+            });
+    } catch (e) {
+        return [];
+    }
+}
+
+/**
+ * Score how suitable an image is as a garment reference for VTON.
+ * Prefers torso-centered product shots over wide lifestyle/action scenes.
+ */
+function scoreGarmentImage(img) {
+    const w = img.naturalWidth || img.width;
+    const h = img.naturalHeight || img.height;
+    if (!w || !h) return { score: 0, palette: [] };
+
+    let score = 50;
+    const aspect = w / h;
+    // Prefer portrait / near-square product frames
+    if (aspect >= 0.65 && aspect <= 1.15) score += 18;
+    else if (aspect > 1.4) score -= 18; // wide action shots
+    else if (aspect < 0.55) score -= 6;
+
+    const canvas = document.createElement('canvas');
+    const sw = 48;
+    const sh = 64;
+    canvas.width = sw;
+    canvas.height = sh;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    let palette = [];
+    try {
+        ctx.drawImage(img, 0, 0, sw, sh);
+        const { data } = ctx.getImageData(0, 0, sw, sh);
+        palette = extractPalette(img, 5);
+
+        // Corner brightness vs center — studio/product shots often have quieter corners
+        const sampleAvg = (x0, y0, x1, y1) => {
+            let s = 0;
+            let n = 0;
+            for (let y = y0; y < y1; y += 1) {
+                for (let x = x0; x < x1; x += 1) {
+                    const i = (y * sw + x) * 4;
+                    s += (data[i] + data[i + 1] + data[i + 2]) / 3;
+                    n += 1;
+                }
+            }
+            return n ? s / n : 0;
+        };
+        const corner = (
+            sampleAvg(0, 0, 8, 8)
+            + sampleAvg(sw - 8, 0, sw, 8)
+            + sampleAvg(0, sh - 8, 8, sh)
+            + sampleAvg(sw - 8, sh - 8, sw, sh)
+        ) / 4;
+        const center = sampleAvg(14, 16, 34, 48);
+        if (Math.abs(corner - center) > 35) score += 8;
+        // Penalize very busy frames (high variance)
+        let sum = 0;
+        let sum2 = 0;
+        const total = sw * sh;
+        for (let i = 0; i < data.length; i += 4) {
+            const v = (data[i] + data[i + 1] + data[i + 2]) / 3;
+            sum += v;
+            sum2 += v * v;
+        }
+        const mean = sum / total;
+        const variance = sum2 / total - mean * mean;
+        if (variance > 5500) score -= 10;
+        if (variance < 1800) score += 4;
+    } catch (e) {
+        score -= 5;
+    }
+
+    return { score, palette, width: w, height: h };
+}
+
+/**
+ * Crop toward the torso / center and drop corner badges (e.g. LIMITED STOCK).
+ */
+function prepareGarmentCanvas(img) {
+    const w = img.naturalWidth || img.width;
+    const h = img.naturalHeight || img.height;
+    // Trim outer 8% to drop corner banners; keep upper-mid bias for vests
+    const x0 = Math.floor(w * 0.08);
+    const x1 = Math.floor(w * 0.92);
+    const y0 = Math.floor(h * 0.04);
+    const y1 = Math.floor(h * 0.88);
+    const cw = Math.max(1, x1 - x0);
+    const ch = Math.max(1, y1 - y0);
+
+    const scale = Math.min(1, MAX_EDGE / Math.max(cw, ch));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(cw * scale));
+    canvas.height = Math.max(1, Math.round(ch * scale));
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, x0, y0, cw, ch, 0, 0, canvas.width, canvas.height);
+    return canvas;
+}
+
+/**
+ * Build a multi-view style reference: large primary garment + 2–3 secondary
+ * product views. Helps the model lock onto Jettribe color/logo trends.
+ */
+async function buildStyleMatchedGarmentBlob(primaryImg, secondaryImgs) {
+    const primary = prepareGarmentCanvas(primaryImg);
+    const extras = [];
+    for (let i = 0; i < secondaryImgs.length && extras.length < 3; i += 1) {
+        try {
+            extras.push(prepareGarmentCanvas(secondaryImgs[i]));
+        } catch (e) {
+            // skip
+        }
+    }
+
+    if (!extras.length) {
+        return canvasToBlob(primary);
+    }
+
+    const stripH = Math.round(primary.height * 0.28);
+    const canvas = document.createElement('canvas');
+    canvas.width = primary.width;
+    canvas.height = primary.height + stripH + 4;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(primary, 0, 0);
+
+    const gap = 4;
+    const cellW = Math.floor((canvas.width - gap * (extras.length - 1)) / extras.length);
+    extras.forEach((ex, idx) => {
+        const dx = idx * (cellW + gap);
+        const dy = primary.height + 4;
+        // cover-fit each secondary into its cell
+        const scale = Math.max(cellW / ex.width, stripH / ex.height);
+        const dw = ex.width * scale;
+        const dh = ex.height * scale;
+        const sx = (dw - cellW) / 2;
+        const sy = (dh - stripH) / 2;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(dx, dy, cellW, stripH);
+        ctx.clip();
+        ctx.drawImage(ex, dx - sx, dy - sy, dw, dh);
+        ctx.restore();
+    });
+
+    return canvasToBlob(canvas);
+}
+
 async function imageSourceToJpegBlob(src, maxEdge = MAX_EDGE) {
     const img = await loadImage(src, src.indexOf('data:') !== 0);
     const w = img.naturalWidth || img.width;
@@ -64,7 +283,6 @@ async function imageSourceToJpegBlob(src, maxEdge = MAX_EDGE) {
     try {
         return await canvasToBlob(canvas);
     } catch (e) {
-        // Tainted canvas — fall back to fetch for http(s) URLs
         if (typeof src === 'string' && /^https?:/i.test(src)) {
             const res = await fetch(src);
             if (!res.ok) throw new Error(`garment_fetch_${res.status}`);
@@ -76,6 +294,34 @@ async function imageSourceToJpegBlob(src, maxEdge = MAX_EDGE) {
         }
         throw e;
     }
+}
+
+function buildGarmentDescription(title, palettes) {
+    const parts = [];
+    const cleanTitle = String(title || '').replace(/\s+/g, ' ').trim();
+    if (cleanTitle) {
+        parts.push(`exact product: ${cleanTitle}`);
+    }
+
+    const names = [];
+    const hexes = [];
+    (palettes || []).forEach((p) => {
+        (p || []).forEach((c) => {
+            if (c.name && names.indexOf(c.name) === -1) names.push(c.name);
+            if (c.hex && hexes.indexOf(c.hex) === -1) hexes.push(c.hex);
+        });
+    });
+    if (names.length) {
+        parts.push(`product colors: ${names.slice(0, 5).join(', ')}`);
+    }
+    if (hexes.length) {
+        parts.push(`palette ${hexes.slice(0, 5).join(' ')}`);
+    }
+
+    parts.push(...BRAND_STYLE_HINTS);
+
+    // IDM-VTON description field is a short text prompt — keep under ~400 chars
+    return parts.join('. ').slice(0, 420);
 }
 
 async function uploadToSpace(host, blob, filename) {
@@ -106,7 +352,6 @@ function parseSseComplete(text) {
             throw new Error(`provider_error:${(errLine || '').slice(5).trim().slice(0, 200)}`);
         }
         if (block.indexOf('event: complete') === -1 && i !== blocks.length - 1) {
-            // Prefer explicit complete; last data block as fallback
             continue;
         }
         const dataLine = block.split('\n').filter((l) => l.indexOf('data:') === 0).pop();
@@ -124,13 +369,11 @@ function parseSseComplete(text) {
             if (typeof first === 'string' && /^https?:/i.test(first)) return first;
             if (first && first.url) return first.url;
             if (first && first.path && typeof first.path === 'string') {
-                // Relative gradio path — caller will absolutize
                 return first.url || first.path;
             }
         }
         if (payload && payload.url) return payload.url;
     }
-    // Fallback: any data array with url
     for (let i = blocks.length - 1; i >= 0; i -= 1) {
         const dataLine = (blocks[i] || '').split('\n').filter((l) => l.indexOf('data:') === 0).pop();
         if (!dataLine) continue;
@@ -158,10 +401,10 @@ async function callIdmVton(host, personPath, garmentPath, description, signal) {
                     composite: null,
                 },
                 { path: garmentPath, meta: { _type: 'gradio.FileData' } },
-                description || 'apparel',
+                description || 'Jettribe apparel',
                 true, // auto-masking
-                false, // crop
-                20, // denoise steps (faster on free GPU)
+                true, // crop person for better upper-body fit
+                DENOISE_STEPS,
                 Math.floor(Math.random() * 1e9),
             ],
         }),
@@ -188,31 +431,33 @@ async function callIdmVton(host, personPath, garmentPath, description, signal) {
     if (resultUrl.indexOf('http') === 0) {
         return resultUrl;
     }
-    // Absolute file URL on the space
     if (resultUrl.indexOf('/file=') === 0 || resultUrl.indexOf('/tmp/') === 0) {
         return `https://${host}/file=${resultUrl.replace(/^\/file=/, '')}`;
     }
     return `https://${host}/file=${resultUrl}`;
 }
 
-async function runGenerativeTryOn({ personDataUrl, garmentUrl, description, signal, onStatus }) {
-    if (onStatus) onStatus('Preparing photos…');
-    const [personBlob, garmentBlob] = await Promise.all([
-        imageSourceToJpegBlob(personDataUrl),
-        imageSourceToJpegBlob(garmentUrl),
-    ]);
+async function runGenerativeTryOn({
+    personDataUrl,
+    garmentBlob,
+    description,
+    signal,
+    onStatus,
+}) {
+    if (onStatus) onStatus('Preparing photos for exact product match…');
+    const personBlob = await imageSourceToJpegBlob(personDataUrl);
 
     let lastError;
     for (let i = 0; i < TRYON_HOSTS.length; i += 1) {
         const host = TRYON_HOSTS[i];
         try {
-            if (onStatus) onStatus('Uploading to free AI try-on…');
+            if (onStatus) onStatus('Uploading product style + your photo…');
             const [personPath, garmentPath] = await Promise.all([
                 uploadToSpace(host, personBlob, 'person.jpg'),
                 uploadToSpace(host, garmentBlob, 'garment.jpg'),
             ]);
             if (onStatus) {
-                onStatus('AI is fitting the product on you… usually 20–60 seconds (free).');
+                onStatus('AI is fitting this exact Jettribe product on you… usually 20–60 seconds.');
             }
             return await callIdmVton(host, personPath, garmentPath, description, signal);
         } catch (err) {
@@ -242,6 +487,9 @@ export default class VirtualTryOn {
         }
 
         this.userImageDataUrl = null;
+        this.productImages = [];
+        this.selectedGarmentUrl = '';
+        this.imageMeta = {}; // url -> { score, palette }
         this.modal = null;
         this.$root = null;
         this.opening = false;
@@ -340,7 +588,7 @@ export default class VirtualTryOn {
 
         this.resetState();
         this.populateProductPreviewSync();
-        this.populateProductPreview();
+        this.loadProductStyleLibrary();
 
         modal.open({
             size: 'large',
@@ -392,6 +640,14 @@ export default class VirtualTryOn {
             $file.trigger('click');
         });
 
+        $root.on('click', '[data-tryon-garment-thumb]', (e) => {
+            e.preventDefault();
+            const url = $(e.currentTarget).attr('data-url');
+            if (url) {
+                this.selectGarment(url);
+            }
+        });
+
         $root.on('click', '[data-tryon-submit]', (e) => {
             e.preventDefault();
             this.runTryOn();
@@ -401,7 +657,7 @@ export default class VirtualTryOn {
             e.preventDefault();
             this.resetState(false);
             this.populateProductPreviewSync();
-            this.populateProductPreview();
+            this.renderGarmentThumbs();
         });
     }
 
@@ -422,69 +678,49 @@ export default class VirtualTryOn {
         }
     }
 
-    populateProductPreviewSync() {
-        if (!this.$root) return;
-        const title = this.$scope.find('.productView-title').first().text().trim()
+    getProductTitle() {
+        return this.$scope.find('.productView-title').first().text().trim()
             || this.$scope.find('[data-virtual-tryon]').first().attr('data-product-title')
             || '';
+    }
+
+    populateProductPreviewSync() {
+        if (!this.$root) return;
+        const title = this.getProductTitle();
         this.$root.find('[data-tryon-product-title]').text(title);
 
         const imageUrl = this.getGarmentImageUrlSync();
         if (imageUrl) {
+            this.selectedGarmentUrl = imageUrl;
             this.$root.find('[data-tryon-product-image]').attr({ src: imageUrl, alt: title });
         }
     }
 
-    async populateProductPreview() {
-        if (!this.$root) return;
-        try {
-            const imageUrl = await this.getGarmentImageUrl();
-            const title = this.$root.find('[data-tryon-product-title]').text();
-            if (imageUrl) {
-                this.$root.find('[data-tryon-product-image]').attr({ src: imageUrl, alt: title });
-            }
-        } catch (err) {
-            // Non-blocking
-        }
-    }
+    collectDomGalleryUrls() {
+        const urls = [];
+        const push = (u) => {
+            const abs = this.absoluteUrl(u);
+            if (abs && urls.indexOf(abs) === -1) urls.push(abs);
+        };
 
-    getGarmentImageUrlSync() {
-        if (this.imageGallery && this.imageGallery.currentImage && this.imageGallery.currentImage.mainImageUrl) {
-            return this.absoluteUrl(this.imageGallery.currentImage.mainImageUrl);
+        if (this.imageGallery && Array.isArray(this.imageGallery.images)) {
+            this.imageGallery.images.forEach((img) => {
+                push(img.mainImageUrl || img.data && (img.data.zoomImageUrl || img.data.mainImageUrl));
+            });
+        }
+        if (this.imageGallery && this.imageGallery.currentImage) {
+            push(this.imageGallery.currentImage.mainImageUrl);
         }
 
-        const $main = this.$scope.find('[data-image-gallery-main] .slick-current a, [data-image-gallery-main] a').first();
-        const fromDom = $main.data('originalImg') || $main.attr('data-original-img') || $main.find('img').attr('src');
-        if (fromDom) {
-            return this.absoluteUrl(fromDom);
-        }
+        this.$scope.find('[data-image-gallery-main] a, [data-image-gallery-item] a, .productView-thumbnail a').each((_, el) => {
+            const $a = $(el);
+            push($a.data('originalImg') || $a.attr('data-original-img') || $a.attr('href') || $a.find('img').attr('src'));
+        });
 
-        const fromBtn = this.$scope.find('[data-virtual-tryon]').first().attr('data-product-image')
-            || this.$scope.find('[data-virtual-tryon]').first().data('product-image');
-        if (fromBtn) {
-            return this.absoluteUrl(fromBtn);
-        }
+        const fromBtn = this.$scope.find('[data-virtual-tryon]').first().attr('data-product-image');
+        push(fromBtn);
 
-        return '';
-    }
-
-    async getGarmentImageUrl() {
-        const sync = this.getGarmentImageUrlSync();
-        if (sync) {
-            return sync;
-        }
-
-        try {
-            const images = await this.fetchProductImages();
-            if (images.length) {
-                return this.absoluteUrl(images[0]);
-            }
-        } catch (err) {
-            // eslint-disable-next-line no-console
-            console.warn('Try-on: could not fetch product images', err);
-        }
-
-        return '';
+        return urls;
     }
 
     async fetchProductImages() {
@@ -510,9 +746,11 @@ export default class VirtualTryOn {
                 query: `query GetProductImages($entityId: Int!, $optionValueIds: [OptionValueId!]) {
                     site {
                         product(entityId: $entityId, optionValueIds: $optionValueIds) {
-                            defaultImage { url(width: 1000) }
+                            name
+                            brand { name }
+                            defaultImage { url(width: 1200) }
                             images {
-                                edges { node { url(width: 1000) isDefault } }
+                                edges { node { url(width: 1200) urlOriginal isDefault altText } }
                             }
                         }
                     }
@@ -529,16 +767,124 @@ export default class VirtualTryOn {
         const product = response && response.data && response.data.site && response.data.site.product;
         if (!product) return [];
 
+        if (product.name) {
+            this.graphProductName = product.name;
+        }
+        if (product.brand && product.brand.name) {
+            this.graphBrandName = product.brand.name;
+        }
+
         const urls = [];
         if (product.defaultImage && product.defaultImage.url) {
             urls.push(product.defaultImage.url);
         }
         ((product.images && product.images.edges) || []).forEach((edge) => {
-            if (edge.node && edge.node.url) {
-                urls.push(edge.node.url);
+            if (edge.node) {
+                if (edge.node.url) urls.push(edge.node.url);
+                if (edge.node.urlOriginal) urls.push(edge.node.urlOriginal);
             }
         });
-        return [...new Set(urls)];
+        return [...new Set(urls.map((u) => this.absoluteUrl(u)).filter(Boolean))];
+    }
+
+    async loadProductStyleLibrary() {
+        if (!this.$root) return;
+        this.$root.find('[data-tryon-style-note]').text('Reading all product photos for exact style match…');
+
+        const domUrls = this.collectDomGalleryUrls();
+        let gqlUrls = [];
+        try {
+            gqlUrls = await this.fetchProductImages();
+        } catch (err) {
+            // eslint-disable-next-line no-console
+            console.warn('Try-on: GraphQL images unavailable', err);
+        }
+
+        const merged = [];
+        [...domUrls, ...gqlUrls].forEach((u) => {
+            if (u && merged.indexOf(u) === -1) merged.push(u);
+        });
+        this.productImages = merged.slice(0, 12);
+
+        // Score images in parallel (best-effort)
+        const metas = await Promise.all(this.productImages.map(async (url) => {
+            try {
+                const img = await loadImage(url, true);
+                const meta = scoreGarmentImage(img);
+                return { url, ...meta, img };
+            } catch (e) {
+                return { url, score: 0, palette: [], img: null };
+            }
+        }));
+
+        this.imageMeta = {};
+        metas.forEach((m) => {
+            this.imageMeta[m.url] = m;
+        });
+
+        metas.sort((a, b) => b.score - a.score);
+        if (metas.length && metas[0].score > 0) {
+            this.selectGarment(metas[0].url);
+        } else if (this.productImages[0]) {
+            this.selectGarment(this.productImages[0]);
+        }
+
+        this.renderGarmentThumbs();
+        const n = this.productImages.length;
+        const note = n > 1
+            ? `Using ${n} product photos to match Jettribe colors, logos & panel layout. Pick the clearest front vest shot.`
+            : 'Tip: a clear front-facing product photo gives the best exact match.';
+        this.$root.find('[data-tryon-style-note]').text(note);
+    }
+
+    renderGarmentThumbs() {
+        if (!this.$root) return;
+        const $strip = this.$root.find('[data-tryon-garment-strip]');
+        if (!$strip.length) return;
+
+        if (this.productImages.length < 2) {
+            $strip.addClass('is-hidden').empty();
+            return;
+        }
+
+        const html = this.productImages.map((url) => {
+            const selected = url === this.selectedGarmentUrl ? ' is-selected' : '';
+            return `<button type="button" class="tryOn-garmentThumb${selected}" data-tryon-garment-thumb data-url="${url}">
+                <img src="${url}" alt="">
+            </button>`;
+        }).join('');
+        $strip.removeClass('is-hidden').html(html);
+    }
+
+    selectGarment(url) {
+        this.selectedGarmentUrl = url;
+        const title = this.getProductTitle();
+        this.$root.find('[data-tryon-product-image]').attr({ src: url, alt: title });
+        this.$root.find('[data-tryon-garment-thumb]').removeClass('is-selected');
+        this.$root.find(`[data-tryon-garment-thumb][data-url="${url}"]`).addClass('is-selected');
+    }
+
+    getGarmentImageUrlSync() {
+        if (this.selectedGarmentUrl) {
+            return this.selectedGarmentUrl;
+        }
+        if (this.imageGallery && this.imageGallery.currentImage && this.imageGallery.currentImage.mainImageUrl) {
+            return this.absoluteUrl(this.imageGallery.currentImage.mainImageUrl);
+        }
+
+        const $main = this.$scope.find('[data-image-gallery-main] .slick-current a, [data-image-gallery-main] a').first();
+        const fromDom = $main.data('originalImg') || $main.attr('data-original-img') || $main.find('img').attr('src');
+        if (fromDom) {
+            return this.absoluteUrl(fromDom);
+        }
+
+        const fromBtn = this.$scope.find('[data-virtual-tryon]').first().attr('data-product-image')
+            || this.$scope.find('[data-virtual-tryon]').first().data('product-image');
+        if (fromBtn) {
+            return this.absoluteUrl(fromBtn);
+        }
+
+        return '';
     }
 
     absoluteUrl(url) {
@@ -591,14 +937,47 @@ export default class VirtualTryOn {
             .html(isLoading ? `<span class="tryOn-spinner" aria-hidden="true"></span> ${message}` : message);
     }
 
+    async prepareExactGarmentBlob() {
+        const primaryUrl = this.selectedGarmentUrl || this.getGarmentImageUrlSync();
+        if (!primaryUrl) {
+            throw new Error('no_garment');
+        }
+
+        // Rank others by score for secondary style strip
+        const ranked = this.productImages
+            .map((url) => ({ url, score: (this.imageMeta[url] && this.imageMeta[url].score) || 0 }))
+            .sort((a, b) => b.score - a.score)
+            .map((x) => x.url);
+
+        const secondaryUrls = ranked.filter((u) => u !== primaryUrl).slice(0, 3);
+        const primaryImg = await loadImage(primaryUrl, true);
+        const secondaryImgs = [];
+        await Promise.all(secondaryUrls.map(async (url) => {
+            try {
+                secondaryImgs.push(await loadImage(url, true));
+            } catch (e) {
+                // skip
+            }
+        }));
+
+        return buildStyleMatchedGarmentBlob(primaryImg, secondaryImgs);
+    }
+
+    buildDescription() {
+        const title = [this.graphBrandName, this.graphProductName || this.getProductTitle()]
+            .filter(Boolean)
+            .join(' ');
+        const palettes = this.productImages.map((url) => (this.imageMeta[url] && this.imageMeta[url].palette) || []);
+        return buildGarmentDescription(title, palettes);
+    }
+
     async runTryOn() {
         if (!this.userImageDataUrl) {
             this.showStatus(this.context.tryonErrorNeedPhoto || 'Upload a full-body photo first.', true);
             return;
         }
 
-        const garmentUrl = await this.getGarmentImageUrl();
-        if (!garmentUrl) {
+        if (!this.selectedGarmentUrl && !this.getGarmentImageUrlSync()) {
             this.showStatus(this.context.tryonErrorNoProduct || 'Could not load the product image.', true);
             return;
         }
@@ -606,22 +985,26 @@ export default class VirtualTryOn {
         const $submit = this.$root.find('[data-tryon-submit]');
         $submit.prop('disabled', true);
         this.showStatus(
-            this.context.tryonLoading || 'AI is fitting the product on you… usually 20–60 seconds.',
+            this.context.tryonLoading || 'Matching Jettribe product style, then fitting on you…',
             false,
             true,
         );
 
-        const productTitle = this.$root.find('[data-tryon-product-title]').text().trim();
         const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
         const timeoutId = window.setTimeout(() => {
             if (controller) controller.abort();
         }, TRYON_TIMEOUT_MS);
 
         try {
+            const [garmentBlob, description] = await Promise.all([
+                this.prepareExactGarmentBlob(),
+                Promise.resolve(this.buildDescription()),
+            ]);
+
             const resultUrl = await runGenerativeTryOn({
                 personDataUrl: this.userImageDataUrl,
-                garmentUrl,
-                description: productTitle || 'Jettribe apparel',
+                garmentBlob,
+                description,
                 signal: controller && controller.signal,
                 onStatus: (msg) => this.showStatus(msg, false, true),
             });
@@ -647,7 +1030,7 @@ export default class VirtualTryOn {
             const errText = String((err && err.message) || err || '');
             const timedOut = err && (err.name === 'AbortError' || /abort/i.test(errText));
             let msg = this.context.tryonErrorGeneric
-                || 'Sorry — try-on could not be generated. Please try another full-body photo, or try again in a minute (free AI queue may be busy).';
+                || 'Sorry — try-on could not be generated. Try another photo, or pick a clearer front product shot, then try again.';
             if (timedOut) {
                 msg = 'Try-on timed out waiting on the free AI queue. Please try again in a minute.';
             }

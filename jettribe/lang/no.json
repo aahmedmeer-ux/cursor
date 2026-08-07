@@ -903,23 +903,24 @@
     "link_guide_popup": "<a href=\"{href}\" data-papathemes-popup>{value}</a> eller sjekk ut vår størrelsesguide.",
     "tryon": {
       "title": "Virtual Try-On",
-      "intro": "Upload a full-body standing photo. Free AI will show this product fitted on you (usually 20–60 seconds).",
+      "intro": "Upload a standing photo. Free AI fits this exact Jettribe product on you using all product photos for colors, logos, and style (usually 20–60 seconds).",
       "product_heading": "Selected product",
       "upload_heading": "Your photo",
       "upload_hint": "Click or drag a full-body photo here",
-      "upload_note": "JPG, PNG, or WebP · standing, face+torso visible works best · max 8MB",
+      "upload_note": "JPG, PNG, or WebP · standing, face+torso visible · max 8MB",
       "change_photo": "Change photo",
       "submit": "Try Now",
-      "loading": "AI is fitting the product on you… usually 20–60 seconds.",
+      "loading": "Matching product style across gallery photos, then fitting on you…",
       "result_heading": "Your AI try-on",
       "result_alt": "AI virtual try-on result",
       "download": "Download image",
       "try_again": "Try another photo",
-      "error_generic": "Sorry — try-on could not be generated. Please try another full-body photo, or try again in a minute (free AI queue may be busy).",
+      "error_generic": "Sorry — try-on could not be generated. Pick a clearer front product photo below, try another standing photo, or retry in a minute.",
       "error_need_photo": "Upload a full-body photo first.",
       "error_no_product": "Could not load the product image.",
       "error_file_type": "Please upload a JPG, PNG, or WebP photo.",
-      "error_file_size": "Photo must be under 8MB."
+      "error_file_size": "Photo must be under 8MB.",
+      "garment_picker": "Choose product photo for exact match"
     }
   },
   "design_tool": {

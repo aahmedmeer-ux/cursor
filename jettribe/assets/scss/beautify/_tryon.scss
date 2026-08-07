@@ -99,6 +99,49 @@
     font-size: fontSize("smaller");
 }
 
+.tryOn-styleNote {
+    margin: spacing("quarter") 0 spacing("half");
+    font-size: fontSize("tiny");
+    line-height: 1.4;
+    color: #666;
+}
+
+.tryOn-garmentStrip {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: spacing("quarter");
+    overflow-x: auto;
+    padding-bottom: spacing("quarter");
+    -webkit-overflow-scrolling: touch;
+}
+
+.tryOn-garmentThumb {
+    flex: 0 0 remCalc(64px);
+    width: remCalc(64px);
+    height: remCalc(80px);
+    padding: 0;
+    border: 2px solid #ddd;
+    background: #fff;
+    cursor: pointer;
+    overflow: hidden;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    &:hover,
+    &:focus {
+        border-color: #999;
+    }
+
+    &.is-selected {
+        border-color: #C72E2E;
+    }
+}
+
 .tryOn-dropzone {
     display: flex;
     flex-direction: column;

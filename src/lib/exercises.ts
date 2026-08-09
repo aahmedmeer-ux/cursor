@@ -11,6 +11,7 @@ const EXERCISES: Exercise[] = [
     reps: '6–10',
     rest: '2–3 min',
     tip: 'Brace your core; depth to parallel. Progressive overload weekly.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/glutes/barbell-full-squat.gif',
   },
   {
     id: 'deadlift',
@@ -21,6 +22,7 @@ const EXERCISES: Exercise[] = [
     reps: '8–12',
     rest: '2 min',
     tip: 'Soft knees, hinge at hips, feel stretch in hamstrings.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/glutes/barbell-romanian-deadlift.gif',
   },
   {
     id: 'bench',
@@ -31,6 +33,7 @@ const EXERCISES: Exercise[] = [
     reps: '6–10',
     rest: '2–3 min',
     tip: 'Retract shoulder blades; controlled eccentric.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/pectorals/barbell-bench-press.gif',
   },
   {
     id: 'row',
@@ -41,6 +44,7 @@ const EXERCISES: Exercise[] = [
     reps: '8–12',
     rest: '90 sec',
     tip: 'Pull elbows to hips; don’t shrug.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/upper-back/barbell-bent-over-row.gif',
   },
   {
     id: 'ohp',
@@ -51,6 +55,7 @@ const EXERCISES: Exercise[] = [
     reps: '6–10',
     rest: '2 min',
     tip: 'Glutes tight; press in a straight line.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/delts/barbell-standing-wide-military-press.gif',
   },
   {
     id: 'lat-pulldown',
@@ -61,6 +66,7 @@ const EXERCISES: Exercise[] = [
     reps: '8–12',
     rest: '90 sec',
     tip: 'Full stretch at top; pull to upper chest.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/lats/cable-lat-pulldown-full-range-of-motion.gif',
   },
   {
     id: 'leg-press',
@@ -71,6 +77,7 @@ const EXERCISES: Exercise[] = [
     reps: '10–15',
     rest: '90 sec',
     tip: 'Don’t lock knees hard; full controlled range.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/glutes/sled-45-leg-press.gif',
   },
   {
     id: 'db-lunges',
@@ -81,6 +88,7 @@ const EXERCISES: Exercise[] = [
     reps: '10/leg',
     rest: '90 sec',
     tip: 'Upright torso; knee tracks over toes.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/glutes/dumbbell-lunge.gif',
   },
   {
     id: 'db-press',
@@ -91,6 +99,7 @@ const EXERCISES: Exercise[] = [
     reps: '8–12',
     rest: '90 sec',
     tip: 'Slight arch; dumbbells meet above chest.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/pectorals/dumbbell-bench-press.gif',
   },
   {
     id: 'face-pull',
@@ -101,6 +110,7 @@ const EXERCISES: Exercise[] = [
     reps: '12–15',
     rest: '60 sec',
     tip: 'Pull to face, externally rotate at end.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/delts/cable-standing-rear-delt-row-with-rope.gif',
   },
   {
     id: 'plank',
@@ -111,6 +121,7 @@ const EXERCISES: Exercise[] = [
     reps: '30–60 sec',
     rest: '45 sec',
     tip: 'Ribs down, glutes on — don’t sag.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/abs/weighted-front-plank.gif',
   },
   {
     id: 'farmer',
@@ -121,6 +132,7 @@ const EXERCISES: Exercise[] = [
     reps: '30–40 m',
     rest: '60 sec',
     tip: 'Walk tall with heavy dumbbells or water jugs.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/quads/farmers-walk.gif',
   },
 
   // Home / bodyweight
@@ -133,6 +145,7 @@ const EXERCISES: Exercise[] = [
     reps: '8–20',
     rest: '60 sec',
     tip: 'Elevate hands if needed; full chest-to-floor when strong.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/pectorals/push-up.gif',
   },
   {
     id: 'squat-bw',
@@ -143,6 +156,7 @@ const EXERCISES: Exercise[] = [
     reps: '15–25',
     rest: '60 sec',
     tip: 'Sit back; add backpack weight as you progress.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/quads/squat-to-overhead-reach.gif',
   },
   {
     id: 'hip-thrust',
@@ -153,6 +167,7 @@ const EXERCISES: Exercise[] = [
     reps: '12–20',
     rest: '60 sec',
     tip: 'Pause and squeeze at the top.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/glutes/barbell-glute-bridge.gif',
   },
   {
     id: 'inverted-row',
@@ -163,6 +178,7 @@ const EXERCISES: Exercise[] = [
     reps: '8–15',
     rest: '60 sec',
     tip: 'Use a sturdy table edge or towel rows on a door.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/upper-back/inverted-row.gif',
   },
   {
     id: 'pike-push',
@@ -173,6 +189,7 @@ const EXERCISES: Exercise[] = [
     reps: '6–12',
     rest: '75 sec',
     tip: 'Hips high; lower head toward floor.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/pectorals/exercise-ball-pike-push-up.gif',
   },
   {
     id: 'burpee',
@@ -183,6 +200,7 @@ const EXERCISES: Exercise[] = [
     reps: '8–15',
     rest: '60 sec',
     tip: 'Great for fat loss finishers — keep form clean.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/cardio/burpee.gif',
   },
   {
     id: 'mountain',
@@ -193,6 +211,7 @@ const EXERCISES: Exercise[] = [
     reps: '30–45 sec',
     rest: '45 sec',
     tip: 'Quick feet, stable shoulders.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/cardio/mountain-climber.gif',
   },
   {
     id: 'jump-rope',
@@ -203,6 +222,7 @@ const EXERCISES: Exercise[] = [
     reps: '60–90 sec',
     rest: '45 sec',
     tip: 'Easy on joints; build to continuous rounds.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/cardio/jump-rope.gif',
   },
   {
     id: 'walk',
@@ -213,6 +233,7 @@ const EXERCISES: Exercise[] = [
     reps: '25–40 min',
     rest: '—',
     tip: 'After dinner walk is a Pakistani classic — excellent for fat loss.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/cardio/walking-on-incline-treadmill.gif',
   },
   {
     id: 'curl',
@@ -223,6 +244,7 @@ const EXERCISES: Exercise[] = [
     reps: '10–15',
     rest: '60 sec',
     tip: 'No swinging; control the negative.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/biceps/dumbbell-biceps-curl.gif',
   },
   {
     id: 'triceps',
@@ -233,6 +255,7 @@ const EXERCISES: Exercise[] = [
     reps: '10–15',
     rest: '60 sec',
     tip: 'Elbows stay pinned; full stretch.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/triceps/dumbbell-standing-triceps-extension.gif',
   },
   {
     id: 'calf',
@@ -243,6 +266,7 @@ const EXERCISES: Exercise[] = [
     reps: '12–20',
     rest: '45 sec',
     tip: 'Pause at the top; use a step for stretch.',
+    demoGif: 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/calves/bodyweight-standing-calf-raise.gif',
   },
 ]
 

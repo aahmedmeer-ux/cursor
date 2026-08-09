@@ -63,6 +63,8 @@ export interface Exercise {
   reps: string
   rest: string
   tip: string
+  /** Looping form demo GIF URL */
+  demoGif: string
 }
 
 export interface WorkoutDay {

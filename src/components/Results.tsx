@@ -4,6 +4,7 @@ import type { MacroTargets, UserProfile } from '../types'
 import { bmi } from '../lib/calculations'
 import { buildWeeklyMealPlan, GROCERY_STAPLES } from '../lib/meals'
 import { buildWorkoutPlan, TRAINING_TIPS } from '../lib/exercises'
+import { ExerciseDemo } from './ExerciseDemo'
 
 interface Props {
   profile: UserProfile
@@ -167,7 +168,8 @@ export function Results({ profile, macros, onEdit }: Props) {
                   <div className="exercise-list">
                     {day.exercises.map((ex) => (
                       <div className="exercise-row" key={`${day.day}-${ex.id}`}>
-                        <div>
+                        <ExerciseDemo exercise={ex} />
+                        <div className="exercise-copy">
                           <span className="meal-type">{ex.muscle}</span>
                           <h4>{ex.name}</h4>
                           <p>{ex.tip}</p>

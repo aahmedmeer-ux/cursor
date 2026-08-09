@@ -6,4 +6,12 @@ export default defineConfig({
   plugins: [react()],
   // Relative base works on GitHub Pages (/cursor/) and any root host
   base: './',
+  preview: {
+    host: true,
+    allowedHosts: true,
+  },
+  server: {
+    host: true,
+    allowedHosts: true,
+  },
 })

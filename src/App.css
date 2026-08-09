@@ -288,6 +288,12 @@
   font-weight: 600;
 }
 
+/* Plan view — full plan after submit (no hero distraction) */
+.plan-view {
+  padding-top: 2rem;
+  min-height: calc(100vh - 5rem);
+}
+
 /* Results */
 .results-top {
   display: grid;

@@ -286,6 +286,70 @@ export const PAKISTANI_MEALS: Meal[] = [
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
+/** Extra sides to close the gap toward the daily calorie target */
+const BOOSTERS: Meal[] = [
+  {
+    id: 'boost-roti',
+    name: 'Extra Roti',
+    mealType: 'snack',
+    calories: 120,
+    protein: 4,
+    carbs: 24,
+    fat: 1,
+    tags: ['balanced', 'vegetarian', 'high_protein'],
+    description: 'Add 1 more whole-wheat roti with your lunch or dinner.',
+    ingredients: ['1 atta roti'],
+  },
+  {
+    id: 'boost-rice',
+    name: 'Extra Rice (½ cup)',
+    mealType: 'snack',
+    calories: 110,
+    protein: 2,
+    carbs: 24,
+    fat: 0,
+    tags: ['balanced', 'vegetarian', 'high_protein'],
+    description: '½ cup cooked basmati with your main meal.',
+    ingredients: ['½ cup cooked rice'],
+  },
+  {
+    id: 'boost-doodh',
+    name: 'Glass of Doodh',
+    mealType: 'snack',
+    calories: 150,
+    protein: 8,
+    carbs: 12,
+    fat: 8,
+    tags: ['balanced', 'vegetarian', 'high_protein'],
+    description: '250ml low-fat milk — evening or with breakfast.',
+    ingredients: ['250ml low-fat milk'],
+  },
+  {
+    id: 'boost-peanut',
+    name: 'Moongphali (handful)',
+    mealType: 'snack',
+    calories: 170,
+    protein: 7,
+    carbs: 5,
+    fat: 14,
+    tags: ['balanced', 'vegetarian', 'high_protein'],
+    description: 'Small handful of roasted peanuts for easy calories.',
+    ingredients: ['25g roasted peanuts'],
+  },
+  {
+    id: 'boost-banana-toast',
+    name: 'Banana + Toast',
+    mealType: 'snack',
+    calories: 220,
+    protein: 5,
+    carbs: 42,
+    fat: 4,
+    tags: ['balanced', 'vegetarian', 'high_protein'],
+    description: '1 banana with 1 slice whole-wheat toast — useful on training days.',
+    ingredients: ['1 banana', '1 slice whole-wheat bread'],
+  },
+]
+
 function mealFits(meal: Meal, style: DietStyle): boolean {
   return meal.tags.includes(style)
 }
@@ -342,19 +406,28 @@ export function buildWeeklyMealPlan(
     const dinner = pickMeal('dinner', style, used, preferProtein, di, 2)
     used.add(dinner.id)
 
-    let snacks: Meal[] = [pickMeal('snack', style, used, preferProtein, di, 3)]
+    const snacks: Meal[] = [pickMeal('snack', style, used, preferProtein, di, 3)]
     used.add(snacks[0].id)
 
     let meals = [breakfast, lunch, dinner, ...snacks]
     let totals = sumMeals(meals)
 
-    // Add second snack if under calories by ~250+
-    if (totals.calories < targets.calories - 250) {
-      const snack2 = pickMeal('snack', style, used, preferProtein, di, 4)
-      used.add(snack2.id)
-      snacks = [...snacks, snack2]
-      meals = [breakfast, lunch, dinner, ...snacks]
+    // Keep adding snacks / boosters until within ~150 kcal of target
+    let guard = 0
+    while (totals.calories < targets.calories - 150 && guard < 6) {
+      if (guard === 0) {
+        const snack = pickMeal('snack', style, used, preferProtein, di, 4)
+        used.add(snack.id)
+        meals = [...meals, snack]
+      } else {
+        const booster = BOOSTERS[(di + guard) % BOOSTERS.length]
+        meals = [
+          ...meals,
+          { ...booster, id: `${booster.id}-${day}-${guard}` },
+        ]
+      }
       totals = sumMeals(meals)
+      guard += 1
     }
 
     // Clear used every 2 days so variety returns

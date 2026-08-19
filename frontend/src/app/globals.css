@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #132033;
+  --mist: #e8f1f4;
+  --foam: #f7fbfc;
+  --tide: #0f766e;
+  --tide-dark: #0b5c56;
+  --sand: #c9a66b;
+  --line: #d5e2e7;
+  --muted: #5b6b78;
+  --background: var(--foam);
+  --foreground: var(--ink);
+}
+
+body {
+  color: var(--foreground);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(15, 118, 110, 0.14), transparent 55%),
+    radial-gradient(900px 500px at 90% 0%, rgba(201, 166, 107, 0.16), transparent 50%),
+    linear-gradient(180deg, #f4f8fa 0%, var(--foam) 45%, #eef5f7 100%);
+  min-height: 100vh;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+  background-image:
+    linear-gradient(rgba(19, 32, 51, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(19, 32, 51, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(180deg, black 0%, transparent 85%);
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(213, 226, 231, 0.55) 0%,
+    rgba(232, 241, 244, 0.95) 45%,
+    rgba(213, 226, 231, 0.55) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}

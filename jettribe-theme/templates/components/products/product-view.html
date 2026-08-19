@@ -326,6 +326,54 @@
         $("a.modal-close span").trigger("click");
     })
 </script>
+<script>
+(function () {
+    function renameSizeLabels(root) {
+        var scope = root || document;
+        var nodes = scope.querySelectorAll(
+            '[data-product-attribute="set-radio"] .form-label, ' +
+            '[data-product-attribute="set-rectangle"] .form-option-variant, ' +
+            '[data-product-attribute="set-rectangle"] .form-option, ' +
+            '[data-product-attribute="set-select"] option'
+        );
+        Array.prototype.forEach.call(nodes, function (el) {
+            var raw = (el.textContent || '').trim();
+            if (!raw) return;
+            if (/^Adult\b/i.test(raw) && !/Adult\s+Large/i.test(raw) && !/Adult\s+Small/i.test(raw)) {
+                el.textContent = raw.replace(/^Adult\b/i, 'Adult Large');
+                return;
+            }
+            if (/^Youth\b/i.test(raw)) {
+                el.textContent = raw.replace(/^Youth\b/i, 'Adult Small');
+            }
+        });
+    }
+
+    function enhanceDesignConfirmationLabels(root) {
+        var scope = root || document;
+        Array.prototype.forEach.call(scope.querySelectorAll('.form-label'), function (label) {
+            var text = (label.textContent || '').trim();
+            if (/Design Confirmation \(Select Letter A[–-][YR]\)/i.test(text)) {
+                label.textContent = text.replace(/A[–-][YR]/i, 'A–V');
+            }
+        });
+    }
+
+    function initCustomGearOptions() {
+        renameSizeLabels(document);
+        enhanceDesignConfirmationLabels(document);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCustomGearOptions);
+    } else {
+        initCustomGearOptions();
+    }
+    document.addEventListener('click', function () {
+        window.setTimeout(initCustomGearOptions, 300);
+    });
+})();
+</script>
 <style>
 	.productView-thumbnails img.playBtn {width: 20px;}
 	.modalVideo #close {background: #fff none repeat scroll 0 0; cursor: pointer; font-family: Arial,Helvetica,sans-serif; padding: 0;  text-align: center;}

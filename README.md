@@ -34,3 +34,17 @@ Do **not** zip the `jettribe-theme` folder itself (that creates `jettribe-theme/
 ## Footer Customization Form
 
 Added a **Customization Form** link under **Rider Support** (below Privacy Policy) linking to the Google Form.
+
+## Customized Gear – Factory updates
+
+Theme now includes:
+
+1. **Contact Us button** on the Customized Gear - Factory category page (`mailto:office@jettribe.com`) with team/bulk quote copy
+2. **Size label remap** on product pages: `Adult` → `Adult Large`, `Youth` → `Adult Small`
+3. **Design Confirmation** labels normalized to **A–V** when older A–Y / A–R text is present
+
+### BigCommerce admin still required for
+
+- Creating/editing product modifiers themselves (**Size**, **Design Confirmation A–V**, **Enter Custom Name**, **Enter Custom Number**) on the name-plate / custom products
+- Uploading the cleaned Name & Number design sheet image (SKU JTG 25400A–V). Please upload the preferred sheet with SKUs in **Products → Images** after cropping white space / annotations in an image editor
+

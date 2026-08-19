@@ -22,6 +22,19 @@ category:
     <h1 class="page-heading">{{category.name}}</h1>
     {{{region name="category_below_header"}}}
 {{/unless}}
+
+{{#if category.name}}
+    {{#if category.name '==' 'Customized Gear - Factory'}}
+        <div class="customGearFactory-cta">
+            <p class="customGearFactory-cta-title">Contact Us for Team, Dealer &amp; Bulk Pricing</p>
+            <p class="customGearFactory-cta-text">Please contact us if you wish to order multiple of the same design, or have a team. We can quote this project for you.</p>
+            <p class="customGearFactory-cta-action">
+                <a class="button button--primary customGearFactory-contactBtn" href="mailto:office@jettribe.com">Contact Us</a>
+            </p>
+        </div>
+    {{/if}}
+{{/if}}
+
 {{{category.description}}}
 <div class="page">
     
@@ -72,6 +85,54 @@ category:
     
     
 </div>
+
+<style>
+.customGearFactory-cta {
+    max-width: 900px;
+    margin: 10px auto 28px;
+    padding: 22px 24px;
+    text-align: center;
+    background: #f5f5f5;
+    border-top: 3px solid #e53d42;
+}
+.customGearFactory-cta-title {
+    margin: 0 0 10px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #161616;
+    text-transform: uppercase;
+}
+.customGearFactory-cta-text {
+    margin: 0 0 16px;
+    color: #505050;
+    font-size: 15px;
+    line-height: 1.5;
+}
+.customGearFactory-cta-action {
+    margin: 0;
+}
+.customGearFactory-contactBtn {
+    min-width: 160px;
+}
+/* Style existing CMS "Contact Us" text link as a button when present */
+.page-heading + div + p a[href="mailto:office@jettribe.com"],
+p a[title="Contact Us"][href="mailto:office@jettribe.com"] {
+    display: inline-block;
+    background: #e53d42;
+    color: #fff !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 10px 18px;
+    margin-left: 6px;
+}
+.page-heading + div + p a[href="mailto:office@jettribe.com"]:hover,
+p a[title="Contact Us"][href="mailto:office@jettribe.com"]:hover {
+    background: #161616;
+    color: #fff !important;
+}
+</style>
 
 {{/partial}}
 {{> layout/base}}

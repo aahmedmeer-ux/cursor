@@ -33,4 +33,4 @@ Do **not** zip the `jettribe-theme` folder itself (that creates `jettribe-theme/
 
 ## Footer Customization Form
 
-Added a **Customization Form** button under **Rider Support** (below Privacy Policy) linking to the Google Form.
+Added a **Customization Form** link under **Rider Support** (below Privacy Policy) linking to the Google Form.

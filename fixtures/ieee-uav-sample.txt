@@ -1,0 +1,8 @@
+UAV Swarm Intelligence: Recent Advances and Future Trends
+
+Abstract—The dynamic uncertain environment and complex tasks determine that the unmanned aerial vehicle (UAV) system is bound to develop towards clustering, autonomy, and intelligence. In this article, we present a comprehensive survey of UAV swarm intelligence from the hierarchical framework perspective. Firstly, we review the basics and advances of UAV swarm research. Then we discuss challenges and future research directions for intelligent UAV swarm systems.
+
+I. INTRODUCTION
+Unmanned aerial vehicles (UAVs) have been widely used in military and civilian scenarios. With the rapid development of artificial intelligence, UAV swarm intelligence has become a hot research topic. Cooperative UAV systems can complete complex missions that a single UAV cannot finish alone.
+
+Keywords—UAV swarm, swarm intelligence, multi-agent systems, cooperative control

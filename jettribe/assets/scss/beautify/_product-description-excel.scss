@@ -1,6 +1,96 @@
-// Jettribe PDP description — horizontal title on top + line + full-width content
-.productView-description--excel {
+// Jettribe PDP description — DESCRIPTION on top + full-width horizontal line + content
+.productView-description.productView-description--excel {
     padding: remCalc(40px) 0 remCalc(24px);
+
+    @include breakpoint("medium") {
+        // Override default centered / colored tab bar from beautify/_product.scss
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-items: flex-end;
+            position: static;
+            top: auto;
+            z-index: auto;
+            margin: 0 0 remCalc(28px);
+            padding: 0;
+            border: 0;
+            border-bottom: 1px solid #cfcfcf;
+            background: transparent;
+            background-color: transparent;
+
+            &::before,
+            &::after {
+                display: none;
+            }
+        }
+
+        .tab {
+            float: none;
+            display: block;
+            margin: 0 remCalc(32px) 0 0;
+            margin-bottom: -1px;
+            border: 0;
+            border-bottom-width: 0;
+            border-color: transparent;
+            background: transparent;
+
+            &:first-child {
+                margin-left: 0;
+            }
+
+            &:last-child {
+                margin-right: 0;
+            }
+
+            &:not(.is-active) .tab-title:focus {
+                color: #666;
+            }
+        }
+
+        .tab-title {
+            display: inline-block;
+            margin: 0;
+            padding: 0 0 remCalc(14px);
+            border: 0;
+            border-bottom: 3px solid transparent;
+            background: transparent;
+            color: #666;
+            font-size: remCalc(16px);
+            font-weight: fontWeight("bold");
+            letter-spacing: 0.08em;
+            line-height: 1.2;
+            text-transform: uppercase;
+            text-decoration: none;
+            writing-mode: horizontal-tb;
+            transform: none;
+            white-space: nowrap;
+
+            &:hover,
+            &:focus {
+                color: #111;
+            }
+        }
+
+        .tab.is-active {
+            background: transparent;
+
+            .tab-title {
+                border-bottom-color: #e53d42;
+                color: #e53d42;
+                background: transparent;
+            }
+        }
+
+        .tabs-contents {
+            margin-bottom: 0;
+        }
+
+        .tab-content {
+            padding: 0;
+            border-top: 0;
+        }
+    }
 }
 
 .productDescExcel {
@@ -9,18 +99,19 @@
     background: #fff;
 }
 
-// Horizontal tab row on top with underline
+// Horizontal tab row (desktop) — title on top, rule below
 .productDescExcel-tabs.tabs--excel {
     float: none;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     align-items: flex-end;
+    justify-content: flex-start;
     width: 100%;
     margin: 0 0 remCalc(28px);
     padding: 0;
     border: 0;
-    border-bottom: 1px solid #d0d0d0;
+    border-bottom: 1px solid #cfcfcf;
     background: transparent;
     list-style: none;
 
@@ -36,7 +127,8 @@
     .tab {
         float: none;
         display: block;
-        margin: 0 remCalc(28px) 0 0;
+        margin: 0 remCalc(32px) 0 0;
+        margin-bottom: -1px;
         border: 0;
         background: transparent;
 
@@ -47,14 +139,14 @@
         .tab-title {
             display: inline-block;
             margin: 0;
-            padding: 0 0 remCalc(12px);
+            padding: 0 0 remCalc(14px);
             border: 0;
             border-bottom: 3px solid transparent;
             background: transparent;
             color: #666;
             font-size: remCalc(16px);
             font-weight: fontWeight("bold");
-            letter-spacing: 0.06em;
+            letter-spacing: 0.08em;
             line-height: 1.2;
             text-transform: uppercase;
             text-decoration: none;
@@ -72,7 +164,6 @@
             background: transparent;
 
             .tab-title {
-                margin-bottom: -1px;
                 border-bottom-color: #e53d42;
                 color: #e53d42;
                 background: transparent;
@@ -346,6 +437,18 @@
         img {
             max-width: 100%;
             height: auto;
+        }
+    }
+}
+
+// Full-width description wrapper under gallery
+.productView-descriptionWrapper._tabs-fullwidth {
+    @include breakpoint("medium") {
+        .productView-description--excel {
+            .tab-content {
+                padding: 0;
+                border-top: 0;
+            }
         }
     }
 }

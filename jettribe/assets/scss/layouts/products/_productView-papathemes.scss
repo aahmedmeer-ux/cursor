@@ -457,7 +457,7 @@
         margin-top: spacing("single");
         margin-bottom: 0;
 
-        // Excel vertical tabs handle their own chrome
+        // Excel horizontal tabs (title on top + line) handle their own chrome
         .productView-description--excel {
             .tab-content {
                 padding: 0;

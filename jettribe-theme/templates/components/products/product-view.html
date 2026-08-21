@@ -257,6 +257,26 @@
             {{#if product.release_date }}
                 <p>{{product.release_date}}</p>
             {{/if}}
+
+            {{!-- Back Deflector JTG 25453 only: team/bulk contact CTA --}}
+            {{#if product.sku '===' 'JTG 25453'}}
+                    <div class="backDeflector-cta" data-sku-target="JTG 25453">
+                        <p class="backDeflector-cta-title">Contact Us for Team, Dealer &amp; Bulk Pricing</p>
+                        <p class="backDeflector-cta-text">Please contact us if you wish to order multiple of the same design, or have a team. We can quote this project for you.</p>
+                        <p class="backDeflector-cta-action">
+                            <a class="button button--primary" href="mailto:office@jettribe.com">Contact Us</a>
+                        </p>
+                    </div>
+            {{/if}}
+            {{!-- JS fallback CTA for SKU text variants; hidden unless matched --}}
+            <div class="backDeflector-cta backDeflector-cta--js" data-sku-target="JTG 25453" style="display:none;">
+                <p class="backDeflector-cta-title">Contact Us for Team, Dealer &amp; Bulk Pricing</p>
+                <p class="backDeflector-cta-text">Please contact us if you wish to order multiple of the same design, or have a team. We can quote this project for you.</p>
+                <p class="backDeflector-cta-action">
+                    <a class="button button--primary" href="mailto:office@jettribe.com">Contact Us</a>
+                </p>
+            </div>
+
             <form class="form" method="post" action="{{product.cart_url}}" enctype="multipart/form-data"
                   data-cart-item-add>
                 <input type="hidden" name="action" value="add">
@@ -328,6 +348,26 @@
 </script>
 <script>
 (function () {
+    // Scope customization UI tweaks to Back Deflector SKU JTG 25453 only
+    function getProductSku() {
+        var sku = '';
+        try {
+            if (window.BCData && BCData.product_attributes && BCData.product_attributes.sku) {
+                sku = String(BCData.product_attributes.sku);
+            }
+        } catch (e) {}
+        if (!sku) {
+            var el = document.querySelector('[data-product-sku]');
+            if (el) sku = (el.textContent || '').trim();
+        }
+        return sku;
+    }
+
+    function isBackDeflectorSku(sku) {
+        var normalized = String(sku || '').replace(/\s+/g, '').toUpperCase();
+        return normalized === 'JTG25453' || /(^|[^0-9])25453([^0-9]|$)/.test(String(sku || ''));
+    }
+
     function renameSizeLabels(root) {
         var scope = root || document;
         var nodes = scope.querySelectorAll(
@@ -359,18 +399,27 @@
         });
     }
 
-    function initCustomGearOptions() {
+    function showContactCta() {
+        var ctas = document.querySelectorAll('.backDeflector-cta--js');
+        Array.prototype.forEach.call(ctas, function (el) {
+            el.style.display = 'block';
+        });
+    }
+
+    function initBackDeflectorSkuUi() {
+        if (!isBackDeflectorSku(getProductSku())) return;
         renameSizeLabels(document);
         enhanceDesignConfirmationLabels(document);
+        showContactCta();
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initCustomGearOptions);
+        document.addEventListener('DOMContentLoaded', initBackDeflectorSkuUi);
     } else {
-        initCustomGearOptions();
+        initBackDeflectorSkuUi();
     }
     document.addEventListener('click', function () {
-        window.setTimeout(initCustomGearOptions, 300);
+        window.setTimeout(initBackDeflectorSkuUi, 300);
     });
 })();
 </script>
@@ -379,4 +428,26 @@
 	.modalVideo #close {background: #fff none repeat scroll 0 0; cursor: pointer; font-family: Arial,Helvetica,sans-serif; padding: 0;  text-align: center;}
 	.modalVideo #close a {font-size: 20px;}
 	.modalVideo #close span {display: inline-block; vertical-align: middle;}
+    .backDeflector-cta {
+        max-width: 640px;
+        margin: 0 0 18px;
+        padding: 16px 18px;
+        background: #f5f5f5;
+        border-top: 3px solid #e53d42;
+    }
+    .backDeflector-cta-title {
+        margin: 0 0 8px;
+        font-family: 'Oswald', sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        color: #161616;
+        text-transform: uppercase;
+    }
+    .backDeflector-cta-text {
+        margin: 0 0 12px;
+        color: #505050;
+        font-size: 14px;
+        line-height: 1.45;
+    }
+    .backDeflector-cta-action { margin: 0; }
 </style>

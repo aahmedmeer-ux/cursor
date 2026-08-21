@@ -258,8 +258,8 @@
                 <p>{{product.release_date}}</p>
             {{/if}}
 
-            {{!-- Back Deflector JTG 25453 only: team/bulk contact CTA --}}
-            {{#if product.sku '===' 'JTG 25453'}}
+            {{!-- Back Deflector Custom Factory (JTG 25453 / custom URL): team/bulk contact CTA --}}
+            {{#or (if product.sku '===' 'JTG 25453') (if product.sku '===' 'JTG25453')}}
                     <div class="backDeflector-cta" data-sku-target="JTG 25453">
                         <p class="backDeflector-cta-title">Contact Us for Team, Dealer &amp; Bulk Pricing</p>
                         <p class="backDeflector-cta-text">Please contact us if you wish to order multiple of the same design, or have a team. We can quote this project for you.</p>
@@ -267,8 +267,8 @@
                             <a class="button button--primary" href="mailto:office@jettribe.com">Contact Us</a>
                         </p>
                     </div>
-            {{/if}}
-            {{!-- JS fallback CTA for SKU text variants; hidden unless matched --}}
+            {{/or}}
+            {{!-- JS fallback CTA for custom URL / title / SKU variants; hidden unless matched --}}
             <div class="backDeflector-cta backDeflector-cta--js" data-sku-target="JTG 25453" style="display:none;">
                 <p class="backDeflector-cta-title">Contact Us for Team, Dealer &amp; Bulk Pricing</p>
                 <p class="backDeflector-cta-text">Please contact us if you wish to order multiple of the same design, or have a team. We can quote this project for you.</p>
@@ -278,9 +278,16 @@
             </div>
 
             <form class="form" method="post" action="{{product.cart_url}}" enctype="multipart/form-data"
-                  data-cart-item-add>
+                  data-cart-item-add
+                  data-back-deflector-sku="{{product.sku}}"
+                  data-back-deflector-url="{{product.url}}"
+                  data-back-deflector-title="{{product.title}}">
                 <input type="hidden" name="action" value="add">
                 <input type="hidden" name="product_id" value="{{product.id}}"/>
+                <div class="backDeflector-nameNumber" data-back-deflector-name-number style="display:none;">
+                    <p class="backDeflector-nameNumber-title">Name &amp; Number</p>
+                    <p class="backDeflector-nameNumber-text">Select your design letter (A–V), then enter your custom name and number.</p>
+                </div>
                 <div data-product-option-change style="display:none;">
                     {{#each product.options}}
                         {{{dynamicComponent 'components/products/options'}}}
@@ -348,7 +355,10 @@
 </script>
 <script>
 (function () {
-    // Scope customization UI tweaks to Back Deflector SKU JTG 25453 only
+    // Scope to Back Deflector Custom Factory Production Art Included
+    // (URL slug, product title, or exact SKU JTG 25453 — not blank JTG 25453-1)
+    var CUSTOM_SLUG = 'back-deflector-custom-factory-production-art-included';
+
     function getProductSku() {
         var sku = '';
         try {
@@ -357,15 +367,45 @@
             }
         } catch (e) {}
         if (!sku) {
+            var form = document.querySelector('[data-back-deflector-sku]');
+            if (form && form.getAttribute('data-back-deflector-sku')) {
+                sku = form.getAttribute('data-back-deflector-sku');
+            }
+        }
+        if (!sku) {
             var el = document.querySelector('[data-product-sku]');
             if (el) sku = (el.textContent || '').trim();
         }
         return sku;
     }
 
-    function isBackDeflectorSku(sku) {
-        var normalized = String(sku || '').replace(/\s+/g, '').toUpperCase();
-        return normalized === 'JTG25453' || /(^|[^0-9])25453([^0-9]|$)/.test(String(sku || ''));
+    function getProductTitle() {
+        var form = document.querySelector('[data-back-deflector-title]');
+        if (form && form.getAttribute('data-back-deflector-title')) {
+            return form.getAttribute('data-back-deflector-title');
+        }
+        var el = document.querySelector('.productView-title');
+        return el ? (el.textContent || '').trim() : '';
+    }
+
+    function getProductUrl() {
+        var form = document.querySelector('[data-back-deflector-url]');
+        if (form && form.getAttribute('data-back-deflector-url')) {
+            return form.getAttribute('data-back-deflector-url');
+        }
+        return location.pathname || '';
+    }
+
+    function isBackDeflectorCustomProduct() {
+        var path = String(getProductUrl() || location.pathname || '').toLowerCase();
+        if (path.indexOf(CUSTOM_SLUG) !== -1) return true;
+
+        var title = getProductTitle();
+        if (/custom\s*factory\s*production\s*art/i.test(title)) return true;
+
+        var normalized = String(getProductSku() || '').replace(/\s+/g, '').toUpperCase();
+        // Exact custom SKU only (exclude blank JTG25453-1)
+        return normalized === 'JTG25453';
     }
 
     function renameSizeLabels(root) {
@@ -389,14 +429,37 @@
         });
     }
 
-    function enhanceDesignConfirmationLabels(root) {
+    function enhanceNameAndNumberLabels(root) {
         var scope = root || document;
+        var foundNameNumber = false;
         Array.prototype.forEach.call(scope.querySelectorAll('.form-label'), function (label) {
             var text = (label.textContent || '').trim();
-            if (/Design Confirmation \(Select Letter A[–-][YR]\)/i.test(text)) {
-                label.textContent = text.replace(/A[–-][YR]/i, 'A–V');
+            if (!text) return;
+
+            if (/Design Confirmation/i.test(text)) {
+                foundNameNumber = true;
+                if (/Select Letter A[–-][A-Z]/i.test(text)) {
+                    label.textContent = text.replace(/A[–-][A-Z]/i, 'A–V');
+                } else if (!/A–V/i.test(text)) {
+                    label.textContent = 'Design Confirmation (Select Letter A–V):';
+                }
+                return;
+            }
+            if (/^(Enter\s+)?Custom\s+Name/i.test(text) || /Name for Plate|Plate Personalization Name/i.test(text)) {
+                foundNameNumber = true;
+                label.textContent = 'Enter Custom Name';
+                return;
+            }
+            if (/^(Enter\s+)?Custom\s+Number/i.test(text) || /^Race Number/i.test(text)) {
+                foundNameNumber = true;
+                label.textContent = 'Enter Custom Number';
             }
         });
+
+        var intro = document.querySelector('[data-back-deflector-name-number]');
+        if (intro) {
+            intro.style.display = foundNameNumber ? 'block' : 'none';
+        }
     }
 
     function showContactCta() {
@@ -406,20 +469,26 @@
         });
     }
 
-    function initBackDeflectorSkuUi() {
-        if (!isBackDeflectorSku(getProductSku())) return;
+    function initBackDeflectorCustomUi() {
+        if (!isBackDeflectorCustomProduct()) return;
+        document.documentElement.classList.add('is-back-deflector-custom');
         renameSizeLabels(document);
-        enhanceDesignConfirmationLabels(document);
+        enhanceNameAndNumberLabels(document);
         showContactCta();
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initBackDeflectorSkuUi);
+        document.addEventListener('DOMContentLoaded', initBackDeflectorCustomUi);
     } else {
-        initBackDeflectorSkuUi();
+        initBackDeflectorCustomUi();
     }
     document.addEventListener('click', function () {
-        window.setTimeout(initBackDeflectorSkuUi, 300);
+        window.setTimeout(initBackDeflectorCustomUi, 300);
+    });
+    document.addEventListener('change', function (e) {
+        if (e.target && e.target.name && String(e.target.name).indexOf('attribute') !== -1) {
+            window.setTimeout(initBackDeflectorCustomUi, 100);
+        }
     });
 })();
 </script>
@@ -450,4 +519,25 @@
         line-height: 1.45;
     }
     .backDeflector-cta-action { margin: 0; }
+    .backDeflector-nameNumber {
+        max-width: 640px;
+        margin: 0 0 14px;
+        padding: 14px 16px;
+        background: #f5f5f5;
+        border-left: 3px solid #e53d42;
+    }
+    .backDeflector-nameNumber-title {
+        margin: 0 0 6px;
+        font-family: 'Oswald', sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        color: #161616;
+        text-transform: uppercase;
+    }
+    .backDeflector-nameNumber-text {
+        margin: 0;
+        color: #505050;
+        font-size: 13px;
+        line-height: 1.4;
+    }
 </style>

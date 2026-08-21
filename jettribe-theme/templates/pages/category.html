@@ -44,6 +44,63 @@ category:
       {{/if}}
   
       <main class="page-content" id="product-listing-container">
+          {{!-- Feature Back Deflector Custom Factory product on Factory + Back Deflector categories --}}
+          {{#or (if category.name '===' 'Customized Gear - Factory') (if category.name '===' 'Back Deflector')}}
+          <div class="backDeflector-featured" data-back-deflector-featured>
+              <a class="backDeflector-featured-link" href="/back-deflector-custom-factory-production-art-included/?setCurrencyId=1">
+                  <span class="backDeflector-featured-eyebrow">Factory Custom</span>
+                  <span class="backDeflector-featured-title">Back Deflector Custom — Factory Production Art Included</span>
+                  <span class="backDeflector-featured-text">Adult Large &amp; Adult Small · Name &amp; Number · Design letters A–V</span>
+                  <span class="backDeflector-featured-cta">View Product</span>
+              </a>
+          </div>
+          <style>
+            .backDeflector-featured { margin: 0 0 22px; }
+            .backDeflector-featured-link {
+              display: block;
+              padding: 18px 20px;
+              background: #f5f5f5;
+              border-top: 3px solid #e53d42;
+              text-decoration: none;
+              color: inherit;
+            }
+            .backDeflector-featured-eyebrow {
+              display: block;
+              font-family: 'Oswald', sans-serif;
+              font-size: 12px;
+              font-weight: 700;
+              letter-spacing: 0.06em;
+              text-transform: uppercase;
+              color: #e53d42;
+              margin-bottom: 6px;
+            }
+            .backDeflector-featured-title {
+              display: block;
+              font-family: 'Oswald', sans-serif;
+              font-size: 20px;
+              font-weight: 700;
+              color: #161616;
+              text-transform: uppercase;
+              margin-bottom: 6px;
+            }
+            .backDeflector-featured-text {
+              display: block;
+              font-size: 14px;
+              color: #505050;
+              margin-bottom: 10px;
+            }
+            .backDeflector-featured-cta {
+              display: inline-block;
+              font-family: 'Oswald', sans-serif;
+              font-size: 13px;
+              font-weight: 700;
+              text-transform: uppercase;
+              color: #fff;
+              background: #e53d42;
+              padding: 8px 14px;
+            }
+          </style>
+          {{/or}}
           {{> components/category/product-listing}}
       </main>
     

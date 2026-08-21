@@ -1,0 +1,442 @@
+---
+products:
+    new:
+        limit: 10
+    featured:
+        limit: {{theme_settings.homepage_featured_products_count}}
+    top_sellers:
+        limit: {{theme_settings.homepage_top_products_count}}
+carousel: {{theme_settings.homepage_show_carousel}}
+blog:
+    recent_posts:
+        limit: {{theme_settings.homepage_blog_posts_count}}
+---
+{{#partial "hero"}}
+    {{{region name="home_below_menu"}}}
+    {{#if carousel}}
+        {{> components/carousel arrows=theme_settings.homepage_show_carousel_arrows}}
+    {{/if}}
+    {{{region name="home_below_carousel"}}}
+{{/partial}}
+
+{{#partial "page"}}
+
+    {{#each shipping_messages}}
+        {{> components/common/alert-info message}}
+    {{/each}}
+    
+    <style>
+		.body .container {max-width:inherit; padding:0;}
+		.body .container .container {max-width:1320px; padding:0 20px;}
+	</style>
+
+<div class="main full">
+
+	<div class="cateSec">
+    	<div class="container">
+    	   <!-- Placement v1 -->
+<klarna-placement
+  data-id="917c5e2c-b4aa-4e19-bc45-c5ddcff7c9c3" 
+  data-theme="dark"
+></klarna-placement>
+<!-- end Placement -->
+        	<!--div class="cateTxt">Jettribe is a true core brand for <span>the watercraft enthusiast since 1996.</span></div-->
+            <ul class="desktop_cate">
+            	<li>
+                	<div class="cateBox">
+                    	<a href="/wetsuits/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Wetsuit%202021.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Wetsuits</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                <li>
+                	<div class="cateBox">
+                    	<a href="/jettribe-vests/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Vests%202022.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Vests</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                <li>
+                	<div class="cateBox">
+                    	<a href="/accessories/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Accessories%202021.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Accessories</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                <li>
+                	<div class="cateBox">
+                    	<a href="/boots-shoes/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Boots%20V2.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Boots & Shoes</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                
+                <li>
+                	<div class="cateBox">
+                    	<a href="/gloves/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Gloves_Jet_Ski_Cover.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Gloves</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                <li>
+                	<div class="cateBox">
+                    	<a href="/goggles/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Goggles%202022.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Goggles</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                <li>
+                	<div class="cateBox">
+                    	<a href="/pwc-covers/">
+                        	<img src="https://cdn11.bigcommerce.com/s-09242/product_images/uploaded_images/6-covers.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Covers</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                
+                <li>
+                	<div class="cateBox">
+                    	<a href="/for-him/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Rashguard%202021.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Men's Apparel</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                <li>
+                	<div class="cateBox">
+                    	<a href="/for-her/">
+                        	<img src="https://cdn11.bigcommerce.com/s-09242/product_images/uploaded_images/8-ladys-clothes.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Ladies Apparel</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                <li>
+                	<div class="cateBox">
+                    	<a href="/swimwear-dresses/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Swimwear%202022.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Swim Wear</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                
+                <li>
+                	<div class="cateBox">
+                    	<a href="/protective-gear/">
+                        	<img src="https://cdn11.bigcommerce.com/s-09242/product_images/uploaded_images/10-protection.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Protection</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                <li>
+                	<div class="cateBox">
+                    	<a href="/gear-bags/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Travel%20Gear%202021.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Travel Gear</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                                <li>
+                	<div class="cateBox">
+                    	<a href="/customized-gear-factory/?setCurrencyId=1">
+                        	<img src="https://cdn11.bigcommerce.com/s-09242/products/2453/images/30070/25466RD-1__40378.1771544320.1280.1280.JPG?c=2" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Custom Gear</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+
+            
+                <li>
+                	<div class="cateBox">
+                    	<a href="/pwc-care/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Cleaners.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">PWC Care</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                <li>
+                	<div class="cateBox">
+                    	<a href="/vp-fuels-containers/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Hard%20Goods.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Hard Goods</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+            </ul>
+            
+            <ul class="mobile_cate">
+            	<li>
+                	<div class="cateBox">
+                    	<a href="/wetsuits/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Wetsuit%202021.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Wetsuits</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                <li>
+                	<div class="cateBox">
+                    	<a href="/jettribe-vests/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Vests%202022.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Vests</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                                  <li>
+                	<div class="cateBox">
+                    	<a href="/accessories/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Accessories%202021.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Accessories</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+
+                <li>
+                	<div class="cateBox">
+                    	<a href="/boots-shoes/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Boots%20V2.jpg"alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Boots & Shoes</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                
+                <li>
+                	<div class="cateBox">
+                    	<a href="/gloves/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Gloves_Jet_Ski_Cover.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Gloves</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                <li>
+                	<div class="cateBox">
+                    	<a href="/goggles/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Goggles%202022.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Goggles</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                <li>
+                	<div class="cateBox">
+                    	<a href="/pwc-covers/">
+                        	<img src="https://cdn11.bigcommerce.com/s-09242/product_images/uploaded_images/6-covers.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Covers</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                
+                <li>
+                	<div class="cateBox">
+                    	<a href="/for-him/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Rashguard%202021.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Men's Apparel</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                <li>
+                	<div class="cateBox">
+                    	<a href="/for-her/">
+                        	<img src="https://cdn11.bigcommerce.com/s-09242/product_images/uploaded_images/8-ladys-clothes.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Ladies Apparel</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                <li>
+                	<div class="cateBox">
+                    	<a href="/swimwear-dresses/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Swimwear%202022.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Swim Wear</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                
+                <li>
+                	<div class="cateBox">
+                    	<a href="/protective-gear/">
+                        	<img src="https://cdn11.bigcommerce.com/s-09242/product_images/uploaded_images/10-protection.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Protection</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                <li>
+                	<div class="cateBox">
+                    	<a href="/gear-bags/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Travel%20Gear%202021.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Travel Gear</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                                <li>
+                	<div class="cateBox">
+                    	<a href="/customized-gear-factory/?setCurrencyId=1">
+                        	<img src="https://cdn11.bigcommerce.com/s-09242/products/2453/images/30070/25466RD-1__40378.1771544320.1280.1280.JPG?c=2" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Custom Gear</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+
+              
+                <li>
+                	<div class="cateBox">
+                    	<a href="/pwc-care/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Cleaners.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">PWC Care</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+                <li>
+                	<div class="cateBox">
+                    	<a href="/vp-fuels-containers/">
+                        	<img src="https://store-09242.mybigcommerce.com/product_images/Hard%20Goods.jpg" alt="" />
+                            <span class="cateDtl">
+                            	<span class="cateTitle">Hard Goods</span>
+                            </span>
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+	<div class="productSlider">
+        {{#if products.featured}}
+            {{> components/products/featured products=products.featured columns=theme_settings.homepage_featured_products_column_count}}
+        {{/if}}
+        {{{region name="home_below_featured_products"}}}
+    </div>
+
+	<div class="productSlider newproductSlider">
+        {{#if products.new}}
+            {{> components/products/new products=products.new columns=theme_settings.homepage_new_products_column_count}}
+        {{/if}}
+        {{{region name="home_below_new_products"}}}
+    </div>
+    
+    <div class="testiSec">
+    	<div class="container">
+        	<div class="testiIc"><img src="{{cdn '/assets/img/testi-ic.png'}}" alt="" /></div>
+        	<div class="testiSlider"
+                    data-slick='{
+                    "dots": true,
+                    "infinite": false,
+                    "mobileFirst": true,
+                    "slidesToShow": 1,
+                    "slidesToScroll": 1,
+                    "responsive": [
+                         {
+                            "breakpoint": 767,
+                            "settings": {
+                                "slidesToScroll": 1,
+                                "slidesToShow": 1
+                            }
+                        }
+                    ]
+                }'
+            >
+            
+                <div class="reviewBox">
+                	<div class="reviewCntn">
+                        <p>I am a hard core rider and this jacket is so comfortable I don’t even notice that I am wearing it and it matches my ski...win win</p>
+                        <div class="authorDtl">- Donnie Beale</div>
+                    </div>
+                </div>
+                <div class="reviewBox">
+                	<div class="reviewCntn">
+                        <p>Love my JetTribe vest best fit and finish on the market.</p>
+                        <div class="authorDtl">- Bruce Hill </div>
+                    </div>
+                </div>
+                <div class="reviewBox">
+                	<div class="reviewCntn">
+                        <p>We have purchased a number of items (suits and beachwear). The suits are really sharp and great quality. I would give them a 6/5 if I could.  You really can’t get better than this!</p>
+                        <div class="authorDtl">- Derek Corell</div>
+                    </div>
+                </div>
+                <div class="reviewBox">
+                	<div class="reviewCntn">
+                        <p>The Side Entry Impact Vest feels very well constructed and built for speed and protection. Easy to put on and remove. Very comfortable for racing.</p>
+                        <div class="authorDtl">- Kenneth Wong</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="videoSec">
+    	<div class="container">
+        	<div class="videoBlock">
+            	<iframe src="https://www.youtube.com/embed/W0hbaRsZ1to" width="100%" height="350" frameborder="0"></iframe>
+            </div>
+            <div class="videoBlock">
+            	<iframe src="https://www.youtube.com/embed/yE-0s3JTjq0" width="100%" height="350" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+    
+    
+    
+</div>
+{{/partial}}
+{{> layout/base}}

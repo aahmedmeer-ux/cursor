@@ -1,0 +1,67 @@
+---
+product:
+    videos:
+        limit: {{theme_settings.productpage_videos_count}}
+    reviews:
+        limit: {{theme_settings.productpage_reviews_count}}
+    related_products:
+        limit: {{theme_settings.productpage_related_products_count}}
+    similar_by_views:
+        limit: {{theme_settings.productpage_similar_by_views_count}}
+---
+{{#partial "page"}}
+<style>
+  .body .container {max-width:inherit; padding:0; }
+  .body .container .container {max-width:1320px; padding:0 20px;}  
+  .footer{ margin-top:0; }
+</style>
+<div class="productPageMain">
+     <div class="container">{{> components/common/breadcrumbs breadcrumbs=breadcrumbs}}</div>
+
+    {{#each product.shipping_messages}}
+        {{> components/common/alert-info message}}
+    {{/each}}
+
+    <div itemscope itemtype="http://schema.org/Product">
+    
+    <div class="productPageImageAndOption">
+      <div class="container">
+        {{> components/products/product-view schema=true  }}
+      </div>
+    </div>
+
+        <article class="productdetailDesc productView-description"{{#if schema}} itemprop="description"{{/if}}>
+        <div class="container">
+            {{#if theme_settings.show_product_details_tabs}}
+                {{> components/products/description-tabs}}
+            {{else}}
+                {{> components/products/description}}
+            {{/if}}
+          </div>
+        </article>
+        
+        {{{region name="product_below_content"}}}
+
+        <div style="clear:both;"></div>
+        <div class="customerViewedProducts">
+          <div class="container">
+        {{> components/products/tabs}}
+          </div>
+        </div>
+        <div style="clear:both;"></div>
+        
+        <script>
+			$(document).ready(function(){
+			$(".productView-reviewLink a").click(function(e){
+				e.preventDefault();
+				console.log($('a[href="#tab-reviews"]'));
+		
+				$('a[href="#tab-reviews"]')[0].click();
+				$('html, body').stop().animate({ scrollTop: $(".productView-description").offset().top }, 1000);
+			});
+			});
+		</script>
+    </div>
+    </div>
+{{/partial}}
+{{> layout/base}}

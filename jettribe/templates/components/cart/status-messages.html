@@ -1,0 +1,11 @@
+{{#if cart.status_messages.length '>' 0}}
+    <div class="cart-status" data-cart-status-message>
+        {{#each cart.status_messages}}
+            <div class="alertBox alertBox--info">
+                <div class="alertBox-column alertBox-message">
+                    <i class="icon statusMsg-icon"><svg><use href="#icon-star-sharp" /></svg></i>{{{message}}}
+                </div>
+            </div>
+        {{/each}}
+    </div>
+{{/if}}

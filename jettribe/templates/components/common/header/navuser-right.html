@@ -1,0 +1,63 @@
+<ul class="navUser-section">
+    <li class="navUser-item navUser-item--account">
+        <a id="login-dropdown-navRight" data-toggle="login-popup" class="navUser-action navUser-action--account login-dropdown--popup login-dropdown--desktop" href="{{#if customer}}{{urls.account.index}}{{else}}{{urls.auth.login}}{{/if}}" title="{{lang 'common.account'}}">
+            <svg class="icon"><use href="#icon-account" /></svg>
+            <span class="_label">{{lang 'common.account'}}</span>
+        </a>
+        <div id="login-popup" class="login-popup general-account {{#if customer}}has-account{{/if}}" aria-hidden="true">
+            {{> components/account/login-popup}}
+        </div>
+        <div class="previewLogin-overlay" id="popup-overlay"></div>
+    </li>
+    <li class="navUser-item navUser-item--returns">
+        <a class="navUser-action navUser-action--returns" href="/returns/" title="{{lang 'account.nav.returns'}}">
+            <svg class="icon"><use href="#icon-lock" /></svg>
+            <span class="_label">{{lang 'account.nav.returns'}}</span>
+        </a>
+    </li>
+    <li class="navUser-item navUser-item--wishlist">
+        <a class="navUser-action navUser-action--wishlist" href="{{urls.account.wishlists.all}}" title="Wishlists">
+            <svg class="icon"><use href="#icon-heart" /></svg>
+            <span class="_label">Wishlists</span>
+        </a>
+    </li>
+    {{#if settings.gift_certificates_enabled}}
+        <li class="navUser-item navPages-item--page navUser-item--giftCert">
+            <a class="navUser-action navUser-action--giftCert" href="{{urls.gift_certificate.purchase}}" title="Gift Certificates">
+                <svg class="icon"><use href="#icon-gift-certificate"></use></svg>
+                <span class="_label">Gift Certificates</span>
+            </a>
+        </li>
+    {{/if}}
+    <li class="navUser-item navUser-item--cart">
+        <a
+        data-cart-preview
+        data-toggle="cart-preview-dropdown"
+        href="{{urls.cart}}"
+        title="{{lang 'common.cart'}}"
+        class="navUser-action navUser-action--cart _cart-btnToggle">
+            <div class="_cart-icon">
+                <svg class="icon"><use href="#icon-cart" /></svg>
+            </div>
+            <span class="_total-cart">
+                <span data-cart-preview-price class="_total-price-nav">$0</span>
+                <span class="_total-items">
+                    <span class="countPill cart-quantity"></span><span class="cart-quantity-label">
+                        <span class="_single-item">{{lang 'cart.single_item'}}</span>
+                        <span class="_plural-item">{{lang 'cart.plural_item'}}</span>
+                    </span>
+                </span>
+            </span>
+        </a>
+    </li>
+    {{#if settings.phone_number}}
+        {{#if theme_settings.navUser-phone '===' 'show'}}
+            <li class="navUser-item navUser-item--phone u-hideDesktop">
+                <a class="navUser-action" href="tel:{{settings.phone_number}}" title="{{lang 'header.call_us' phone_number=settings.phone_number}}">
+                    <svg class="icon"><use href="#icon-phone2" /></svg>
+                    <span class="_label u-hideDesktop">{{{lang 'header.call_us2' phone_number=settings.phone_number}}}</span>
+                </a>
+            </li>
+        {{/if}}
+    {{/if}}
+</ul>

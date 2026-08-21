@@ -1,0 +1,49 @@
+<div id="newsletterPopupModal" class="modal modal--newsletter" data-reveal data-prevent-quick-search-close>
+    <a href="#" class="modal-close" aria-label="{{lang 'common.close'}}" role="button">
+        <svg class="icon"><use href="#icon-close" /></svg>
+    </a>
+    <div class="modal-content">
+        <div class="newsletterPopup">
+            <div class="newsletterPopup-image">
+            </div>
+            <div class="newsletterPopup-content">
+                <h2 class="newsletterPopup-heading">{{theme_settings.newsletter_heading}}</h2>
+                <div class="newsletterPopup_box">
+                    {{#if settings.show_newsletter_summary}}
+                        {{#if settings.newsletter_summary}}
+                            <p>{{{settings.newsletter_summary}}}</p>
+                        {{else if in_development}}
+                            <p>Sign up for our newsletter and get the latest updates on new products and upcoming sales</p>
+                        {{/if}}
+                    {{/if}}
+                </div>
+                {{{region name="newsletter_popup_content--global"}}}
+                <div id="newsletterPopup-form-placeholder" class="newsletterPopup-form">
+                    <form id="newsletterPopup-form" class="form" action="{{urls.subscribe.action}}" method="post">
+                        <fieldset class="form-fieldset">
+                            <input type="hidden" name="action" value="subscribe">
+                            <input type="hidden" name="nl_first_name" value="bc">
+                            <input type="hidden" name="check" value="1">
+                            <div class="form-field">
+                                <label class="form-label is-srOnly" for="nl_first_name">{{lang 'settings.first_name'}}</label>
+                                <input class="form-input" id="nl_first_name" name="nl_first_name" type="text" value="{{customer.first_name}}" placeholder="{{lang 'newsletter.name_placeholder'}}">
+                            </div>
+                            <div class="form-field">
+                                <label class="form-label is-srOnly" for="nl_email2">{{lang 'common.email_address'}}</label>
+                                <input class="form-input" id="nl_email2" name="nl_email" type="email" value="{{customer.email}}" placeholder="{{lang 'newsletter.email_placeholder'}}">
+                            </div>
+                            <input class="button button-primary" type="submit" value="{{lang 'newsletter.subscribe_submit'}}">
+                            <div class="form-field">
+                                <input type="checkbox" class="form-checkbox" name="hide" id="newsletterPopup-input-hide" value="1" />
+                                <label class="form-label {{class}}" for="newsletterPopup-input-hide">{{lang 'newsletter.hide_popup_msg'}}</label>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+                {{{region name="newsletter_popup_content_bottom--global"}}}
+            </div>
+        </div>
+    </div>
+    <div class="loadingOverlay"></div>
+</div>
+<div class="nl-popup-overlay" id="nl-popup-overlay"></div>

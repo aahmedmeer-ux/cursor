@@ -1,0 +1,101 @@
+{{#or settings.add_this.buttons settings.facebook_like_button.enabled}}
+    {{assignVar 'encodedUrl' (encodeURI product.url)}}
+    {{assignVar 'encodedTitle' (encodeURI head.title)}}
+    <div class="form-share">
+        <a href="#" class="button dropdown-menu-button" data-dropdown="share-dropdown--{{product.id}}" aria-controls="share-dropdown--{{product.id}}" aria-expanded="false">
+            <svg class="icon"><use href="#icon-share" /></svg>
+            <span class="is-srOnly">{{lang 'common.share'}}</span>
+        </a>
+        <div class="socialLinks socialLinks--alt" id="share-dropdown--{{product.id}}" tabindex="-1">
+            <div class="form-field">
+                <label class="form-label" for="share_link--{{product.id}}">{{lang 'common.share'}}</label>
+                <input class="form-input" type="text" id="share_link--{{product.id}}" name="share_link--{{product.id}}" value="{{product.url}}">
+            </div>
+        </div>
+    </div>
+{{/or}}
+<div class="socialLinks socialLinks--alt">
+    <ul>
+        {{#each settings.add_this.buttons}}
+            <li class="socialLinks-item socialLinks-item--{{service}}">
+                {{#if service '===' 'facebook'}}
+                <a class="socialLinks__link icon icon--{{service}}"
+                title="{{{capitalize service}}}"
+                href="https://facebook.com/sharer/sharer.php?u={{getVar 'encodedUrl'}}"
+                target="_blank"
+                rel="noopener"
+                {{{annotation}}}
+                >
+                    <span class="aria-description--hidden">{{{capitalize service}}}</span>
+                    <svg>
+                        <use href="#icon-facebook"/>
+                    </svg>
+                </a>
+                {{else if service '===' 'email'}}
+                <a class="socialLinks__link icon icon--{{service}}"
+                title="{{{capitalize service}}}"
+                href="mailto:?subject={{getVar 'encodedTitle'}}&amp;body={{getVar 'encodedUrl'}}"
+                target="_self"
+                rel="noopener"
+                {{{annotation}}}
+                >
+                    <span class="aria-description--hidden">{{{capitalize service}}}</span>
+                    <svg>
+                        <use href="#icon-envelope"/>
+                    </svg>
+                </a>
+                {{else if service '===' 'print'}}
+                <a class="socialLinks__link icon icon--{{service}}"
+                title="{{{capitalize service}}}"
+                onclick="window.print();return false;"
+                {{{annotation}}}
+                >
+                    <span class="aria-description--hidden">{{{capitalize service}}}</span>
+                    <svg>
+                        <use href="#icon-print"/>
+                    </svg>
+                </a>
+                {{else if service '===' 'twitter'}}
+                <a class="socialLinks__link icon icon--x"
+                href="https://x.com/intent/tweet/?text={{getVar 'encodedTitle'}}&amp;url={{getVar 'encodedUrl'}}"
+                target="_blank"
+                rel="noopener"
+                title="X"
+                {{{annotation}}}
+                >
+                    <span class="aria-description--hidden">X</span>
+                    <svg>
+                        <use href="#icon-x"/>
+                    </svg>
+                </a>
+                {{else if service '===' 'linkedin'}}
+                <a class="socialLinks__link icon icon--{{service}}"
+                title="{{{capitalize service}}}"
+                href="https://www.linkedin.com/shareArticle?mini=true&amp;url={{getVar 'encodedUrl'}}&amp;title={{getVar 'encodedTitle'}}&amp;summary={{getVar 'encodedTitle'}}&amp;source={{getVar 'encodedUrl'}}"
+                target="_blank"
+                rel="noopener"
+                {{{annotation}}}
+                >
+                    <span class="aria-description--hidden">{{{capitalize service}}}</span>
+                    <svg>
+                        <use href="#icon-linkedin"/>
+                    </svg>
+                </a>
+                {{else if service '===' 'pinterest'}}
+                <a class="socialLinks__link icon icon--{{service}}"
+                title="{{{capitalize service}}}"
+                href="https://pinterest.com/pin/create/button/?url={{getVar 'encodedUrl'}}&amp;description={{getVar 'encodedTitle'}}"
+                target="_blank"
+                rel="noopener"
+                {{{annotation}}}
+                >
+                    <span class="aria-description--hidden">{{{capitalize service}}}</span>
+                    <svg>
+                        <use href="#icon-pinterest"/>
+                    </svg>
+                </a>
+                {{/if}}
+            </li>
+        {{/each}}
+    </ul>
+</div>

@@ -1,0 +1,55 @@
+.infiniteScroll {
+    .pagination {
+        height: 0 !important;
+        // overflow: hidden !important;
+        // visibility: hidden !important;
+        transition: all 0.2s ease-in;
+
+        > * {
+            height: 0 !important;
+            visibility: hidden !important;
+        }
+
+        &.is-loading {
+            height: 50px !important;
+            visibility: visible !important;
+            background: url("../img/loading.svg") no-repeat center center;
+            background-size: contain;
+
+            > * {
+                height: 0 !important;
+                visibility: hidden !important;
+            }
+
+            + .infiniteScroll-loadMoreWrapper .button {
+                pointer-events: none;
+                opacity: 0.5;
+
+                &::after {
+                    content: "...";
+                }
+            }
+        }
+    }
+}
+
+.infiniteScroll-loadMoreWrapper {
+    text-align: center;
+
+    &._top {
+        margin-top: spacing("half");
+    }
+
+    &._bottom {
+        @include breakpoint("medium") {
+            margin-bottom: spacing("double")*1.25;
+        }
+        @media (max-width: (screenSize("medium") - 1px)) {
+            margin-bottom: spacing("single")*1.5;
+        }
+    }
+
+    .button {
+        margin: 0;
+    }
+}

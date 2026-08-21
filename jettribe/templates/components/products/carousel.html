@@ -1,0 +1,57 @@
+<div class="productCarousel productCarousel--responsiveCol blaze-slider"
+    {{#if data_product_type}} data-product-type="{{data_product_type}}"{{/if}}
+    {{#if settings.data_tag_enabled}} data-list-name="{{list}}"{{/if}}
+    data-blaze-slider='{
+        "all": {
+            "enablePagination": true,
+            "enableAutoplay": false,
+            "autoplayInterval": 5000,
+            "stopAutoplayOnInteraction": true,
+            "transitionDuration": 800,
+            "slidesToShow": {{#if show_more_in_screen_large}}6{{else}}{{ theme_settings.product_col }}{{/if}},
+            "slidesToScroll": {{#if show_more_in_screen_large}}6{{else}}{{ theme_settings.product_col }}{{/if}},
+            "slideGap": "0px"
+        },
+        {{#if show_more_in_screen_large}}
+            "(max-width: 1360px)": {
+                "slidesToShow": {{ theme_settings.product_col }},
+                "slidesToScroll": {{ theme_settings.product_col }}
+            },
+        {{/if}}
+        "(max-width: 800px)": {
+            "slidesToShow": {{ theme_settings.product_col_md }},
+            "slidesToScroll": {{ theme_settings.product_col_md }}
+        },
+        "(max-width: 550px)": {
+            "slidesToShow": {{#if data_slide_show}}{{data_slide_show}}{{else}}{{ theme_settings.product_col_sm }}{{/if}},
+            "slidesToScroll": {{#if data_slide_scroll}}{{data_slide_scroll}}{{else}}{{ theme_settings.product_col_sm }}{{/if}}
+        }
+    }'
+    >
+    <div class="blaze-container">
+        <div class="blaze-track-container">
+            <div class="blaze-track">
+                {{#if is_placeholder}}
+                    {{#for 1 theme_settings.product_col}}
+                        <div class="productCarousel-slide">
+                        {{> components/products/card-placeholder settings=../settings show_rating=../settings.show_product_rating theme_settings=../theme_settings customer=../customer event="list" position=(add @index 1)}}
+                        </div>
+                    {{/for}}
+                {{else}}
+                    {{#each products}}
+                        <div class="productCarousel-slide" data-product-id="{{id}}">
+                            {{> components/products/card settings=../settings show_compare=../theme_settings.card_show_compare show_rating=../settings.show_product_rating theme_settings=../theme_settings customer=../customer event="list" position=(add @index 1)}}
+                        </div>
+                    {{/each}}
+                {{/if}}
+            </div>
+        </div>
+
+        <!-- pagination container -->
+        <div class="blaze-pagination"></div>
+
+        <!-- navigation buttons -->
+        <button class="blaze-prev" aria-label="{{lang 'common.previous'}}"></button>
+        <button class="blaze-next" aria-label="{{lang 'common.next'}}"></button>
+    </div>
+</div>

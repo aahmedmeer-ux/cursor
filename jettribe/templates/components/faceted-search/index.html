@@ -1,0 +1,124 @@
+<div id="facetedSearch" class="facetedSearch sidebarBlock"
+    {{#if shop_by_price}}data-beautify-faceted-shop-by-price="{{JSONstringify shop_by_price}}"{{/if}}
+    >
+    {{#if layout '===' 'fullwidth'}}
+        <h3 class="sidebarBlock-heading u-hideDesktop">
+            {{lang 'search.faceted.selected.title'}}
+        </h3>
+    {{else}}
+        {{> components/faceted-search/selected-facets this.selected}}
+    {{/if}}
+        <div
+            id="facetedSearch-navList"
+            class="facetedSearch-navList blocker-container">
+            {{#if layout '!=' 'fullwidth'}}
+                {{#if show_subcategories}}
+                    {{#if this.subcategories}}
+                        <div class="kitchenary-categoryPage-sidebar">
+                            {{#if (merge this start_collapsed=true)}}
+                                <div class="_accordion-block">
+                                    <div
+                                        class="_accordion-navigation toggleLink {{#if this.start_collapsed }} is-open {{/if}}"
+                                        role="button"
+                                        tabindex="0"
+                                        data-collapsible="#facetedSearch-content--category">
+                                        <h4 class="_accordion-title">
+                                            <span class="_toggle-cats">
+                                                <svg class="icon"><use href="#icon-arrow-filter-down"></use></svg>
+                                            </span>
+                                            {{lang 'category.label'}}
+                                        </h4>
+                                    </div>
+                                    <div id="facetedSearch-content--category" class="_accordion-content {{#if this.start_collapsed }} is-open {{/if}}">
+                                        <div class="kitchenary-categoryPage-subCategories">
+                                            <ul class="subCategories-list">
+                                                {{#each this.subcategories}}
+                                                    <li class="subCategories-item">
+                                                        <a class="subCategories-item-action" data-instantload href="{{url}}" title="{{name}}" aria-label="{{name}}">{{name}}</a>
+                                                    </li>
+                                                {{/each}}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            {{/if}}
+                        </div>
+                    {{/if}}
+                {{/if}}
+            {{/if}}
+            {{#any facets visible=true}}
+            <div class="_accordion _accordion--navList">
+                {{#if layout '===' 'fullwidth'}}
+                    {{#if show_subcategories}}
+                        {{#if this.subcategories}}
+                            <div class="kitchenary-categoryPage-sidebar">
+                                {{#if (merge this start_collapsed=false)}}
+                                    <div class="_accordion-block">
+                                        <div
+                                            class="_accordion-navigation toggleLink {{#if this.start_collapsed }} is-open {{/if}}"
+                                            role="button"
+                                            tabindex="0"
+                                            data-collapsible="#facetedSearch-content--category">
+                                            <h4 class="_accordion-title">
+                                                <span class="_toggle-cats">
+                                                    <svg class="icon"><use href="#icon-arrow-filter-down"></use></svg>
+                                                </span>
+                                                {{lang 'category.label'}}
+                                            </h4>
+                                        </div>
+                                        <div id="facetedSearch-content--category" class="_accordion-content {{#if this.start_collapsed }} is-open {{/if}}">
+                                            <div class="kitchenary-categoryPage-subCategories">
+                                                <ul class="subCategories-list">
+                                                    {{#each this.subcategories}}
+                                                        <li class="subCategories-item">
+                                                            <a class="subCategories-item-action" data-instantload href="{{url}}" title="{{name}}" aria-label="{{name}}">{{name}}</a>
+                                                        </li>
+                                                    {{/each}}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {{/if}}
+                            </div>
+                        {{/if}}
+                    {{/if}}
+                {{/if}}
+                {{#each facets}}
+                    {{#if ../collapsed}}
+                        {{#if (merge this start_collapsed=true)}}{{/if}}
+                    {{/if}}
+                    {{#if partial '==' 'range'}}
+                        {{#if (merge this currency_token=../../currency_token show_price_slider=../../show_price_slider)}}{{/if}}
+                    {{/if}}
+                    {{#if visible}}
+                        {{!-- Skip Country / Flags product filters --}}
+                        {{#unless (if facet '===' 'country')}}
+                        {{#unless (if title '===' 'Flags')}}
+                        {{#unless (if title '===' 'Country')}}
+                        {{#unless (if title '===' 'Flag')}}
+                        <div class="facetedSearch-facetBlock" data-facet-key="{{facet}}" data-facet-title="{{title}}">
+                            {{{dynamicComponent 'components/faceted-search/facets'}}}
+                        </div>
+                        {{/unless}}
+                        {{/unless}}
+                        {{/unless}}
+                        {{/unless}}
+                    {{/if}}
+                {{/each}}
+            </div>
+            {{/any}}
+            <div class="blocker" style="display: none;"></div>
+        </div>
+        {{#if layout '===' 'fullwidth'}}
+            {{> components/faceted-search/selected-facets this.selected layout=layout}}
+        {{/if}}
+
+    <div class="facetedSearch-bottom">
+        <a href="#" class="button button--primary is-open" data-toggle="sidebar-top">{{lang 'search.faceted.apply_filters'}}</a>
+        {{#if this.selected.remove_all_url}}
+            <a class="button facetedSearch-clearLink is-open" href="{{ this.selected.remove_all_url }}" data-faceted-search-facet>
+                {{lang 'search.faceted.selected.clear-all'}}
+            </a>
+        {{/if}}
+    </div>
+</div>

@@ -1,0 +1,382 @@
+// =============================================================================
+// USER NAVIGATION (CSS)
+// =============================================================================
+//
+// 1. Corrects the spacing added by .navUser-or
+// 2. Can't use top: 50% because its container `.header` changes its height to
+//    100% when mobile menu is expanded
+// 3. Make the triangle for store credit dropdown centered
+// 4. Needs to be 100% so its dropdown can take full width in mobile viewport
+// 5. Needs to be lower than logo zIndex, otherwise, logo is not clickable
+// 6. Make the triangle for currency dropdown right aligned
+// 7. Corrects mini cart positioned outside viewport. Since this resets right
+//    position, nudge dropdown away from the side of viewport in mobile viewport.
+// 8. This corrects mini cart dropdown arrow alignment in mobile viewport by
+//    setting the previous styles to medium breakpoint and adjusts for nudge in (7).
+//
+// -----------------------------------------------------------------------------
+
+.navUser {
+    @include nav($style: "navBar", $wrapper: "nav");
+    @include verticalPositionMiddle("absolute");
+    right: 0;
+    top: 26px; // 2
+    width: 100%; // 4
+    z-index: zIndex("lowest"); // 5.
+
+    @include breakpoint("medium") {
+        padding: 0 spacing("single");
+        position: relative;
+        right: auto;
+        top: auto;
+        transform: none;
+        z-index: zIndex("high");
+    }
+
+    .dropdown-menu {
+        background-color: stencilColor("color-secondary");
+        border: 1px solid stencilColor("color-secondary");
+        box-shadow: container("dropShadow");
+        position: absolute;
+
+        // scss-lint:disable NestingDepth
+        &.is-open {
+            &::before {
+                @include css-triangle(
+                    $triangle-direction: "bottom",
+                    $triangle-size: 10px,
+                    $triangle-color: stencilColor("color-secondary")
+                );
+                bottom: 100%;
+                left: spacing("half");
+                position: absolute;
+            }
+
+            &::after {
+                @include css-triangle(
+                    $triangle-direction: "bottom",
+                    $triangle-size: 8px,
+                    $triangle-color: stencilColor("color-secondary")
+                );
+                bottom: 100%;
+                left: spacing("half") + remCalc(2px);
+                position: absolute;
+            }
+        }
+    }
+}
+
+// papathemes-beautify edited
+.navUser-section {
+    display: flex;
+    align-items: center;
+    position: relative; // 7
+    margin: 0;
+    @media (max-width: screenSize("medium") - 1px) {
+        float: right;
+        align-items: end;
+        flex-direction: if(stencilString("logo_position") == "right", row-reverse, unset);
+    }
+}
+
+// papathemes-beautify edited
+.navUser-action {
+    color: stencilColor("navUser-color");
+    padding: spacing("third");
+    text-decoration: none;
+
+    @include breakpoint("medium") {
+        padding: 0;
+        margin: 0 0 0 spacing("third") * 1.25;
+        @if stencilString("logo_position") == "right" {
+            margin: 0 (spacing("third") * 1.25) 0 0;
+        }
+    }
+
+    @include breakpoint("large") {
+        padding: 0 (spacing("half") * 1.25) 0 0;
+        margin: 0 0 0 (spacing("half") * 1.25);
+        @if stencilString("logo_position") == "left" {
+            padding: 0;
+        }
+    }
+
+    @include breakpoint("xlarge") {
+        padding: 0 (spacing("half") * 1.25) 0 0;
+        @if stencilString("logo_position") == "left" {
+            padding: 0 (spacing("half") * 1.25) 0 0;
+        }
+    }
+
+    &:hover,
+    &:focus,
+    &.is-open {
+        color: stencilColor("navUser-color-hover");
+
+        // scss-lint:disable NestingDepth
+        svg {
+            fill: stencilColor("navUser-color-hover");
+        }
+        // scss-lint:enable NestingDepth
+    }
+
+    &.navUser-action--account {
+        &:hover {
+            ._label {
+                color: stencilColor("navUser-color-hover");
+            }
+        }
+
+        &.is-open {
+            &:focus {
+                color: stencilColor("navUser-color-hover");
+
+                svg {
+                    fill: stencilColor("navUser-color-hover");
+                }
+            }
+        }
+
+        &:focus {
+            color: stencilColor("navUser-color");
+
+            svg {
+                fill: stencilColor("navUser-color");
+            }
+        }
+    }
+
+    .icon {
+        // papathemes-beautify
+        @include square(to-number(stencilString("navUser-iconSize-mobile")));
+        margin: 0; 
+
+        // papathemes-beautify
+        @include breakpoint("medium") {
+            @include square(to-number(stencilString("navUser-iconSize")));
+        }
+    }
+
+    svg {
+        // papathemes-beautify
+        fill: stencilColor("navUser-color");
+    }
+
+    @media (max-width: (screenSize("medium") - 1px)) {
+        padding: 0;
+
+        &:hover,
+        &:focus {
+            svg {
+                fill: stencilColor("navUser-color-hover");
+            }
+        }
+    }
+}
+
+// papathemes-beautify
+.navUser-action--cart {
+    margin-right: 0;
+}
+
+.navUser-action--currencySelector + .dropdown-menu {
+    &::before {
+        // scss-lint:disable ImportantRule
+        left: auto !important; // 6
+        right: spacing("half"); // 6
+    }
+
+    &::after {
+        // scss-lint:disable ImportantRule
+        left: auto !important; // 6
+        right: spacing("half") + remCalc(2px); // 6
+    }
+}
+
+.navUser-action--storeCredit + .dropdown-menu {
+    width: 300px;
+    max-width: 300px;
+    padding: spacing("base") spacing("single");
+    margin-top: spacing("half");
+}
+
+.navUser-item {
+    @include breakpoint("medium") {
+        display: block;
+        border-right: unset;
+
+        &.navUser-item--social {
+            margin-top: rem-calc(5px);
+            padding-right: rem-calc(5px);
+        }
+
+        &.navUser-item--divider {
+            font-size: rem-calc(25px);
+            margin-top: rem-calc(8px);
+            padding-left: rem-calc(2px);
+        }
+    }
+
+    @include breakpoint("large") {
+        border-right: 1px solid rgba(stencilColor("navUser-color"), 0.15);
+        @if stencilString("header-backgroundImg") {
+            border-right: 1px solid stencilColor("navUser-color");
+        }
+        @if stencilString("logo_position") != "center" {
+            border-right: unset;
+        }
+    }
+
+    @include breakpoint("xlarge") {
+        @if stencilString("logo_position") != "center" {
+            border-right: 1px solid rgba(stencilColor("navUser-color"), 0.15);
+            @if stencilString("header-backgroundImg") {
+                border-right: 1px solid stencilColor("navUser-color");
+            }
+        }
+    }
+
+    &:last-child {
+        border-right: unset;
+    }
+}
+
+.navUser-item--account {
+    position: relative;
+}
+
+.navUser-item--cart {
+    display: block;
+
+    .navUser-action {
+        color: stencilColor("navUser-color");
+
+        // scss-lint:disable NestingDepth
+        // &:hover,
+        // &.is-open {
+        //     color: stencilColor("navUser-color-hover");
+        // }
+    }
+
+    // papathemes-inhealth removed .dropdown-menu
+}
+
+// papathemes-beautify remove .navUser-item--account
+
+// papathemes-kansha
+.navUser-item--phone {
+    display: block;
+    @include breakpoint("medium") {
+        position: relative;
+        width: auto;
+
+        .navUser-action {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: spacing("half");
+            padding: spacing("half") spacing("half") * 1.25;
+            background-color: stencilColor("navPages-color-hover");
+            border-radius: $button-radius;
+            width: max-content;
+            transition: filter 0.2s linear;
+
+            &:hover,
+            &:active,
+            &:focus-visible {
+                filter: saturate(70%);
+            }
+        }
+
+        .navUser-action ._label {
+            font-weight: fontWeight("bold");
+        }
+    }
+
+    &.u-hideDesktop {
+        ._label {
+            display: block;
+            text-transform: uppercase;
+        }
+    }
+
+    @media (max-width: (screenSize("medium") - 1px)) {
+        &:not(.u-hideDesktop) {
+            display: none;
+        }
+
+        ._phoneNumber {
+            display: none;
+        }
+    }
+}
+
+// Quick search
+// -----------------------------------------------------------------------------
+//
+// 1. Overriding the inline styles from Foundation as this is a unique dropdown.
+//
+// -----------------------------------------------------------------------------
+
+.dropdown--quickSearch {
+    background-color: $dropdown--quickSearch-backgroundColor;
+    padding: spacing("single") 0;
+
+    @include breakpoint("small") {
+        padding: spacing("double");
+    }
+
+    &.is-open {
+        // scss-lint:disable ImportantRule
+        left: 0 !important; // 1
+        outline: none;
+        right: 0 !important; // 1
+        width: 100% !important;
+        z-index: zIndex("high");
+    }
+
+    .form {
+        margin: auto;
+        max-width: 30rem;
+    }
+
+    .form,
+    .form-field {
+        margin-bottom: 0;
+    }
+
+    .form-input {
+        font-size: fontSize("small");
+        height: unset;
+    }
+
+    .productGrid {
+        padding: spacing("single") 0 0;
+
+        @include breakpoint("small") {
+            padding: spacing("double") 0 0;
+        }
+    }
+}
+
+// Counter Pill
+// -----------------------------------------------------------------------------
+//
+// 1. Hardcoded intentionally for precise pixels.
+//
+// -----------------------------------------------------------------------------
+
+// papathemes-inhealth customized
+.countPill {
+
+    @include breakpoint("medium") {
+        min-width: 10px;
+        line-height: 1;
+        font-size: fontSize("smaller");
+        margin-right: spacing("eighth");
+    }
+
+    @media (max-width: (screenSize("medium") - 1px)) {
+        margin-right: spacing("eighth");
+    }
+}

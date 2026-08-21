@@ -1,0 +1,48 @@
+{{!--
+<ul class="tabs" data-tab role="tablist">
+    {{#if product.related_products}}
+        <li class="tab is-active" role="presentation">
+            <a class="tab-title" href="#tab-related" role="tab" tabindex="0" aria-selected="true" controls="tab-related">{{lang 'products.related_products'}}</a>
+        </li>
+    {{/if}}
+    {{#if product.similar_by_views}}
+        <li class="tab{{#unless product.related_products}} is-active{{/unless}}" role="presentation">
+            <a class="tab-title" href="#tab-similar" role="tab" tabindex="0" aria-selected="false" controls="tab-similar">{{lang 'products.similar_by_views'}}</a>
+        </li>
+    {{/if}}
+</ul>
+--}}
+
+<div class="tabs-contents">
+    {{#if product.related_products}}
+        <div role="tabpanel" class="tab-content has-jsContent is-active" id="tab-related">
+            <h2 class="beautify__page-heading">{{theme_settings.productpage_related_products_title}}</h2>
+            <div class="container">
+                <div class="beautify__page-content">
+                    <ul class="productGrid productGrid--responsiveCol" id="productGrid-tab-related">
+                        {{#each product.related_products}}
+                            <li class="product">
+                                {{>components/products/card
+                                    show_compare=../theme_settings.card_show_compare
+                                    show_rating=../settings.show_product_rating
+                                    theme_settings=../theme_settings
+                                    settings=../settings
+                                    customer=../customer
+                                    singleButton=true}}
+                            </li>
+                        {{/each}}
+                    </ul>
+                    <div class="__actionGroup">
+                        <a href="#" class="button button--small button--outline loadMore" data-toggle="productGrid-tab-related">{{lang
+                            'common.load_more'}}</a>
+                        <a href="#tab-related" class="button button--small button--outline collapse" data-toggle="productGrid-tab-related" data-toggle-anchor>{{lang
+                            'common.collapse'}}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {{/if}}
+
+    {{{region name="product_below_related"}}}
+    {{{region name="product_below_related--global"}}}
+</div>

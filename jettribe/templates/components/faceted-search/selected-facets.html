@@ -1,0 +1,57 @@
+<div class="facetedSearch-refineFilters sidebarBlock">
+    <div class="_header {{#if layout '===' 'fullwidth'}}u-hidden{{/if}}">
+        <h3 class="sidebarBlock-heading">
+            {{lang 'search.faceted.filter_by'}}
+        </h3>
+        {{#if remove_all_url}}
+            <li>
+                <a class="facetedSearch-clearLink" href="{{ remove_all_url }}" data-faceted-search-facet>
+                    <span>{{lang 'search.faceted.selected.clear-all'}}</span>
+                    <span class="_clear-all">
+                        <svg class="icon">
+                            <use href="#icon-close" />
+                        </svg>
+                    </span>
+                </a>
+            </li>
+        {{/if}}
+    </div>
+
+    {{#if this.items}}
+        <ul class="inlineList inlineList--labels">
+            {{#each this.items}} 
+                <li>
+                    <a
+                        href="{{ url }}"
+                        class="facetLabel"
+                        rel="nofollow"
+                        data-faceted-search-facet>
+                        {{#if facet '===' 'rating'}} 
+                            {{lang 'search.faceted.selected.rating-label' rating=title}}
+                        {{else}}
+                            {{{sanitize title}}}
+                        {{/if}}
+
+                        <svg class="icon">
+                            <use href="#icon-close" />
+                        </svg>
+                    </a>
+                </li>
+            {{/each}}
+            {{#if remove_all_url}}
+                <li>
+                    <a class="facetedSearch-clearLink" href="{{ remove_all_url }}" data-faceted-search-facet>
+                        <span>{{lang 'search.faceted.selected.clear-all'}}</span>
+                        <span class="_clear-all">
+                            <svg class="icon">
+                                <use href="#icon-close" />
+                            </svg>
+                        </span>
+                    </a>
+                </li>
+            {{/if}}
+        </ul>
+    {{else}}
+        <span class="_nofilter"></span>
+    {{/if}}
+</div>

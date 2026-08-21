@@ -1,0 +1,96 @@
+// =============================================================================
+// FOOTER (CSS)
+// =============================================================================
+
+
+// Layout and columns
+// -----------------------------------------------------------------------------
+//
+// 1. To enable the grid's display: inline-block; to work properly, we need to
+//    remove the white-space that it creates between columns with font-size: 0;
+// 2. Re-set the font-size that was reduced to 0 in point 1 for children.
+//
+// -----------------------------------------------------------------------------
+
+
+// Content
+// -----------------------------------------------------------------------------
+.footer-info-list {
+    list-style: none;
+    margin-left: 0;
+}
+
+.footer-copyright {
+    background: stencilColor("copyright-backgroundColor");
+    color: stencilColor("copyright-color");
+    text-align: inherit;
+
+    @media (max-width: (screenSize("medium") - 1px)) {
+        width: 100%;
+    }
+
+    .powered-by {
+        display: flex;
+        align-items: center;
+
+
+        [data-content-region="footer_copyright--global"]:has([data-widget-id]) {
+            border-left: container("border") !important;
+            text-align: right;
+        }
+
+        p {
+            margin-bottom: 0;
+        }
+
+        ._col-powered-by {
+            line-height: 2;
+        }
+    }
+}
+
+.footer-copyright,
+.footer-info-list li a {
+    font-size: fontSize("base");
+}
+
+.footer-payments {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+
+    @include breakpoint("medium") {
+        display: flex;
+        gap: 0 spacing("single");
+        max-width: remCalc(470);
+    }
+
+    .footer-info-heading {
+        @include breakpoint("medium") {
+            margin-bottom: 0;
+        }
+    }
+
+    .footer-payment-icons {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: end;
+        gap: spacing("quarter");
+
+        svg {
+            width: remCalc(40);
+            height: remCalc(24);
+            fill: white;
+        }
+    }
+
+    @media (max-width: (screenSize("medium") - 1px)) {
+        .footer-payment-icons {
+            justify-content: start;
+        }
+    }
+}
+
+// papathemes-kitchenary edited

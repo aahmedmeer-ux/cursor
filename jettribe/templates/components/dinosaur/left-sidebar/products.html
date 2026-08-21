@@ -1,0 +1,23 @@
+<div class="dinosaur-left-sidebar">
+    {{#if products.featured}}
+        {{> components/dinosaur/products/featured
+            products=products.featured
+            hide_heading=true
+            show_categories=true
+            show_badges=true}}
+    {{/if}}
+    {{#if products.top_sellers}}
+        {{> components/dinosaur/products/top
+            products=products.top_sellers
+            hide_heading=true
+            show_categories=true
+            show_badges=true}}
+    {{/if}}
+    {{#if products.new}}
+        {{> components/dinosaur/products/new
+            products=products.new
+            hide_heading=true
+            show_categories=true
+            show_badges=true}}
+    {{/if}}
+</div>

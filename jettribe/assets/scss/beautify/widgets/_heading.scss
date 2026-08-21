@@ -1,0 +1,4 @@
+.beautify__widget-page-heading.page-heading {
+    @include beautify__sectionPageHeading;
+    font-family: $theme-header-font-family !important;
+}

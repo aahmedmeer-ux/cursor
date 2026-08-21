@@ -1,0 +1,65 @@
+{{inject 'hasTopProducts' true}}
+{{#unless hide_heading}}
+<h2 class="page-heading">{{theme_settings.product_top_heading}}</h2>
+{{/unless}}
+
+{{#if show_categories}}
+    <div class="navProducts-rootMenu-list">
+        <ul class="navProducts-list">
+            {{#each categories}}
+            <li class="navProducts-item">
+                <a class="navProducts-action" href="{{url}}?sort=bestselling" data-instantload>{{name}}</a>
+            </li>
+            {{/each}}
+        </ul>
+    </div>
+{{/if}}
+
+{{#if region_name}}
+    {{{region name=region_name}}}
+{{/if}}
+
+{{#if display_type '==' 'carousel'}}
+    {{> components/products/carousel products=products data_product_type="top_sellers"}}
+{{else if display_type '==' 'grid'}}
+    <ul class="productGrid productGrid--responsiveCol" data-product-type="top_sellers" id="top_sellers-products{{#if index}}_index{{index}}{{/if}}" {{#if settings.data_tag_enabled}} data-list-name="Most Popular Products" {{/if}}>
+        {{#each products}}
+            <li class="product" data-product-id="{{id}}">
+                {{>components/products/card 
+                    show_compare=../theme_settings.card_show_compare
+                    show_rating=../settings.show_product_rating
+                    settings=../settings
+                    theme_settings=../theme_settings 
+                    customer=../customer
+                    event="list" position=(add @index 1)}}
+            </li>
+        {{/each}}
+    </ul>
+{{else}}
+    <ul class="productList productList--responsiveCol" data-product-type="top_sellers" {{#if settings.data_tag_enabled}} data-list-name="Most Popular Products" {{/if}}>
+        {{#each products}}
+            <li class="product" data-product-id="{{id}}">
+                {{>components/products/list-item 
+                	summary=false
+                	show_compare=../theme_settings.card_show_compare
+                    show_rating=../settings.show_product_rating 
+                    settings=../settings
+                    theme_settings=../theme_settings 
+                    customer=../customer
+                    event="list" position=(add @index 1)}}
+            </li>
+        {{/each}}
+    </ul>	
+{{/if}}
+<div class="loading" style="display: none;display: block;"></div>
+{{#if display_type '!=' 'carousel'}}
+    <div class="actionGroup">
+        <a href="#" class="button button--small button--link loadMore" style="display: none;">
+            {{lang 'common.load_more'}}
+        </a>
+        <a href="#" class="button button--small button--link collapse" style="display: none;">
+            {{lang 'common.collapse'}}
+        </a>
+    </div>
+{{/if}}
+

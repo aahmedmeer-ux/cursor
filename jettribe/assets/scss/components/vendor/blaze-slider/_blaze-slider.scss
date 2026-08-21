@@ -1,0 +1,163 @@
+
+.blaze-container {
+    @include breakpoint("medium") {
+        margin: 0 (- spacing("half"));
+    }
+
+    .blaze-track-container {
+        position: relative;
+        @include breakpoint("large") {
+            padding: spacing("eighth") spacing("base");
+        }
+        @media (max-width: screenSize("medium") - 1px) {
+            padding: 0;
+        }
+        padding: spacing("eighth") spacing("half");
+    }
+
+    .blaze-prev,
+    .blaze-next {
+        position: absolute;
+        display: block;
+        top: 50%;
+        z-index: 1;
+        padding: remCalc(10px);
+        width: remCalc(55px);
+        height: remCalc(55px);
+        border-radius: $button-radius;
+        border: 2px solid $slick-arrow-color;
+        background: transparent;
+
+        &::before {
+            content: "";
+            background-repeat: no-repeat;
+            background-size: 100%;
+            display: block;
+            height: remCalc(19px);
+            width: remCalc(11px);
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        &:hover {
+            background-position: 50%;
+            background-repeat: no-repeat;
+            background-size: 100%;
+            background: stencilColor("button--primary-backgroundColor");
+            border-color: stencilColor("button--primary-backgroundColor");
+        }
+
+        &:hover {
+            &::after {
+                border-color: stencilColor("button--primary-backgroundColor");
+            }
+        }
+    }
+
+    .blaze-prev {
+        transform: translate(0, -50%);
+        left: spacing("third");
+
+        @media (min-width: 1750px) {
+            left: -(spacing("base") * 3.5);
+        }
+
+        @media (max-width: screenSize("large") - 1px) {
+            left: spacing("eighth");
+        }
+
+        &::before {
+            background-image: $slick-arrow-prev;
+        }
+
+        &:hover {
+            &::before {
+                background-image: $slick-arrow-prev-hover;
+            }
+        }
+    }
+
+    .blaze-next {
+        transform: translate(0, -50%);
+        right: spacing("third");
+
+        @media (min-width: 1750px) {
+            right: -(spacing("base") * 3.5);
+        }
+
+        @media (max-width: screenSize("large") - 1px) {
+            right: spacing("eighth");
+        }
+
+        &::before {
+            background-image: $slick-arrow-next;
+        }
+
+        &:hover {
+            &::before {
+                background-image: $slick-arrow-next-hover;
+            }
+        }
+    }
+
+    .blaze-pagination {
+        $btn-size: 24px; // ADA compliance
+        $dot-size: 10px;
+        $gap: ($btn-size - $dot-size) / 2;
+
+        display: flex;
+        gap: $gap;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin: 0 auto;
+        width: fit-content;
+        padding: $gap;
+        border-radius: $btn-size / 2 + $gap;
+        background-color: rgba($slick-dot-color, 0.1);
+
+        @media (max-width: screenSize("medium") - 1px) {
+            margin-top: rem-calc(22);
+        }
+        @media (max-width: screenSize("small") - 1px) {
+            margin-top: rem-calc(26);
+        }
+
+        button {
+            width: $btn-size;
+            height: $btn-size;
+            display: inline-flex;
+            background: transparent;
+            align-items: center;
+            justify-content: center;
+            color: transparent;
+            font-size: 0;
+            padding: 0;
+            margin: -$gap / 2;
+
+            @media (max-width: screenSize("medium") - 1px) {
+                margin: -$gap;
+            }
+
+            &::before {
+                content: "";
+                display: inline-block;
+                width: $dot-size;
+                height: $dot-size;
+                border-radius: 50%;
+                background-color: rgba($slick-dot-color, 0.9);
+            }
+
+            &.active {
+                filter: unset;
+
+                &::before {
+                    background-color: $slick-dot-color-active;
+                }
+            }
+
+            // + button {
+            //     margin-left: -(remCalc(14px) / 2);
+            // }
+        }
+    }
+}

@@ -1,0 +1,31 @@
+<div class="_searchBar" data-quick-search-bar>
+    {{#unless theme_settings.logo_position '==' 'center'}}
+        <ul class="_contentNav u-hidden">
+            {{#unless theme_settings.hide_content_navigation}}
+                {{assignVar 'navWebPageCount' 0}}
+                {{#and theme_settings.navPages_webpageFrom (if theme_settings.navPages_webpageFrom '>' 1)}}
+                    {{#each (limit (after pages (subtract theme_settings.navPages_webpageFrom 1)) theme_settings.navPages_webpageLimit)}}
+                        <li class="navPages-item navPages-item--page">
+                            {{> components/beautify/navigation-list theme_settings=../theme_settings menu_type='standard' page_type='page' idSuffix='-navUser'}}
+                        </li>
+                    {{/each}}
+                {{else}}
+                    {{#each (limit pages theme_settings.navPages_webpageLimit)}}
+                        <li class="navPages-item navPages-item--page">
+                            {{> components/beautify/navigation-list theme_settings=../theme_settings menu_type='standard' page_type='page' idSuffix='-navUser'}}
+                        </li>
+                    {{/each}}
+                {{/and}}
+            {{/unless}}
+            {{#if settings.gift_certificates_enabled}}
+                <li class="navUser-item navUser-item--giftCert">
+                    <a class="navUser-action navUser-action--giftCert" href="{{urls.gift_certificate.purchase}}" title="{{lang 'common.gift_cert'}}">
+                        <svg class="icon"><use href="#icon-gift" /></svg>
+                        <span class="_label">{{lang 'common.gift_cert'}}</span>
+                    </a>
+                </li>
+            {{/if}}
+        </ul>
+    {{/unless}}
+    {{> components/common/quick-search}}
+</div>

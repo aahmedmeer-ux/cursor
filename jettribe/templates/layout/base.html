@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html class="no-js" lang="{{ locale_name }}">
+    {{> components/supermarket/common/global-vars}}
+    <head>
+        <title>{{ head.title }}</title>
+        {{{ resourceHints }}}
+        {{{ head.meta_tags }}}
+        {{> components/common/header/og}}
+        {{{ head.config }}}
+        {{#block "head"}} {{/block}}
+
+        <link href="{{ head.favicon }}" rel="shortcut icon">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <script nonce="{{nonce}}">
+            {{!-- Change document class from no-js to js so we can detect this in css --}}
+            document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+        </script>
+
+        {{> components/common/polyfill-script }}
+        <script nonce="{{nonce}}">window.consentManagerTranslations = `{{{langJson 'consent_manager'}}}`;</script>
+
+        {{!-- Load Lazysizes script ASAP so images will appear --}}
+        <script nonce="{{nonce}}">
+            {{!-- Only load visible elements until the onload event fires, after which preload nearby elements. --}}
+            window.lazySizesConfig = window.lazySizesConfig || {};
+            window.lazySizesConfig.loadMode = 1;
+        </script>
+        <script async src="{{cdn 'assets/dist/theme-bundle.head_async.js' resourceHint='preload' as='script'}}" nonce="{{nonce}}"></script>
+
+        {{!--
+            If webfont used in body and heading:
+                Then load webfont URL
+                Or load the custom Google font
+        --}}
+        {{#or theme_settings.webfont-body-font theme_settings.webfont-headings-font}}
+            {{#if theme_settings.webfont_url}}
+                <link rel="stylesheet" href="{{theme_settings.webfont_url}}">
+            {{else}}
+                <script nonce="{{nonce}}">
+                    (function() {
+                        var fonts = [{{{json theme_settings.webfont-body-font}}}, {{{json theme_settings.webfont-headings-font}}}]
+                            .reduce(function(_fonts, font) {
+                                var m = font.match(/google_([^_]+)(_(.*))?$/i);
+                                if (m) {
+                                    _fonts.push([m[1], m[3]]);
+                                }
+                                return _fonts;
+                            }, []);
+                        var families = fonts.map(function(font) {
+                            return 'family=' + font[0] + (font[1] ? ':wght@' + String(font[1]).replace(/,/g, ';') : '');
+                        }).join('&');
+                        function addLink(href, rel, crossorigin) {
+                            var link = document.createElement('link');
+                            link.href = href;
+                            link.rel = rel;
+                            if (crossorigin) {
+                                link.crossOrigin = crossorigin;
+                            }
+                            document.head.appendChild(link);
+                        }
+                        addLink('https://fonts.googleapis.com', 'preconnect');
+                        addLink('https://fonts.gstatic.com', 'preconnect', true);
+                        addLink('https://fonts.googleapis.com/css2?' + families + '&display=swap', 'stylesheet');
+                    })();
+                </script>
+            {{/if}}
+        {{/or}}
+        {{!--
+            If webfont isn't used in body OR heading, it means the built-in Google font is used:
+                Then load the built-in Google font
+        --}}
+        {{#or (unless theme_settings.webfont-body-font) (unless theme_settings.webfont-headings-font)}}
+            {{#if theme_settings.csspreload '===' 'performance'}}
+                {{!-- Load Google font using preload technique if csspreload = performance --}}
+                <script nonce="{{nonce}}">document.write('{{{ getFontsCollection }}}'.replace('rel="stylesheet"', 'rel="preload" as="style" onload="this.onload=null;this.rel=\'stylesheet\'"'));</script>
+                <noscript>{{ getFontsCollection }}</noscript>
+            {{else if theme_settings.csspreload '===' 'speedtest'}}
+                {{!-- Load Google font using preload technique but not using document.write if csspreload = performance --}}
+                <script nonce="{{nonce}}">
+                    (function() {
+                        var el = document.createElement('head');
+                        el.innerHTML = '{{{getFontsCollection}}}'.replace('rel="stylesheet"', 'rel="preload" as="style" onload="this.onload=null;this.rel=\'stylesheet\'"');
+                        el.children && el.children[0] && document.head.appendChild(el.children[0]);
+                    })();
+                </script>
+                <noscript>{{ getFontsCollection }}</noscript>
+            {{else}}
+                {{!-- Load Google font using Cornerstone's technique if csspreload = 'none' --}}
+                {{getFontsCollection font-display='block'}}
+                <script async src="{{cdn 'assets/dist/theme-bundle.font.js' resourceHint='preload' as='script'}}" nonce="{{nonce}}"></script>
+            {{/if}}
+        {{/or}}
+
+        {{#if theme_settings.csspreload '===' 'performance'}}
+            {{{stylesheet '/assets/css/theme.css'}}}
+            <script nonce="{{nonce}}">
+                window.lazySizesConfig.loadHidden = false;
+                window.lazySizesConfig.expand = 0;
+            </script>
+            {{> components/supermarket/common/cssrelpreload}}
+            {{{head.scripts}}}
+        {{else if theme_settings.csspreload '===' 'speedtest'}}
+            {{{stylesheet '/assets/css/theme.css'}}}
+            <script nonce="{{nonce}}">
+                window.lazySizesConfig.loadHidden = false;
+                window.lazySizesConfig.expand = 0;
+            </script>
+            {{> components/supermarket/common/cssrelpreload}}
+            {{> components/supermarket/common/load-scripts scripts=head.scripts}}
+        {{else}}
+            {{{stylesheet '/assets/css/theme.css'}}}
+            {{{head.scripts}}}
+        {{/if}}
+
+        {{!-- Theme settings: --}}
+        {{~inject 'variant' theme_settings.variant}}
+        {{~inject 'add_to_cart_popup' theme_settings.add_to_cart_popup}}
+        {{~inject 'redirect_cart' theme_settings.redirect_cart}}
+        {{~inject 'alsobought_thumbnail_size' theme_settings.alsobought_thumbnail_size}}
+        {{~inject 'brand_size' theme_settings.brand_size}}
+        {{~inject 'pdp_price_label' theme_settings.pdp-price-label}}
+        {{~inject 'pdp_sale_price_label' theme_settings.pdp-sale-price-label}}
+        {{~inject 'pdp_non_sale_price_label' theme_settings.pdp-non-sale-price-label}}
+        {{~inject 'pdp_retail_price_label' theme_settings.pdp-retail-price-label}}
+        {{~inject 'alsobought_checked' theme_settings.alsobought_checked}}
+        {{~inject 'homepage_show_carousel' theme_settings.homepage_show_carousel}}
+        {{~inject 'product_recentviewed_count' theme_settings.product_recentviewed_count}}
+        {{~inject 'product_cartsuggested_count' theme_settings.product_cartsuggested_count}}
+        {{~inject 'product_new_count' theme_settings.product_new_count}}
+        {{~inject 'product_featured_count' theme_settings.product_featured_count}}
+        {{~inject 'product_top_count' theme_settings.product_top_count}}
+        {{~inject 'homepage_blog_posts_count' theme_settings.homepage_blog_posts_count}}
+        {{~inject 'sidebar_shop_by_brand' theme_settings.sidebar_shop_by_brand}}
+        {{~inject 'productpage_videos_count' theme_settings.productpage_videos_count}}
+        {{~inject 'productpage_reviews_count' theme_settings.productpage_reviews_count}}
+        {{~inject 'productpage_related_products_count' theme_settings.productpage_related_products_count}}
+        {{~inject 'productpage_tabs_desc_fullwidth' theme_settings.productpage_tabs_desc_fullwidth}}
+        {{~inject 'categorypage_products_per_page' theme_settings.categorypage_products_per_page}}
+        {{~inject 'brandpage_products_per_page' theme_settings.brandpage_products_per_page}}
+        {{~inject 'categorypage_search' theme_settings.categorypage_search}}
+        {{~inject 'categorypage_search_subs' theme_settings.categorypage_search_subs}}
+        {{~inject 'categorypage_layout' theme_settings.categorypage_layout}}
+        {{~inject 'instantload' theme_settings.instantload}}
+        {{~inject 'navPages_animation' theme_settings.navPages_animation}}
+        {{~inject 'navPages_standard' theme_settings.navPages_standard}}
+        {{~inject 'logo_position' theme_settings.logo_position}}
+        {{~inject 'show_bulk_order_mode' theme_settings.show_bulk_order_mode}}
+        {{~inject 'swatch_option_display_type' theme_settings.swatch_option_display_type}}
+        {{~inject 'zoom_size' theme_settings.zoom_size}}
+        {{~inject 'product_size' theme_settings.product_size}}
+        {{~inject 'product_image_responsive' theme_settings.product_image_responsive}}
+        {{~inject 'card_show_swatches' theme_settings.card_show_swatches}}
+        {{~inject 'card_show_variantImg' theme_settings.card_show_variantImg}}
+        {{~inject 'card_show_countdown' theme_settings.card_show_countdown}}
+        {{~inject 'card_show_priceCall' theme_settings.card_show_priceCall}}
+        {{~inject 'card_swatch_name' theme_settings.card_swatch_name}}
+        {{~inject 'card_custom_fields' theme_settings.card_custom_fields}}
+        {{~inject 'show_rrp' theme_settings.show_rrp}}
+        {{~inject 'price_ranges' theme_settings.price_ranges}}
+        {{~inject 'productgallery_size' theme_settings.productgallery_size}}
+        {{~inject 'card_show_sku' theme_settings.card_show_sku}}
+        {{~inject 'card_show_brand' theme_settings.card_show_brand}}
+        {{~inject 'card_show_sku' theme_settings.card_show_sku}}
+        {{~inject 'card_show_border' theme_settings.card_show_border}}
+        {{~inject 'card_show_button' theme_settings.card_show_button}}
+        {{~inject 'card_show_qty' theme_settings.card_show_qty}}
+        {{~inject 'card_show_compare' theme_settings.card_show_compare}}
+        {{~inject 'show_product_quick_view' theme_settings.show_product_quick_view}}
+        {{~inject 'ajax_add_to_cart' theme_settings.ajax_add_to_cart}}
+        {{~inject 'product_sale_badges' theme_settings.product_sale_badges}}
+        {{~inject 'product_sale_label' theme_settings.product_sale_label}}
+        {{~inject 'product_custom_badges' theme_settings.product_custom_badges}}
+        {{~inject 'nl_popup_show' theme_settings.nl_popup_show}}
+        {{~inject 'nl_popup_start' theme_settings.nl_popup_start}}
+        {{~inject 'nl_popup_hide' theme_settings.nl_popup_hide}}
+        {{~inject 'show_quick_search' theme_settings.show_quick_search}}
+        {{~inject 'suggest_keywords' theme_settings.suggest_keywords}}
+        {{~inject 'keywords_file1' theme_settings.keywords_file1}}
+        {{~inject 'keywords_file2' theme_settings.keywords_file2}}
+        {{~inject 'keywords_file3' theme_settings.keywords_file3}}
+        {{~inject 'featured_brands_show_logo' theme_settings.featured_brands_show_logo}}
+        {{~inject 'card_textAlign' theme_settings.card-textAlign}}
+        {{~inject 'pd_modifier_name' theme_settings.pd_modifier_name}}
+        {{!-- // --}}
+        {{~inject 'genericError' (lang 'common.generic_error')}}
+        {{~inject 'urls' urls}}
+        {{~inject 'secureBaseUrl' settings.secure_base_url}}
+        {{~inject 'cartId' cart_id}}
+        {{~inject 'template' template}}
+        {{~inject 'pageType' page_type}}
+        {{~inject 'validationDictionaryJSON' (langJson 'validation_messages')}}
+        {{~inject 'validationFallbackDictionaryJSON' (langJson 'validation_fallback_messages')}}
+        {{~inject 'validationDefaultDictionaryJSON' (langJson 'validation_default_messages')}}
+        {{~inject 'ajaxAddToCartEnterQty' (lang 'bulk_order.validate.enter_qty')}}
+        {{~inject 'bulkOrderEnterQty' (lang 'bulk_order.validate.enter_qty')}}
+        {{~inject 'bulkOrderChooseOptions' (lang 'bulk_order.validate.choose_options')}}
+        {{~inject 'txtMinQty' (lang 'products.quantity_min' quantity='%qty%')}}
+        {{~inject 'txtMaxQty' (lang 'products.quantity_max' quantity='%qty%')}}
+        {{~inject 'compareAddonLang_compare' (lang 'common.compare')}}
+        {{~inject 'compareAddonLang_quick_view' (lang 'products.quick_view')}}
+        {{~inject 'compareAddonLang_remove' (lang 'compare.remove')}}
+        {{~inject 'compareAddonLang_clear_all' (lang 'compare.clear_all')}}
+        {{~inject 'categoryId' category.id}}
+        {{~inject 'loadingImg' (cdn 'img/loading.svg')}}
+        {{~inject 'money' settings.money}}
+        {{~inject 'graphQLToken' settings.storefront_api.token}}
+        {{#if theme_settings.alsobought_position '!==' 'disable'}}
+            {{~inject 'loginUrl' urls.auth.login}}
+            {{~inject 'activeCurrencyCode' currency_selector.active_currency_code}}
+            {{~inject 'defaultCurrencyCode' currency_selector.default_currency_code}}
+            {{~inject 'priceWithTaxTxt' (lang 'products.price_with_tax' tax_label=settings.tax_label)}}
+            {{~inject 'priceWithoutTaxTxt' (lang 'products.price_without_tax' tax_label=settings.tax_label)}}
+            {{~inject 'includingTaxTxt' (lang 'products.including_tax')}}
+            {{~inject 'excludingTaxTxt' (lang 'products.excluding_tax')}}
+            {{~inject 'chooseOptionsTxt' (lang 'products.choose_options')}}
+            {{~inject 'hideOptionsTxt' (lang 'products.hide_options')}}
+            {{~inject 'loginForPriceTxt' (lang 'common.login_for_pricing')}}
+            {{~inject 'txtAlsoBoughtNumberArray' (lang 'also_bought.number_array')}}
+            {{~inject 'txtAlsoBoughtAllNumberArray' (lang 'also_bought.all_number_array')}}
+            {{~inject 'txtAddedToCart' (lang 'also_bought.added_to_cart')}}
+        {{/if}}
+        {{~inject 'defaultProductImage' (cdn theme_settings.default_image_product)}}
+        {{~inject 'defaultBrandImage' (cdn theme_settings.default_image_brand)}}
+        {{~inject 'txtSelectOne' (lang 'products.select_one')}}
+        {{~inject 'customerRecentlyViewedProductIds' (pluck customer.recently_viewed_products.items 'id')}}
+        {{~inject 'customerId' customer.id}}
+        {{~inject 'currencyCode' currency_selector.active_currency_code}}
+        {{~inject 'hidePriceFromGuests' settings.hide_price_from_guests}}
+        {{~inject 'showProductRating' settings.show_product_rating}}
+        {{~inject 'txtPriceWithTax' (lang 'products.price_with_tax' tax_label=settings.tax_label)}}
+        {{~inject 'txtPriceWithoutTax' (lang 'products.price_without_tax' tax_label=settings.tax_label)}}
+        {{~inject 'txtQuickView' (lang 'products.quick_view')}}
+        {{~inject 'txtCompare' (lang 'products.compare')}}
+        {{~inject 'txtChooseOptions' (lang 'products.choose_options')}}
+        {{~inject 'txtPreOrder' (lang 'products.pre_order')}}
+        {{~inject 'txtAddToCart' (lang 'products.add_to_cart')}}
+        {{~inject 'txtSelect' (lang 'cart.checkout.select')}}
+        {{~inject 'txtQuantity' (lang 'products.quantity')}}
+        {{~inject 'txtQuantityDecrease' (lang 'products.quantity_decrease')}}
+        {{~inject 'txtQuantityIncrease' (lang 'products.quantity_increase')}}
+        {{~inject 'txtUnavailable' (lang 'products.unavailable')}}
+        {{~inject 'txtPreOrder' (lang 'products.pre_order')}}
+        {{~inject 'txtSoldOut' (lang 'products.sold_out')}}
+        {{~inject 'txtSaveCoupon' (lang 'cart.coupons.save_coupon')}}
+        {{~inject 'txtCouponEmpty' (lang 'cart.coupons.empty_ticket')}}
+        {{~inject 'txtSavedWishlist' (lang 'cart.saved_wishlist')}}
+        {{~inject 'txtChange' (lang 'common.change')}}
+        {{inject 'shippingCountryErrorMessage' (lang 'cart.shipping_estimator.empty_country_error')}}
+        {{inject 'shippingProvinceErrorMessage' (lang 'cart.shipping_estimator.empty_province_error')}}
+        {{~inject 'isCrawlerAndSpeedTestMode' (getVar 'isCrawlerAndSpeedTestMode')}}
+        {{~inject 'hidePriceFromGuests' settings.hide_price_from_guests}}
+        {{~inject 'outOfStockDefaultMessage' (lang 'products.out_of_stock_default_message')}}
+        {{~inject 'pdp_price_label' theme_settings.pdp-price-label}}
+        {{~inject 'pdp_sale_price_label' theme_settings.pdp-sale-price-label}}
+        {{~inject 'pdp_non_sale_price_label' theme_settings.pdp-non-sale-price-label}}
+        {{~inject 'pdp_retail_price_label' theme_settings.pdp-retail-price-label}}
+        {{~inject 'txtSaleCountdownJSON' (langJson 'sale_countdown')}}
+        {{~inject 'isDevelopment' in_development}}
+        {{#if theme_settings.infiniteScroll '!==' 'no'}}
+            {{~inject 'txtLoadMore' (lang 'common.load_more')}}
+        {{/if}}
+        {{~inject 'invalidEntryMessage' (lang 'cart.invalid_entry_message')}}
+        {{#if theme_settings.pd_modifier_name}}
+            {{#if in_development}}
+                {{~inject 'pd_base_url' 'http://localhost:5173/dist'}}
+            {{else}}
+                {{~inject 'pd_base_url' (cdn 'assets/vendor/papathemes/productdesign')}}
+            {{/if}}
+        {{/if}}
+        {{{snippet 'htmlhead'}}}
+
+        {{#block "head-last"}} {{/block}}
+    </head>
+    <body class="csscolumns supermarket-layout--{{theme_settings.layout}}
+        {{#startsWith 'account' page_type}}supermarket-pageType--account{{/startsWith}}
+        supermarket-pageType--{{dashcase page_type}}
+        supermarket-page--{{dashcase template}}
+        {{#if theme_settings.hide_content_navigation}}supermarket--hideContentNav{{/if}}
+        {{#if product_results.faceted_search_enabled}}has-faceted{{/if}}
+        {{#if category.faceted_search_enabled}}has-faceted{{/if}}
+        {{#if brands.faceted_search_enabled}}has-faceted{{/if}}
+        {{#if brand.faceted_search_enabled}}has-faceted{{/if}}
+        {{#if result_count '>' 0}}has-result{{/if}}
+        {{#if theme_settings.card_show_brand}}_product-card-has-brand{{/if}}
+        {{#if theme_settings.card_show_sku}}_product-card-has-sku{{/if}}
+        {{#if theme_settings.card_custom_fields '!==' ''}}_product-card-has-custom-field{{/if}}
+        {{#if theme_settings.card_show_swatches}}_product-card-has-swatches{{/if}}
+        {{#if settings.show_product_rating}}_product-card-has-rating{{/if}}
+        " id="topOfPage">
+
+        {{{snippet 'header'}}}
+
+        <svg data-src="{{cdn 'img/icon-sprite.svg'}}" class="icons-svg-sprite"></svg>
+
+        {{> components/common/header }}
+        {{> components/common/body }}
+        {{> components/common/footer }}
+
+        {{#if in_development}}
+        <style>#consent-manager { position: static !important }</style>
+        {{/if}}
+
+        <script nonce="{{nonce}}">window.__webpack_public_path__ = "{{cdn 'assets/dist/'}}";</script>
+        <script nonce="{{nonce}}">window.__webpack_nonce__ = "{{nonce}}";</script>
+        <script src="{{cdn 'assets/dist/theme-bundle.main.js' resourceHint='preload' as='script'}}" nonce="{{nonce}}"></script>
+        <script nonce="{{nonce}}">
+            {{!-- Exported in app.js --}}
+            window.stencilBootstrap("{{page_type}}", {{jsContext}}).load();
+        </script>
+
+        {{#if theme_settings.shipping_countdown}}
+            <script nonce="{{nonce}}">
+                window.PapathemesShippingCountdownSettings = {
+                    graphQLToken: '{{{settings.storefront_api.token}}}',
+                    storeTZ: '{{theme_settings.shipping_tz}}',
+                    countdownValues: {
+                        parcel: '15:00:00',
+                        LTL: '12:00:00',
+                    },
+                    defaultCountdownTime: '{{theme_settings.shipping_countdown}}'
+                };
+            </script>
+            <script src="{{cdn 'assets/vendor/papathemes/shipping-countdown.min.js'}}" async defer nonce="{{nonce}}"></script>
+        {{/if}}
+
+        {{#if theme_settings.pd_modifier_name}}
+            {{#if in_development}}
+                <script type="module">
+                    import { injectIntoGlobalHook } from "http://localhost:5173/@react-refresh";
+                    injectIntoGlobalHook(window);
+                    window.$RefreshReg$ = () => {};
+                    window.$RefreshSig$ = () => (type) => type;
+                </script>
+                <script type="module" src="http://localhost:5173/@vite/client"></script>
+                <script src="http://localhost:5173/src/embed.tsx" type="module"></script>
+            {{else}}
+                <script src="{{cdn 'assets/vendor/papathemes/productdesign/papaproductdesign.js' resourceHint='preconnect' as='script'}}" async nonce="{{nonce}}"></script>
+            {{/if}}
+        {{/if}}
+
+        {{!-- Jettribe storefront customizations --}}
+        <style nonce="{{nonce}}">
+            .beautify__customerReviews,
+            [class*="beautify__customerReviews"],
+            .dinosaur__recentBlog,
+            .beautify__section.dinosaur__recentBlog,
+            .beautify__recentBlog {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                max-height: 0 !important;
+                overflow: hidden !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .price--rrp,
+            .rrp-price--withTax,
+            .rrp-price--withoutTax {
+                display: none !important;
+            }
+            [data-product-attribute="set-rectangle"] .form-option,
+            [data-product-attribute="set-rectangle"] .form-option-variant,
+            [data-product-attribute="set-radio"] .form-label,
+            .card .form-option-variant {
+                color: #000000 !important;
+            }
+        </style>
+        <script nonce="{{nonce}}">
+            (function () {
+                function removeUnwantedSections() {
+                    document.querySelectorAll(
+                        '.beautify__customerReviews, [class*="beautify__customerReviews"], .dinosaur__recentBlog, .beautify__section.dinosaur__recentBlog, .beautify__recentBlog'
+                    ).forEach(function (el) {
+                        el.remove();
+                    });
+
+                    document.querySelectorAll('h1, h2, h3, .page-heading').forEach(function (heading) {
+                        var text = (heading.textContent || '').replace(/\s+/g, ' ').trim().toUpperCase();
+                        if (text === 'CUSTOMER REVIEWS' || text === 'EXPLORE POPULAR ARTICLES') {
+                            var block = heading.closest('[data-content-region] > *, .beautify__section, section, .widget, [data-widget-id], [data-layout-name]') || heading.parentElement;
+                            if (block) {
+                                block.remove();
+                            } else {
+                                heading.remove();
+                            }
+                        }
+                        // Homepage wording (SPORT and SPORTS variants)
+                        if (
+                            text.indexOf('UNIQUE SPORTS-INSPIRED FASHION') !== -1 ||
+                            text.indexOf('UNIQUE SPORT-INSPIRED FASHION') !== -1
+                        ) {
+                            heading.textContent = 'QUALITY PWC GEAR AND APPAREL SINCE 1996';
+                        }
+                    });
+
+                    // Also replace the wording in any text nodes / banners
+                    document.querySelectorAll('p, span, div, a, strong, em').forEach(function (el) {
+                        if (!el.childElementCount && el.textContent) {
+                            var t = el.textContent.replace(/\s+/g, ' ').trim();
+                            if (/UNIQUE SPORTS?-INSPIRED FASHION/i.test(t)) {
+                                el.textContent = t.replace(/UNIQUE SPORTS?-INSPIRED FASHION/ig, 'QUALITY PWC GEAR AND APPAREL SINCE 1996');
+                            }
+                        }
+                    });
+
+                    // Hide Country / Flags filters in faceted search
+                    document.querySelectorAll('.facetedSearch-facetBlock, ._accordion-block').forEach(function (block) {
+                        var key = (block.getAttribute('data-facet-key') || '').toLowerCase();
+                        var title = (block.getAttribute('data-facet-title') || '').toLowerCase();
+                        var label = '';
+                        var labelEl = block.querySelector('._accordion-label, ._accordion-title, .toggleLink, h4, h3');
+                        if (labelEl) {
+                            label = (labelEl.textContent || '').toLowerCase();
+                        }
+                        if (
+                            key.indexOf('country') !== -1 || key.indexOf('flag') !== -1 ||
+                            title.indexOf('country') !== -1 || title.indexOf('flag') !== -1 ||
+                            label.indexOf('country') !== -1 || label.indexOf('flag') !== -1
+                        ) {
+                            block.style.display = 'none';
+                            block.setAttribute('hidden', 'hidden');
+                        }
+                    });
+
+                    // Force nav "Home" to the same URL as the logo
+                    var logo = document.querySelector('.header-logo a[href], a.header-logo[href]');
+                    var homeUrl = logo ? logo.getAttribute('href') : '/';
+                    document.querySelectorAll('.navPages-list > .navPages-item > a.navPages-action').forEach(function (link) {
+                        var label = (link.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+                        if (label === 'home') {
+                            link.setAttribute('href', homeUrl);
+                            link.setAttribute('data-instantload', '{"page":"home"}');
+                        }
+                    });
+                    document.querySelectorAll('.footer-info-list a').forEach(function (link) {
+                        var label = (link.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+                        if (label === 'home') {
+                            link.setAttribute('href', homeUrl);
+                        }
+                    });
+
+                    // Remove duplicate VIP enroll copy under the newsletter form
+                    document.querySelectorAll('.beautify__newsletter .page-desc').forEach(function (desc, index) {
+                        if (index > 0) {
+                            desc.remove();
+                        }
+                    });
+                    document.querySelectorAll('.beautify__newsletter [data-content-region*="footer_below_newsletters"]').forEach(function (el) {
+                        el.remove();
+                    });
+                    document.querySelectorAll('.beautify__newsletter p, .beautify__newsletter .page-desc').forEach(function (el) {
+                        var t = (el.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+                        if (t.indexOf('enroll to be notified') !== -1) {
+                            // Keep only the first occurrence (the intentional page-desc)
+                            var first = document.querySelector('.beautify__newsletter > .container > .page-desc, .beautify__newsletter .page-desc');
+                            if (first && el !== first) {
+                                el.remove();
+                            }
+                        }
+                    });
+                }
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', removeUnwantedSections);
+                } else {
+                    removeUnwantedSections();
+                }
+
+                var observer = new MutationObserver(removeUnwantedSections);
+                observer.observe(document.documentElement, { childList: true, subtree: true });
+                setTimeout(function () { observer.disconnect(); }, 15000);
+            })();
+        </script>
+
+        {{#if theme_settings.csspreload '===' 'speedtest'}}
+            {{> components/supermarket/common/load-scripts scripts=footer.scripts}}
+        {{else}}
+            {{{footer.scripts}}}
+        {{/if}}
+        {{{snippet 'footer'}}}
+    </body>
+</html>

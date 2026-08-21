@@ -1,0 +1,282 @@
+// =============================================================================
+// PREVIEW CART (CSS)
+// =============================================================================
+//
+// 1. Override server-generated inline-css
+//
+// -----------------------------------------------------------------------------
+
+.previewCart {
+    @include breakpoint("medium") {
+        .productView {
+            flex-direction: row;
+        }
+    }
+
+    .productView-alsoBought-item {
+        display: flex;
+        width: 100%;
+        margin-top: 0;
+        margin-bottom: spacing("single");
+
+        .productView-image {
+            padding: 0;
+        }
+
+        .productView-price {
+            padding: 0;
+            margin-bottom: spacing("half");
+        }
+        @media (max-width: screenSize("medium") - 1px) {
+            display: block;
+
+            .productView-image {
+                margin-top: 0;
+            }
+
+            .productView-title {
+                margin-bottom: spacing("single");
+            }
+
+            .productView-details {
+                margin: 0;
+                padding: 0;
+                margin-top: spacing("half");
+            }
+
+            .productView-price {
+                margin: 0;
+                padding: 0;
+                margin-bottom: spacing("single");
+                font-size: fontSize("small");
+            }
+        }
+    }
+
+    .productView-price {
+        margin-top: 0;
+        font-size: fontSize("larger");
+        @media (max-width: screenSize("medium") - 1px) {
+            justify-content: flex-start;
+            font-size: fontSize("small");
+        }
+
+        [data-cart-item-quantity] {
+            margin-right: spacing("third");
+        }
+    }
+
+    .productView-info {
+        margin-bottom: spacing("quarter");
+        border-top: 0;
+    }
+
+    .productView-info-name {
+        margin-top: 0;
+    }
+
+    .productView-info-value {
+        margin-top: 0;
+    }
+
+    .productView-details {
+        @media (max-width: screenSize("medium") - 1px) {
+            padding-top: spacing("half");
+        }
+    }
+    
+}
+
+.previewCartCheckout-additionalCheckoutButtons {
+    .CheckoutButton {
+        margin-top: spacing("half");
+
+        * {
+            max-width: 100%;
+        }
+
+        + .CheckoutButton {
+            margin-top: 0;
+        }
+    }
+}
+
+.PaypalCommerceButton {
+    max-width: 100%;
+}
+
+// Default Preview Modal
+
+.preview-modal--default {
+    .productView-price {
+        .productView-price-value {
+            margin-left: spacing("quarter");
+        }
+    }
+
+    .previewCartCheckout {
+        .button {
+            line-height: 1.15;
+        }
+    }
+
+    @include breakpoint("medium") {
+        .productView {
+            padding-left: spacing("base");
+            padding-right: spacing("base");
+        }
+    }
+
+    @media (max-width: (screenSize("medium")) - 1px) {
+        border-radius: $container-border-radius * 0.5;
+    }
+}
+
+// Mini Preview Modal
+// ============================================================================
+
+.preview-modal--mini {
+    transform: translateY(-50%);
+    min-height: remCalc(100px);
+    max-height: none;
+    width: 300px;
+    background: container("fill");
+    border: container("border");
+    box-shadow: 0 5px 30px rgba($color-black, 0.1);
+
+    &.preview-modal {
+        border-radius: $container-border-radius * 0.5;
+    }
+
+    @include breakpoint("small") {
+        width: 400px;
+    }
+
+    @include breakpoint("medium") {
+        left: auto;
+        right: 35px;
+    }
+
+    .modal-close {
+        top: -14px;
+        right: -14px;
+        @include square(40px);
+
+        span {
+            display: block;
+        }
+    }
+
+    @media (max-width: (screenSize("medium") - 1)) {
+        .modal-content {
+            padding: spacing("half");
+        }
+    }
+
+    .modal-header {
+        padding: spacing("half") spacing("double") spacing("half") spacing("half");
+    }
+
+    .modal-header-title {
+        font-size: fontSize("smaller");
+        text-align: left;
+    }
+
+    &.preview-modal .modal-body {
+        padding: spacing("single");
+    }
+
+    .previewCart {
+        display: flex;
+        flex-direction: column;
+
+        .productView-image {
+            width: 25%;
+            min-height: auto;
+            padding: 0 spacing("quarter") 0 0;
+            margin: 0 auto;
+        }
+    
+        .productView-details {
+            width: 75%;
+            padding: 0 0 0 spacing("quarter");
+            margin-bottom: 0;
+            align-items: flex-start;
+        }
+
+        .productView-title {
+            font-size: fontSize("smaller");
+            line-height: 1.15;
+        }
+
+        .productView-price {
+            font-size: fontSize("smaller");
+            margin-bottom: spacing("quarter");
+
+            .productView-price-value {
+                margin-left: spacing("eighth");
+            }
+        }
+
+        .productView-info-name,
+        .productView-info-value {
+            margin-top: 0 !important;
+            font-size: fontSize("smaller");
+        }
+    }
+
+    .previewCartCheckout {
+        order: 2;
+        float: none;
+        width: 100%;
+        text-align: left;
+        padding: 0;
+        margin-top: spacing("half");
+        background: transparent;
+
+        > * {
+            display: none;
+        }
+
+        .button {
+            padding: spacing("third") spacing("base");
+            margin: 0 spacing("half") spacing("half") 0;
+        }
+
+        > .previewCartCheckout-checkoutButton { 
+            display: inline-block;
+            width: auto;
+            margin-right: (spacing("single") * 1.25);
+        }
+
+        > .previewCartCheckout-viewCartButton {
+            display: inline-block;
+            width: auto;
+        }
+
+        > .previewCartCheckout-autoClose {
+            display: block;
+            font-size: fontSize("smaller");
+            color: stencilColor("color-textSecondary");
+            margin: 0;
+        }
+    }
+
+    .productView {
+        order: 1;
+        float: none;
+        width: 100%;
+        display: flex;
+        align-items: flex-start;
+        margin: 0;
+        padding: 0;
+
+        .supermarket-layout--left-sidebar & {
+            margin: 0;
+        }
+    }
+
+    .suggestiveCart {
+        display: none;
+    }
+}

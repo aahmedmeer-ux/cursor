@@ -1,0 +1,174 @@
+<article class="productView-description">
+    <div class="_accordion">
+        {{#unless in_quickview}}<div class="container">{{/unless}}
+        <a class="productView-description-tabHeading is-open" href="#tab-description-{{product.id}}"
+            data-toggle="tab-description-{{product.id}}" aria-expanded="true" aria-controls="tab-description-{{product.id}}" id="toggle-description-{{product.id}}">{{lang 'products.description'}}</a>
+        <div class="productView-description-tabContent is-open"
+            id="tab-description-{{product.id}}" role="region" aria-labelledby="toggle-description-{{product.id}}" aria-hidden="false">
+            {{{product.description}}}
+            {{{snippet 'product_description'}}}
+            {{{region name="product_description_tab_content--global"}}}
+            {{{region name="product_description_tab_content"}}}
+        </div>
+        {{#unless in_quickview}}</div><!-- .container -->{{/unless}}
+    </div>
+    {{#if theme_settings.productpage_videos_position '===' 'tab'}}
+        {{#if product.videos.list.length}}
+            <div class="_accordion">
+                {{#unless in_quickview}}<div class="container">{{/unless}}
+                <a class="productView-description-tabHeading" href="#tab-videos-{{product.id}}"
+                    data-toggle="tab-videos-{{product.id}}" aria-expanded="false" aria-controls="tab-videos-{{product.id}}" id="toggle-videos-{{product.id}}">{{lang 'products.videos.header'}}</a>
+                <div class="productView-description-tabContent"
+                    id="tab-videos-{{product.id}}" role="region" aria-labelledby="toggle-videos-{{product.id}}" aria-hidden="true">
+                    <section class="videoGallery videoGallery--inTab" data-video-gallery>
+                        <div class="videoGallery-main">
+                            <iframe
+                                id="player"
+                                class="lazyload"
+                                type="text/html"
+                                width="640"
+                                height="390"
+                                frameborder="0"
+                                webkitAllowFullScreen
+                                mozallowfullscreen
+                                allowFullScreen
+                                src="//www.youtube.com/embed/{{product.videos.featured.id}}?rel=0"
+                                loading="lazy"
+                                data-video-player
+                                title="{{product.videos.list.0.title_long}}"
+                                >
+                            </iframe>
+                        </div>
+                        <ul class="videoGallery-list">
+                        {{#each product.videos.list}}
+                            <li class="videoGallery-item">
+                                <a href="#" class="video {{#if @first}}is-active{{/if}}" data-video-item data-video-id="{{id}}">
+                                    <div class="video-figure">
+                                        <img class="lazyload" data-sizes="auto" src="{{cdn 'img/loading.svg'}}" data-src="//i.ytimg.com/vi/{{id}}/default.jpg" alt="{{title_long}}"/>
+                                    </div>
+                                    <div class="video-body">
+                                        <h3 class="video-title">{{title_long}}</h3>
+                                        <p class="video-description">{{description_short}}</p>
+                                    </div>
+                                </a>
+                            </li>
+                        {{/each}}
+                        </ul>
+                    </section>
+                </div>
+                {{#unless in_quickview}}</div><!-- .container -->{{/unless}}
+            </div>
+        {{/if}}
+    {{/if}}
+    {{#all product.custom_fields.length theme_settings.productpage_custom_fields_tab}}
+        {{#if (merge this specialCustomFields=0)}}{{/if}}
+        {{#if theme_settings.productpage_custom_fields_hide_special}}
+            {{#each product.custom_fields}}
+                {{#startsWith '__' name}}
+                    {{#if (merge ../../this specialCustomFields=(add ../../specialCustomFields 1))}}{{/if}}
+                {{/startsWith}}
+            {{/each}}
+        {{/if}}
+        {{#any (unless theme_settings.productpage_custom_fields_hide_special) (if product.custom_fields.length '>' specialCustomFields )}}
+            <div class="_accordion">
+                {{#unless in_quickview}}<div class="container">{{/unless}}
+                <a class="productView-description-tabHeading" href="#tab-addition-{{product.id}}"
+                    data-toggle="tab-addition-{{product.id}}" aria-expanded="false" aria-controls="tab-addition-{{product.id}}" id="toggle-addition-{{product.id}}">{{theme_settings.productpage_custom_fields_tab_title}}</a>
+                <div class="productView-description-tabContent productView-addition-tabContent"
+                    id="tab-addition-{{product.id}}" role="region" aria-labelledby="toggle-addition-{{product.id}}" aria-hidden="true">
+                    <table class="productView-addition-table table">
+                        <tbody class="table-tbody">
+                            {{#if theme_settings.productpage_custom_fields_hide_special}}
+                                {{#each product.custom_fields}}
+                                    {{#startsWith '__' name}}
+                                    {{else}}
+                                        <tr class="productView-info-row--cf{{pascalcase name}}">
+                                            <td><div class="productView-info-name productView-info-name--cf{{pascalcase name}}">{{name}}:</div></td>
+                                            <td><div class="productView-info-value productView-info-value--cf{{pascalcase name}}">{{{value}}}</div></td>
+                                        </tr>
+                                    {{/startsWith}}
+                                {{/each}}
+                            {{else}}
+                                {{#each product.custom_fields}}
+                                    <tr class="productView-info-row--cf{{pascalcase name}}">
+                                        <td><div class="productView-info-name productView-info-name--cf{{pascalcase name}}">{{name}}:</div></td>
+                                        <td><div class="productView-info-value productView-info-value--cf{{pascalcase name}}">{{{value}}}</div></td>
+                                    </tr>
+                                {{/each}}
+                            {{/if}}
+                        </tbody>
+                    </table>
+                </div>
+                {{#unless in_quickview}}</div><!-- .container -->{{/unless}}
+            </div>
+        {{/any}}
+    {{/all}}
+
+    {{#if settings.show_product_reviews}}
+        <div class="_accordion">
+            {{#unless in_quickview}}<div class="container">{{/unless}}
+            <a class="productView-description-tabHeading" href="#tab-reviews-{{product.id}}"
+                data-toggle="tab-reviews-{{product.id}}" aria-expanded="false" aria-controls="tab-reviews-{{product.id}}" id="toggle-reviews-{{product.id}}">{{lang 'products.reviews.title' total=product.num_reviews}} ({{product.num_reviews}})</a>
+            <div class="productView-description-tabContent"
+                id="tab-reviews-{{product.id}}" role="region" aria-labelledby="toggle-reviews-{{product.id}}" aria-hidden="true">
+                {{> components/products/reviews reviews=product.reviews product=product urls=urls}}
+            </div>
+            {{#unless in_quickview}}</div><!-- .container -->{{/unless}}
+        </div>
+    {{/if}}
+
+    {{#if product.warranty}}
+        <div class="_accordion">
+            {{#unless in_quickview}}<div class="container">{{/unless}}
+            <a class="productView-description-tabHeading" href="#tab-warranty-{{product.id}}"
+                data-toggle="tab-warranty-{{product.id}}" aria-expanded="false" aria-controls="tab-warranty-{{product.id}}" id="toggle-warranty-{{product.id}}">{{lang 'products.warranty'}}</a>
+            <div class="productView-description-tabContent"
+                id="tab-warranty-{{product.id}}" role="region" aria-labelledby="toggle-warranty-{{product.id}}" aria-hidden="true">
+                {{{product.warranty}}}
+            </div>
+            {{#unless in_quickview}}</div><!-- .container -->{{/unless}}
+        </div>
+    {{/if}}
+
+    {{#or in_development theme_settings.productpage_delivery_tab}}
+        <div class="_accordion">
+            {{#unless in_quickview}}<div class="container">{{/unless}}
+            <a class="productView-description-tabHeading" href="#tab-return-{{product.id}}"
+                data-toggle="tab-return-{{product.id}}" aria-expanded="false" aria-controls="tab-return-{{product.id}}" id="toggle-return-{{product.id}}">{{theme_settings.productpage_delivery_tab_title}}</a>
+            <div class="productView-description-tabContent"
+                id="tab-return-{{product.id}}" role="region" aria-labelledby="toggle-return-{{product.id}}" aria-hidden="true">
+                {{{region name="product_delivery_tab_content--global"}}}
+                {{{region name="product_delivery_tab_content"}}}
+                {{#if in_development}}
+                    <p class="beautify__anpost">
+                        <img class="lazyload" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='82' height='55'%3E%3C/svg%3E" data-src="{{cdn 'img/beautify/anpost.png'}}" data-sizes="auto" width="82" height="55" alt="An Post">
+                        <span class="_text">All Orders delivered for just €4.99 To anywhere in Ireland and Northern Ireland</span>
+                    </p>
+                    <ul>
+                        <li>NEXT DAY DELIVERY IRELAND</li>
+                        <li>SMS and Email Alerts</li>
+                        <li>Order before 2pm for same day dispatch</li>
+                        <li>98% of all orders are delivered next day</li>
+                    </ul>
+                    <p>Your order will leave our warehouse in Bray, Co Wicklow and be delivered the <strong>next working day</strong>. You will receive SMS &amp; email tracking updates from An Post and someone will need to sign for the parcel on delivery.</p>
+                    <ul>
+                        <li>For full Delivery Terms visit our <a  href="/delivery-returns/">Delivery Page</a></li>
+                        <li>For hassle free returns visit our&nbsp;<a  title="returns" href="/delivery-returns/">Returns Section</a></li>
+                    </ul>
+                    <p class="_payment-icons">
+                        <span>{{> components/common/responsive-img image=(cdn 'img/beautify/secure.png') alt="secure"}}</span>
+                        <span>{{> components/common/responsive-img image=(cdn 'img/beautify/pci.png') alt="pci"}}</span>
+                        <span>{{> components/common/responsive-img image=(cdn 'img/beautify/trustmark.png') alt="trustmark"}}</span>
+                        <span>{{> components/common/responsive-img image=(cdn 'img/beautify/eccomerce-europe.png') alt="eccomerce-europe"}}</span>
+                        <span>{{> components/common/responsive-img image=(cdn 'img/beautify/ecommerce-2.png') alt="ecommerce-2"}}</span>
+                        <span>{{> components/common/responsive-img image=(cdn 'img/beautify/mastercard.png') alt="mastercard"}}</span>
+                        <span>{{> components/common/responsive-img image=(cdn 'img/beautify/visa.png') alt="visa"}}</span>
+                        <span>{{> components/common/responsive-img image=(cdn 'img/beautify/paypal.png') alt="paypal"}}</span>
+                        <span>{{> components/common/responsive-img image=(cdn 'img/beautify/oneforall.png') alt="oneforall"}}</span>
+                    </p>
+                {{/if}}
+            </div>
+            {{#unless in_quickview}}</div><!-- .container -->{{/unless}}
+        </div>
+    {{/or}}
+</article>

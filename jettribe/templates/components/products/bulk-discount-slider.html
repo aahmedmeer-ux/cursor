@@ -1,0 +1,119 @@
+<div class="_wrapper-bulkPricing" data-bulk-pricing-slider-wrapper>
+    {{#or customer (unless settings.hide_price_from_guests)}}
+        <div class="productView-bulkPricing-current" data-bulk-pricing-slider-current data-product-detail-price="{{#if product.price.without_tax}}{{product.price.without_tax.value}}{{else if product.price.with_tax}}{{product.price.with_tax.value}}{{/if}}" data-product-detail-price-formatted="{{#if product.price.without_tax}}{{product.price.without_tax.formatted}}{{else if product.price.with_tax}}{{product.price.with_tax.formatted}}{{/if}}">
+            {{#with product.bulk_discount_rates.[0]}}
+                {{#if type '===' 'percent'}}
+                    <p class="productView-bulkPricing-slider-item" data-bulk-pricing-slider-item data-range-index="0" data-bulk-pricing-type="{{type}}" data-min="{{#if ../../product.min_purchase_quantity}}1{{else}}{{min}}{{/if}}" data-max="{{#if ../../product.max_purchase_quantity}}1{{else}}{{max}}{{/if}}" data-discount="{{discount.value}}">
+                        {{#if min '===' max}}
+                            {{{lang 'products.bulk_pricing.range_single' min=min}}}
+                        {{else}}
+                            {{{lang 'products.bulk_pricing.range' min=min max=max}}}
+                        {{/if}}
+                        {{{lang 'products.bulk_pricing.percent' discount=discount.formatted}}}
+                    </p>
+                {{/if}}
+                {{#if type '===' 'fixed'}}
+                    <p class="productView-bulkPricing-slider-item" data-bulk-pricing-slider-item data-range-index="0" data-bulk-pricing-type="{{type}}" data-min="{{#if ../../product.min_purchase_quantity}}1{{else}}{{min}}{{/if}}" data-max="{{#if ../../product.max_purchase_quantity}}1{{else}}{{max}}{{/if}}" data-discount="{{discount.value}}">
+                        {{#if min '===' max}}
+                            {{{lang 'products.bulk_pricing.range_single' min=min}}}
+                        {{else}}
+                            {{{lang 'products.bulk_pricing.range' min=min max=max}}}
+                        {{/if}}
+                        {{{lang 'products.bulk_pricing.fixed' discount=discount.formatted}}}
+                    </p>
+                {{/if}}
+                {{#if type '===' 'price'}}
+                    <p class="productView-bulkPricing-slider-item" data-bulk-pricing-slider-item data-range-index="0" data-bulk-pricing-type="{{type}}" data-min="{{#if ../../product.min_purchase_quantity}}1{{else}}{{min}}{{/if}}" data-max="{{#if ../../product.max_purchase_quantity}}1{{else}}{{max}}{{/if}}" data-discount="{{discount.value}}">
+                        {{#if min '===' max}}
+                            {{{lang 'products.bulk_pricing.range_single' min=min}}}
+                        {{else}}
+                            {{{lang 'products.bulk_pricing.range' min=min max=max}}}
+                        {{/if}}
+                        {{{lang 'products.bulk_pricing.price' discount=discount.formatted}}}
+                    </p>
+                {{/if}}
+            {{/with}}
+            {{#each product.bulk_discount_rates}}
+                {{#if type '===' 'percent'}}
+                    <p class="productView-bulkPricing-slider-item" data-bulk-pricing-slider-item data-range-index="{{add @index 1}}" data-bulk-pricing-type="{{type}}" data-min="{{min}}" data-max="{{max}}" data-discount="{{discount.value}}">
+                        {{#if min '===' max}}
+                            {{{lang 'products.bulk_pricing.range_single' min=min}}}
+                        {{else}}
+                            {{{lang 'products.bulk_pricing.range' min=min max=max}}}
+                        {{/if}}
+                        {{{lang 'products.bulk_pricing.percent' discount=discount.formatted}}}
+                    </p>
+                {{/if}}
+                {{#if type '===' 'fixed'}}
+                    <p class="productView-bulkPricing-slider-item" data-bulk-pricing-slider-item data-range-index="{{add @index 1}}" data-bulk-pricing-type="{{type}}" data-min="{{min}}" data-max="{{max}}" data-discount="{{discount.value}}">
+                        {{#if min '===' max}}
+                            {{{lang 'products.bulk_pricing.range_single' min=min}}}
+                        {{else}}
+                            {{{lang 'products.bulk_pricing.range' min=min max=max}}}
+                        {{/if}}
+                        {{{lang 'products.bulk_pricing.fixed' discount=discount.formatted}}}
+                    </p>
+                {{/if}}
+                {{#if type '===' 'price'}}
+                    <p class="productView-bulkPricing-slider-item" data-bulk-pricing-slider-item data-range-index="{{add @index 1}}" data-bulk-pricing-type="{{type}}" data-min="{{min}}" data-max="{{max}}" data-discount="{{discount.value}}">
+                        {{#if min '===' max}}
+                            {{{lang 'products.bulk_pricing.range_single' min=min}}}
+                        {{else}}
+                            {{{lang 'products.bulk_pricing.range' min=min max=max}}}
+                        {{/if}}
+                        {{{lang 'products.bulk_pricing.price' discount=discount.formatted}}}
+                    </p>
+                {{/if}}
+            {{/each}}
+            {{#unless product.bulk_discount_rates}}
+                {{#with bulk_discount_rates.[0]}}
+                    <p class="productView-bulkPricing-slider-item" data-bulk-pricing-slider-item data-range-index="0" data-bulk-pricing-type="{{type}}" data-min data-max data-discount="{{discount.value}}">
+                        {{#if min '==' max}}{{{lang 'products.bulk_pricing.range_single' min=min}}}{{else}}{{{lang 'products.bulk_pricing.range' min=min max=max}}}{{/if}}
+                        {{#if type '===' 'percent'}}
+                        {{{lang 'products.bulk_pricing.percent' discount=discount.formatted}}}
+                        {{/if}}
+                        {{#if type '===' 'fixed'}}
+                        {{{lang 'products.bulk_pricing.fixed' discount=discount.formatted}}}
+                        {{/if}}
+                        {{#if type '===' 'price'}}
+                        {{{lang 'products.bulk_pricing.price' discount=discount.formatted}}}
+                        {{/if}}
+                    </p>
+                {{/with}}
+                {{#each bulk_discount_rates}}
+                    <p class="productView-bulkPricing-slider-item" data-bulk-pricing-slider-item data-range-index="{{add @index 1}}" data-bulk-pricing-type="{{type}}" data-min="{{min}}" data-max="{{max}}" data-discount="{{discount.value}}">
+                        {{#if min '==' max}}{{{lang 'products.bulk_pricing.range_single' min=min}}}{{else}}{{{lang 'products.bulk_pricing.range' min=min max=max}}}{{/if}}
+                        {{#if type '===' 'percent'}}
+                        {{{lang 'products.bulk_pricing.percent' discount=discount.formatted}}}
+                        {{/if}}
+                        {{#if type '===' 'fixed'}}
+                        {{{lang 'products.bulk_pricing.fixed' discount=discount.formatted}}}
+                        {{/if}}
+                        {{#if type '===' 'price'}}
+                        {{{lang 'products.bulk_pricing.price' discount=discount.formatted}}}
+                        {{/if}}
+                    </p>
+                {{/each}}
+            {{/unless}}
+        </div>
+        <div class="productView-bulkPricing-slider" data-bulk-pricing-slider data-bulk-pricing-length="{{product.bulk_discount_rates.length}}"
+            {{#if product.min_purchase_quantity}}
+                data-min-purchase = {{product.min_purchase_quantity}}
+            {{/if}}
+            {{#if product.max_purchase_quantity}}
+                data-max-purchase = {{product.max_purchase_quantity}}
+            {{/if}}
+        >
+            <input class="productView-bulkPricing-input" min="0" value="0" max="{{product.bulk_discount_rates.length}}" type="range" data-bulk-pricing-slider-input aria-label="{{lang 'products.bulk_pricing.title'}}">
+            <div class="productView-bulkPricing-point-slider" data-bulk-pricing-slider-point data-index="0" data-point-min="1"></div>
+            {{#each product.bulk_discount_rates}}
+                <div class="productView-bulkPricing-point-slider" data-point-min="{{min}}" data-point-max="{{max}}" data-index="{{add @index 1}}" data-bulk-pricing-slider-point></div>
+            {{/each}}
+            {{#unless product.bulk_discount_rates}}
+                {{#each bulk_discount_rates}}
+                    <div class="productView-bulkPricing-point-slider" data-point-min="{{min}}" data-point-max="{{max}}" data-index="{{add @index 1}}" data-bulk-pricing-slider-point></div>
+                {{/each}}
+            {{/unless}}
+        </div>
+    {{/or}}
+</div>

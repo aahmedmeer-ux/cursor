@@ -1,0 +1,989 @@
+.card-bulkOrder {
+    display: none;
+}
+
+@mixin mode-bo-card-body-not-PC() {
+    .card-body {
+        .card-title {
+            font-size: fontSize("smaller");
+            font-weight: fontWeight("normal");
+        }
+
+        .card-text--price {
+            display: block;
+        }
+    }
+}
+
+@mixin mode-bo-card-BulkOrder-not-PC($isChangeAction:false, $isColumn: false) {
+    .card-bulkOrder {
+        .card-bulkOrder-label,
+        .card-bulkOrder-price {
+            display: none;
+        }
+
+        @if $isChangeAction==true {
+            width: auto;
+            display: flex;
+            @if $isColumn==true {
+                flex-direction: column;
+            }
+            row-gap: spacing("third") * 0.625;
+            padding: 0;
+
+            .card-bulkOrder-action_quickViewAndCompare {
+                margin: 0;
+            }
+
+            .card-bulkOrder-action:has(.button-out-of-stock) {
+                min-width: (spacing("half") + spacing("third")) * 4.25;
+                width: (spacing("half") + spacing("third")) * 4.25;
+            }
+
+
+
+            .card-bulkOrder-qty-and-action {
+                display: flex;
+                align-items: flex-start;
+                min-width: unset;
+                width: 100%;
+
+                .card-bulkOrder-action {
+                    margin: 0;
+
+                    .card-figcaption-button:not(.button-out-of-stock) {
+                        .icon {
+                            display: block;
+                        }
+
+                        span {
+                            display: none;
+                        }
+                    }
+                }
+
+                .card-bulkOrder-qty {
+                    .card-bulkOrder-value {
+                        width: spacing("base") * 2.5;
+
+                        .form-increment .form-input--incrementTotal {
+                            width: spacing("third") * 4.75;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.mode-bo .productGrid {
+    margin-left: 0;
+    margin-right: 0;
+    display: block;
+
+    .product {
+        width: 100%;
+        padding: spacing("half") 0;
+
+        @include breakpoint("medium") { 
+            border-top: container("border");
+        }
+
+        .page-sidebar + .page-content & {
+            width: 100%;
+        }
+    }
+
+    .card-badges .sale-flag-side {
+        margin-bottom: spacing("third");
+    }
+
+    .card-text--rating .rating--small {
+        justify-content: flex-start;
+    }
+
+    .card-bulkOrder-options {
+        order: 10;
+
+        ._changeOptions,
+        dl {
+            font-size: fontSize("smallest");
+        }
+    }
+
+    @media (max-width: (screenSize("medium") - 1px)) {
+        @if $theme-variant == "woman" {
+            .card-badges .sale-flag-side.sale-flag-side--custom .sale-text {
+                line-height: 1.3;
+            }
+        }
+    }
+
+
+    .card {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+
+        &:hover {
+            .sale-flag-side {
+                opacity: 1;
+            }
+        }
+
+        .card-figure {
+            width: spacing("double") * 3.125;
+            min-width: spacing("double") * 3.125;
+            margin: 0;
+        }
+
+        .card-body {
+            width: 0;
+            flex: 1;
+            padding: 0 spacing("half") * 1.25;
+            text-align: left;
+            margin: 0;
+
+            .card-title {
+                font-size: fontSize("base");
+                font-weight: fontWeight("normal");
+                margin-bottom: spacing("half");
+            }
+
+            .rating--number {
+                line-height: 1;
+            }
+
+            .card-text--price {
+                display: none;
+            }
+
+            .productSwatches-attributes {
+                align-items: unset;
+
+                .productSwatches-swatches {
+                    place-content: unset;
+                }
+            }
+
+            .card-text--colorswatches {
+                margin-bottom: spacing("half");
+            }
+
+            .price {
+                font-size: fontSize("base");
+
+                &.price--main {
+                    font-weight: fontWeight("medium");
+                }
+            }
+
+            .card-text--rating {
+                margin-top: spacing("eighth");
+            }
+        }
+
+        .card-footer {
+            display: none;
+        }
+
+        .card-bulkOrder .card-bulkOrder-qty-and-action:hover .card-bulkOrder-qty ~ .card-bulkOrder-action .card-figcaption-button.button-out-of-stock {
+            background-color: stencilColor("button--disabled-backgroundColor");
+            color: stencilColor("button--disabled-color");
+        }
+
+        .price-section {
+            margin-right: spacing("quarter");
+        }
+
+        .card-bulkOrder {
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-end;
+
+            @include breakpoint("medium") {
+                width: 40%;
+
+                @if stencilString("categorypage_layout")=="left-sidebar" {
+                    width: 45%;
+                }
+            }
+
+
+            .card-bulkOrder-price {
+                display: block;
+                order: 1;
+                padding: 0 spacing("half") * 1.25 0 0;
+
+                @if stencilString("categorypage_layout")=="left-sidebar" {
+                    width: spacing("base") * 14;
+                }
+
+                @else {
+                    width: (spacing("half") + spacing("third")) * 10;
+                }
+
+                .price--main {
+                    font-weight: fontWeight("medium");
+
+                    &._hasSale {
+                        color: stencilColor("color-price");
+                    }
+                }
+
+                .card-text {
+                    @include breakpoint("medium") {
+                        font-size: fontSize("small");
+                    }
+                }
+            }
+
+            .card-bulkOrder-action._quickViewAndCompare {
+                order: 2;
+                display: flex;
+                gap: spacing("third") * 0.625;
+                margin-right: spacing("third") * 0.625;
+
+                .card-figcaption-button {
+                    @include square(40);
+                    background: $card-figcaption-button-background;
+                    display: flex;
+                    padding: 0;
+                    margin: 0;
+                    justify-content: center;
+                    align-items: center;
+                    outline-offset: -1px !important;
+
+                    .icon {
+                        @include square(20);
+                        fill: $card-figcaption-button-color;
+                        margin: 0;
+                        padding: 0;
+                    }
+
+                    &:hover {
+                        background: $card-figcaption-button-backgroundHover;
+
+                        .icon {
+                            fill: $card-figcaption-button-colorHover;
+                        }
+                    }
+                }
+            }
+
+            .card-bulkOrder-qty-and-action {
+                order: 3;
+                display: flex;
+                width: 100%;
+                max-width: remCalc(190);
+
+                &:hover {
+                    .card-bulkOrder-qty {
+                        .card-bulkOrder-value {
+                            .form-increment {
+                                border-color: stencilColor("button--primary-backgroundColorHover");
+                            }
+                        }
+
+                        ~.card-bulkOrder-action {
+                            .card-figcaption-button {
+                                background: stencilColor("button--primary-backgroundColorHover");
+                                color: stencilColor("button--primary-colorHover");
+
+                                .icon {
+                                    fill: stencilColor("button--primary-colorHover");
+                                }
+                            }
+                        }
+                    }
+                }
+
+                .card-bulkOrder-qty {
+                    padding: 0;
+                    width: auto;
+
+                    .card-bulkOrder-value {
+                        .form-increment {
+                            width: spacing("base") * 2.5;
+                            height: spacing("base") * 2.5;
+                            border: 2px solid stencilColor("button--primary-backgroundColor");
+                            border-radius: $button-radius 0 0 $button-radius;
+
+                            .button {
+                                display: none;
+                            }
+
+                            .form-input--incrementTotal {
+                                width: spacing("base") * 2.25;
+                                height: spacing("base") * 2.25;
+                                font-weight: fontWeight("bold");
+                            }
+                        }
+                    }
+                }
+
+                .card-bulkOrder-fieldRow {
+                    align-items: flex-start;
+                }
+
+                .card-bulkOrder-action {
+                    padding: 0;
+                    width: 100%;
+
+                    @media (max-width: screenSize("medium")) {
+                        width: remCalc(40);
+                    }
+
+                    .card-figcaption-button {
+                        background: stencilColor("button--primary-backgroundColor");
+                        color: stencilColor("button--primary-color");
+                        min-height: spacing("base") * 2.5;
+                        padding: 0;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        outline-offset: -1px !important;
+                        padding: spacing("third") 0;
+
+                        &:not(.button-out-of-stock) {
+                            border-top-left-radius: unset;
+                            border-bottom-left-radius: unset;
+                        }
+
+                        &:not(.button-out-of-stock) {
+                            border-top-left-radius: 0;
+                            border-bottom-left-radius: 0;
+                        }
+
+                        span {
+                            padding: 0 spacing("half");
+                            pointer-events: none;
+                        }
+
+                        .icon {
+                            margin: 0;
+                            display: none;
+                            pointer-events: none;
+                        }
+
+                        &.button-out-of-stock {
+                            background-color: stencilColor("button--disabled-backgroundColor");
+                            color: stencilColor("button--disabled-color");
+                            pointer-events: none;
+
+                            &:hover {
+                                background-color: stencilColor("button--disabled-backgroundColor");
+                                color: stencilColor("button--disabled-color");
+                            }
+
+                            span {
+                                padding: 0 spacing("half");
+                                white-space: nowrap;
+                                text-overflow: ellipsis;
+                                overflow: hidden;
+                            }
+                        }
+
+                        @media (max-width: 1000px) and (min-width: screenSize("medium")) {
+                            &:not(.button-out-of-stock) {
+                                width: remCalc(45);
+
+                                @if stencilString("categorypage_layout") == "fullwidth" {
+                                    width: 100%;
+                                }
+                            }
+                        }
+
+                        @media (max-width: screenSize("small")) {
+                            &:not(.button-out-of-stock) {
+                                width: remCalc(45);
+                            }
+                        }
+
+                        @media (max-width: screenSize("medium")) {
+                            span {
+                                display: none;
+                            }
+    
+                            .icon {
+                                display: block;
+                            }
+                        }
+                    }
+
+                    .card-bulkOrder-options {
+                        margin-left: - (spacing("base") * 2.5);
+                    }
+                }
+            }
+
+            .card-bulkOrder-subtotal {
+                display: none;
+            }
+
+            @media (max-width: screenSize("medium")) {
+                &:has(.button-out-of-stock) {
+                    .card-bulkOrder-qty-and-action .card-bulkOrder-action {
+                        width: remCalc(86);
+                    }
+                }
+            }
+        }
+
+        @if stencilString("categorypage_layout")=="left-sidebar" {
+            @media (max-width: (screenSize("large") - 1px)) {
+                @include mode-bo-card-body-not-PC();
+                @include mode-bo-card-BulkOrder-not-PC();
+            }
+
+            @media (max-width: 1000px) and (min-width: screenSize("medium")) {
+                @include mode-bo-card-BulkOrder-not-PC(true, false);
+            }
+        }
+
+        @else {
+            @media (max-width: 1049px) {
+                @include mode-bo-card-body-not-PC();
+                @include mode-bo-card-BulkOrder-not-PC();
+            }
+
+            @media (max-width: 1000px) and (min-width: screenSize("medium")) {
+                @include mode-bo-card-BulkOrder-not-PC();
+            }
+        }
+
+        @media (max-width: (screenSize("medium") - 1px)) {
+            @include mode-bo-card-BulkOrder-not-PC();
+        }
+
+        @media (max-width: screenSize("small")) {
+            @include mode-bo-card-BulkOrder-not-PC(true, true);
+        }
+
+        @media (max-width: (screenSize("small") - 1px)) {
+            .card-figure {
+                width: spacing("base") * 6.25;
+                min-width: spacing("base") * 6.25;
+            }
+        }
+    }
+
+    .card-figure {
+        width: 20%;
+        float: left;
+
+        @include breakpoint("medium") {
+            margin: 0 $column-gutter / 2;
+            width: 100px;
+        }
+
+        .card-buttons {
+            display: none;
+        }
+    }
+
+    .card-body {
+        margin-left: calc(20% + #{spacing("half")});
+        padding-top: 0;
+        text-align: inherit;
+
+        @include breakpoint("medium") {
+            margin-left: 0;
+            padding: 0 $column-gutter / 2;
+            width: calc(40% - 100px);
+        }
+
+        .card-title,
+        .card-text:not(.card-text--colorswatches) {
+            padding: 0;
+            border: 0;
+
+            &:empty {
+                display: none;
+            }
+        }
+
+        .card-text--brand {
+            &:has(+ .card-text--sku),
+            &:has(+ .card-text--info) {
+                margin-bottom: spacing("quarter");
+            }
+        }
+
+        .card-text--sku {
+            &:has(+ .card-text--info) {
+                margin-bottom: spacing("quarter");
+            }
+        }
+    }
+
+    .card-bulkOrder {
+        display: block;
+        clear: both;
+        
+        @include breakpoint("medium") {
+            padding-top: 0;
+            display: flex;
+            align-items: center;
+            width: 60%;
+        }
+
+        .card-text {
+            margin: 0;
+        }
+    }
+
+    .card-bulkOrder-qtyInCart {
+        @include breakpoint("medium") {
+            padding: 0 $column-gutter / 2;
+            width: 12.5%;
+        }
+    }
+
+    .card-bulkOrder-qty {
+        @include breakpoint("medium") {
+            padding: 0 $column-gutter / 2;
+            width: 25%;
+        }
+    }
+
+    .card-bulkOrder-price {
+        @include breakpoint("medium") {
+            padding: 0 $column-gutter / 2;
+            width: 12.5%;
+        }
+    }
+
+    .card-bulkOrder-subtotal {
+        @include breakpoint("medium") {
+            padding: 0 $column-gutter / 2;
+            width: 12.5%;
+        }
+
+        .price {
+            font-weight: fontWeight("bold");
+        }
+    }
+
+    .card-bulkOrder-action {
+        @include breakpoint("medium") {
+            margin-top: 0;
+
+            .card-figcaption-button {
+                margin-top: 0;
+            }
+        }
+    }
+}
+
+.card-bulkOrder-fieldRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: spacing("quarter");
+
+    @include breakpoint("medium") {
+        margin-top: 0;
+        display: block;
+    }
+}
+
+.card-bulkOrder-label {
+    display: inline-block;
+
+    @include breakpoint("medium") {
+        display: none;
+    }
+}
+
+.card-bulkOrder-value {
+    display: inline-block;
+}
+
+.card-bulkOrder-options {
+    dl {
+        display: block;
+        padding: spacing("quarter") spacing("half");
+        border: container("border");
+        border-radius: $button-radius;
+        margin: spacing("quarter") 0 0;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+
+        @if $theme-style == "modern" {
+            font-size: fontSize("smallest");
+        }
+        @else {
+            font-size: fontSize("smaller");
+        }
+
+        @include breakpoint("medium") {
+            margin-bottom: spacing("quarter");
+        }
+    }
+
+    dt {
+        display: inline-block;
+        margin: 0 spacing("eighth") 0 0;
+
+        &::after {
+            content: ":";
+        }
+    }
+
+    dd {
+        display: inline-block;
+        margin: 0 spacing("quarter") 0 0;
+
+        &::after {
+            content: ";";
+        }
+    }
+
+    .alertBox {
+        margin-top: spacing("third") + spacing("eighth");
+        font-size: fontSize("smaller");
+        padding: spacing("quarter") spacing("half");
+
+        &.alertBox--error {
+            display: flex;
+            align-items: center;
+        }
+
+        .alertBox-icon {
+            padding-right: spacing("third");
+        }
+    }
+}
+
+.productGrid-bulkOrderHeader-wrapper {
+    background-color: container("fill", "dark");
+}
+
+.productGrid-bulkOrderHeader {
+    display: none;
+    list-style: none;
+    margin: 0 (-$column-gutter / 2);
+    padding: spacing("half") 0;
+    font-weight: fontWeight("bold");
+
+    .mode-bo & {
+        @include breakpoint("medium") {
+            display: flex;
+            align-items: center;
+        }
+    }
+}
+
+.productGrid-bulkOrderHeader-thumb {
+    padding: 0 $column-gutter / 2;
+    width: 100px;
+}
+
+.productGrid-bulkOrderHeader-name {
+    padding: 0 $column-gutter / 2;
+    width: calc(40% - 100px);
+}
+
+.productGrid-bulkOrderHeader-qtyInCart {
+    padding: 0 $column-gutter / 2;
+    width: 7.5%;
+}
+
+.productGrid-bulkOrderHeader-qty {
+    padding: 0 $column-gutter / 2;
+    width: 15%;
+}
+
+.productGrid-bulkOrderHeader-price {
+    padding: 0 $column-gutter / 2;
+    width: 7.5%;
+}
+
+.productGrid-bulkOrderHeader-subtotal {
+    padding: 0 $column-gutter / 2;
+    width: 7.5%;
+}
+
+.productGrid-bulkOrderHeader-action {
+    padding: 0 $column-gutter / 2;
+    width: 22.5%;
+}
+
+
+.productGrid-bulkOrderFooter-wrapper {
+    margin-bottom: spacing("double");
+    display: none;
+
+    .mode-bo & {
+        display: block;
+    }
+}
+
+.productGrid-bulkOrderFooter {
+    list-style: none;
+    margin-left: 0;
+    @include breakpoint("medium") {
+        display: flex;
+        align-items: center;
+        margin: 0 (-$column-gutter / 2);
+        padding: spacing("half") 0;
+    }
+
+    @media (max-width: (screenSize("medium") - 1px)) {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .productGrid-bulkOrderFooter-total {
+            width: 70%;
+
+            .productGrid-bulkOrderFooter-total-inner {
+                padding-left: 0;
+                padding-right: spacing("base");
+                font-size: fontSize("base");
+                text-align: right;
+            }
+        }
+
+        .productGrid-bulkOrderFooter-addAll {
+            width: 35%;
+
+            .button {
+                padding: spacing("half") spacing("third");
+            }
+        }
+    }
+
+    @media (max-width: (screenSize("small") - 1px)) {
+        .productGrid-bulkOrderFooter-total {
+            flex: 1;
+        }
+
+        .productGrid-bulkOrderFooter-addAll {
+            flex: 1;
+        }
+    }
+}
+
+.productGrid-bulkOrderFooter-total {
+    .label {
+        font-weight: fontWeight("semibold");
+    }
+
+    .price--main {
+        font-weight: fontWeight("bold");
+    }
+
+    @include breakpoint("medium") {
+        padding: 0 $column-gutter / 2;
+        width: 77.5%;
+        text-align: right;
+    }
+
+    .label {
+        color: rgba($color-textSecondary, 0.7);
+    }
+}
+
+.productGrid-bulkOrderFooter-total-inner {
+    font-size: fontSize("larger");
+    padding: spacing("quarter") spacing("single");
+    border-radius: $button-radius;
+
+    @include breakpoint("medium") {
+        display: inline-block;
+    }
+}
+
+.productGrid-bulkOrderFooter-addAll {
+    @include breakpoint("medium") {
+        padding: 0 $column-gutter / 2;
+        width: 22.5%;
+    }
+
+    .button {
+        display: block;
+        width: 100%;
+        margin: 0;
+        padding-left: spacing("third");
+        padding-right: spacing("third");
+
+        &:focus {
+            border-color: stencilColor("button--primary-backgroundColor");
+            background-color: stencilColor("button--primary-backgroundColor");
+        }
+    }
+}
+
+
+
+.bulkOrder-progressModal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 600px;
+    max-width: 100%;
+    transform: translate(-50%, -50%);
+    z-index: zIndex("highest") + 15;
+    padding: spacing("double") spacing("double") spacing("single");
+    background-color: container("fill");
+
+    &.is-open {
+        display: block;
+    }
+
+    .progressBar { 
+        margin: 0 0 spacing("half");
+    }
+}
+
+.bulkOrder-progressModal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: $color-black;
+    opacity: 0.8;
+    z-index: zIndex("highest") + 10;
+
+    .is-open + & {
+        display: block;
+    }
+}
+
+.bulkOrder-progressModal-actions {
+    margin: spacing("single") + spacing("half") 0 0;
+}
+
+.bulkOrder-progressModal-heading {
+    font-size: fontSize("large");
+    margin-top: -(spacing("double"));
+    margin-bottom: spacing("single") + spacing("half");
+    padding: spacing("single") 0;
+    border-bottom: container("border");
+    font-weight: fontWeight("semibold");
+    font-family: $theme-body-font-family;
+}
+
+
+// Progress Bar
+// - https://css-tricks.com/css3-progress-bars/
+// ============================================================================
+
+.progressBar { 
+    box-sizing: content-box;
+    height: 20px;  /* Can be anything */
+    position: relative;
+    margin: 60px 0 20px; /* Just for demo spacing */
+    background: #555;
+    border-radius: 25px;
+    padding: 10px;
+    box-shadow: inset 0 -1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.progressBar > span {
+    display: block;
+    height: 100%;
+    border-radius: 20px;
+    background-color: rgb(43, 194, 83);
+    // background-image: -webkit-gradient(
+    //   linear,
+    //   left bottom,
+    //   left top,
+    //   color-stop(0, rgb(43,194,83)),
+    //   color-stop(1, rgb(84,240,84))
+    //  );
+    background-image: linear-gradient(center bottom,
+    rgb(43, 194, 83) 37%,
+    rgb(84, 240, 84) 69%);
+    box-shadow: 
+        inset 0 2px 9px  rgba(255, 255, 255, 0.3),
+        inset 0 -2px 6px rgba(0, 0, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+    transition: width 0.2s ease-in;
+}
+
+.progressBar > span::after,
+ 
+.progressBar.animate > span > span {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    // background-image: 
+    //    -webkit-gradient(linear, 0 0, 100% 100%, 
+    //       color-stop(.25, rgba(255, 255, 255, .2)), 
+    //       color-stop(.25, transparent), color-stop(.5, transparent), 
+    //       color-stop(.5, rgba(255, 255, 255, .2)), 
+    //       color-stop(.75, rgba(255, 255, 255, .2)), 
+    //       color-stop(.75, transparent), to(transparent)
+    //    );
+    background-image: 
+        linear-gradient(-45deg, 
+        rgba(255, 255, 255, 0.2) 25%, 
+        transparent 25%, 
+        transparent 50%, 
+        rgba(255, 255, 255, 0.2) 50%, 
+        rgba(255, 255, 255, 0.2) 75%, 
+        transparent 75%, 
+        transparent);
+    z-index: 1;
+    background-size: 50px 50px;
+    animation: progressBar-move 2s linear infinite;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.progressBar.animate > span::after {
+    display: none;
+}
+
+@keyframes progressBar-move {
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 50px 50px;
+    }
+}
+
+.progressBar.orange > span {
+    background-color: #f1a165;
+    background-image: linear-gradient(top, #f1a165, #f36d0a);
+    // background-image: -moz-linear-gradient(top, #f1a165, #f36d0a);
+    // background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #f1a165),color-stop(1, #f36d0a));
+    // background-image: -webkit-linear-gradient(#f1a165, #f36d0a); 
+}
+
+.progressBar.red > span {
+    background-color: #f0a3a3;
+    background-image: linear-gradient(top, #f0a3a3, #f42323);
+    // background-image: -moz-linear-gradient(top, #f0a3a3, #f42323);
+    // background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #f0a3a3),color-stop(1, #f42323));
+    // background-image: -webkit-linear-gradient(#f0a3a3, #f42323);
+}
+
+.progressBar.nostripes > span > span,
+ 
+.progressBar.nostripes > span::after {
+    animation: none;
+    background-image: none;
+}
+
+
+// Bulk Order category template
+// ============================================================================
+
+.supermarket-page--pages-custom-category-bulk-order .actionBar-section--mode,
+.supermarket-page--pages-custom-brand-bulk-order .actionBar-section--mode {
+    display: none;
+}

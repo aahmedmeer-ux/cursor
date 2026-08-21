@@ -1,0 +1,36 @@
+.papathemes-specialProductsTabs {
+    .loading {
+        display: block;
+        padding: spacing("single") 0;
+        text-align: center;
+
+        &::before {
+            @extend %loading-svg-background;
+            width: 80px;
+            height: 80px;
+        }
+    }
+
+    @if stencilString("spt_type") == "carousel" {
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
+}
+
+.papathemes-specialProductsTabs-actionGroup {
+    text-align: center;
+
+    .button {
+        margin-bottom: 0;
+
+        @if $theme-style == "modern" {
+            &:not([disabled]) {
+                background-color: container("fill");
+            }
+        }
+    }
+}

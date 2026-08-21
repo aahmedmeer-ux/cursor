@@ -1,0 +1,135 @@
+.sale-flag-side {
+    font-weight: fontWeight("medium"); // papathemes-beautify added
+
+    @if $theme-variant == "kid" {
+        font-weight: fontWeight("bold");
+    }
+    
+    // papathemes-beautify customized
+    @include breakpoint("medium") {
+        $y: 0;
+        $h: $spacing-base * 2; // papathemes-kansha edited
+        font-size: fontSize("smaller"); // papathemes-kansha edited
+        @if $theme-variant == "kid" {
+            $y: spacing("quarter");
+            left: spacing("quarter");
+        }
+        top: $y;
+    
+        + .sale-flag-side {
+            top: $y + $h;
+        }
+    
+        + .sale-flag-side + .sale-flag-side {
+            top: $y + $h * 2;
+        }
+    
+        + .sale-flag-side + .sale-flag-side + .sale-flag-side {
+            top: $y + $h * 3;
+        }
+    }
+    @media (max-width: screenSize("medium") - 1px) {
+        $y: 0;
+        $h: $spacing-base * 1.25;
+        padding: spacing("eighth") spacing("quarter");
+        font-size: fontSize("smallest");
+        @if $theme-variant == "kid" {
+            $y: spacing("quarter");
+            left: spacing("quarter");
+        }
+
+        top: $y;
+
+        + .sale-flag-side {
+            top: $y + $h;
+        }
+
+        + .sale-flag-side + .sale-flag-side {
+            top: $y + $h * 2;
+        }
+
+        + .sale-flag-side + .sale-flag-side + .sale-flag-side {
+            top: $y + $h * 3;
+        }
+    }
+
+    $h: spacing("half") + 0.125rem;
+    margin: 0;
+    left: 0;
+    font-size: fontSize("smallest");
+    width: fit-content;
+    height: fit-content;
+    padding: spacing("eighth") rem-calc(10);
+    background-color: stencilColor("color_badge_product_sale_badges");
+    border-radius: $button-radius;
+
+    .sale-text span {
+        vertical-align: auto;
+    }
+
+    &._percent,
+    &._currency {
+        .sale-text {
+            display: flex;
+        }
+        @include breakpoint("medium") {
+            font-size: fontSize("base");
+        }
+        @media (max-width: screenSize("medium") - 1px) {
+            font-size: fontSize("smallest");
+            padding: 0 spacing("quarter");
+            min-height: spacing("base");
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+}
+
+.sale-flag-side--custom {
+    background-color: stencilColor("color_badge_product_custom_badges");
+    color: stencilColor("color_text_product_custom_badges");
+    min-height: remCalc(26);
+    line-height: 1;
+    padding-top: spacing("quarter");
+    padding-bottom: spacing("quarter");
+
+    .product:hover & {
+        background-color: stencilColor("color_badge_product_custom_badges");
+    }
+
+    @media (max-width: screenSize("medium") - 1px) {
+        font-size: beautify__fontSize(10);
+        min-height: spacing("base");
+        padding-top: spacing("eighth");
+        padding-bottom: spacing("eighth");
+    }
+}
+
+
+.sale-flag-star,
+.sale-flag-star::before,
+.sale-flag-star::after {
+    left: auto;
+    right: 0;
+}
+
+.starwrap {
+    right: spacing("base") + remCalc(10px);
+}
+
+.sale-text-burst {
+    font-size: fontSize("smallest");
+}
+
+.sale-flag-sash {
+    transform: unset;
+    right: 0;
+    top: 0;
+    width: fit-content;
+    height: fit-content;
+    padding: spacing("quarter");
+    border-top-left-radius: 0;
+    border-end-end-radius: 0;
+    text-transform: uppercase;
+}

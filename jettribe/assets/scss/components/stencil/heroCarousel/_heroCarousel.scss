@@ -1,0 +1,384 @@
+// HERO CAROUSEL
+// -----------------------------------------------------------------------------
+//
+// Purpose: Styles the hero carousel component, which basically adds extras to the
+// vendor slick carousel, to specifically display hero images.
+//
+// 1. Use object-fit on the image tag to keep aspect ratio and cover the space
+//    created by the outer div. The JS will detect browsers that do not support
+//    object-fit and instead copy the image src to a the background-image of the
+//    wrapper div and add the compat-object-fit class.
+//
+// 2. Visually overrides the top margin for '.body' defined in _body.scss.
+//    The '.body' top margin creates space between the header and page content.
+//    However, on the homepage, we want the carousel to be flush with the header.
+//
+// 3. Allows image to scale on large screens while preventing the top and bottom
+//    from becoming cut off.
+// -----------------------------------------------------------------------------
+
+.heroCarousel {
+    width: 1px;
+    min-width: 100%;
+    margin-bottom: (spacing("double") + spacing("single"));
+    margin-top: -(spacing("single")); // 3
+
+    @include breakpoint("medium") {
+        margin-top: -(spacing("single") + spacing("base")); // 3
+    }
+
+    &.slick-initialized { // 2
+        max-height: remCalc(1000);
+        opacity: 1;
+    }
+
+    &:not(.slick-initialized) :not(.heroCarousel-slide--first).heroCarousel-slide {
+        display: none;
+    }
+
+    a {
+        text-decoration: none;
+    }
+}
+
+.heroCarousel-slide {
+    position: relative;
+
+    a {
+        text-decoration: none;
+
+        &:not([href]) {
+            cursor: default;
+        }
+    }
+
+    .heroCarousel-image {
+        @include breakpoint("medium") {
+            object-fit: cover; // 1
+            max-height: remCalc(600px);
+            width: 100%;
+        }
+    }
+
+    .heroCarousel-image-wrapper {
+        @include breakpoint("medium") {
+            max-height: remCalc(600px);
+        }
+    }
+
+    &.compat-object-fit { // 1
+        background-size: cover;
+        background-position: 50%;
+        background-repeat: no-repeat;
+
+        &.stretch {
+            @include breakpoint("large") { // 4
+                background-size: 100% 100%;
+            }
+        }
+
+        .heroCarousel-image {
+            opacity: 0;
+        }
+    }
+}
+
+.heroCarousel-content {
+    background-color: rgba($carousel-bgColor, 1);
+    padding: spacing("single"); // papathemes-inhealth edited
+    text-align: center;
+    border-radius: $container-border-radius;
+
+    @include breakpoint("medium") {
+        @include carouselOpaqueBackgrounds;
+        background-color: rgba($carousel-bgColor, 0.9);
+        left: 0;
+        margin: 0 auto;
+        padding: spacing("single") * 1.5;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: remCalc(750px);
+
+        &.heroCarousel-content--empty {
+            background-color: transparent;
+        }
+    }
+}
+
+// supermarket-edited
+.heroCarousel-title {
+    color: $carousel-title-color;
+    font-family: $header-font-family;
+    font-weight: $header-font-weight; // papathemes-kitchenary edited
+    font-size: fontSize("hero") * 0.8;
+    line-height: 1;
+    margin-top: 0;
+    margin-bottom: spacing("half");
+    @include breakpoint("medium") {
+        font-size: fontSize("hero");
+    }
+}
+
+.heroCarousel-description {
+    color: $carousel-description-color;
+    font-size: fontSize("large"); // supermarket edited
+    margin-bottom: spacing("single"); // supermarket-added
+
+    // supermarket removed
+    @include breakpoint("medium") {
+        font-size: fontSize("largest"); // supermarket edited
+        margin-bottom: 0; // supermarket-added
+    }
+}
+
+.heroCarousel-action {
+    margin: 0;
+}
+
+.heroCarousel.blaze-slider {
+    .blaze-container {
+        margin: 0;
+
+        @include breakpoint("large") {
+            &:hover,
+            &:has(.heroCarousel-slide:focus-visible) {
+                .blaze-prev,
+                .blaze-next {
+                    opacity: 1;
+                }
+            }
+        }
+
+        &:not(:has(.blaze-track .heroCarousel-slide:nth-child(2))) {
+            .blaze-pagination,
+            .blaze-prev,
+            .blaze-next {
+                display: none;
+            }
+        }
+
+        .blaze-pagination {
+            display: flex;
+        }
+
+        .blaze-next,
+        .blaze-prev {
+            border-color: stencilColor("carousel-dot-color");
+
+            &:hover,
+            &:active {
+                background-color: stencilColor("carousel-dot-color");
+            }
+        }
+
+        @if $theme-variant == "man" {
+            .blaze-next,
+            .blaze-prev {
+                &:hover,
+                &:active {
+                    background-color: stencilColor("carousel-dot-color-active");
+                    border-color: stencilColor("carousel-dot-color-active");
+                }
+            }
+
+            .blaze-next {
+                &:hover::before {
+                    background-image: $heroCarousel-slick-arrow-next;
+                }
+            }
+
+            .blaze-prev {
+                &:hover::before {
+                    background-image: $heroCarousel-slick-arrow-prev;
+                }
+            }
+
+        }
+    }
+
+    .blaze-track-container {
+        padding: 0;
+        background-color: stencilColor("carousel-bgColor");
+    }
+
+    .blaze-track .heroCarousel-slide {
+        display: block;
+        opacity: 1;
+        max-width: unset;
+        max-height: unset;
+    }
+
+    .heroCarousel-image-wrapper a {
+        position: relative;
+    }
+
+    .blaze-pagination {
+        width: fit-content;
+        margin: (spacing("third") * 2.5) auto;
+        background-color: rgba(stencilColor("carousel-dot-color"), 0.1);
+
+        &:empty {
+            opacity: 0;
+        }
+
+
+        position: absolute;
+        bottom: spacing("double") * 1.5;
+        left: 50%;
+        margin: 0;
+        transform: translateX(-50%);
+
+        @include breakpoint("large") {
+            bottom: spacing("third") * 2.5 !important;
+        }
+
+        @media (max-width: (screenSize("large") - 1px)) {
+            opacity: 0;
+            visibility: hidden;
+
+            &._show {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+    }
+
+    .blaze-prev {
+        left: spacing("third") * 3.125;
+
+        &::before {
+            background-image: $heroCarousel-slick-arrow-prev;
+        }
+
+        &:hover::before {
+            background-image: $heroCarousel-slick-arrow-prev-hover;
+        }
+    }
+
+    .blaze-next {
+        right: spacing("third") * 3.125;
+
+        &::before {
+            background-image: $heroCarousel-slick-arrow-next;
+        }
+
+        &:hover::before {
+            background-image: $heroCarousel-slick-arrow-next-hover;
+        }
+
+        @if $theme-variant == "man" {
+            &:hover {
+                background-color: stencilColor("carousel-dot-color-active");
+                border-color: stencilColor("carousel-dot-color-active");
+            }
+
+            &:hover::before {
+                background-image: $heroCarousel-slick-arrow-next;
+            }
+        }
+    }
+
+    .blaze-prev,
+    .blaze-next {
+        top: 50%;
+        @include square(70px);
+        opacity: 0;
+
+        &::before {
+            height: remCalc(27px);
+            width: remCalc(16px);
+        }
+
+        &:focus-visible {
+            opacity: 1;
+        }
+    }
+
+    @media (max-width: (screenSize("large") - 1px)) {
+        &:not(:has(.heroCarousel-content._desc-mobile)) {
+            .blaze-prev,
+            .blaze-next {
+                display: none;
+            }
+
+            .blaze-pagination {
+                &:not(:has(button)) {
+                    opacity: 0;
+                    visibility: hidden;
+                }
+                opacity: 1;
+                visibility: visible;
+                bottom: 10px;
+            }
+        }
+
+        .blaze-prev,
+        .blaze-next {
+            border: unset;
+            @include square(40px);
+            top: unset;
+            transform: unset;
+            bottom: 0;
+            opacity: 0;
+            visibility: hidden;
+
+            &::before {
+                height: remCalc(16px);
+                width: remCalc(10px);
+            }
+
+            &:hover,
+            &:active {
+                background-color: transparent;
+            }
+
+            &._show {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
+        .blaze-prev {
+            left: 0;
+        }
+
+        .blaze-next {
+            right: 0;
+        }
+
+        .heroCarousel-image-wrapper a {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .heroCarousel-content._desc-mobile {
+            flex: 1 1 auto;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+
+    @media (max-width: (screenSize("medium") - 1px)) {
+        .blaze-prev {
+            left: 0;
+        }
+
+        .blaze-next {
+            right: 0;
+        }
+
+        .heroCarousel-content.heroCarousel-content--empty {
+            background-color: transparent;
+        }
+    }
+
+    ._image-box-height {
+        @media (max-width: (screenSize("medium") - 1px)) {
+            height: stencilNumber("carousel-bgImg-height-mobile");
+        }
+    }
+}

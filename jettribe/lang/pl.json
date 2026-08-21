@@ -1,0 +1,1215 @@
+{
+  "header": {
+    "welcome_back": "Witaj z powrotem, {name}",
+    "call_us": "Zadzwo\u0144: {phone_number}",
+    "call_us2": "Zadzwo\u0144<span class=\"_phoneNumber\">{phone_number}</span>"
+  },
+  "footer": {
+    "sr_heading": "Stopka",
+    "footer_start": "Pocz\u0105tek stopki",
+    "brands": "Popularne marki",
+    "navigate": "Nawiguj po stronie",
+    "info": "Info",
+    "categories": "Kategorie",
+    "whatsapp": "WhatsApp: {whatsapp}",
+    "powered_by": "Powered by",
+    "phone": "Telefon",
+    "email": "contact@example.com",
+    "about": "O nas",
+    "contact_us": "Skontaktuj si\u0119 z nami",
+    "accepted_payments": "BEZPIECZNE P\u0141ATNO\u015aCI",
+    "location": "Lokalizacja",
+    "location_image": "https://placehold.it/270x120"
+  },
+  "home": {
+    "heading": "Strona g\u0142\u00f3wna"
+  },
+  "blog": {
+    "recent_posts": "Ostatnie posty",
+    "label": "Blog",
+    "posted_by": "Posted by {name}",
+    "read_more": "wi\u0119cej",
+    "read_more_articles": "WI\u0118CEJ"
+  },
+  "unavailable": {
+    "hibernation_title": "Wr\u00f3cimy",
+    "hibernation_message": "Dzi\u0119kujemy za odwiedziny. Nasz sklep jest obecnie niedost\u0119pny. Przepraszamy za wszelkie niedogodno\u015bci.",
+    "maintenance_title": "Przerwa w konserwacji",
+    "maintenance_message": "Ten sklep jest obecnie niedost\u0119pny z powodu prac konserwacyjnych. Wkr\u00f3tce powinien by\u0107 ponownie dost\u0119pny. Przepraszamy za wszelkie niedogodno\u015bci."
+  },
+  "brands": {
+    "no_products": "Pod t\u0105 mark\u0105 nie ma \u017cadnych produkt\u00f3w."
+  },
+  "categories": {
+    "no_products": "W tej kategorii nie ma \u017cadnych produkt\u00f3w."
+  },
+  "checkout": {
+    "title": "Kasa"
+  },
+  "customer_service": {
+    "call_us": "Zadzwo\u0144: {phone_number}",
+    "email_address": "Email: {email}",
+    "email": "Email",
+    "whatsapp_address": "WhatsApp: {whatsapp}",
+    "whatsapp": "WhatsApp"
+  },
+  "cart": {
+    "continue_shopping": "Kliknij tutaj, aby kontynuowa\u0107 zakupy",
+    "login_to_checkout": "Zaloguj si\u0119, aby przej\u015b\u0107 do kasy",
+    "items": "{NUM, plural, =0{(0 element\u00f3w)} one {(# element)} other {(# element\u00f3w)}}",
+    "checkout": {
+      "address": {
+        "multiple": "wymeldowanie z wielu adres\u00f3w",
+        "or": "lub"
+      },
+      "button": "Sprawd\u017a",
+      "empty_cart": "Tw\u00f3j koszyk jest pusty",
+      "notification": "Zaloguj si\u0119, aby zobaczy\u0107 sw\u00f3j koszyk i rozpocz\u0105\u0107 zakupy!",
+      "title": "Kliknij tutaj, aby przej\u015b\u0107 do kasy",
+      "item": "Przedmiot",
+      "price": "Cena",
+      "quantity": "Ilo\u015b\u0107",
+      "total": "Razem",
+      "change": "Zmie\u0144",
+      "subtotal": "Suma cz\u0105stkowa",
+      "enter_code": "Kod kuponu / bon podarunkowy",
+      "gift_wrapping": "Pakowanie prezent\u00f3w",
+      "shipping": "Wysy\u0142ka",
+      "grand_total": "Suma ca\u0142kowita",
+      "select": "Wybierz",
+      "update": "Uaktualnij koszt wysy\u0142ki",
+      "or": "Lub szybkie zam\u00f3wienie"
+    },
+    "preview": {
+      "checkout_now": "Sprawd\u017a teraz",
+      "checkout_multiple": "lub sprawd\u017a, czy masz wiele adres\u00f3w",
+      "view_cart": "Zobacz koszyk",
+      "edit_cart": "Edytuj koszyk",
+      "label": "Tw\u00f3j koszyk",
+      "qty": "{quantity}",
+      "quantity": "({quantity} przedmiot\u00f3w)",
+      "quantity_button": "<span class='_quantity'>{quantity}</span> przedmiot\u00f3w"
+    },
+    "single_item": "pozycja",
+    "plural_item": "pozycje",
+    "label": "Tw\u00f3j koszyk ({quantity, plural, one {# element} other {# elementy}})",
+    "is_empty": "Tw\u00f3j koszyk jest pusty",
+    "invalid_entry_message": "[ENTRY] nie jest prawid\u0142owym wpisem",
+    "coupon_code": "Kod kuponu",
+    "discount": "Rabat",
+    "gift_certificate": "Bon podarunkowy",
+    "remove_file": "Usu\u0144 ten plik",
+    "freeshipping": "Darmowa wysy\u0142ka",
+    "reconfigure_product": "Konfiguracja '{name}'",
+    "shipping_peritem": "Wysy\u0142ka za sztuk\u0119",
+    "confirm_delete": "Czy na pewno chcesz usun\u0105\u0107 ten element?",
+    "remove": "Usu\u0144",
+    "remove_selected": "Usu\u0144 wybrane przedmioty",
+    "save": "Zapisz na p\u00f3\u017aniej",
+    "saved_wishlist": "Produkt zosta\u0142 zapisany na li\u015bcie \u017cycze\u0144 %WISHLIST% na p\u00f3\u017aniej i usuni\u0119ty z koszyka",
+    "coupons": {
+      "coupon_msg": "Masz kod kuponu? Mo\u017cesz go zastosowa\u0107 podczas realizacji zam\u00f3wienia!",
+      "empty_error": "Wpisz sw\u00f3j kod kuponu.",
+      "cancel": "Anuluj",
+      "add_title": "Masz kod kuponu? <button class='coupon-code-add'>Wprowad\u017a teraz <i><svg class='icon'><use href='#icon-chervon-right-thin'></use></svg></i></button>",
+      "add_code": "Dodaj kod",
+      "add_coupon": "Dodaj kupon",
+      "button": "Zg\u0142o\u015b si\u0119 na",
+      "coupon_code": "Wpisz sw\u00f3j kod kuponu",
+      "code_label": "Kupon ({code})",
+      "remove": "Usu\u0144",
+      "empty_ticket": "Prosz\u0119 doda\u0107 kod kuponu do biletu",
+      "save_coupon": "Kupon zosta\u0142 zapisany"
+    },
+    "gift_certificates": {
+      "add_title": "Masz bon podarunkowy? <button class='gift-certificate-add'>U\u017cyj go</button>",
+      "add_cert_code": "Dodaj certyfikat",
+      "gift_certificate": "Bon podarunkowy",
+      "code_label": "Bon podarunkowy ({code})",
+      "cert_code": "Wprowad\u017a kod certyfikatu",
+      "remove": "Usu\u0144"
+    },
+    "shipping_estimator": {
+      "add_info": "Dodaj informacje",
+      "select_a_country": "Kraj",
+      "select_a_state": "Pa\u0144stwo/wojew\u00f3dztwo",
+      "estimate_shipping": "Szacunkowa wysy\u0142ka",
+      "suburb_city": "Przedmie\u015bcie/miasto",
+      "zip_postal_code": "Kod pocztowy",
+      "free_shipping": "Darmowa wysy\u0142ka",
+      "hide_ups_rates": "Ukryj stawki UPS",
+      "show_ups_rates": "Poka\u017c stawki UPS",
+      "empty_country_error": "Pole \"Kraj\" nie mo\u017ce by\u0107 puste.",
+      "empty_province_error": "Pole \"Pa\u0144stwo/Prowincja\" nie mo\u017ce by\u0107 puste."
+    },
+    "gift_wrapping": {
+      "title": "Pakowanie prezent\u00f3w",
+      "add": "Dodaj",
+      "change": "Zmiana",
+      "remove": "Usu\u0144",
+      "choose_how": "Wybierz spos\u00f3b, w jaki chcesz, aby ten przedmiot zosta\u0142 zapakowany w prezent.",
+      "option_same": "Chcia\u0142bym zawin\u0105\u0107 ka\u017cdy z tych przedmiot\u00f3w, u\u017cywaj\u0105c tych samych opcji pakowania",
+      "item_single": "Pakowanie prezent\u00f3w - {name}",
+      "item_multiple": "Pozycja {index} - {name}",
+      "option_different": "Chcia\u0142bym zapakowa\u0107 ka\u017cdy przedmiot osobno.",
+      "choose_type": "Wybierz rodzaj opakowania na prezent",
+      "gift_message": "Wiadomo\u015b\u0107 o prezencie",
+      "remove_confirm": "Czy na pewno chcesz usun\u0105\u0107 opakowanie prezentu z tego przedmiotu?",
+      "preview": "Podgl\u0105d"
+    },
+    "added_to_cart": {
+      "what_next": "Ok, {num_products, plural, one {1 przedmiot zosta\u0142} other {# pozycje zosta\u0142y}} dodane do Twojego koszyka. Co dalej?",
+      "your_cart_contains": "Tw\u00f3j koszyk zawiera {num_products, plural, one {1 przedmiot} other {# elementy}}",
+      "proceed_to_checkout": "Przejd\u017a do kasy",
+      "order_subtotal": "Suma cz\u0105stkowa zam\u00f3wienia",
+      "continue_shopping": "Kontynuuj zakupy",
+      "view_or_edit_cart": "Zobacz lub edytuj sw\u00f3j koszyk",
+      "you_might_also_like": "Mo\u017cesz tak\u017ce polubi\u0107",
+      "auto_close": "Automatyczne zamkni\u0119cie po <span class='count'></span>s"
+    }
+  },
+  "common": {
+    "store_credit": "Masz do dyspozycji <strong>{store_credit}</strong> kredyt sklepowy. Aby go wykorzysta\u0107, po prostu z\u0142\u00f3\u017c zam\u00f3wienie, a kiedy przyjdzie czas zap\u0142aty za zam\u00f3wienie, b\u0119dziesz m\u00f3g\u0142 wybra\u0107 kredyt sklepowy jako metod\u0119 p\u0142atno\u015bci.",
+    "store_credit_overview": "Kredyt w sklepie: {credit}",
+    "generic_error": "Ups! Co\u015b posz\u0142o nie tak.",
+    "currency": "Wybierz walut\u0119: {code}",
+    "currency_switch_promotion": "Promocje i bony upominkowe, kt\u00f3re nie dotycz\u0105 nowej waluty, zostan\u0105 usuni\u0119te z koszyka. Czy na pewno chcesz kontynuowa\u0107?",
+    "newsletter_signup": "Zarejestruj si\u0119 w naszym newsletterze",
+    "form_submit": "Wy\u015blij",
+    "no_preference": "Bez preferencji",
+    "other_details": "Pozosta\u0142e dane",
+    "required": "Wymagane",
+    "required_symbol": "*",
+    "email_address": "Adres e-mail",
+    "edit": "Edytuj",
+    "change": "Zmie\u0144",
+    "not_applicable": "NIE DOTYCZY.",
+    "no": "Nie",
+    "yes": "Tak",
+    "from": "Ze strony",
+    "to": "do",
+    "cancel": "Anuluj",
+    "close": "Zamknij",
+    "open": "Otw\u00f3rz",
+    "or": "lub",
+    "and": "oraz",
+    "compare": "Por\u00f3wnaj",
+    "sign_up": "Zarejestruj si\u0119",
+    "login": "Zaloguj si\u0119",
+    "login_for_pricing": "Zaloguj si\u0119, aby uzyska\u0107 cennik",
+    "logout": "Wyloguj si\u0119",
+    "account": "Konto",
+    "viewed_products": "Obejrzane",
+    "cart": "Koszyk",
+    "search": "Szukaj na stronie",
+    "gift_cert": "Certyfikaty podarunkowe",
+    "gift_cert2": "<span class='firstword'>Bon </span>podarunkowy",
+    "save": "Zapisz",
+    "share": "Share",
+    "delete": "Usu\u0144",
+    "public": "Publiczna",
+    "private": "Prywatna",
+    "view_all": "Zobacz wszystkie",
+    "wishlist": "Lista \u017cycze\u0144",
+    "view_all_products": "Zobacz wszystkie produkty",
+    "all": "Wszystkie",
+    "paginator": {
+      "page_of": "Strona {current} z {total}",
+      "items_of": "Pozycje {start} do {end} z {total} \u0142\u0105cznie"
+    },
+    "prices_are_in": "Ceny s\u0105 podane w {CODE}.",
+    "previous": "Poprzedni",
+    "next": "Dalej",
+    "sorter": {
+      "relevance": "Znaczenie",
+      "sort_by": "Sort By:",
+      "featured": "Polecane przedmioty",
+      "top_sellers": "Najlepiej sprzedaj\u0105ce si\u0119",
+      "newest": "Najnowsze przedmioty",
+      "alpha_asc": "Od A do Z",
+      "alpha_desc": "Z do A",
+      "reviews": "By Review",
+      "price_asc2": "Cena: <span class='is-srOnly'>Rosn\u0105co</span>",
+      "price_desc2": "Cena: <span class='is-srOnly'>Malej\u0105co</span> ",
+      "price_asc": "Cena: Wst\u0119puj\u0105ca",
+      "price_desc": "Cena: Zni\u017cka",
+      "products_per_page": "Na stronie",
+      "column": "Kolumna",
+      "columns": "Kolumny",
+      "display_type": "Typ wy\u015bwietlania"
+    },
+    "loading": "\u0141adowanie",
+    "month": "Miesi\u0105c",
+    "day": "Dzie\u0144",
+    "year": "Rok",
+    "short_months": {
+      "1": "Jan",
+      "2": "Luty",
+      "3": "Mar",
+      "4": "Apr",
+      "5": "Maj",
+      "6": "Jun",
+      "7": "Jul",
+      "8": "Aug",
+      "9": "Sep",
+      "10": "pa\u017adziernik",
+      "11": "listopad",
+      "12": "Dec"
+    },
+    "top_of_page": "G\u00f3ra strony",
+    "nav_more": "Wi\u0119cej",
+    "nav_less": "Zamknij",
+    "nav_back": "Wstecz",
+    "sidebar": "Pasek boczny",
+    "show": "Poka\u017c",
+    "hide": "Ukryj",
+    "menu": "Menu",
+    "ask_question": "Zadaj pytanie",
+    "load_more": "Za\u0142aduj wi\u0119cej",
+    "collapse": "Zwi\u0144",
+    "sidebar_heading": "Nawigacja bocznego paska",
+    "products_list_heading": "Lista produkt\u00f3w",
+    "select_all": "Wybierz wszystkie"
+  },
+  "compare": {
+    "button": "Por\u00f3wnaj produkty",
+    "header": "Por\u00f3wnywanie {products, plural, one {# Produkt} other {# Produkty}}",
+    "remove": "Usu\u0144",
+    "clear_all": "Wyczy\u015b\u0107 wszystko",
+    "no_remove": "Do prawid\u0142owego por\u00f3wnania potrzebne s\u0105 co najmniej 2 produkty.",
+    "add_to_cart": "Dodaj do koszyka",
+    "notification_compare": "Produkt dodany do por\u00f3wnania."
+  },
+  "category": {
+    "label": "Kategorie",
+    "shop_by_price": "Sklep wed\u0142ug ceny",
+    "shop_by_price_range_aria": "Zakres cen od {from} do {to}",
+    "reset": "Resetuj",
+    "view_all": {
+      "name": "Wszystkie {category}"
+    }
+  },
+  "brand": {
+    "label": "Marki",
+    "shop_by_brand": "Kupuj wg marki",
+    "shop_products": "Kupuj produkty",
+    "featured_brands": "Polecane marki"
+  },
+  "gift_certificate": {
+    "heading": "Certyfikaty podarunkowe",
+    "purchase": {
+      "heading": "Kup bon podarunkowy"
+    },
+    "redeem": {
+      "heading": "Zrealizuj bon podarunkowy",
+      "intro": "Aby zrealizowa\u0107 bon upominkowy na stronie {store_name}, wykonaj poni\u017csze proste kroki.",
+      "item1": "Potrzebujesz unikalnego kodu bonu podarunkowego, kt\u00f3ry jest cz\u0119\u015bci\u0105 bonu podarunkowego wys\u0142anego do Ciebie w za\u0142\u0105czniku. B\u0119dzie on wygl\u0105da\u0142 jak Z50-Y6K-COS-402.",
+      "item2": "Przegl\u0105daj sklep i dodawaj produkty do koszyka w normalny spos\u00f3b.",
+      "item3": "Kliknij link \"<a href=\"{cart_url}\">Zobacz koszyk</a>\", aby zobaczy\u0107 zawarto\u015b\u0107 swojego koszyka.",
+      "item4": "Wpisz sw\u00f3j kod bonu upominkowego w polu \"Zrealizuj bon upominkowy\" i kliknij \"Dalej\"."
+    },
+    "balance": {
+      "heading": "Sprawd\u017a stan bon\u00f3w podarunkowych",
+      "intro": "Mo\u017cesz sprawdzi\u0107 saldo bonu upominkowego, wpisuj\u0105c kod w poni\u017csze pole."
+    }
+  },
+  "create_account": {
+    "heading": "Nowe Konto",
+    "created": {
+      "heading": "Twoje konto zosta\u0142o utworzone",
+      "intro": "Dzi\u0119kujemy za utworzenie konta {store_name}.  Dane dotycz\u0105ce konta zosta\u0142y wys\u0142ane w wiadomo\u015bci e-mail na adres {email}.",
+      "continue": "Kontynuuj zakupy"
+    },
+    "recaptcha_title": "Google recaptcha"
+  },
+  "login": {
+    "heading": "Zaloguj si\u0119",
+    "field_email": "Adres e-mail:",
+    "field_password": "Has\u0142o:",
+    "submit_value": "Zaloguj si\u0119",
+    "forgot_password": "Nie pami\u0119tasz has\u0142a?",
+    "email_placeholder": "Wprowad\u017a sw\u00f3j adres e-mail",
+    "password_placeholder": "Wprowad\u017a swoje has\u0142o",
+    "or": "Lub",
+    "new_customer": {
+      "heading": "Nowy klient?",
+      "intro": "Za\u0142\u00f3\u017c u nas konto, a b\u0119dziesz m\u00f3g\u0142:",
+      "fact1": "Sprawd\u017a szybciej",
+      "fact2": "Zapisz wiele adres\u00f3w wysy\u0142ki",
+      "fact3": "Dost\u0119p do historii zam\u00f3wie\u0144",
+      "fact4": "\u015aledzenie nowych zam\u00f3wie\u0144",
+      "fact5": "Zapisz przedmioty na swojej li\u015bcie \u017cycze\u0144",
+      "create_account": "Utw\u00f3rz konto"
+    }
+  },
+  "reset_password": {
+    "heading": "Resetuj has\u0142o",
+    "intro": "Wpisz poni\u017cej sw\u00f3j adres e-mail, aby poprosi\u0107 o nowe has\u0142o. Na podany poni\u017cej adres zostanie wys\u0142ana wiadomo\u015b\u0107 z linkiem do weryfikacji Twojego adresu e-mail."
+  },
+  "account": {
+    "breadcrumb": "Twoje konto",
+    "nav": {
+      "overview": "Przegl\u0105d",
+      "orders": "Zam\u00f3wienia",
+      "returns": "Zwraca",
+      "messages": "Wiadomo\u015bci ({num_new_messages})",
+      "wishlists": "Wish Lists",
+      "recently_viewed": "Ostatnio ogl\u0105dane",
+      "recently_viewed2": "Ostatnio przegl\u0105dane",
+      "settings": "Ustawienia konta",
+      "addresses": "Adresy",
+      "payment_methods": "Metody p\u0142atno\u015bci"
+    },
+    "mobile_nav": {
+      "messages": "Wiadomo\u015bci",
+      "wishlists": "Wish Lists"
+    },
+    "addresses": {
+      "heading": "Adresy",
+      "add_heading": "Dodaj nowy adres",
+      "primary": "Strona g\u0142\u00f3wna",
+      "phone": "Telefon:",
+      "new_address": "Nowy adres",
+      "no_addresses": "Nie masz obecnie \u017cadnych adres\u00f3w dodanych do swojego profilu"
+    },
+    "messages": {
+      "heading": "Wiadomo\u015bci",
+      "customer_said": "Powiedzia\u0142e\u015b:",
+      "merchant_said": "{store_name} powiedzia\u0142:"
+    },
+    "orders": {
+      "heading": "Zam\u00f3wienia",
+      "none": "Nie z\u0142o\u017cy\u0142e\u015b jeszcze u nas \u017cadnego zam\u00f3wienia. Kiedy je z\u0142o\u017cysz, ich status pojawi si\u0119 na tej stronie.",
+      "return": {
+        "already_returned": "To zam\u00f3wienie nie zawiera produkt\u00f3w, kt\u00f3re mo\u017cna zwr\u00f3ci\u0107. Czy zwr\u00f3ci\u0142e\u015b ju\u017c wszystkie produkty z tego zam\u00f3wienia?",
+        "back_button": "Wr\u00f3\u0107",
+        "order_item": "Przedmiot",
+        "item_price": "Cena",
+        "quantity": "Ilo\u015b\u0107 Do zwrotu",
+        "why": "Dlaczego zwracasz te przedmioty?",
+        "reason": "Pow\u00f3d zwrotu",
+        "action": "Akcja powrotna",
+        "comments": "Komentarze"
+      },
+      "gift_wrapping": "Pakowanie prezent\u00f3w:",
+      "refunded": "(Refundowane)",
+      "refunded_quantity": "({qty} refundowane)",
+      "return_item": "Wr\u00f3\u0107",
+      "return_items": "Czy mo\u017cna zwr\u00f3ci\u0107 przedmioty?",
+      "order_placed": "Z\u0142o\u017cone zam\u00f3wienie",
+      "last_update": "Ostatnia aktualizacja",
+      "list": {
+        "order_number": "Zam\u00f3wienie #{number}",
+        "product_details": "{num_products, plural, one {1 produkt} other {# produkty}} razem {cost}"
+      },
+      "details": {
+        "heading": "Zam\u00f3wienie #{number}",
+        "order_contents": "Zawarto\u015b\u0107 zam\u00f3wienia",
+        "ship_to": "Wysy\u0142ka do",
+        "ship_to_multi": "Elementy wys\u0142ane na {street}, {city}, {state}, {zip}, {country}",
+        "ship_to_multi_text": "Zam\u00f3wienie zostanie wys\u0142ane na wiele adres\u00f3w",
+        "pickup_details": "Szczeg\u00f3\u0142y odbioru",
+        "bill_to": "Bill To",
+        "how_to_pay": "Oto, jak zap\u0142aci\u0107 za zam\u00f3wienie:",
+        "order_details": "Szczeg\u00f3\u0142y zam\u00f3wienia",
+        "order_total": "Suma zam\u00f3wie\u0144:",
+        "order_status": "Stan zam\u00f3wienia:",
+        "payment_date": "Data zam\u00f3wienia:",
+        "payment_method": "Spos\u00f3b p\u0142atno\u015bci:",
+        "comments": "Zam\u00f3wienie Uwagi",
+        "download_items": "Pozycje do pobrania",
+        "card_ending": "ko\u0144cz\u0105ce si\u0119 na {card}",
+        "shipments": {
+          "date": "Data wysy\u0142ki",
+          "method": "Spos\u00f3b wysy\u0142ki",
+          "link": "Link \u015bledz\u0105cy",
+          "header": "Szczeg\u00f3\u0142y wysy\u0142ki"
+        },
+        "actions": "Akcje",
+        "reorder": "Ponowne zam\u00f3wienie",
+        "return": "Wr\u00f3\u0107",
+        "pickup": "Szczeg\u00f3\u0142y odbioru",
+        "pickup_method": "Spos\u00f3b odbioru",
+        "in_store_pickup": "Odbi\u00f3r w sklepie",
+        "print_invoice": "Drukuj faktur\u0119",
+        "phone": "Telefon",
+        "email": "Email",
+        "opening_hours": "Godziny otwarcia"
+      },
+      "downloads": {
+        "heading": "Zam\u00f3wienie #{number} Pliki do pobrania",
+        "download_files_below": "Poni\u017cej mo\u017cesz pobra\u0107 pliki dla",
+        "expired_content": "Plik straci\u0142 wa\u017cno\u015b\u0107",
+        "days_remaining": "{number, plural, one {1 dzie\u0144} other {# dni}}",
+        "downloads_remaining": "{number, plural, one {1 pobranie} other {# downloads}} remaining",
+        "days_or_downloads": "lub {number}",
+        "remaining": "pozosta\u0142e"
+      }
+    },
+    "payment_methods": {
+      "heading": "Metody p\u0142atno\u015bci",
+      "payment_method": "Metoda p\u0142atno\u015bci",
+      "bank_account": "Konto bankowe",
+      "billing_address": "Adres rozliczeniowy",
+      "card_ending_in": "ko\u0144cz\u0105ce si\u0119 na {last_four}",
+      "card_expiry": "{month}/{year}",
+      "new_payment_method": "Dodaj now\u0105 metod\u0119 p\u0142atno\u015bci",
+      "no_methods": "Nie masz obecnie \u017cadnych metod p\u0142atno\u015bci dodanych do swojego konta",
+      "name_on_card": "Imi\u0119 i nazwisko na karcie",
+      "credit_card_number": "Numer karty kredytowej",
+      "expiration": "Wyga\u015bni\u0119cie",
+      "cvv": "CVV",
+      "card_types": {
+        "american_express": "American Express",
+        "credit_card": "Karta kredytowa",
+        "dankort": "Dankort",
+        "diners_club": "Diners Club",
+        "discover": "Odkryj",
+        "jcb": "JCB",
+        "maestro": "Maestro",
+        "mastercard": "Mastercard",
+        "unionpay": "Union Pay",
+        "visa": "Visa"
+      },
+      "ach": "ACH",
+      "paypal": "PayPal",
+      "billing_address_labels": {
+        "address_line_1": "Linia adresowa 1",
+        "address_line_2": "Linia adresowa 2",
+        "suburb_city": "Przedmie\u015bcie/Miasto",
+        "state_province": "Pa\u0144stwo/Prowincja",
+        "choose_state": "Wybierz pa\u0144stwo",
+        "country": "Kraj",
+        "choose_country": "Wybierz kraj",
+        "zip_postcode": "Kod pocztowy"
+      }
+    },
+    "returns": {
+      "heading": "Zwraca",
+      "instructions": "Instrukcja powrotu",
+      "error_no_qty": "Wybierz jeden lub wi\u0119cej przedmiot\u00f3w do zwrotu.",
+      "none": "Nie z\u0142o\u017cy\u0142e\u015b jeszcze u nas \u017cadnego zwrotu. Kiedy to zrobisz, pojawi\u0105 si\u0119 one na tej stronie.",
+      "new_return": "Nowy Powr\u00f3t",
+      "from_order": "Zwrot przedmiot\u00f3w z zam\u00f3wienia #{id}",
+      "date_requested": "\u017b\u0105dany zwrot",
+      "successful_heading": "Wys\u0142ane \u017c\u0105danie zwrotu",
+      "successful": "Tw\u00f3j zwrot zosta\u0142 przes\u0142any pomy\u015blnie. Odpowiemy tak szybko, jak tylko b\u0119dzie to mo\u017cliwe.",
+      "return": "Powr\u00f3t do zam\u00f3wie\u0144",
+      "last_update": "Ostatnia aktualizacja",
+      "reason": "Pow\u00f3d zwrotu",
+      "action": "Akcja powrotna",
+      "comments": "Tw\u00f3j komentarz",
+      "submit_request": "Z\u0142\u00f3\u017c pro\u015bb\u0119 o zwrot",
+      "list": {
+        "return_number": "Wr\u00f3\u0107 #{id}",
+        "product_details": "Powr\u00f3t {num_products}"
+      },
+      "status": {
+        "pending": "W oczekiwaniu na",
+        "received": "Otrzymane",
+        "authorized": "Autoryzowany",
+        "repaired": "Naprawiono",
+        "refunded": "Refundowane",
+        "rejected": "Odrzucony",
+        "cancelled": "Anulowane"
+      }
+    },
+    "settings": {
+      "heading": "Ustawienia konta",
+      "first_name": "Imi\u0119",
+      "last_name": "Nazwisko",
+      "email": "Adres e-mail",
+      "company": "Firma",
+      "phone": "Numer telefonu",
+      "old_password": "Stare has\u0142o",
+      "new_password": "Nowe has\u0142o",
+      "confirm_password": "Potwierd\u017a has\u0142o",
+      "update_details": "Aktualne informacje"
+    },
+    "recent_items": {
+      "heading": "Ostatnio ogl\u0105dane",
+      "no_items": "Poni\u017cej pojawi\u0105 si\u0119 przedmioty, kt\u00f3re ostatnio ogl\u0105da\u0142e\u015b na naszej stronie."
+    },
+    "wishlists": {
+      "heading": "Wish Lists",
+      "tag_line": "Wype\u0142nij poni\u017cszy formularz, aby stworzy\u0107 now\u0105 List\u0119 \u017bycze\u0144. Po zako\u0144czeniu kliknij przycisk \"Utw\u00f3rz list\u0119 \u017cycze\u0144\".",
+      "new": "Nowa lista \u017cycze\u0144",
+      "you_have_none": "Nie masz \u017cadnej listy \u017cycze\u0144, dodaj j\u0105 teraz.",
+      "empty_wishlist": "Twoja Lista \u017bycze\u0144 jest pusta. Kiedy dodasz przedmioty do swojej listy \u017cycze\u0144, pojawi\u0105 si\u0119 one tutaj.",
+      "num_items": "Pozycje",
+      "add_item": "Dodaj do listy \u017cycze\u0144",
+      "remove_item": "Usu\u0144 przedmiot",
+      "name": "Lista \u017cycze\u0144 Nazwa",
+      "shared": "Wsp\u00f3lne",
+      "action": "Akcja",
+      "add": "Dodaj do listy \u017cycze\u0144",
+      "delete_all": "Usu\u0144 wszystko",
+      "edit": "Edytuj list\u0119 \u017cycze\u0144",
+      "view_heading": "Lista \u017cycze\u0144: {name}",
+      "share_intro": "Podziel si\u0119 t\u0105 List\u0105 \u017bycze\u0144 z przyjaci\u00f3\u0142mi:",
+      "num_products": "{num_products, plural, one {1 produkt} other {# produkty}}",
+      "create": "Utw\u00f3rz list\u0119 \u017cycze\u0144",
+      "save": "Zapisz list\u0119 \u017cycze\u0144",
+      "delete_alert": "Czy na pewno chcesz usun\u0105\u0107 swoj\u0105 List\u0119 \u017bycze\u0144? Tego dzia\u0142ania nie mo\u017cna cofn\u0105\u0107.",
+      "create_new": "Utw\u00f3rz now\u0105 list\u0119 \u017cycze\u0144",
+      "add_to_default": "Dodaj do mojej listy \u017cycze\u0144",
+      "enter_wishlist_name_error": "Musisz wprowadzi\u0107 nazw\u0119 listy \u017cycze\u0144."
+    }
+  },
+  "page": {
+    "label": "Szybkie linki",
+    "rss": {
+      "intro": "Kana\u0142y RSS s\u0142u\u017c\u0105 do przekazywania regularnie zmieniaj\u0105cych si\u0119 tre\u015bci na stronach internetowych, w tym na tej stronie. Mo\u017cesz otworzy\u0107 kana\u0142 RSS za pomoc\u0105 czytnika RSS i u\u017cy\u0107 go do sprawdzenia, czy na tej stronie pojawi\u0142y si\u0119 nowe tre\u015bci, lub mo\u017cesz skonfigurowa\u0107 skrypt po stronie serwera, kt\u00f3ry b\u0119dzie przetwarza\u0142 kana\u0142 i wy\u015bwietla\u0142 go na swojej stronie internetowej.",
+      "heading": "Syndykacja RSS",
+      "blog": {
+        "heading": "Ostatnie wpisy na blogu",
+        "intro": "Kana\u0142 ostatnich post\u00f3w zawiera najnowsze wpisy na blogu {limit} opublikowane na stronie {store}.",
+        "rss": "Najnowsze wpisy na blogu {limit} (RSS)",
+        "rss_atom": "Najnowsze wpisy na blogu {limit} (Atom)"
+      },
+      "products": {
+        "new": {
+          "heading": "Nowe produkty",
+          "intro": "Kana\u0142 najnowszych produkt\u00f3w zawiera najnowsze produkty {limit} dodane do {store}.",
+          "rss": "Najnowsze {limit} Nowe produkty (RSS)",
+          "rss_atom": "Najnowsze {limit} Nowe produkty (Atom)"
+        },
+        "popular": {
+          "heading": "Produkty popularne",
+          "intro": "Kana\u0142 popularnych produkt\u00f3w zawiera {limit} najpopularniejszych produkt\u00f3w na stronie {store} ocenianych przez u\u017cytkownik\u00f3w.",
+          "rss": "Najnowsze {limit} Popularne produkty (RSS)",
+          "rss_atom": "Najnowsze {limit} Popularne produkty (Atom)"
+        },
+        "featured": {
+          "heading": "Polecane produkty",
+          "intro": "Kana\u0142 produkt\u00f3w wyr\u00f3\u017cnionych zawiera najnowsze produkty wyr\u00f3\u017cnione na stronie {limit} w serwisie {store}.",
+          "rss": "Najnowsze {limit} Polecane produkty (RSS)",
+          "rss_atom": "Najnowsze {limit} Polecane produkty (Atom)"
+        }
+      },
+      "search": {
+        "heading": "Wyszukiwanie produkt\u00f3w",
+        "intro1": "Kana\u0142y wyszukiwania produkt\u00f3w umo\u017cliwiaj\u0105 zapisywanie niestandardowych wyszukiwa\u0144 produkt\u00f3w w postaci kana\u0142\u00f3w syndykacyjnych, kt\u00f3re b\u0119d\u0105 zawsze aktualizowane, gdy pojawi\u0105 si\u0119 nowe wyniki.",
+        "intro2": "Aby utworzy\u0107 kana\u0142 wyszukiwania produkt\u00f3w, przeprowad\u017a standardowe wyszukiwanie na stronie {store} i na dole strony kliknij jedn\u0105 z opcji syndykacji."
+      }
+    },
+    "subpages": "Podstrony"
+  },
+  "forms": {
+    "range": "Liczby nale\u017cy wpisywa\u0107 tylko pomi\u0119dzy: {limitTo} a {limitFrom}.",
+    "contact_us": {
+      "form_heading": "Skontaktuj si\u0119 z nami",
+      "full_name": "Imi\u0119 i nazwisko",
+      "email": "Adres e-mail",
+      "company": "Nazwa firmy",
+      "phone": "Numer telefonu",
+      "order": "Numer zam\u00f3wienia",
+      "rma": "Numer RMA",
+      "question": "Komentarze/pytania",
+      "submit": "Prze\u015blij formularz",
+      "successful": "Otrzymali\u015bmy Twoj\u0105 opini\u0119 i w razie potrzeby wkr\u00f3tce na ni\u0105 odpowiemy. <a href=\"{shopPath}\">Kontynuuj</a>.",
+      "manual_captcha_instruction": "Prosz\u0119 odpowiedzie\u0107 na poni\u017csze pytanie w celu dodatkowej weryfikacji."
+    },
+    "create_account": {
+      "submit_value": "Utw\u00f3rz konto"
+    },
+    "new_password": {
+      "heading": "Zmie\u0144 has\u0142o",
+      "password": "Nowe has\u0142o",
+      "password2": "Potwierd\u017a has\u0142o",
+      "submit_value": "Kontynuuj"
+    },
+    "address": {
+      "add": {
+        "heading": "Dodaj nowy adres",
+        "description": "U\u017cyj poni\u017cszego formularza, aby zmieni\u0107 wszystkie szczeg\u00f3\u0142y dotycz\u0105ce adresu wysy\u0142ki. Po zako\u0144czeniu kliknij przycisk \"Zapisz adres\"."
+      },
+      "edit": {
+        "heading": "Aktualizacja adresu"
+      },
+      "confirm_delete": "Czy na pewno chcesz usun\u0105\u0107 ten adres?",
+      "submit_value": "Zapisz adres"
+    },
+    "payment_methods": {
+      "add": {
+        "heading": "Dodaj metod\u0119 p\u0142atno\u015bci"
+      },
+      "edit": {
+        "heading": "Uaktualnij metod\u0119 p\u0142atno\u015bci"
+      },
+      "confirm_delete": "Czy na pewno chcesz usun\u0105\u0107 t\u0119 metod\u0119 p\u0142atno\u015bci?",
+      "submit_value": "Zapisz metod\u0119 p\u0142atno\u015bci",
+      "first_name": "Imi\u0119",
+      "last_name": "Nazwisko",
+      "company": "Nazwa firmy",
+      "phone": "Numer telefonu",
+      "address1": "Linia adresowa 1",
+      "address2": "Linia adresowa 2",
+      "city": "Przedmie\u015bcie/Miasto",
+      "country": "Kraj",
+      "state": "Pa\u0144stwo/Prowincja",
+      "postal_code": "Kod pocztowy",
+      "choose_country": "Wybierz kraj",
+      "default_instrument": "Domy\u015blna metoda p\u0142atno\u015bci"
+    },
+    "gift_certificate": {
+      "purchase": {
+        "to_name": "Imi\u0119 i nazwisko odbiorcy",
+        "to_email": "Email odbiorcy",
+        "from_name": "Twoje imi\u0119",
+        "from_email": "Tw\u00f3j e-mail",
+        "message": "Wiadomo\u015b\u0107 opcjonalna",
+        "amount": "Kwota",
+        "theme": "Motyw certyfikatu podarunkowego",
+        "custom_range": "(Warto\u015b\u0107 musi zawiera\u0107 si\u0119 mi\u0119dzy {min} a {max})",
+        "agree": "Rozumiem, \u017ce bony upominkowe trac\u0105 wa\u017cno\u015b\u0107 po {days, plural, one {1 dzie\u0144} other {# dni}}",
+        "agree2": "Zgadzam si\u0119, \u017ce bony podarunkowe nie podlegaj\u0105 zwrotowi.",
+        "preview": "Podgl\u0105d",
+        "preview_error": "Wyst\u0105pi\u0142 problem z za\u0142adowaniem podgl\u0105du. Spr\u00f3buj ponownie p\u00f3\u017aniej.",
+        "submit_value": "Dodaj bon podarunkowy do koszyka"
+      },
+      "balance": {
+        "code": "Kod Bonu Podarunkowego",
+        "submit_value": "Sprawd\u017a saldo"
+      }
+    },
+    "inbox": {
+      "order": "Zam\u00f3wienie:",
+      "order_display": "Zam\u00f3wienie #{id} - umieszczone na {date} dla {total}",
+      "subject": "Temat:",
+      "message": "Wiadomo\u015b\u0107",
+      "submit_value": "Wy\u015blij wiadomo\u015b\u0107",
+      "send_message": "Wy\u015blij wiadomo\u015b\u0107",
+      "clear_value": "Jasne",
+      "no_orders": "Po z\u0142o\u017ceniu zam\u00f3wienia b\u0119dziesz mia\u0142 pe\u0142ny dost\u0119p do wysy\u0142ania wiadomo\u015bci z tej strony."
+    },
+    "search": {
+      "query": "S\u0142owo kluczowe",
+      "show": "Poka\u017c formularz wyszukiwania",
+      "hide": "Ukryj formularz wyszukiwania",
+      "title": "Wyszukiwanie zaawansowane",
+      "price_range": "Zakres cenowy",
+      "by_price": "Szukaj wed\u0142ug ceny",
+      "by_setting": "Wyszukiwanie wed\u0142ug ustawie\u0144",
+      "search": "Szukaj na stronie",
+      "free_shipping": {
+        "title": "Darmowa wysy\u0142ka",
+        "free": "Tylko bezp\u0142atna wysy\u0142ka",
+        "paid": "Tylko op\u0142acona wysy\u0142ka"
+      },
+      "featured_products": {
+        "title": "Polecane produkty",
+        "enabled": "Tylko Polecane Produkty",
+        "disabled": "Tylko produkty nieb\u0119d\u0105ce przedmiotem zainteresowania"
+      },
+      "categories": "Kategorie",
+      "did_you_mean": "Czy mia\u0142e\u015b na my\u015bli:",
+      "your_search_for": "Twoje poszukiwania",
+      "no_match": "nie pasowa\u0142y \u017cadne produkty ani informacje.",
+      "suggestions": {
+        "title": "Sugestie:",
+        "line1": "Upewnij si\u0119, \u017ce wszystkie s\u0142owa s\u0105 napisane poprawnie.",
+        "line2": "Wypr\u00f3buj r\u00f3\u017cne s\u0142owa kluczowe.",
+        "line3": "Wypr\u00f3buj bardziej og\u00f3lne s\u0142owa kluczowe."
+      },
+      "refine": "U\u015bci\u015blij wyszukiwanie",
+      "brand": "Marki",
+      "searchsubs": "Automatycznie przeszukuj podkategorie"
+    },
+    "wishlist": {
+      "name": "Nazwa listy \u017cycze\u0144:",
+      "public": "Podziel si\u0119 list\u0105 \u017cycze\u0144?"
+    },
+    "validate": {
+      "account": {
+        "edit": {
+          "password": "Musisz wprowadzi\u0107 swoje aktualne has\u0142o.",
+          "first_name": "Musisz poda\u0107 imi\u0119.",
+          "last_name": "Musisz poda\u0107 nazwisko.",
+          "phone": "Musisz wprowadzi\u0107 numer telefonu."
+        },
+        "reorder": {
+          "select_item": "Wybierz jeden lub wi\u0119cej przedmiot\u00f3w do ponownego zam\u00f3wienia."
+        },
+        "inbox": {
+          "order": "Musisz wybra\u0107 zam\u00f3wienie.",
+          "subject": "Musisz wprowadzi\u0107 temat.",
+          "message": "Musisz wprowadzi\u0107 wiadomo\u015b\u0107."
+        }
+      },
+      "common": {
+        "name": "Musisz wpisa\u0107 swoje imi\u0119.",
+        "password": "Musisz wprowadzi\u0107 has\u0142o.",
+        "password_match": "Twoje has\u0142a nie s\u0105 zgodne.",
+        "email_address": "U\u017cyj wa\u017cnego adresu e-mail, np. user@example.com."
+      },
+      "contact": {
+        "email_address": "U\u017cyj wa\u017cnego adresu e-mail, np. user@example.com.",
+        "question": "Musisz wpisa\u0107 swoje pytanie."
+      },
+      "gift": {
+        "to_name": "Musisz wprowadzi\u0107 poprawn\u0105 nazw\u0119 odbiorcy.",
+        "to_email": "Musisz poda\u0107 poprawny adres e-mail odbiorcy.",
+        "from_name": "Musisz wpisa\u0107 swoje imi\u0119.",
+        "from_email": "Musisz poda\u0107 poprawny adres e-mail.",
+        "cert_theme": "Musisz wybra\u0107 temat bonu upominkowego.",
+        "agree_terms": "Musisz zgodzi\u0107 si\u0119 na te warunki."
+      },
+      "payment_method": {
+        "credit_card_number": "Musisz poda\u0107 wa\u017cny numer karty kredytowej.",
+        "expiration": "Musisz poda\u0107 wa\u017cn\u0105 dat\u0119 wyga\u015bni\u0119cia.",
+        "name_on_card": "Musisz wprowadzi\u0107 nazw\u0119.",
+        "cvv": "Musisz poda\u0107 prawid\u0142owe cvv."
+      },
+      "reviews": {
+        "rating": "Pole \"Ocena\" nie mo\u017ce by\u0107 puste.",
+        "title": "Pole \"Temat przegl\u0105du\" nie mo\u017ce by\u0107 puste.",
+        "comment": "Pole \"Komentarz\" nie mo\u017ce by\u0107 puste."
+      }
+    }
+  },
+  "products": {
+    "current_stock": "Aktualne zapasy:",
+    "low_stock": "Pozosta\u0142o tylko:",
+    "quantity": "Ilo\u015b\u0107:",
+    "qty": "ILO\u015a\u0106",
+    "change_product_options": "Zmie\u0144 opcje dla {name}",
+    "quantity_decrease": "Zmniejsz ilo\u015b\u0107 {name}",
+    "quantity_increase": "Zwi\u0119ksz ilo\u015b\u0107 {name}",
+    "purchase_units": "{quantity, plural, =0{0 jednostek} one {# unit} other {# jednostki}}",
+    "max_purchase_quantity": "Maksymalny zakup:",
+    "min_purchase_quantity": "Minimalny zakup:",
+    "related_products": "Produkty powi\u0105zane",
+    "top": "Najpopularniejsze produkty",
+    "similar_by_views": "Klienci zauwa\u017cyli r\u00f3wnie\u017c",
+    "featured": "Polecane produkty",
+    "file_option_set": "Obecnie: <a href=\"{url}\" target=\"_blank\">{name}</a>",
+    "new": "Nowe produkty",
+    "warranty": "Informacje o gwarancji",
+    "addition": "Dodatkowe informacje",
+    "reviews": {
+      "hide": "Hide Reviews",
+      "new": "Napisz recenzj\u0119",
+      "show": "Show Reviews",
+      "title": "Opinie o produkcie",
+      "header": "{total, plural, =0{0 Recenzje} one {# Recenzja} other {# Recenzje}}",
+      "link_to_review": "({total, plural, =0{Brak recenzji} one {# recenzja} other {# recenzje}})",
+      "post_on_by": "Posted by { name } on { date }",
+      "rating_label": "Ocena",
+      "select_rating": "Wybierz ocen\u0119",
+      "anonymous_poster": "Nieznany",
+      "rating": {
+        "1": "1 gwiazdka (najgorsza)",
+        "2": "2 gwiazdki",
+        "3": "3 gwiazdki (\u015brednia)",
+        "4": "4 gwiazdki",
+        "5": "5 gwiazdek (najlepszy)"
+      },
+      "write_a_review": "Napisz recenzj\u0119",
+      "no_reviews": "Nie ma recenzji",
+      "form_write": {
+        "name": "Nazwa",
+        "email": "Email",
+        "subject": "Przegl\u0105d Przedmiot",
+        "comments": "Komentarze",
+        "submit_value": "Zg\u0142o\u015b recenzj\u0119"
+      }
+    },
+    "videos": {
+      "header": "Wideo",
+      "hide": "Ukryj filmy",
+      "show": "Poka\u017c filmy"
+    },
+    "add_to_cart": "Dodaj do koszyka",
+    "adding_to_cart": "Dodawanie do koszyka\u2026",
+    "add_to_cart_later": "Dodaj do koszyka p\u00f3\u017aniej",
+    "options": "Opcje",
+    "none": "Brak",
+    "sku": "SKU:",
+    "upc": "UPC:",
+    "mpn": "MPN:",
+    "condition": "Stan:",
+    "availability": "Dost\u0119pno\u015b\u0107:",
+    "shipping": "Wysy\u0142ka:",
+    "shipping_fixed": "{amount} (Sta\u0142y koszt wysy\u0142ki)",
+    "shipping_free": "Darmowa wysy\u0142ka",
+    "shipping_calculated": "Obliczane przy kasie",
+    "unavailable": "Niedost\u0119pny",
+    "sold_out": "Wyprzedane",
+    "out_of_stock_default_message": "Brak w magazynie",
+    "instock": "Dost\u0119pny na magazynie i gotowy do wysy\u0142ki!",
+    "instock2": "Dost\u0119pny!",
+    "pre_order": "Zam\u00f3w teraz w przedsprzeda\u017cy",
+    "buy_now": "Kup teraz",
+    "choose_options": "Wybierz opcje",
+    "hide_options": "Dost\u0119pny!",
+    "done": "Gotowe",
+    "quick_view": "Szybki podgl\u0105d",
+    "compare": "Por\u00f3wnaj",
+    "max_filesize": "Maksymalny rozmiar pliku to",
+    "filetypes": "typy plik\u00f3w to",
+    "upload": "Prze\u015blij",
+    "choose_an_option": "Wybierz opcj\u0119",
+    "select_one": "Wybierz jedno",
+    "description": "Opis",
+    "price_with_tax": "(Inc. {tax_label})",
+    "price_without_tax": "(Ex. {tax_label})",
+    "including_tax": "Z uwzgl\u0119dnieniem podatku",
+    "excluding_tax": "Bez podatku",
+    "weight": "Waga:",
+    "width": "Szeroko\u015b\u0107:",
+    "height": "Wysoko\u015b\u0107:",
+    "depth": "G\u0142\u0119boko\u015b\u0107:",
+    "measurement": {
+      "metric": "cm",
+      "imperial": "w"
+    },
+    "you_save_opening_text": "Zapisujesz",
+    "you_save_closing_bracket": ".",
+    "gift_wrapping": "Pakowanie prezent\u00f3w:",
+    "gift_wrapping_available": "Dost\u0119pne opcje",
+    "quantity_min": "Minimalna ilo\u015b\u0107 do nabycia to {quantity}.",
+    "quantity_max": "Maksymalna ilo\u015b\u0107 do nabycia to {quantity}.",
+    "bulk_pricing": {
+      "title": "Ceny hurtowe:",
+      "view": "Kupuj hurtowo i oszcz\u0119dzaj",
+      "modal_title": "Zni\u017cki hurtowe",
+      "instructions": "Poni\u017cej przedstawiamy dost\u0119pne rabaty hurtowe dla poszczeg\u00f3lnych przedmiot\u00f3w przy zakupie okre\u015blonej ilo\u015bci",
+      "range": "<strong>Ceny hurtowe:</strong> Kup <strong>{min}</strong>{max, plural, =0{<strong>+</strong>} other {&nbsp;~ <strong>#</strong>}} za <strong class='_bulkPricing-discount' data-bulk-pricing-slider-discount></strong>",
+      "range_single": "<strong>Ceny hurtowe:</strong> Kup <strong>{min}</strong> za <strong class='_bulkPricing-discount' data-bulk-pricing-slider-discount></strong>",
+      "percent": "<strong>{discount, plural, =0{&nbsp;} other {<strong>(-{discount})</strong>}}</strong>",
+      "price": "<strong data-price-discount>(-{discount})</strong>",
+      "fixed": "<strong data-fixed-discount>{discount}</strong>"
+    },
+    "special_customfield": {
+      "region_can_active": "Mo\u017cna aktywowa\u0107 w:",
+      "region_cannot_active": "Nie mo\u017cna aktywowa\u0107 w:",
+      "check_region": "Sprawd\u017a ograniczenia regionalne.",
+      "platform": "Platforma",
+      "language": "J\u0119zyk :",
+      "show_more": "wi\u0119cej",
+      "show_less": "mniej",
+      "global": "Globalny",
+      "restricted_can_activated": "Ta wersja produktu mo\u017ce by\u0107 aktywowana w",
+      "restricted_cannot_activated": "Ta wersja produktu nie mo\u017ce by\u0107 aktywowana w",
+      "restricted_label": "Region produktu jest ograniczona do:",
+      "your_country": "Twoje pa\u0144stwo:",
+      "search_label": "Lista kraj\u00f3w dozwolonych dla tej wersji produktu:",
+      "search_placeholder": "Szukaj kraju"
+    },
+    "size_title": "Pomoc przy rozmiarach",
+    "size_title_alt": "Pomoc przy rozmiarach?",
+    "size_to_get": "Wci\u0105\u017c nie jeste\u015b pewien, jaki rozmiar wybra\u0107?",
+    "link_guide_popup": "<a href=\"{href}\" data-papathemes-popup>{value}</a> lub sprawd\u017a nasz przewodnik po rozmiarach."
+  },
+  "design_tool": {
+    "button_open": "otw\u00f3rz narz\u0119dzie projektowe"
+  },
+  "invoice": {
+    "for_order": "{name} Faktura za zam\u00f3wienie #{id}",
+    "phone": "Telefon: {number}",
+    "email": "Email: {email}",
+    "order": "Zam\u00f3wienie:",
+    "payment_method": "Spos\u00f3b p\u0142atno\u015bci:",
+    "order_date": "Data zam\u00f3wienia:",
+    "shipping_method": "Spos\u00f3b wysy\u0142ki:",
+    "order_items": "Zam\u00f3w przedmioty",
+    "qty": "Ilo\u015b\u0107",
+    "code": "Kod/SKU",
+    "shipping_address": "Adres do wysy\u0142ki",
+    "fulfillment": "Spe\u0142nienie",
+    "digital": "Cyfrowy",
+    "shipping": "Wysy\u0142ka",
+    "pickup": "Pickup",
+    "product_name": "Nazwa produktu",
+    "price": "Cena",
+    "total": "Razem",
+    "comments": "Komentarze"
+  },
+  "newsletter": {
+    "subscribe": "Zapisz si\u0119 do naszego newslettera",
+    "subscribe_submit": "Subskrybuj",
+    "email_placeholder": "Tw\u00f3j adres e-mail",
+    "name_placeholder": "Twoje imi\u0119",
+    "subscribed_heading": "Dzi\u0119ki za subskrypcj\u0119!",
+    "subscribed_heading_error": "Ups...",
+    "subscribed_message": "Dzi\u0119kujemy za do\u0142\u0105czenie do naszej listy mailingowej. Wkr\u00f3tce otrzymasz kolejne wydanie naszego newslettera",
+    "unsubscribed_heading": "Wypisany!",
+    "unsubscribed_message": "Nie b\u0119dziesz ju\u017c otrzymywa\u0107 e-maili marketingowych od <b>{store_name}</b>.",
+    "hide_popup_msg": "Nie pokazuj tego okienka ponownie"
+  },
+  "social": {
+    "connect": "Po\u0142\u0105cz si\u0119 z nami"
+  },
+  "errors": {
+    "shipping_quote_failure": "Wyst\u0105pi\u0142 problem z pobraniem wyceny wysy\u0142ki",
+    "state_error": "Wyst\u0105pi\u0142 problem z wyszukiwaniem pa\u0144stw/prowincji"
+  },
+  "search": {
+    "quick_search": {
+      "input_label": "Szukaj na stronie",
+      "input_placeholder": "Szukaj w sklepie",
+      "show_all": "Poka\u017c wszystkie wyniki wyszukiwania",
+      "popular_search": "Popularne wyszukiwanie",
+      "search_history": "Historia wyszukiwania"
+    },
+    "actionbar": {
+      "input_label": "Szukaj",
+      "input_placeholder": "Filtruj produkty wed\u0142ug nazwy, SKU, atrybut\u00f3w...",
+      "input_placeholder_fullwidth": "Filtruj wed\u0142ug nazwy, SKU...",
+      "clear_all": "Wyczy\u015b\u0107 wszystko"
+    },
+    "results": {
+      "form_label": "S\u0142owo kluczowe wyszukiwania:",
+      "form_button_text": "Szukaj na stronie",
+      "count": "{ count, plural, one {# wynik} other {# results} } for '{ search_query }'",
+      "quick_count": "{ count, plural, one {# wynik produktu} other {# wyniki produktu} } for '{ search_query }'",
+      "product_count": "Produkty ({count})",
+      "content_count": "Wiadomo\u015bci i informacje ({count})"
+    },
+    "faceted": {
+      "selected": {
+        "title": "Ulepszaj przez",
+        "rating-label": "Oceniony {rating, plural, one {# Star} other {# Stars}} Lub wi\u0119cej",
+        "no-filters": "Nie zastosowano \u017cadnych filtr\u00f3w",
+        "clear-all": "Wyczy\u015b\u0107 wszystko"
+      },
+      "range": {
+        "apply": "Zastosuj",
+        "min-placeholder": "Min.",
+        "max-placeholder": "Max."
+      },
+      "rating": {
+        "and-up": "& up"
+      },
+      "clear": "Jasne",
+      "more": "Wi\u0119cej",
+      "show-more": "Poka\u017c wi\u0119cej",
+      "show-less": "Poka\u017c mniej",
+      "show-filters": "Poka\u017c filtry",
+      "hide-filters": "Ukryj filtry",
+      "filters": "Filtry",
+      "apply_filters": "Zastosuj filtry",
+      "filter_by": "Filtruj wed\u0142ug",
+      "browse-by": "Przegl\u0105daj wed\u0142ug"
+    },
+    "error": {
+      "empty_field": "Pole wyszukiwania nie mo\u017ce by\u0107 puste."
+    },
+    "product_results": "Wyniki produkt\u00f3w"
+  },
+  "page_not_found": {
+    "page_heading": "B\u0142\u0105d 404 - Nie znaleziono strony",
+    "message": "Wygl\u0105da na to, \u017ce strona, kt\u00f3rej szukasz, zosta\u0142a przeniesiona lub ju\u017c nie istnieje."
+  },
+  "server_error": {
+    "page_heading": "Co\u015b posz\u0142o nie tak...",
+    "message": "Sklep jest obecnie niedost\u0119pny, prosz\u0119 spr\u00f3bowa\u0107 ponownie za kilka minut"
+  },
+  "forbidden": {
+    "page_heading": "Przepraszamy! Zaloguj si\u0119, aby kontynuowa\u0107",
+    "message": "Nie masz uprawnie\u0144 do dost\u0119pu do tej strony.",
+    "if_you_were_signed_in": "Je\u015bli by\u0142e\u015b zalogowany,",
+    "sign_in": "wpisz si\u0119 ponownie",
+    "to_continue": ", aby wznowi\u0107 prac\u0119 w nowej sesji."
+  },
+  "sitemap": {
+    "page_title": "Sitemap",
+    "show_all_link": "Poka\u017c wszystko"
+  },
+  "text_truncate": {
+    "view_more": "Zobacz wi\u0119cej szczeg\u00f3\u0142\u00f3w",
+    "view_less": "Ukryj szczeg\u00f3\u0142y"
+  },
+  "cookies": {
+    "accept": "Akceptuj pliki cookie"
+  },
+  "maintenance": {
+    "down": "Przerwa w konserwacji"
+  },
+  "validation_messages": {
+    "valid_email": "Musisz poda\u0107 poprawny adres e-mail.",
+    "password": "Musisz wprowadzi\u0107 has\u0142o.",
+    "password_match": "Twoje has\u0142a nie s\u0105 zgodne.",
+    "invalid_password": "Has\u0142a musz\u0105 mie\u0107 co najmniej 7 znak\u00f3w i zawiera\u0107 zar\u00f3wno znaki alfabetyczne, jak i numeryczne.",
+    "field_not_blank": " pole nie mo\u017ce by\u0107 puste.",
+    "certificate_amount": "Musisz poda\u0107 kwot\u0119 bonu upominkowego.",
+    "certificate_amount_range": "Musisz wpisa\u0107 kwot\u0119 certyfikatu pomi\u0119dzy [MIN] a [MAX].",
+    "price_min_evaluation": "Cena minimalna musi by\u0107 mniejsza ni\u017c cena maksymalna.",
+    "price_max_evaluation": "Cena minimalna musi by\u0107 mniejsza ni\u017c cena maksymalna.",
+    "price_min_not_entered": "Wymagana jest cena minimalna.",
+    "price_max_not_entered": "Wymagana jest cena maksymalna.",
+    "price_invalid_value": "Wej\u015bcie musi by\u0107 wi\u0119ksze ni\u017c 0.",
+    "invalid_gift_certificate": "Wpisz sw\u00f3j wa\u017cny kod certyfikatu."
+  },
+  "validation_fallback_messages": {
+    "valid_email": "Musisz poda\u0107 poprawny adres e-mail.",
+    "password": "Musisz wprowadzi\u0107 has\u0142o.",
+    "password_match": "Twoje has\u0142a nie s\u0105 zgodne.",
+    "invalid_password": "Has\u0142a musz\u0105 mie\u0107 co najmniej 7 znak\u00f3w i zawiera\u0107 zar\u00f3wno znaki alfabetyczne, jak i numeryczne.",
+    "field_not_blank": " pole nie mo\u017ce by\u0107 puste.",
+    "certificate_amount": "Musisz poda\u0107 kwot\u0119 bonu upominkowego.",
+    "certificate_amount_range": "Musisz wpisa\u0107 kwot\u0119 certyfikatu pomi\u0119dzy [MIN] a [MAX].",
+    "price_min_evaluation": "Cena minimalna musi by\u0107 mniejsza ni\u017c cena maksymalna.",
+    "price_max_evaluation": "Cena minimalna musi by\u0107 mniejsza ni\u017c cena maksymalna.",
+    "price_min_not_entered": "Wymagana jest cena minimalna.",
+    "price_max_not_entered": "Wymagana jest cena maksymalna.",
+    "price_invalid_value": "Wej\u015bcie musi by\u0107 wi\u0119ksze ni\u017c 0.",
+    "invalid_gift_certificate": "Wpisz sw\u00f3j wa\u017cny kod certyfikatu."
+  },
+  "validation_default_messages": {
+    "valid_email": "Musisz poda\u0107 poprawny adres e-mail.",
+    "password": "Musisz wprowadzi\u0107 has\u0142o.",
+    "password_match": "Twoje has\u0142a nie s\u0105 zgodne.",
+    "invalid_password": "Has\u0142a musz\u0105 mie\u0107 co najmniej 7 znak\u00f3w i zawiera\u0107 zar\u00f3wno znaki alfabetyczne, jak i numeryczne.",
+    "field_not_blank": "Pole nie mo\u017ce by\u0107 puste.",
+    "certificate_amount": "Musisz poda\u0107 kwot\u0119 bonu upominkowego.",
+    "certificate_amount_range": "Musisz wpisa\u0107 kwot\u0119 certyfikatu pomi\u0119dzy [MIN] a [MAX].",
+    "price_min_evaluation": "Cena minimalna musi by\u0107 mniejsza ni\u017c cena maksymalna.",
+    "price_max_evaluation": "Cena minimalna musi by\u0107 mniejsza ni\u017c cena maksymalna.",
+    "price_min_not_entered": "Wymagana jest cena minimalna.",
+    "price_max_not_entered": "Wymagana jest cena maksymalna.",
+    "price_invalid_value": "Wej\u015bcie musi by\u0107 wi\u0119ksze ni\u017c 0.",
+    "invalid_gift_certificate": "Wpisz sw\u00f3j wa\u017cny kod certyfikatu."
+  },
+  "page_builder": {
+    "pdp_sale_badge_label": "Na sprzeda\u017c!",
+    "pdp_sold_out_label": "Wyprzedane",
+    "pdp-sale-price-label": "Teraz:",
+    "pdp-non-sale-price-label": "By\u0142:",
+    "pdp-retail-price-label": "MSRP:",
+    "pdp-custom-fields-tab-label": "Informacje dodatkowe"
+  },
+  "consent_manager": {
+    "data_collection_warning": "U\u017cywamy plik\u00f3w cookie (i innych podobnych technologii) do zbierania danych, aby poprawi\u0107 jako\u015b\u0107 Twoich zakup\u00f3w.",
+    "accept_all_cookies": "Zaakceptuj wszystkie pliki cookie",
+    "gdpr_settings": "Ustawienia",
+    "data_collection_preferences": "Preferencje dotycz\u0105ce gromadzenia danych na stronie internetowej",
+    "manage_data_collection_preferences": "Zarz\u0105dzaj preferencjami dotycz\u0105cymi gromadzenia danych w witrynie",
+    "use_data_by_cookies": " wykorzystuje dane zbierane przez pliki cookie i biblioteki JavaScript, aby poprawi\u0107 jako\u015b\u0107 zakup\u00f3w.",
+    "data_categories_table": "Poni\u017csza tabela przedstawia spos\u00f3b wykorzystania tych danych w podziale na kategorie. Aby zrezygnowa\u0107 z gromadzenia danych w danej kategorii, wybierz opcj\u0119 \\\"Nie\\\" i zapisz swoje preferencje.",
+    "allow": "Pozw\u00f3l na",
+    "accept": "Zaakceptuj",
+    "deny": "Zaprzeczaj",
+    "dismiss": "Odrzu\u0107",
+    "reject_all": "Odrzu\u0107 wszystkie",
+    "category": "Kategoria",
+    "purpose": "Przeznaczenie",
+    "functional_category": "Funkcjonalne",
+    "functional_purpose": "Umo\u017cliwia korzystanie z rozszerzonych funkcji, takich jak filmy i czat na \u017cywo. Je\u015bli nie wyrazisz na to zgody, niekt\u00f3re lub wszystkie te funkcje mog\u0105 nie dzia\u0142a\u0107 prawid\u0142owo.",
+    "analytics_category": "Analytics",
+    "analytics_purpose": "Dostarczanie informacji statystycznych na temat korzystania z witryny, np. analiza sieciowa, dzi\u0119ki kt\u00f3rej mo\u017cemy z czasem ulepsza\u0107 t\u0119 witryn\u0119.",
+    "targeting_category": "Adresat:",
+    "advertising_category": "Reklama",
+    "advertising_purpose": "U\u017cywane do tworzenia profili i personalizacji tre\u015bci, aby zwi\u0119kszy\u0107 komfort zakup\u00f3w.",
+    "essential_category": "Istotne",
+    "esential_purpose": "S\u0105 niezb\u0119dne do dzia\u0142ania witryny i wszelkich zam\u00f3wionych us\u0142ug, ale nie pe\u0142ni\u0105 \u017cadnej dodatkowej lub drugorz\u0119dnej funkcji.",
+    "yes": "Tak",
+    "no": "Nie",
+    "not_available": "NIE DOTYCZY.",
+    "cancel": "Anuluj",
+    "save": "Zapisz",
+    "back_to_preferences": "Powr\u00f3t do preferencji",
+    "close_without_changes": "Nie zapisa\u0142e\u015b zmian w swoich preferencjach dotycz\u0105cych zbierania danych. Czy na pewno chcesz zamkn\u0105\u0107 bez zapisywania?",
+    "unsaved_changes": "Masz niezapisane zmiany",
+    "by_using": "Korzystaj\u0105c z naszej strony internetowej, zgadzasz si\u0119 na to, \u017ce",
+    "agree_on_data_collection": "Korzystaj\u0105c z naszej strony internetowej, wyra\u017casz zgod\u0119 na gromadzenie danych zgodnie z opisem w naszym dokumencie ",
+    "change_preferences": "W ka\u017cdej chwili mo\u017cesz zmieni\u0107 swoje preferencje",
+    "cancel_dialog_title": "Czy na pewno chcesz zrezygnowa\u0107?",
+    "privacy_policy": "Polityka prywatno\u015bci",
+    "allow_category_tracking": "Umo\u017cliwienie \u015bledzenia strony [CATEGORY_NAME]",
+    "disallow_category_tracking": "Wy\u0142\u0105czenie \u015bledzenia strony [CATEGORY_NAME]"
+  },
+  "papathemes": {
+    "on_sale": "Wyprzeda\u017c",
+    "top_nav": {
+      "welcome_text": "Witamy w {store_name}!",
+      "text1": "{address}",
+      "text2": "{phone_number}",
+      "url1": "#",
+      "url2": "#"
+    },
+    "categories_grid": {
+      "heading": "Kategorie",
+      "products_count": "{count, plural, =0{Brak produkt\u00f3w} one {1 Produkt} other {# Produkt\u00f3w}}"
+    },
+    "pbcst": {
+      "bestselling": "Najcz\u0119\u015bciej kupowane",
+      "featured": "Polecane",
+      "new": "Nowo\u015bci",
+      "reviews": "Najlepiej oceniane",
+      "view_all": "Zobacz wszystkie produkty",
+      "shop_category": "Kupuj {name}",
+      "load_more": "Poka\u017c wi\u0119cej",
+      "collapse": "Zwi\u0144",
+      "subcategory_title": "Kategorie:"
+    },
+    "product_cartsuggested": {
+      "load_more": "Poka\u017c wi\u0119cej",
+      "collapse": "Zwi\u0144"
+    },
+    "new_products": {
+      "image": "https://tvlgiao.github.io/bigcommerce-themes/supermarket/demo/images/new-products-img.jpg"
+    },
+    "categories_list": {
+      "heading": "Najwa\u017cniejsze kategorie",
+      "see_all": "Zobacz wszystkie",
+      "cat_id_1": "55",
+      "cat_id_2": "23",
+      "cat_id_3": "18",
+      "cat_id_4": "19",
+      "cat_id_5": "58",
+      "cat_id_6": "60",
+      "banner_1": "https://tvlgiao.github.io/bigcommerce-themes/supermarket/demo/images/cat-list-01.jpg",
+      "banner_2": "https://tvlgiao.github.io/bigcommerce-themes/supermarket/demo/images/cat-list-02.jpg",
+      "banner_3": "https://tvlgiao.github.io/bigcommerce-themes/supermarket/demo/images/cat-list-03.jpg",
+      "banner_4": "https://tvlgiao.github.io/bigcommerce-themes/supermarket/demo/images/cat-list-04.jpg",
+      "banner_5": "https://tvlgiao.github.io/bigcommerce-themes/supermarket/demo/images/cat-list-05.jpg",
+      "banner_6": "https://tvlgiao.github.io/bigcommerce-themes/supermarket/demo/images/cat-list-06.jpg"
+    }
+  },
+  "bulk_order": {
+    "icon_title": "Zam\u00f3wienie hurtowe",
+    "product": "Produkt",
+    "qty_in_cart": "Ilo\u015b\u0107 w koszyku",
+    "qty_in_cart_mobile": "(<span data-bulkorder-cart-qty-id='{id}'></span> w koszyku)",
+    "qty": "Ilo\u015b\u0107",
+    "price": "Cena",
+    "subtotal": "Suma cz\u0119\u015bciowa",
+    "total": "Ca\u0142kowity:",
+    "items": "produkty",
+    "add_all": "Dodaj wszystko do koszyka",
+    "progress_heading": "Dodawanie produkt\u00f3w do koszyka",
+    "view_cart": "Zobacz koszyk",
+    "countinue_shopping": "Kontynuuj zakupy",
+    "validate": {
+      "enter_qty": "Prosz\u0119 poda\u0107 ilo\u015b\u0107",
+      "choose_options": "Prosz\u0119 wybra\u0107 opcje"
+    },
+    "title": "Uk\u0142ad zam\u00f3wienia hurtowego"
+  },
+  "also_bought": {
+    "heading": "Cz\u0119sto kupowane razem:",
+    "add_all": "Wybierz wszystko",
+    "add_selected_to_cart_backup": "Dodaj %str% do koszyka",
+    "add_selected_to_cart": "Dodaj do koszyka",
+    "added_to_cart": "Dodano do koszyka!",
+    "all": "wszystkie",
+    "number_array": ",oba,trzy,cztery,pi\u0119\u0107,sze\u015b\u0107,siedem,osiem,dziewi\u0119\u0107,dziesi\u0119\u0107",
+    "all_number_array": "wszystkie,wszystkie dwa,wszystkie trzy,wszystkie cztery,wszystkie pi\u0119\u0107,wszystkie sze\u015b\u0107,wszystkie siedem,wszystkie osiem,wszystkie dziewi\u0119\u0107,wszystkie dziesi\u0119\u0107"
+  },
+  "shipping_countdown": {
+    "hour": "godz.",
+    "hours": "godz.",
+    "minute": "min.",
+    "minutes": "min.",
+    "today_hm": "Zam\u00f3w w ci\u0105gu <strong>%HOUR%</strong> i <strong>%MINUTE%</strong>, aby wys\u0142a\u0107 dzisiaj.",
+    "today_h": "Zam\u00f3w w ci\u0105gu <strong>%MINUTE%</strong>, aby wys\u0142a\u0107 dzisiaj.",
+    "tomorrow_hm": "Zam\u00f3w w ci\u0105gu <strong>%HOUR%</strong> i <strong>%MINUTE%</strong>, aby wys\u0142a\u0107 jutro.",
+    "tomorrow_m": "Zam\u00f3w w ci\u0105gu <strong>%MINUTE%</strong>, aby wys\u0142a\u0107 jutro.",
+    "monday": "Zam\u00f3w teraz, aby wys\u0142a\u0107 w poniedzia\u0142ek."
+  },
+  "form_contact": {
+    "docs": "Aby wy\u015bwietli\u0107 formularz kontaktowy, musisz skonfigurowa\u0107 adres URL pytania w ustawieniach motywu, aby odwo\u0142ywa\u0142 si\u0119 do strony z formularzem kontaktowym. Aby wy\u0142\u0105czy\u0107 to wyskakuj\u0105ce okno, prosz\u0119 ustawi\u0107 pusty adres URL pytania w ustawieniach motywu. Szczeg\u00f3\u0142owe instrukcje znajdziesz w naszej dokumentacji na stronie <a href=\"http: //bc-mooncat-docs.papathemes.com/usage.html#ask-question\" target=\"_blank\">Konfiguracja pytania</a>."
+  }
+}

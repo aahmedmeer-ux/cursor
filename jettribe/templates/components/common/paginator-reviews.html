@@ -1,0 +1,71 @@
+{{#or previous links next}}
+<div class="pagination">
+    {{#if reviews.total}}
+    {{#if reviews.start}}
+    {{#if reviews.end}}
+        <div class="pagination-info">
+            {{#if reviews.end '>' reviews.total}}
+                {{{lang 'common.paginator.items_of' start=reviews.start end=reviews.total total=reviews.total}}}
+            {{else}}
+                {{{lang 'common.paginator.items_of' start=reviews.start end=reviews.end total=reviews.total}}}
+            {{/if}}
+        </div>
+    {{/if}}
+     {{/if}}
+     {{/if}}
+    <ul class="pagination-list">
+        {{#if previous}}
+            <li class="pagination-item pagination-item--previous">
+                <a class="pagination-link"
+                    href="{{previous}}"
+                    {{#if instantload}}data-instantload{{/if}}
+                    {{#unless reload}}data-faceted-search-facet{{/unless}}
+                    aria-label="{{lang 'common.previous'}}"
+                >
+                    <i class="icon" aria-hidden="true">
+                        <svg>
+                            <use xmlns:xlink="http://www.w3.org/1999/xlink" href="#icon-chevron-left"></use>
+                        </svg>
+                    </i>
+                    <span>{{lang 'common.previous'}}</span>
+                </a>
+            </li>
+        {{/if}}
+        {{assignVar 'totalPage' (divide reviews.total (toInt productpage_reviews_count))}}
+        {{#for 1 (getVar 'totalPage')}}
+            <li class="pagination-item {{#if $index '==' ../current}}pagination-item--current{{/if}}">
+                <a class="pagination-link"
+                    href="{{../url}}?revpage={{$index}}"
+                    {{#if ../instantload}}data-instantload{{/if}}
+                    {{#unless ../reload}}data-faceted-search-facet{{/unless}}
+                    {{#if $index '==' ../current}}
+                        aria-current="page"
+                        data-pagination-current-page-link
+                    {{/if}}
+                    aria-label="{{lang 'common.paginator.page_of' current=$index total=(getVar 'totalPage')}}"
+                >
+                    {{$index}}
+                </a>
+            </li>
+        {{/for}}
+
+        {{#if next}}
+            <li class="pagination-item pagination-item--next">
+                <a class="pagination-link"
+                    href="{{next}}"
+                    {{#if instantload}}data-instantload{{/if}}
+                    {{#unless reload}}data-faceted-search-facet{{/unless}}
+                    aria-label="{{lang 'common.next'}}"
+                >
+                    <span>{{lang 'common.next'}}</span>
+                    <i class="icon" aria-hidden="true">
+                        <svg>
+                            <use xmlns:xlink="http://www.w3.org/1999/xlink" href="#icon-chevron-right"></use>
+                        </svg>
+                    </i>
+                </a>
+            </li>
+        {{/if}}
+    </ul>
+</div>
+{{/or}}

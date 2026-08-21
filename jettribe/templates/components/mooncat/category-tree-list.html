@@ -1,0 +1,68 @@
+{{#if children}}
+    <a class="navPages-action-toggle" href="#"
+        data-collapsible="navPages-{{id}}{{idSuffix}}">
+        <span class="_more"><span class="is-srOnly">{{lang 'common.nav_more'}}</span><svg class="icon"><use href="#icon-add"></use></svg></span>
+        <span class="_less"><span class="is-srOnly">{{lang 'common.nav_back'}}</span><svg class="icon"><use href="#icon-minus"></use></svg></span>
+    </a>
+    <a class="navPages-action has-subMenu" href="{{url}}" href="{{url}}" {{#if id '==' category.id}}data-current-category{{/if}}>{{name}}</a>
+    <a class="navPages-action-toggle-desktop" href="#" data-collapsible="navPages-{{id}}{{idSuffix}}" title="{{lang 'common.nav_more'}}">
+        <svg class="icon _accordion-indicator toggleLink-text toggleLink-text--off">
+            <use href="#icon-add" />
+        </svg>
+        <svg class="icon _accordion-indicator toggleLink-text toggleLink-text--on">
+            <use href="#icon-minus" />
+        </svg>
+    </a>
+    <div class="navPage-subMenu" id="navPages-{{id}}{{idSuffix}}">
+        <ul class="navPage-subMenu-list">
+            {{#each children}}
+                <li class="navPage-subMenu-item">
+                    {{#if children}}
+                        <a class="navPages-action-toggle" href="#"
+                            data-collapsible="navPages-{{id}}{{../../idSuffix}}">
+                            <span class="_more"><span class="is-srOnly">{{lang 'common.nav_more'}}</span><svg class="icon"><use href="#icon-add"></use></svg></span>
+                            <span class="_less"><span class="is-srOnly">{{lang 'common.nav_less'}}</span><svg class="icon"><use href="#icon-minus"></use></svg></span>
+                        </a>
+                        <a class="navPage-subMenu-action has-subMenu" href="{{url}}" {{#if id '==' ../../category.id}}data-current-category{{/if}}>{{name}}</a>
+                        <a class="navPages-action-toggle-desktop" tabindex="0" href="#" data-collapsible="navPages-{{id}}{{../../idSuffix}}" title="{{lang 'common.nav_more'}}">
+                            <svg class="icon _accordion-indicator toggleLink-text toggleLink-text--off">
+                                <use href="#icon-add" />
+                            </svg>
+                            <svg class="icon _accordion-indicator toggleLink-text toggleLink-text--on">
+                                <use href="#icon-minus" />
+                            </svg>
+                        </a>
+                        <ul class="navPage-childList" id="navPages-{{id}}{{../../idSuffix}}">
+                            {{#each children}}
+                                <li class="navPage-childList-item">
+                                    {{> components/mooncat/category-tree-list-child category_id=../../../category.id idSuffix=../../../idSuffix}}
+                                </li>
+                            {{/each}}
+                        </ul>
+                    {{else}}
+                        <a class="navPage-subMenu-action" href="{{url}}" {{#if id '==' ../../category.id}}data-current-category{{/if}}>{{name}}</a>
+                    {{/if}}
+                </li>
+                {{!-- check category max depth --}}
+                {{#if id '==' @root.category.id}}
+                    {{#if @root.category.subcategories}}
+                        {{#unless children}}
+                            {{assignVar 'hideSubcategoriesSidebar' 0}}
+                        {{/unless}}
+                    {{/if}}
+                {{/if}}
+            {{/each}}
+        </ul>
+    </div>
+{{else}}
+    <a class="navPages-action" href="{{url}}" {{#if id '==' category.id}}data-current-category{{/if}}>{{name}}</a>
+{{/if}}
+
+{{!-- check category max depth --}}
+{{#if id '==' @root.category.id}}
+    {{#if @root.category.subcategories}}
+        {{#unless children}}
+            {{assignVar 'hideSubcategoriesSidebar' 0}}
+        {{/unless}}
+    {{/if}}
+{{/if}}

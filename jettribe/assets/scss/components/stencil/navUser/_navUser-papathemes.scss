@@ -1,0 +1,96 @@
+
+@include breakpoint("medium") {
+    .navUser {
+        display: flex;
+        align-items: center;
+        position: static;
+    }
+}
+
+.navUser-item--cart {
+    .dropdown-menu.is-open {
+        margin-top: spacing("base");
+    }
+
+    .dropdown-menu:not(.is-loading) {
+        width: auto;
+        max-width: none;
+    }
+
+    .navUser-action {
+        position: relative;
+    }
+}
+
+.dropdown--quickSearch {
+    padding: 0;
+    margin: 0 auto;
+    width: layout("fixed");
+    display: none;
+
+    @include breakpoint("medium") {
+        background-color: stencilColor("container-fill-dark");
+        padding: 0 $container-padding;
+        height: auto !important;
+    }
+
+    @include breakpoint("large") {
+        max-width: 100%;
+    }
+	
+    &.is-open {
+        display: block;
+        z-index: zIndex("high") - 5; // lower than sticky header
+
+        + .papathemes-overlay {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: zIndex("high") - 9;
+        }
+    }
+
+    > .container {
+        position: relative;
+        padding: 0;
+    }
+
+    .modal-close {
+        color: $color-textSecondary;
+        top: 0;
+        right: 0;
+
+        @include breakpoint("medium") {
+            right: -($container-padding);
+        }
+
+        .icon-label {
+            @include breakpoint("medium") {
+                @include u-hidden("visually", !important);
+            }
+        }
+    }
+
+    .productGrid {
+        padding: 0;
+        margin: 0;
+    }
+	
+    &.is-open {
+        .modal-close {
+            display: block;
+		
+            @media (max-width: screenSize("medium") - 1px) {
+                position: fixed;
+                top: auto;
+                bottom: 0;
+                background-color: container("fill", "dark");
+            }
+        }
+    }
+}
+

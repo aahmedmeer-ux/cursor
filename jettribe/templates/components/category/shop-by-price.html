@@ -1,0 +1,151 @@
+{{#if shop_by_price}}
+    {{#if layout '===' 'fullwidth'}}
+        <div class="_accordion-block">
+            <div class="_accordion-navigation toggleLink {{#if collapsed}}is-open{{/if}}" data-collapsible="#shopByPrice-navList" tabindex="0" role="button">
+                <h4 class="_accordion-title">
+                    <span class="_toggle-cats">
+                        <svg class="icon"><use href="#icon-arrow-filter-down"></use></svg>
+                    </span>
+                    {{lang 'category.shop_by_price'}}
+                </h4>
+            </div>
+            {{#if theme_settings.show_shop_by_price '==' 'slider'}}
+                <div id="shopByPrice-navList" class="_accordion-content {{#if collapsed}}is-open{{/if}}" data-beautify-shop-by-price="{{JSONstringify shop_by_price}}">
+                    <form class="form" method="get" novalidate>
+                        <fieldset class="form-fieldset">
+                            <div class="form-minMaxRow">
+                                <div class="form-field form-field--input">
+                                    <input
+                                        name="min_price"
+                                        min="0"
+                                        class="form-input form-input--small"
+                                        required
+                                        type="number"
+                                        value=""
+                                    /><span class="_currency">{{settings.money.currency_token}}</span>
+                                </div>
+            
+                                <div class="form-field form-field--input">
+                                    <input
+                                        name="max_price"
+                                        min="0"
+                                        class="form-input form-input--small"
+                                        required
+                                        type="number"
+                                        value=""
+                                    /><span class="_currency">{{settings.money.currency_token}}</span>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div class="_wrap-silder-shopByPrice">
+                            <div class="beautify__shopByPrice-slider" data-slider></div>
+                            <div class="form-field">
+                                <button class="button button--black button--small" type="submit">
+                                    {{lang 'search.faceted.range.apply'}}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="navList-actions-inline">
+                        <button class="navList-action button" data-cancel style="display:none">{{lang 'common.cancel'}}</button>
+                        <a href="{{category_url}}" type="button" class="navList-action button" data-clear style="display:none">
+                            {{lang 'search.faceted.clear'}}
+                            <svg class="icon"><use href="#icon-close"></use></svg>
+                        </a>
+                    </div>
+                </div>
+            {{else}}
+                <div id="shopByPrice-navList" class="_accordion-content {{#if collapsed}}is-open{{/if}}">
+                    <ul>
+                        {{#each shop_by_price}}
+                        <li class="navList-item">
+                            <a class="navList-action navList-action--checkbox {{#if selected }} is-selected {{/if}}" data-instantload href="{{url}}" title="{{low.formatted}} - {{high.formatted}}">{{low.formatted}} - {{high.formatted}}</a>
+                        </li>
+                        {{/each}}
+        
+                        {{#any shop_by_price selected=true}}
+                            <li class="navList-item">
+                                <a data-instantload href="{{category_url}}" class="navList-action">
+                                    {{lang 'category.reset'}}
+                                </a>
+                            </li>
+                        {{/any}}
+                    </ul>
+                </div>
+            {{/if}}
+        </div>
+    {{else}}
+        <div class="sidebarBlock sidebarBlock--shopByPrice sidebarBlock--mobileCollapsible">
+            <h3 class="sidebarBlock-heading is-open" data-collapsible="#shopByPrice-navList" tabindex="0" aria-expanded="true">
+                <span class="_toggle-cats">
+                    <svg class="icon"><use href="#icon-arrow-filter-down"></use></svg>
+                </span>
+                {{lang 'category.shop_by_price'}}
+            </h3>
+            {{#if theme_settings.show_shop_by_price '==' 'slider'}}
+                <div id="shopByPrice-navList" class="beautify__navList is-open" data-beautify-shop-by-price="{{JSONstringify shop_by_price}}" aria-hidden="false">
+                    <form class="form" method="get" novalidate>
+                        <fieldset class="form-fieldset">
+                            <div class="form-minMaxRow">
+                                <div class="form-field form-field--input">
+                                    <input
+                                        name="min_price"
+                                        min="0"
+                                        class="form-input form-input--small"
+                                        required
+                                        type="number"
+                                        value=""
+                                    /><span class="_currency">{{settings.money.currency_token}}</span>
+                                </div>
+            
+                                <div class="form-field form-field--input">
+                                    <input
+                                        name="max_price"
+                                        min="0"
+                                        class="form-input form-input--small"
+                                        required
+                                        type="number"
+                                        value=""
+                                    /><span class="_currency">{{settings.money.currency_token}}</span>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div class="_wrap-silder-shopByPrice">
+                            <div class="beautify__shopByPrice-slider" data-slider></div>
+                            <div class="form-field">
+                                <button class="button button--black button--small" type="submit">
+                                    {{lang 'search.faceted.range.apply'}}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="navList-actions-inline">
+                        <button class="navList-action button" data-cancel style="display:none">{{lang 'common.cancel'}}</button>
+                        <a href="{{category_url}}" type="button" class="navList-action button" data-clear style="display:none">
+                            {{lang 'search.faceted.clear'}}
+                            {{#if layout '==' 'left-sidebar'}}
+                                <svg class="icon"><use href="#icon-close"></use></svg>
+                            {{/if}}
+                        </a>
+                    </div>
+                </div>
+            {{else}}
+                <ul id="shopByPrice-navList" class="beautify__navList is-open" aria-hidden="true">
+                    {{#each shop_by_price}}
+                    <li class="navList-item">
+                        <a class="navList-action navList-action--checkbox {{#if selected }} is-selected {{/if}}" data-instantload href="{{url}}" title="{{low.formatted}} - {{high.formatted}}">{{low.formatted}} - {{high.formatted}}</a>
+                    </li>
+                    {{/each}}
+
+                    {{#any shop_by_price selected=true}}
+                        <li class="navList-item">
+                            <a data-instantload href="{{category_url}}" class="navList-action">
+                                {{lang 'category.reset'}}
+                            </a>
+                        </li>
+                    {{/any}}
+                </ul>
+            {{/if}}
+        </div>
+    {{/if}}
+{{/if}}

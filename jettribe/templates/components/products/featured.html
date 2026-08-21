@@ -1,0 +1,50 @@
+{{inject 'hasFeaturedProducts' true}}
+{{#unless hide_heading}}
+<h2 class="page-heading">{{theme_settings.product_featured_heading}}</h2>
+{{/unless}}
+
+{{#if region_name}}
+    {{{region name=region_name}}}
+{{/if}}
+
+{{#if display_type '==' 'carousel'}}
+    {{> components/products/carousel products=products list="Featured Products" data_product_type="featured" data_slide_show=1 data_slide_scroll=1 }}
+{{else if display_type '==' 'grid'}}
+    <ul class="productGrid productGrid--responsiveCol" data-product-type="featured" id="featured-products{{#if index}}_index{{index}}{{/if}}" {{#if settings.data_tag_enabled}} data-list-name="Featured Products"{{/if}}>
+        {{#each products}}
+            <li class="product" data-product-id="{{id}}">
+                {{>components/products/card 
+                    show_compare=../theme_settings.card_show_compare
+                    show_rating=../settings.show_product_rating
+                    theme_settings=../theme_settings 
+                    settings=../settings 
+                    customer=../customer
+                    event="list" position=(add @index 1)}}
+            </li>
+        {{/each}}
+    </ul>
+{{else}}
+    <ul class="productList productList--responsiveCol" data-product-type="featured" {{#if settings.data_tag_enabled}} data-list-name="Featured Products"{{/if}}>
+        {{#each products}}
+            <li class="product" data-product-id="{{id}}">
+                {{>components/products/list-item 
+                	summary=false
+                	show_compare=../theme_settings.card_show_compare
+                    show_rating=../settings.show_product_rating 
+                    theme_settings=../theme_settings 
+                    settings=../settings 
+                    customer=../customer
+                    event="list" position=(add @index 1)}}
+            </li>
+        {{/each}}
+    </ul>	
+{{/if}}
+<div class="loading" style="display: none;display: block;"></div>
+{{#if display_type '!=' 'carousel'}}
+    <div class="actionGroup">
+        <a href="#" class="button button--small button--outline loadMore" style="display: none;">
+            {{lang 'common.load_more'}}</a>
+        <a href="#" class="button button--small button--outline collapse" style="display: none;">
+            {{lang 'common.collapse'}}</a>
+    </div>
+{{/if}}

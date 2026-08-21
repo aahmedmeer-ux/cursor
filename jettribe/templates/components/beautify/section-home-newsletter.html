@@ -1,0 +1,19 @@
+{{#if settings.show_newsletter_box}}
+    <article class="beautify__section {{#if index}}beautify__section--index{{index}}{{/if}} beautify__newsletter beautify__newsletter--jettribe">
+        <h3 class="footer-info-heading page-heading">VIP LIST SIGN-UP</h3>
+        <p class="page-desc">Enroll to be notified of special deals &amp; newsletters</p>
+        <form class="form form--jettribe-newsletter" action="{{urls.subscribe.action}}" method="post">
+            <fieldset class="form-fieldset">
+                <input type="hidden" name="action" value="subscribe">
+                <input type="hidden" name="nl_first_name" value="bc">
+                <input type="hidden" name="check" value="1">
+                <div class="form-field form-field--stacked">
+                    <label class="form-label is-srOnly" for="nl_email">{{lang 'common.email_address'}}</label>
+                    <input class="form-input" id="nl_email" name="nl_email" type="email" value="{{customer.email}}" placeholder="{{lang 'newsletter.email_placeholder'}}">
+                    <button class="button button-primary" type="submit" aria-label="Subscribe">SUBSCRIBE</button>
+                </div>
+            </fieldset>
+        </form>
+        {{!-- footer_below_newsletters--global omitted: duplicated enroll copy --}}
+    </article>
+{{/if}}

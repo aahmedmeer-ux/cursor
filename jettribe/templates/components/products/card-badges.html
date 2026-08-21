@@ -1,0 +1,49 @@
+{{#or price.non_sale_price_with_tax price.non_sale_price_without_tax}}
+    {{#if theme_settings.product_sale_badges '===' 'label'}}
+        <div class="sale-flag-side">
+            <span class="sale-text">{{theme_settings.product_sale_label}}</span>
+            {{#if theme_settings.card_show_countdown}}
+                <span class="card-countdown"></span>
+            {{/if}}
+        </div>
+    {{else if theme_settings.product_sale_badges '===' 'percent'}}
+        <div class="sale-flag-side _percent">
+            <span class="sale-text">
+                {{#replace '{percent}' theme_settings.product_sale_label}}
+                    {{> components/products/calc-sale-percent price=price theme_settings=theme_settings}}
+                {{else}}
+                    {{theme_settings.product_sale_label}}
+                    <span>
+                        {{> components/products/calc-sale-percent price=price theme_settings=theme_settings}}
+                    </span>
+                {{/replace}}
+            </span>
+            {{#if theme_settings.card_show_countdown}}
+                <span class="card-countdown"></span>
+            {{/if}}
+        </div>
+    {{else if theme_settings.product_sale_badges '===' 'price'}}
+        <div class="sale-flag-side _percent">
+            <span class="sale-text">
+                {{#replace '{percent}' theme_settings.product_sale_label}}
+                    {{> components/products/calc-sale-currency price=price theme_settings=theme_settings}}
+                {{else}}
+                    {{theme_settings.product_sale_label}}
+                    <span>
+                        {{> components/products/calc-sale-currency price=price theme_settings=theme_settings}}
+                    </span>
+                {{/replace}}
+            </span>
+            {{#if theme_settings.card_show_countdown}}
+                <span class="card-countdown"></span>
+            {{/if}}
+        </div>
+    {{/if}}
+{{/or}}
+{{#if theme_settings.product_custom_badges}}
+    {{#filter custom_fields '__badge' property='name'}}
+        <div class="sale-flag-side sale-flag-side--custom">
+            <span class="sale-text">{{{value}}}</span>
+        </div>
+    {{/filter}}
+{{/if}}

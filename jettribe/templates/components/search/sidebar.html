@@ -1,0 +1,11 @@
+<nav>
+    {{#if product_results.faceted_search_enabled}}
+        {{> components/faceted-search/index
+            product_results
+            collapsed=collapsed
+            layout=theme_settings.categorypage_layout
+            currency_token=settings.money.currency_token
+            show_price_slider=(if theme_settings.show_shop_by_price '==' 'slider')
+        }}
+    {{/if}}
+</nav>

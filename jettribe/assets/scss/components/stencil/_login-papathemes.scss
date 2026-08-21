@@ -1,0 +1,71 @@
+// =============================================================================
+// LOGIN (CSS)
+// =============================================================================
+
+.login {
+    @if $theme-style == "compact" {
+        margin-top: spacing("half");
+
+        @include breakpoint("medium") {
+            margin-top: spacing("single");
+        }
+    }
+}
+
+.login-row {
+    @if $theme-style == "compact" {
+        @include breakpoint("medium") {
+            margin-top: spacing("single");
+        }
+    }
+}
+
+.login-form {
+    .form-actions {
+        text-align: left;
+
+        input,
+        a {
+            vertical-align: middle;
+        }
+    }
+}
+
+.login {
+    .login-form {
+        padding: 0 spacing("half") 0 0;
+    }
+
+    .new-customer {
+        padding: 0 0 0 spacing("half");
+
+        .panel {
+            overflow: hidden;
+            border-radius: $container-border-radius;
+
+            .panel-body {
+                margin-bottom: unset;
+            }
+        }
+    }
+
+    @media (max-width: (screenSize("medium") - 1px)) {
+        .login-form,
+        .new-customer {
+            padding: 0;
+        }
+    }
+
+    @media (max-width: (screenSize("small") - 1px)) {
+        .new-customer {
+            .button {
+                width: 100%;
+            }
+        }
+
+        .new-customer-fact-list {
+            margin-left: spacing("base") * 2;
+            margin-top: spacing("third");
+        }
+    }
+}

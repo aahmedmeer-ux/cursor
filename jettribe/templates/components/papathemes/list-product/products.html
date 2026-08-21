@@ -1,0 +1,23 @@
+<div>
+    {{#if products.featured}}
+        {{> components/products/featured
+            products=products.featured
+            hide_heading=true
+            show_categories=false
+            display_type=theme_settings.product_featured_type}}
+    {{/if}}
+    {{#if products.top_sellers}}
+        {{> components/products/top
+            products=products.top_sellers
+            hide_heading=true
+            show_categories=false
+            display_type=theme_settings.product_top_type}}
+    {{/if}}
+    {{#if products.new}}
+        {{> components/products/new
+            products=products.new
+            hide_heading=true
+            show_categories=false
+            display_type=theme_settings.product_new_type}}
+    {{/if}}
+</div>

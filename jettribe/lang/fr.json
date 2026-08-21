@@ -1,0 +1,1215 @@
+{
+  "header": {
+    "welcome_back": "Bienvenue, {name}",
+    "call_us": "Appelez-nous : {phone_number}",
+    "call_us2": "Appelez-nous<span class=\"_phoneNumber\">{phone_number}</span>"
+  },
+  "footer": {
+    "sr_heading": "Pied de page",
+    "footer_start": "D\u00e9but du pied de page",
+    "brands": "Marques populaires",
+    "navigate": "Parcourir",
+    "info": "Info",
+    "categories": "Cat\u00e9gories",
+    "whatsapp": "WhatsApp : {whatsapp}",
+    "powered_by": "Optimis\u00e9 par",
+    "phone": "T\u00e9l\u00e9phone",
+    "email": "contact@example.com",
+    "about": "\u00c0 propos de nous",
+    "contact_us": "Contactez-nous",
+    "accepted_payments": "PAIEMENTS S\u00c9CURIS\u00c9S",
+    "location": "Emplacement",
+    "location_image": "https://placehold.it/270x120"
+  },
+  "home": {
+    "heading": "Accueil"
+  },
+  "blog": {
+    "recent_posts": "Publications r\u00e9centes",
+    "label": "Blog",
+    "posted_by": "Publi\u00e9 par {name}",
+    "read_more": "En savoir plus",
+    "read_more_articles": "LIRE LA SUITE"
+  },
+  "unavailable": {
+    "hibernation_title": "Nous revenons bient\u00f4t",
+    "hibernation_message": "Merci de votre visite. Notre boutique n'est pas disponible pour l'instant. Veuillez nous excuser pour ce d\u00e9sagr\u00e9ment.",
+    "maintenance_title": "En maintenance",
+    "maintenance_message": "Cette boutique n'est actuellement pas disponible pour cause de maintenance. Elle devrait \u00eatre \u00e0 nouveau disponible sous peu. Veuillez nous excuser pour ce d\u00e9sagr\u00e9ment."
+  },
+  "brands": {
+    "no_products": "Il n'y a aucun produit de cette marque."
+  },
+  "categories": {
+    "no_products": "Cette cat\u00e9gorie ne contient aucun produit."
+  },
+  "checkout": {
+    "title": "Paiement"
+  },
+  "customer_service": {
+    "call_us": "Appelez-nous : {phone_number}",
+    "email_address": "E-mail : {email}",
+    "email": "E-mail",
+    "whatsapp_address": "WhatsApp : {whatsapp}",
+    "whatsapp": "WhatsApp"
+  },
+  "cart": {
+    "continue_shopping": "Cliquez ici pour continuer vos achats",
+    "login_to_checkout": "Connectez-vous pour proc\u00e9der au paiement",
+    "items": "{NUM, plural, =0{(aucun article)} one {(#\u00a0article)} other {(#\u00a0articles)}}",
+    "checkout": {
+      "address": {
+        "multiple": "proc\u00e9der au paiement avec plusieurs adresses",
+        "or": "ou"
+      },
+      "button": "Paiement",
+      "empty_cart": "Votre panier est vide",
+      "notification": "Connectez-vous pour voir votre panier et commencer vos achats !",
+      "title": "Cliquez ici pour proc\u00e9der au paiement",
+      "item": "Article",
+      "price": "Prix",
+      "quantity": "Quantit\u00e9",
+      "total": "Total",
+      "change": "Modifier",
+      "subtotal": "Sous-total",
+      "enter_code": "Code promotionnel / Ch\u00e8que-cadeau",
+      "gift_wrapping": "Emballage cadeau",
+      "shipping": "Livraison",
+      "grand_total": "Total",
+      "select": "S\u00e9lectionner",
+      "update": "Mettre \u00e0 jour les frais de livraison",
+      "or": "Ou paiement express"
+    },
+    "preview": {
+      "checkout_now": "Payer",
+      "checkout_multiple": "ou proc\u00e9der au paiement avec plusieurs adresses",
+      "view_cart": "Voir mon panier",
+      "edit_cart": "Modifier le panier",
+      "label": "Votre panier",
+      "qty": "{quantity}",
+      "quantity": "({quantity} articles)",
+      "quantity_button": "<span class='_quantity'>{quantity}</span> articles"
+    },
+    "single_item": "article",
+    "plural_item": "articles",
+    "label": "Votre panier ({quantity, plural, one {#\u00a0article} other {#\u00a0articles}})",
+    "is_empty": "Votre panier est vide",
+    "invalid_entry_message": "[ENTRY] n'est pas une saisie valide",
+    "coupon_code": "Code promotionnel",
+    "discount": "Remise",
+    "gift_certificate": "Ch\u00e8que-cadeau",
+    "remove_file": "Supprimer ce fichier",
+    "freeshipping": "Livraison gratuite",
+    "reconfigure_product": "Configurer \u00ab\u00a0{name}\u00a0\u00bb",
+    "shipping_peritem": "Par article exp\u00e9di\u00e9",
+    "confirm_delete": "Voulez-vous vraiment supprimer cet article\u00a0?",
+    "remove": "Supprimer",
+    "remove_selected": "Supprimer les articles s\u00e9lectionn\u00e9s",
+    "save": "Enregistrer pour plus tard",
+    "saved_wishlist": "Le produit a \u00e9t\u00e9 enregistr\u00e9 dans votre liste de souhaits %WISHLIST% pour plus tard et retir\u00e9 du panier",
+    "coupons": {
+      "coupon_msg": "Vous avez un code de coupon ? Vous pouvez l'appliquer \u00e0 la caisse !",
+      "empty_error": "Veuillez saisir votre code promotionnel.",
+      "cancel": "Annuler",
+      "add_title": "Vous avez un code de coupon ? <button class='coupon-code-add'>Entrez maintenant <i><svg class='icon'><use href='#icon-chervon-right-thin'></use></svg></i></button>",
+      "add_code": "Ajouter un code",
+      "add_coupon": "Ajouter un code promotionnel",
+      "button": "Appliquer",
+      "coupon_code": "Saisissez votre code promotionnel",
+      "code_label": "Code promotionnel ({code})",
+      "remove": "Supprimer",
+      "empty_ticket": "Veuillez ajouter le code du coupon pour le billet",
+      "save_coupon": "Le coupon a \u00e9t\u00e9 enregistr\u00e9"
+    },
+    "gift_certificates": {
+      "add_title": "Vous avez un ch\u00e8que-cadeau ? <button class='gift-certificate-add'>Utilisez-le</button>",
+      "add_cert_code": "Ajouter un ch\u00e8que-cadeau",
+      "gift_certificate": "Ch\u00e8que-cadeau",
+      "code_label": "Ch\u00e8que-cadeau ({code})",
+      "cert_code": "Saisissez le code de votre ch\u00e8que-cadeau",
+      "remove": "Supprimer"
+    },
+    "shipping_estimator": {
+      "add_info": "Ajouter des informations",
+      "select_a_country": "Pays",
+      "select_a_state": "\u00c9tat/Province",
+      "estimate_shipping": "Estimer l'exp\u00e9dition",
+      "suburb_city": "Ville",
+      "zip_postal_code": "Code postal",
+      "free_shipping": "Livraison gratuite",
+      "hide_ups_rates": "Masquer les tarifs UPS",
+      "show_ups_rates": "Afficher les tarifs UPS",
+      "empty_country_error": "Le champ \u00ab\u00a0Pays\u00a0\u00bb ne peut pas \u00eatre vide.",
+      "empty_province_error": "Le champ \u00ab\u00a0\u00c9tat/Province\u00a0\u00bb ne peut \u00eatre vide."
+    },
+    "gift_wrapping": {
+      "title": "Emballage Cadeau",
+      "add": "Ajouter",
+      "change": "Modifier",
+      "remove": "Supprimer",
+      "choose_how": "Veuillez indiquer comment vous souhaitez que cet article soit emball\u00e9.",
+      "option_same": "Je souhaite que chaque article soit emball\u00e9 en utilisant les m\u00eames options d'emballage",
+      "item_single": "Emballage cadeau - {name}",
+      "item_multiple": "Article {index} - {name}",
+      "option_different": "Je souhaite que chaque article soit emball\u00e9 s\u00e9par\u00e9ment",
+      "choose_type": "Veuillez s\u00e9lectionner un type d'emballage cadeau",
+      "gift_message": "Message \u00e0 joindre au cadeau",
+      "remove_confirm": "Voulez-vous vraiment supprimer l'emballage cadeau pour cet article\u00a0?",
+      "preview": "Aper\u00e7u"
+    },
+    "added_to_cart": {
+      "what_next": "Ok, {num_products, plural, one {1\u00a0article a \u00e9t\u00e9 ajout\u00e9} other {#\u00a0articles ont \u00e9t\u00e9 ajout\u00e9s}} \u00e0 votre panier. Quelle est la prochaine \u00e9tape\u00a0?",
+      "your_cart_contains": "Votre panier contient {num_products, plural, one {1\u00a0article} other {#\u00a0articles}}",
+      "proceed_to_checkout": "Proc\u00e9der au paiement",
+      "order_subtotal": "Sous-total de la commande",
+      "continue_shopping": "Continuer mes achats",
+      "view_or_edit_cart": "Afficher ou modifier votre panier",
+      "you_might_also_like": "Vous aimerez peut-\u00eatre",
+      "auto_close": "Fermeture automatique apr\u00e8s <span class='count'></span>s"
+    }
+  },
+  "common": {
+    "store_credit": "Votre avoir disponible s'\u00e9l\u00e8ve \u00e0 <strong>{store_credit}</strong>. Pour l'utiliser, il vous suffit de passer votre commande en choisissant l'avoir comme mode de paiement au moment de r\u00e9gler la commande.",
+    "store_credit_overview": "d'avoir: {credit}",
+    "generic_error": "Oups\u00a0! Une erreur s'est produite.",
+    "currency": "S\u00e9lectionnez la devise\u00a0: {code}",
+    "currency_switch_promotion": "Les promotions et les ch\u00e8ques-cadeaux qui ne s'appliquent pas \u00e0 la nouvelle devise seront supprim\u00e9s de votre panier. Voulez-vous vraiment continuer\u00a0?",
+    "newsletter_signup": "Abonnez-vous \u00e0 notre newsletter",
+    "form_submit": "Envoyer",
+    "no_preference": "Aucune pr\u00e9f\u00e9rence",
+    "other_details": "Autres informations",
+    "required": "Obligatoire",
+    "required_symbol": "*",
+    "email_address": "Adresse e-mail",
+    "edit": "Modifier",
+    "change": "Modifier",
+    "not_applicable": "N/A",
+    "no": "Non",
+    "yes": "Oui",
+    "from": "De",
+    "to": "\u00e0",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "open": "Ouvrir",
+    "or": "ou",
+    "and": "et",
+    "compare": "Comparer",
+    "sign_up": "S'abonner",
+    "login": "Se connecter",
+    "login_for_pricing": "Veuillez vous connecter pour conna\u00eetre les tarifs",
+    "logout": "D\u00e9connexion",
+    "account": "Compte",
+    "viewed_products": "Consult\u00e9s",
+    "cart": "Panier",
+    "search": "Rechercher",
+    "gift_cert": "Ch\u00e8ques-cadeaux",
+    "gift_cert2": "<span class='firstword'>Ch\u00e8que- </span>Cadeaux",
+    "save": "Enregistrer",
+    "share": "Partager",
+    "delete": "Supprimer",
+    "public": "Publique",
+    "private": "Priv\u00e9",
+    "view_all": "Tout afficher",
+    "wishlist": "Listes de souhaits",
+    "view_all_products": "Voir tous les produits",
+    "all": "Tout",
+    "paginator": {
+      "page_of": "Page\u00a0{current} sur {total}",
+      "items_of": "Articles {start} \u00e0 {end} sur {total} au total"
+    },
+    "prices_are_in": "Les prix sont en {CODE}",
+    "previous": "Pr\u00e9c\u00e9dent",
+    "next": "Suivant",
+    "sorter": {
+      "relevance": "Pertinence",
+      "sort_by": "Trier par\u00a0:",
+      "featured": "Articles en vedette",
+      "top_sellers": "Meilleures ventes",
+      "newest": "Nouveaut\u00e9s",
+      "alpha_asc": "A \u00e0 Z",
+      "alpha_desc": "Z \u00e0 A",
+      "reviews": "Par avis",
+      "price_asc2": "Prix : <span class='is-srOnly'>Croissant</span>",
+      "price_desc2": "Prix : <span class='is-srOnly'>D\u00e9croissant</span> ",
+      "price_asc": "Prix\u00a0: par ordre croissant",
+      "price_desc": "Prix\u00a0: par ordre d\u00e9croissant",
+      "products_per_page": "Par page",
+      "column": "Colonne",
+      "columns": "Colonnes",
+      "display_type": "Type d'affichage"
+    },
+    "loading": "Chargement",
+    "month": "Mois",
+    "day": "Jour",
+    "year": "Ann\u00e9e",
+    "short_months": {
+      "1": "Janv.",
+      "2": "F\u00e9vr.",
+      "3": "Mars",
+      "4": "Avr.",
+      "5": "Mai",
+      "6": "Juin",
+      "7": "Juill.",
+      "8": "Ao\u00fbt",
+      "9": "Sept.",
+      "10": "Oct.",
+      "11": "Nov.",
+      "12": "D\u00e9c."
+    },
+    "top_of_page": "Haut de la page",
+    "nav_more": "Plus",
+    "nav_less": "Fermer",
+    "nav_back": "Retour",
+    "sidebar": "Barre lat\u00e9rale",
+    "show": "Afficher",
+    "hide": "Masquer",
+    "menu": "Menu",
+    "ask_question": "Poser des questions",
+    "load_more": "Charger plus",
+    "collapse": "R\u00e9duire",
+    "sidebar_heading": "Navigation de la barre lat\u00e9rale",
+    "products_list_heading": "Liste des produits",
+    "select_all": "S\u00e9lectionner tout"
+  },
+  "compare": {
+    "button": "Comparer les produits",
+    "header": "Comparaison de {products, plural, one {#\u00a0produit} other {#\u00a0produits}}",
+    "remove": "Supprimer",
+    "clear_all": "Effacer tout",
+    "no_remove": "Vous devez s\u00e9lectionner au moins 2\u00a0articles pour effectuer une comparaison.",
+    "add_to_cart": "Ajouter au panier",
+    "notification_compare": "Produit ajout\u00e9 pour comparaison."
+  },
+  "category": {
+    "label": "Cat\u00e9gories",
+    "shop_by_price": "Rechercher par prix",
+    "shop_by_price_range_aria": "Prix compris entre {from} et {to}",
+    "reset": "R\u00e9initialiser",
+    "view_all": {
+      "name": "Tous les {category}"
+    }
+  },
+  "brand": {
+    "label": "Marques",
+    "shop_by_brand": "Acheter par marque",
+    "shop_products": "Acheter des produits",
+    "featured_brands": "Marques en vedette"
+  },
+  "gift_certificate": {
+    "heading": "Ch\u00e8ques-cadeaux",
+    "purchase": {
+      "heading": "Acheter un ch\u00e8que-cadeau"
+    },
+    "redeem": {
+      "heading": "Utiliser le ch\u00e8que-cadeau",
+      "intro": "Pour utiliser un ch\u00e8que-cadeau sur {store_name}, proc\u00e9dez comme suit.",
+      "item1": "Vous avez besoin de votre code unique, qui apparait sur le ch\u00e8que-cadeau qui vous a \u00e9t\u00e9 envoy\u00e9 en pi\u00e8ce jointe par e-mail. Il se pr\u00e9sente sous une forme similaire \u00e0 Z50-Y6K-COS-402.",
+      "item2": "Parcourez la boutique et ajoutez des articles \u00e0 votre panier normalement.",
+      "item3": "Cliquez sur le lien \u00ab\u00a0<a href=\"{cart_url}\">Voir mon panier</a>\u00a0\u00bb pour afficher le contenu de votre panier d'achat.",
+      "item4": "Saisissez le code de votre ch\u00e8que-cadeau dans la case \u00ab\u00a0Utiliser le ch\u00e8que-cadeau\u00a0\u00bb, puis cliquez sur \u00ab\u00a0Lancer\u00a0\u00bb."
+    },
+    "balance": {
+      "heading": "V\u00e9rifier le solde du ch\u00e8que-cadeau",
+      "intro": "Vous pouvez v\u00e9rifier le solde d'un ch\u00e8que-cadeau en saisissant le code dans la case ci-dessous."
+    }
+  },
+  "create_account": {
+    "heading": "Nouveau compte",
+    "created": {
+      "heading": "Votre compte a \u00e9t\u00e9 cr\u00e9\u00e9",
+      "intro": "Nous vous remercions d'avoir cr\u00e9\u00e9 un compte sur {store_name}. Les informations de votre compte ont \u00e9t\u00e9 envoy\u00e9es par e-mail \u00e0 {email}.",
+      "continue": "Continuer mes achats"
+    },
+    "recaptcha_title": "reCAPTCHA Google"
+  },
+  "login": {
+    "heading": "Se connecter",
+    "field_email": "Adresse e-mail\u00a0:",
+    "field_password": "Mot de passe\u00a0:",
+    "submit_value": "Se connecter",
+    "forgot_password": "Mot de passe oubli\u00e9\u00a0?",
+    "email_placeholder": "Entrez votre adresse e-mail",
+    "password_placeholder": "Entrez votre mot de passe",
+    "or": "Ou",
+    "new_customer": {
+      "heading": "Nouveau client\u00a0?",
+      "intro": "Cr\u00e9ez un compte sur notre site et vous pourrez\u00a0:",
+      "fact1": "Acc\u00e9l\u00e9rer le processus de paiement",
+      "fact2": "Enregistrer plusieurs adresses de livraison",
+      "fact3": "Acc\u00e9der \u00e0 votre historique de commande",
+      "fact4": "Suivre les nouvelles commandes",
+      "fact5": "Enregistrer des articles dans votre liste d'envies",
+      "create_account": "Cr\u00e9er un compte"
+    }
+  },
+  "reset_password": {
+    "heading": "R\u00e9initialiser le mot de passe",
+    "intro": "Remplissez votre adresse e-mail ci-dessous pour demander un nouveau mot de passe. Un e-mail contenant un lien de v\u00e9rification de votre adresse e-mail sera envoy\u00e9 \u00e0 l'adresse ci-dessous."
+  },
+  "account": {
+    "breadcrumb": "Votre compte",
+    "nav": {
+      "overview": "Aper\u00e7u",
+      "orders": "Commandes",
+      "returns": "Retours",
+      "messages": "Messages ({num_new_messages})",
+      "wishlists": "Listes d'envies",
+      "recently_viewed": "Consult\u00e9s r\u00e9cemment",
+      "recently_viewed2": "Derni\u00e8rement consult\u00e9",
+      "settings": "Param\u00e8tres de compte",
+      "addresses": "Adresses",
+      "payment_methods": "Modes de paiement"
+    },
+    "mobile_nav": {
+      "messages": "Messages",
+      "wishlists": "Listes d'envies"
+    },
+    "addresses": {
+      "heading": "Adresses",
+      "add_heading": "Ajouter une nouvelle adresse",
+      "primary": "Principal",
+      "phone": "Num\u00e9ro de t\u00e9l\u00e9phone\u00a0:",
+      "new_address": "Nouvelle adresse",
+      "no_addresses": "Aucune adresse ajout\u00e9e \u00e0 votre profil pour l'instant"
+    },
+    "messages": {
+      "heading": "Messages",
+      "customer_said": "Vous\u00a0:",
+      "merchant_said": "{store_name}\u00a0:"
+    },
+    "orders": {
+      "heading": "Commandes",
+      "none": "Vous n'avez pass\u00e9 aucune commande avec nous. Lorsque vous passerez une commande, elle appara\u00eetra sur cette page.",
+      "return": {
+        "already_returned": "Cette commande ne contient aucun produit pouvant \u00eatre renvoy\u00e9. Avez-vous d\u00e9j\u00e0 renvoy\u00e9 tous les articles de cette commande\u00a0?",
+        "back_button": "Retour",
+        "order_item": "Article",
+        "item_price": "Prix",
+        "quantity": "Qt\u00e9 \u00e0 retourner",
+        "why": "Quel est le motif de votre retour\u00a0?",
+        "reason": "Motif du retour",
+        "action": "Action de retour",
+        "comments": "Commentaires"
+      },
+      "gift_wrapping": "Emballage cadeau\u00a0:",
+      "refunded": "(Rembours\u00e9)",
+      "refunded_quantity": "({qty} rembours\u00e9\u00b7s)",
+      "return_item": "Retour",
+      "return_items": "Retourner des articles\u00a0?",
+      "order_placed": "Commande pass\u00e9e",
+      "last_update": "Derni\u00e8re mise \u00e0 jour",
+      "list": {
+        "order_number": "Commande n\u00b0\u00a0{number}",
+        "product_details": "{num_products, plural, one {1\u00a0produit} other {#\u00a0produits}} pour un total de {cost}"
+      },
+      "details": {
+        "heading": "Commande n\u00b0\u00a0{number}",
+        "order_contents": "Contenu de la commande",
+        "ship_to": "Exp\u00e9dier \u00e0",
+        "ship_to_multi": "Articles exp\u00e9di\u00e9s \u00e0 {street}, {city}, {state}, {zip}, {country}",
+        "ship_to_multi_text": "La commande sera livr\u00e9e \u00e0 plusieurs adresses",
+        "pickup_details": "D\u00e9tails sur le retrait",
+        "bill_to": "Facturer \u00e0",
+        "how_to_pay": "Voici comment proc\u00e9der au paiement de votre commande\u00a0:",
+        "order_details": "D\u00e9tails de la commande",
+        "order_total": "Total de la commande\u00a0:",
+        "order_status": "Statut de la commande\u00a0:",
+        "payment_date": "Date de commande\u00a0:",
+        "payment_method": "Mode de paiement\u00a0:",
+        "comments": "Commentaires sur la commande",
+        "download_items": "T\u00e9l\u00e9charger des articles",
+        "card_ending": "se terminant par {card}",
+        "shipments": {
+          "date": "Date d'exp\u00e9dition",
+          "method": "Mode de livraison",
+          "link": "Lien de suivi de commande",
+          "header": "D\u00e9tails de la livraison"
+        },
+        "actions": "Actions",
+        "reorder": "Acheter \u00e0 nouveau",
+        "return": "Retour",
+        "pickup": "D\u00e9tails sur le retrait",
+        "pickup_method": "M\u00e9thode de retrait",
+        "in_store_pickup": "Retrait en magasin",
+        "print_invoice": "Imprimer la facture",
+        "phone": "Num\u00e9ro de t\u00e9l\u00e9phone",
+        "email": "E-mail",
+        "opening_hours": "Horaires d'ouverture"
+      },
+      "downloads": {
+        "heading": "Commande n\u00b0\u00a0{number} T\u00e9l\u00e9chargements",
+        "download_files_below": "Vous pouvez t\u00e9l\u00e9charger ci-dessous les fichiers pour",
+        "expired_content": "Le fichier a expir\u00e9",
+        "days_remaining": "{number, plural, one {1\u00a0jour} other {#\u00a0jours}}",
+        "downloads_remaining": "{number, plural, one {1\u00a0t\u00e9l\u00e9chargement} other {#\u00a0t\u00e9l\u00e9chargements}} restant\u00b7s",
+        "days_or_downloads": "ou {number}\u00a0t\u00e9l\u00e9chargements",
+        "remaining": "restant\u00b7s"
+      }
+    },
+    "payment_methods": {
+      "heading": "Modes de paiement",
+      "payment_method": "Mode de paiement",
+      "bank_account": "Compte bancaire",
+      "billing_address": "Adresse de facturation",
+      "card_ending_in": "se terminant par {last_four}",
+      "card_expiry": "{month}/{year}",
+      "new_payment_method": "Ajouter un nouveau mode de paiement",
+      "no_methods": "Aucun mode de paiement n'a \u00e9t\u00e9 ajout\u00e9 \u00e0 votre compte pour l'instant",
+      "name_on_card": "Nom sur la carte",
+      "credit_card_number": "Num\u00e9ro de carte bancaire",
+      "expiration": "Date d'expiration",
+      "cvv": "CVV",
+      "card_types": {
+        "american_express": "American Express",
+        "credit_card": "Carte de cr\u00e9dit",
+        "dankort": "Dankort",
+        "diners_club": "Diners Club",
+        "discover": "Discover",
+        "jcb": "JCB",
+        "maestro": "Maestro",
+        "mastercard": "Mastercard",
+        "unionpay": "Union Pay",
+        "visa": "Visa"
+      },
+      "ach": "ACH",
+      "paypal": "PayPal",
+      "billing_address_labels": {
+        "address_line_1": "Ligne d'adresse\u00a01",
+        "address_line_2": "Ligne d'adresse\u00a02",
+        "suburb_city": "Ville",
+        "state_province": "\u00c9tat/Province",
+        "choose_state": "Choisir un \u00c9tat",
+        "country": "Pays",
+        "choose_country": "Choisir un pays",
+        "zip_postcode": "Code postal"
+      }
+    },
+    "returns": {
+      "heading": "Retours",
+      "instructions": "Proc\u00e9dure de retour",
+      "error_no_qty": "Veuillez s\u00e9lectionner un ou plusieurs articles \u00e0 retourner.",
+      "none": "Vous n'avez effectu\u00e9 aucun retour avec nous. Lorsque vous effectuerez un retour, il appara\u00eetra sur cette page.",
+      "new_return": "Nouveau retour",
+      "from_order": "Retourner des articles de la commande n\u00b0\u00a0{id}",
+      "date_requested": "Retour demand\u00e9",
+      "successful_heading": "Demande de retour envoy\u00e9e",
+      "successful": "Votre demande de retour a bien \u00e9t\u00e9 effectu\u00e9e. Nous y r\u00e9pondrons rapidement.",
+      "return": "Revenir aux commandes",
+      "last_update": "Derni\u00e8re mise \u00e0 jour",
+      "reason": "Motif du retour",
+      "action": "Action de retour",
+      "comments": "Vos commentaires",
+      "submit_request": "Soumettre une demande de retour",
+      "list": {
+        "return_number": "Retour n\u00b0\u00a0{id}",
+        "product_details": "Retour de {num_products}"
+      },
+      "status": {
+        "pending": "En attente",
+        "received": "Re\u00e7u",
+        "authorized": "Autoris\u00e9",
+        "repaired": "R\u00e9par\u00e9",
+        "refunded": "Rembours\u00e9",
+        "rejected": "Rejet\u00e9",
+        "cancelled": "Annul\u00e9"
+      }
+    },
+    "settings": {
+      "heading": "Param\u00e8tres de compte",
+      "first_name": "Pr\u00e9nom",
+      "last_name": "Nom",
+      "email": "Adresse e-mail",
+      "company": "Soci\u00e9t\u00e9",
+      "phone": "Num\u00e9ro de t\u00e9l\u00e9phone",
+      "old_password": "Ancien mot de passe",
+      "new_password": "Nouveau mot de passe",
+      "confirm_password": "Confirmer le mot de passe",
+      "update_details": "Mettre \u00e0 jour les d\u00e9tails"
+    },
+    "recent_items": {
+      "heading": "Consult\u00e9s r\u00e9cemment",
+      "no_items": "Les articles consult\u00e9s r\u00e9cemment appara\u00eetront ci-dessous."
+    },
+    "wishlists": {
+      "heading": "Listes d'envies",
+      "tag_line": "Remplissez le formulaire ci-dessous pour cr\u00e9er une nouvelle liste d'envies. Cliquez sur le bouton \u00ab\u00a0Cr\u00e9er une liste d'envies\u00a0\u00bb lorsque vous avez termin\u00e9.",
+      "new": "Nouvelle liste d'envies",
+      "you_have_none": "Vous n'avez aucune liste d'envies, ajoutez-en une maintenant.",
+      "empty_wishlist": "Votre liste d'envies est vide. Lorsque vous ajouterez des articles \u00e0 votre liste d'envies, ils appara\u00eetront ici.",
+      "num_items": "Articles",
+      "add_item": "Ajouter \u00e0 la liste d'envies",
+      "remove_item": "Supprimer l'article",
+      "name": "Nom de la liste d'envies",
+      "shared": "Partag\u00e9",
+      "action": "Action",
+      "add": "Ajouter une liste d'envies",
+      "delete_all": "Supprimer tout",
+      "edit": "Modifier la liste d'envies",
+      "view_heading": "Liste d'envies\u00a0: {name}",
+      "share_intro": "Partager cette liste d'envies avec des amis\u00a0:",
+      "num_products": "{num_products, plural, one {1\u00a0produit} other {#\u00a0produits}}",
+      "create": "Cr\u00e9er une liste d'envies",
+      "save": "Enregistrer la liste d'envies",
+      "delete_alert": "Voulez-vous vraiment supprimer vos listes d'envies\u00a0? Cette action ne peut pas \u00eatre annul\u00e9e.",
+      "create_new": "Cr\u00e9er une nouvelle liste d'envies",
+      "add_to_default": "Ajouter \u00e0 ma liste d'envies",
+      "enter_wishlist_name_error": "Veuillez saisir un nom de liste d'envies."
+    }
+  },
+  "page": {
+    "label": "Liens rapides",
+    "rss": {
+      "intro": "Les flux RSS sont utilis\u00e9s pour syndiquer le contenu qui change souvent sur un site Web, y compris celui-ci. Vous pouvez ouvrir un flux RSS \u00e0 l'aide d'un lecteur RSS et l'utiliser pour voir si du nouveau contenu est pr\u00e9sent sur ce site. Vous pouvez \u00e9galement configurer un script c\u00f4t\u00e9 serveur pour analyser le flux et l'afficher sur votre site Web.",
+      "heading": "Syndication RSS",
+      "blog": {
+        "heading": "Articles de blog r\u00e9cents",
+        "intro": "Le flux d'articles r\u00e9cents contient les {limit}\u00a0derniers articles publi\u00e9s sur {store}.",
+        "rss": "{limit}\u00a0derniers articles de blog (RSS)",
+        "rss_atom": "{limit}\u00a0derniers articles de blog (Atom)"
+      },
+      "products": {
+        "new": {
+          "heading": "Nouveaux produits",
+          "intro": "Le flux de produits r\u00e9cents contient les {limit}\u00a0derniers produits ajout\u00e9s \u00e0 {store}.",
+          "rss": "{limit}\u00a0derniers nouveaux produits (RSS)",
+          "rss_atom": "{limit}\u00a0derniers nouveaux produits (Atom)"
+        },
+        "popular": {
+          "heading": "Produits populaires",
+          "intro": "Le flux de produits populaires contient les {limit}\u00a0produits les plus populaires sur {store}, en fonction des notes attribu\u00e9es par les utilisateurs.",
+          "rss": "{limit}\u00a0derniers produits populaires (RSS)",
+          "rss_atom": "{limit}\u00a0derniers produits populaires (Atom)"
+        },
+        "featured": {
+          "heading": "Produits en vedette",
+          "intro": "Le flux de produits en vedette contient les {limit}\u00a0derniers produits en vedette sur {store}.",
+          "rss": "{limit}\u00a0derniers produits en vedette (RSS)",
+          "rss_atom": "{limit}\u00a0derniers produits en vedette (Atom)"
+        }
+      },
+      "search": {
+        "heading": "Recherches de produit",
+        "intro1": "Les flux de recherche de produits vous permettent d'enregistrer vos recherches de produits personnalis\u00e9es en tant que flux de syndication qui se mettront syst\u00e9matiquement \u00e0 jour lorsqu'il y aura de nouveaux r\u00e9sultats.",
+        "intro2": "Pour cr\u00e9er un flux de recherche de produits, effectuez une recherche classique sur {store} et cliquez sur l'une des options de syndication situ\u00e9es en bas de page."
+      }
+    },
+    "subpages": "Sous-pages"
+  },
+  "forms": {
+    "range": "Vous devez saisir des nombres compris entre {limitTo} et {limitFrom} uniquement",
+    "contact_us": {
+      "form_heading": "Contactez-nous",
+      "full_name": "Nom complet",
+      "email": "Adresse e-mail",
+      "company": "Nom de l'entreprise",
+      "phone": "Num\u00e9ro de t\u00e9l\u00e9phone",
+      "order": "Num\u00e9ro de commande",
+      "rma": "Num\u00e9ro Autorisation de retour de marchandise (RMA)",
+      "question": "Commentaires/Questions",
+      "submit": "Envoyer le formulaire",
+      "successful": "Nous avons re\u00e7u vos commentaires et nous y r\u00e9pondrons sous peu si n\u00e9cessaire. <a href=\"{shopPath}\">Continuer</a>.",
+      "manual_captcha_instruction": "Veuillez r\u00e9pondre \u00e0 la question ci-dessous pour une v\u00e9rification suppl\u00e9mentaire."
+    },
+    "create_account": {
+      "submit_value": "Cr\u00e9er un compte"
+    },
+    "new_password": {
+      "heading": "Modifier le mot de passe",
+      "password": "Nouveau mot de passe",
+      "password2": "Confirmer le mot de passe",
+      "submit_value": "Continuer"
+    },
+    "address": {
+      "add": {
+        "heading": "Ajouter une nouvelle adresse",
+        "description": "Utilisez le formulaire ci-dessous pour modifier votre adresse de livraison. Cliquez sur \u00ab\u00a0Enregistrer l'adresse\u00a0\u00bb lorsque vous avez termin\u00e9."
+      },
+      "edit": {
+        "heading": "Mettre \u00e0 jour l'adresse"
+      },
+      "confirm_delete": "Voulez-vraiment supprimer cette adresse\u00a0?",
+      "submit_value": "Enregistrer l'adresse"
+    },
+    "payment_methods": {
+      "add": {
+        "heading": "Ajouter un mode de paiement"
+      },
+      "edit": {
+        "heading": "Mettre \u00e0 jour le mode de paiement"
+      },
+      "confirm_delete": "Voulez-vous vraiment supprimer ce mode de paiement\u00a0?",
+      "submit_value": "Enregistrer le mode de paiement",
+      "first_name": "Pr\u00e9nom",
+      "last_name": "Nom",
+      "company": "Nom de l'entreprise",
+      "phone": "Num\u00e9ro de t\u00e9l\u00e9phone",
+      "address1": "Ligne d'adresse\u00a01",
+      "address2": "Ligne d'adresse\u00a02",
+      "city": "Ville",
+      "country": "Pays",
+      "state": "\u00c9tat/Province",
+      "postal_code": "Code postal",
+      "choose_country": "Choisir un pays",
+      "default_instrument": "Mode de paiement par d\u00e9faut"
+    },
+    "gift_certificate": {
+      "purchase": {
+        "to_name": "Nom du destinataire",
+        "to_email": "Adresse e-mail du destinataire",
+        "from_name": "Votre nom",
+        "from_email": "Votre adresse e-mail",
+        "message": "Message (facultatif)",
+        "amount": "Montant",
+        "theme": "Th\u00e8me du ch\u00e8que-cadeau",
+        "custom_range": "(la valeur doit \u00eatre comprise entre {min} et {max})",
+        "agree": "Je comprends que les ch\u00e8ques-cadeaux expirent apr\u00e8s {days, plural, one {1\u00a0jour} other {#\u00a0jours}}",
+        "agree2": "Je reconnais que les ch\u00e8ques-cadeaux ne sont pas remboursables",
+        "preview": "Aper\u00e7u",
+        "preview_error": "Une erreur s'est produite lors du chargement de l'aper\u00e7u. Veuillez r\u00e9essayer plus tard.",
+        "submit_value": "Ajouter un ch\u00e8que-cadeau au panier"
+      },
+      "balance": {
+        "code": "Code du ch\u00e8que-cadeau",
+        "submit_value": "V\u00e9rifier le solde"
+      }
+    },
+    "inbox": {
+      "order": "Commande\u00a0:",
+      "order_display": "Commande n\u00b0\u00a0{id} - pass\u00e9e le {date} pour un montant de {total}",
+      "subject": "Objet",
+      "message": "Message",
+      "submit_value": "Envoyer un message",
+      "send_message": "Envoyer un message",
+      "clear_value": "Effacer",
+      "no_orders": "Lorsque vous aurez pass\u00e9 une commande, vous pourrez envoyer des messages depuis cette page."
+    },
+    "search": {
+      "query": "Rechercher un mot-cl\u00e9",
+      "show": "Afficher le formulaire de recherche",
+      "hide": "Masquer le formulaire de recherche",
+      "title": "Recherche avanc\u00e9e",
+      "price_range": "Fourchette de prix",
+      "by_price": "Rechercher par prix",
+      "by_setting": "Rechercher par param\u00e8tre",
+      "search": "Rechercher",
+      "free_shipping": {
+        "title": "Livraison gratuite",
+        "free": "Livraison gratuite uniquement",
+        "paid": "Livraison payante uniquement"
+      },
+      "featured_products": {
+        "title": "Produits en vedette",
+        "enabled": "Produits en vedette uniquement",
+        "disabled": "Produits non en vedette uniquement"
+      },
+      "categories": "Cat\u00e9gories",
+      "did_you_mean": "Voulez-vous dire\u00a0:",
+      "your_search_for": "Votre recherche pour",
+      "no_match": "ne correspond \u00e0 aucun produit ou information.",
+      "suggestions": {
+        "title": "Suggestions\u00a0:",
+        "line1": "Assurez-vous que tous les mots sont orthographi\u00e9s correctement.",
+        "line2": "Essayez des mots-cl\u00e9s diff\u00e9rents.",
+        "line3": "Essayez des mots-cl\u00e9s plus communs."
+      },
+      "refine": "Affiner la recherche",
+      "brand": "Marques",
+      "searchsubs": "Rechercher automatiquement dans les sous-cat\u00e9gories"
+    },
+    "wishlist": {
+      "name": "Nom de la liste d'envies\u00a0:",
+      "public": "Partager la liste d'envies\u00a0?"
+    },
+    "validate": {
+      "account": {
+        "edit": {
+          "password": "Veuillez saisir votre mot de passe actuel.",
+          "first_name": "Veuillez saisir un pr\u00e9nom.",
+          "last_name": "Veuillez saisir un nom de famille.",
+          "phone": "Veuillez saisir un num\u00e9ro de t\u00e9l\u00e9phone."
+        },
+        "reorder": {
+          "select_item": "Veuillez s\u00e9lectionner un ou plusieurs articles que vous souhaitez commander \u00e0 nouveau."
+        },
+        "inbox": {
+          "order": "Veuillez s\u00e9lectionner une commande.",
+          "subject": "Veuillez saisir un objet.",
+          "message": "Veuillez r\u00e9diger un message."
+        }
+      },
+      "common": {
+        "name": "Vous devez saisir votre nom.",
+        "password": "Veuillez saisir un mot de passe.",
+        "password_match": "Vos mots de passe ne correspondent pas.",
+        "email_address": "Veuillez saisir une adresse e-mail valide, telle que utilisateur@exemple.com."
+      },
+      "contact": {
+        "email_address": "Veuillez saisir une adresse e-mail valide, telle que utilisateur@exemple.com.",
+        "question": "Veuillez saisir votre question."
+      },
+      "gift": {
+        "to_name": "Vous devez saisir un nom de destinataire valide.",
+        "to_email": "Vous devez saisir une adresse e-mail de destinataire valide.",
+        "from_name": "Vous devez saisir votre nom.",
+        "from_email": "Vous devez saisir une adresse e-mail valide.",
+        "cert_theme": "Vous devez s\u00e9lectionner le th\u00e8me du ch\u00e8que-cadeau.",
+        "agree_terms": "Vous devez accepter ces conditions."
+      },
+      "payment_method": {
+        "credit_card_number": "Vous devez saisir un num\u00e9ro de carte bancaire valide.",
+        "expiration": "Vous devez saisir une date d'expiration valide.",
+        "name_on_card": "Vous devez saisir un nom.",
+        "cvv": "Vous devez saisir un cvv valide."
+      },
+      "reviews": {
+        "rating": "Le champ \u00ab\u00a0Note\u00a0\u00bb ne peut pas \u00eatre vide.",
+        "title": "Le champ \u00ab\u00a0Objet de l'avis\u00a0\u00bb ne peut pas \u00eatre vide.",
+        "comment": "Le champ \u00ab\u00a0Commentaires\u00a0\u00bb ne peut pas \u00eatre vide."
+      }
+    }
+  },
+  "products": {
+    "current_stock": "Stock actuel\u00a0:",
+    "low_stock": "Reste seulement :",
+    "quantity": "Quantit\u00e9\u00a0:",
+    "qty": "QT\u00c9",
+    "change_product_options": "Modifier les options pour {name}",
+    "quantity_decrease": "Diminuer la quantit\u00e9 pour {name}",
+    "quantity_increase": "Augmenter la quantit\u00e9 pour {name}",
+    "purchase_units": "{quantity, plural, =0{0 aucune unit\u00e9} one {# unit\u00e9} other {# unit\u00e9s}}",
+    "max_purchase_quantity": "Quantit\u00e9 maximale d'achat\u00a0:",
+    "min_purchase_quantity": "Quantit\u00e9 minimale d'achat\u00a0:",
+    "related_products": "Produits associ\u00e9s",
+    "top": "Produits les plus populaires",
+    "similar_by_views": "Les clients ont \u00e9galement consult\u00e9",
+    "featured": "Produits en vedette",
+    "file_option_set": "Actuellement\u00a0: <a href=\"{url}\" target=\"_blank\">{name}</a>",
+    "new": "Nouveaux produits",
+    "warranty": "Informations sur la garantie",
+    "addition": "Informations suppl\u00e9mentaires",
+    "reviews": {
+      "hide": "Masquer les avis",
+      "new": "R\u00e9diger un avis",
+      "show": "Afficher les avis",
+      "title": "Avis sur le produit",
+      "header": "{total, plural, =0{0\u00a0avis} one {#\u00a0avis} other {#\u00a0avis}}",
+      "link_to_review": "({total, plural, =0{Aucun avis pour le moment} one {#\u00a0avis} other {#\u00a0avis}})",
+      "post_on_by": "Publi\u00e9 par { name } le { date }",
+      "rating_label": "Note",
+      "select_rating": "S\u00e9lectionnez une note",
+      "anonymous_poster": "inconnu",
+      "rating": {
+        "1": "1\u00a0\u00e9toile (note la plus mauvaise)",
+        "2": "2\u00a0\u00e9toiles",
+        "3": "3\u00a0\u00e9toiles (moyenne)",
+        "4": "4\u00a0\u00e9toiles",
+        "5": "5\u00a0\u00e9toiles (meilleure note)"
+      },
+      "write_a_review": "R\u00e9diger un avis",
+      "no_reviews": "Aucun avis",
+      "form_write": {
+        "name": "Nom",
+        "email": "E-mail",
+        "subject": "Objet de l'avis",
+        "comments": "Commentaires",
+        "submit_value": "Envoyer l'avis"
+      }
+    },
+    "videos": {
+      "header": "Vid\u00e9os",
+      "hide": "Masquer les vid\u00e9os",
+      "show": "Afficher les vid\u00e9os"
+    },
+    "add_to_cart": "Ajouter au panier",
+    "adding_to_cart": "Ajout au panier...",
+    "add_to_cart_later": "Ajouter au panier plus tard",
+    "options": "Options",
+    "none": "Aucun",
+    "sku": "SKU\u00a0:",
+    "upc": "CUP\u00a0:",
+    "mpn": "N\u00b0 de pi\u00e8ce fabricant :",
+    "condition": "Condition\u00a0:",
+    "availability": "Disponibilit\u00e9\u00a0:",
+    "shipping": "Exp\u00e9dition\u00a0:",
+    "shipping_fixed": "{amount} (frais de livraison fixes)",
+    "shipping_free": "Livraison gratuite",
+    "shipping_calculated": "Calcul\u00e9s au moment du paiement",
+    "unavailable": "Indisponible",
+    "sold_out": "\u00c9puis\u00e9",
+    "out_of_stock_default_message": "En rupture de stock",
+    "instock": "En stock et pr\u00eat \u00e0 \u00eatre exp\u00e9di\u00e9 !",
+    "instock2": "En stock !",
+    "pre_order": "Pr\u00e9commander maintenant",
+    "buy_now": "Acheter maintenant",
+    "choose_options": "Choisir les options",
+    "hide_options": "Masquer les options",
+    "done": "Termin\u00e9",
+    "quick_view": "Aper\u00e7u rapide",
+    "compare": "Comparer",
+    "max_filesize": "La taille maximale de fichier est",
+    "filetypes": "les types de fichiers sont",
+    "upload": "T\u00e9l\u00e9charger",
+    "choose_an_option": "Veuillez choisir une option",
+    "select_one": "Veuillez faire un choix",
+    "description": "Description",
+    "price_with_tax": "({tax_label} incluse)",
+    "price_without_tax": "({tax_label} non comprise)",
+    "including_tax": "Toutes taxes comprises",
+    "excluding_tax": "Hors taxes",
+    "weight": "Poids\u00a0:",
+    "width": "Largeur\u00a0:",
+    "height": "Hauteur\u00a0:",
+    "depth": "Profondeur\u00a0:",
+    "measurement": {
+      "metric": "cm",
+      "imperial": "pouces"
+    },
+    "you_save_opening_text": "Vous \u00e9conomisez",
+    "you_save_closing_bracket": ".",
+    "gift_wrapping": "Emballage cadeau\u00a0:",
+    "gift_wrapping_available": "Options disponibles",
+    "quantity_min": "La quantit\u00e9 minimale pouvant \u00eatre achet\u00e9e est de {quantity}",
+    "quantity_max": "La quantit\u00e9 maximale pouvant \u00eatre achet\u00e9e est de {quantity}",
+    "bulk_pricing": {
+      "title": "Prix avec remise sur quantit\u00e9\u00a0:",
+      "view": "Achetez en grande quantit\u00e9 et \u00e9conomisez",
+      "modal_title": "Taux de remise sur quantit\u00e9",
+      "instructions": "Vous trouverez ci-dessous les taux de remise sur quantit\u00e9 disponibles pour chaque article lorsque vous achetez une certaine quantit\u00e9",
+      "range": "<strong>Prix de gros :</strong> Achetez <strong>{min}</strong>{max, plural, =0{<strong>+</strong>} other {&nbsp;~ <strong>#</strong>}} \u00e0 <strong class='_bulkPricing-discount' data-bulk-pricing-slider-discount></strong>",
+      "range_single": "<strong>Prix de gros :</strong> Achetez <strong>{min}</strong> \u00e0 <strong class='_bulkPricing-discount' data-bulk-pricing-slider-discount></strong>",
+      "percent": "<strong>{discount, plural, =0{&nbsp;} other {<strong>(-{discount})</strong>}}</strong>",
+      "price": "<strong data-price-discount>(-{discount})</strong>",
+      "fixed": "<strong data-fixed-discount>{discount}</strong>"
+    },
+    "special_customfield": {
+      "region_can_active": "Peut \u00eatre activ\u00e9 dans :",
+      "region_cannot_active": "Ne peut pas \u00eatre activ\u00e9 dans :",
+      "check_region": "V\u00e9rifier les restrictions r\u00e9gionales.",
+      "platform": "Plateforme",
+      "language": "Langue :",
+      "show_more": "plus",
+      "show_less": "moins",
+      "global": "Global",
+      "restricted_can_activated": "Cette version du produit peut \u00eatre activ\u00e9e dans",
+      "restricted_cannot_activated": "Cette version du produit ne peut pas \u00eatre activ\u00e9e dans",
+      "restricted_label": "La r\u00e9gion du produit est restreinte \u00e0:",
+      "your_country": "Votre pays:",
+      "search_label": "Liste des pays autoris\u00e9s pour cette version du produit:",
+      "search_placeholder": "Rechercher un pays"
+    },
+    "size_title": "Aide aux tailles",
+    "size_title_alt": "Aide aux tailles ?",
+    "size_to_get": "Vous n'\u00eates toujours pas s\u00fbr de la taille \u00e0 choisir ?",
+    "link_guide_popup": "<a href=\"{href}\" data-papathemes-popup>{value}</a> ou consultez notre guide des tailles."
+  },
+  "design_tool": {
+    "button_open": "ouvrir l'outil de conception"
+  },
+  "invoice": {
+    "for_order": "Facture {name} de la commande n\u00b0\u00a0{id}",
+    "phone": "Num\u00e9ro de t\u00e9l\u00e9phone\u00a0: {number}",
+    "email": "E-mail\u00a0: {email}",
+    "order": "Commande\u00a0:",
+    "payment_method": "Mode de paiement\u00a0:",
+    "order_date": "Date de commande\u00a0:",
+    "shipping_method": "Mode de livraison\u00a0:",
+    "order_items": "Articles de la commande",
+    "qty": "Qt\u00e9",
+    "code": "Code/SKU",
+    "shipping_address": "Adresse de livraison",
+    "fulfillment": "Distribution",
+    "digital": "Num\u00e9rique",
+    "shipping": "Livraison",
+    "pickup": "Retrait",
+    "product_name": "Nom du produit",
+    "price": "Prix",
+    "total": "Total",
+    "comments": "Commentaires"
+  },
+  "newsletter": {
+    "subscribe": "Abonnez-vous \u00e0 notre newsletter",
+    "subscribe_submit": "S'abonner",
+    "email_placeholder": "Votre adresse e-mail",
+    "name_placeholder": "Votre nom",
+    "subscribed_heading": "Merci pour votre abonnement\u00a0!",
+    "subscribed_heading_error": "Oups...",
+    "subscribed_message": "Merci d'avoir rejoint notre liste de diffusion. Vous recevrez bient\u00f4t le prochain num\u00e9ro de notre newsletter",
+    "unsubscribed_heading": "Vous \u00eates d\u00e9sabonn\u00e9\u00b7e\u00a0!",
+    "unsubscribed_message": "Vous ne recevrez plus de communications marketing de la part de <b>{store_name}</b>",
+    "hide_popup_msg": "Ne plus afficher cette fen\u00eatre contextuelle"
+  },
+  "social": {
+    "connect": "Rejoignez-nous"
+  },
+  "errors": {
+    "shipping_quote_failure": "Une erreur s'est produite lors de la r\u00e9cup\u00e9ration de votre devis de livraison",
+    "state_error": "Une erreur s'est produite lors de la r\u00e9cup\u00e9ration de\u00a0: \u00c9tats/provinces"
+  },
+  "search": {
+    "quick_search": {
+      "input_label": "Rechercher",
+      "input_placeholder": "Rechercher dans la boutique",
+      "show_all": "Afficher tous les r\u00e9sultats de recherche",
+      "popular_search": "Recherches populaires",
+      "search_history": "Votre historique de recherche"
+    },
+    "actionbar": {
+      "input_label": "Rechercher",
+      "input_placeholder": "Filtrer les produits par nom, SKU, attributs...",
+      "input_placeholder_fullwidth": "Filtrer par nom, SKU...",
+      "clear_all": "Tout effacer"
+    },
+    "results": {
+      "form_label": "Rechercher un mot-cl\u00e9\u00a0:",
+      "form_button_text": "Rechercher",
+      "count": "{ count, plural, one {#\u00a0r\u00e9sultat} other {#\u00a0r\u00e9sultats} } pour \u00ab\u00a0{ search_query }\u00a0\u00bb",
+      "quick_count": "{ count, plural, one {#\u00a0produit correspondant} other {#\u00a0produits correspondants} } \u00e0 \u00ab\u00a0{ search_query }\u00a0\u00bb",
+      "product_count": "Produits ({count})",
+      "content_count": "Actualit\u00e9s et informations ({count})"
+    },
+    "faceted": {
+      "selected": {
+        "title": "Affiner par",
+        "rating-label": "Not\u00e9 {rating, plural, one {#\u00a0\u00e9toile} other {#\u00a0\u00e9toiles}} ou plus",
+        "no-filters": "Aucun filtre appliqu\u00e9",
+        "clear-all": "Effacer tout"
+      },
+      "range": {
+        "apply": "Appliquer",
+        "min-placeholder": "Min.",
+        "max-placeholder": "Max."
+      },
+      "rating": {
+        "and-up": "et plus"
+      },
+      "clear": "Effacer",
+      "more": "Plus",
+      "show-more": "Voir plus",
+      "show-less": "Voir moins",
+      "show-filters": "Afficher les filtres",
+      "hide-filters": "Masquer les filtres",
+      "filters": "Filtres",
+      "apply_filters": "Appliquer les filtres",
+      "filter_by": "Filtrer par",
+      "browse-by": "Parcourir par"
+    },
+    "error": {
+      "empty_field": "Le champ de recherche ne peut \u00eatre vide."
+    },
+    "product_results": "R\u00e9sultats des produits"
+  },
+  "page_not_found": {
+    "page_heading": "Erreur\u00a0404 - Page introuvable",
+    "message": "Oh non\u2026 Il semble que cette page ait \u00e9t\u00e9 d\u00e9plac\u00e9e ou n'existe plus."
+  },
+  "server_error": {
+    "page_heading": "Une erreur s'est produite...",
+    "message": "La boutique n'est pas disponible pour l'instant, veuillez r\u00e9essayer dans quelques minutes."
+  },
+  "forbidden": {
+    "page_heading": "D\u00e9sol\u00e9\u00a0! Veuillez vous connecter pour continuer",
+    "message": "Vous n'avez pas la permission d'acc\u00e9der \u00e0 cette page.",
+    "if_you_were_signed_in": "Si vous \u00e9tiez d\u00e9j\u00e0 connect\u00e9\u00b7e,",
+    "sign_in": "veuillez vous reconnecter",
+    "to_continue": "pour poursuivre votre travail dans une nouvelle session."
+  },
+  "sitemap": {
+    "page_title": "Plan du site",
+    "show_all_link": "Afficher tout"
+  },
+  "text_truncate": {
+    "view_more": "Afficher plus de d\u00e9tails",
+    "view_less": "Masquer les d\u00e9tails"
+  },
+  "cookies": {
+    "accept": "Accepter les cookies"
+  },
+  "maintenance": {
+    "down": "En maintenance"
+  },
+  "validation_messages": {
+    "valid_email": "Vous devez saisir une adresse e-mail valide.",
+    "password": "Veuillez saisir un mot de passe.",
+    "password_match": "Vos mots de passe ne correspondent pas.",
+    "invalid_password": "Votre mot de passe doit comporter au moins 7\u00a0caract\u00e8res et au moins un chiffre et une lettre.",
+    "field_not_blank": " le champ ne peut \u00eatre vide.",
+    "certificate_amount": "Veuillez indiquer le montant du ch\u00e8que cadeau.",
+    "certificate_amount_range": "Vous devez indiquer un montant compris entre [MIN] et [MAX] pour le ch\u00e8que-cadeau",
+    "price_min_evaluation": "Le prix minimum doit \u00eatre inf\u00e9rieur au prix maximum.",
+    "price_max_evaluation": "Le prix minimum doit \u00eatre inf\u00e9rieur au prix maximum.",
+    "price_min_not_entered": "Veuillez saisir un prix minimum.",
+    "price_max_not_entered": "Veuillez saisir un prix maximum.",
+    "price_invalid_value": "La saisie doit \u00eatre sup\u00e9rieure \u00e0 0.",
+    "invalid_gift_certificate": "Veuillez saisir un code de ch\u00e8que-cadeau valide."
+  },
+  "validation_fallback_messages": {
+    "valid_email": "Vous devez saisir une adresse e-mail valide.",
+    "password": "Veuillez saisir un mot de passe.",
+    "password_match": "Vos mots de passe ne correspondent pas.",
+    "invalid_password": "Votre mot de passe doit comporter au moins 7\u00a0caract\u00e8res et au moins un chiffre et une lettre.",
+    "field_not_blank": " le champ ne peut \u00eatre vide.",
+    "certificate_amount": "Veuillez indiquer le montant du ch\u00e8que cadeau.",
+    "certificate_amount_range": "Vous devez indiquer un montant compris entre [MIN] et [MAX] pour le ch\u00e8que-cadeau",
+    "price_min_evaluation": "Le prix minimum doit \u00eatre inf\u00e9rieur au prix maximum.",
+    "price_max_evaluation": "Le prix minimum doit \u00eatre inf\u00e9rieur au prix maximum.",
+    "price_min_not_entered": "Veuillez saisir un prix minimum.",
+    "price_max_not_entered": "Veuillez saisir un prix maximum.",
+    "price_invalid_value": "La saisie doit \u00eatre sup\u00e9rieure \u00e0 0.",
+    "invalid_gift_certificate": "Veuillez saisir un code de ch\u00e8que-cadeau valide."
+  },
+  "validation_default_messages": {
+    "valid_email": "Vous devez saisir une adresse e-mail valide.",
+    "password": "Veuillez saisir un mot de passe.",
+    "password_match": "Vos mots de passe ne correspondent pas.",
+    "invalid_password": "Votre mot de passe doit comporter au moins 7\u00a0caract\u00e8res et au moins un chiffre et une lettre.",
+    "field_not_blank": "Le champ ne peut \u00eatre vide.",
+    "certificate_amount": "Veuillez indiquer le montant du ch\u00e8que cadeau.",
+    "certificate_amount_range": "Vous devez indiquer un montant compris entre [MIN] et [MAX] pour le ch\u00e8que-cadeau",
+    "price_min_evaluation": "Le prix minimum doit \u00eatre inf\u00e9rieur au prix maximum.",
+    "price_max_evaluation": "Le prix minimum doit \u00eatre inf\u00e9rieur au prix maximum.",
+    "price_min_not_entered": "Veuillez saisir un prix minimum.",
+    "price_max_not_entered": "Veuillez saisir un prix maximum.",
+    "price_invalid_value": "La saisie doit \u00eatre sup\u00e9rieure \u00e0 0.",
+    "invalid_gift_certificate": "Veuillez saisir un code de ch\u00e8que-cadeau valide."
+  },
+  "page_builder": {
+    "pdp_sale_badge_label": "Remis\u00e9\u00a0!",
+    "pdp_sold_out_label": "\u00c9puis\u00e9",
+    "pdp-sale-price-label": "Maintenant\u00a0:",
+    "pdp-non-sale-price-label": "Ancien prix\u00a0:",
+    "pdp-retail-price-label": "Prix de vente conseill\u00e9\u00a0:",
+    "pdp-custom-fields-tab-label": "Informations suppl\u00e9mentaires"
+  },
+  "consent_manager": {
+    "data_collection_warning": "Nous utilisons des cookies (et d'autres technologies similaires) pour recueillir des donn\u00e9es afin d'am\u00e9liorer votre exp\u00e9rience d'achat.",
+    "accept_all_cookies": "Accepter tous les cookies",
+    "gdpr_settings": "Param\u00e8tres",
+    "data_collection_preferences": "Pr\u00e9f\u00e9rences en mati\u00e8re de collecte de donn\u00e9es sur le site Web",
+    "manage_data_collection_preferences": "G\u00e9rer les pr\u00e9f\u00e9rences en mati\u00e8re de collecte de donn\u00e9es sur le site Web",
+    "use_data_by_cookies": " utilise les donn\u00e9es recueillies par les cookies et les biblioth\u00e8ques JavaScript pour am\u00e9liorer votre exp\u00e9rience d'achat.",
+    "data_categories_table": "Le tableau ci-dessous pr\u00e9cise la mani\u00e8re dont nous utilisons ces donn\u00e9es par cat\u00e9gorie. Pour d\u00e9sactiver une cat\u00e9gorie de collecte de donn\u00e9es, s\u00e9lectionnez \u00abNon\u00bb et enregistrez vos pr\u00e9f\u00e9rences.",
+    "allow": "Autoriser",
+    "accept": "accepter",
+    "deny": "Refuser",
+    "dismiss": "Ignorer",
+    "reject_all": "Tout rejeter",
+    "category": "Cat\u00e9gorie",
+    "purpose": "Objectif",
+    "functional_category": "Fonctionnel",
+    "functional_purpose": "Permet d'offrir des fonctionnalit\u00e9s avanc\u00e9es, telles que les vid\u00e9os et le chat en direct. Si vous refusez, les performances de l'ensemble ou d'une partie de ces fonctions risquent d'\u00eatre affect\u00e9es.",
+    "analytics_category": "Statistiques",
+    "analytics_purpose": "Fournir des donn\u00e9es statistiques sur l'utilisation du site, par exemple des analyses Web qui nous aideront \u00e0 am\u00e9liorer ce site Web en continu.",
+    "targeting_category": "Ciblage",
+    "advertising_category": "Publicit\u00e9",
+    "advertising_purpose": "Permet de cr\u00e9er des profils ou de personnaliser le contenu afin d'am\u00e9liorer votre exp\u00e9rience d'achat.",
+    "essential_category": "Indispensable",
+    "esential_purpose": "Indispensable au bon fonctionnement du site et des services demand\u00e9s, mais n'exerce aucune fonction compl\u00e9mentaire ou secondaire.",
+    "yes": "Oui",
+    "no": "Non",
+    "not_available": "N/A",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "back_to_preferences": "Retour aux pr\u00e9f\u00e9rences",
+    "close_without_changes": "Certaines modifications apport\u00e9es \u00e0 vos pr\u00e9f\u00e9rences en mati\u00e8re de collecte de donn\u00e9es n'ont pas \u00e9t\u00e9 enregistr\u00e9es. Voulez-vous vraiment fermer sans enregistrer\u00a0?",
+    "unsaved_changes": "Certaines de vos modifications n'ont pas \u00e9t\u00e9 enregistr\u00e9es",
+    "by_using": "En utilisant notre site Web, vous acceptez notre",
+    "agree_on_data_collection": "En utilisant notre site Web, vous autorisez la collecte de donn\u00e9es conform\u00e9ment \u00e0 notre ",
+    "change_preferences": "Vous pouvez modifier vos pr\u00e9f\u00e9rences \u00e0 tout moment",
+    "cancel_dialog_title": "Voulez-vous vraiment annuler vos modifications\u00a0?",
+    "privacy_policy": "Politique de confidentialit\u00e9",
+    "allow_category_tracking": "Autoriser le suivi de [CATEGORY_NAME]",
+    "disallow_category_tracking": "Interdire le suivi de [CATEGORY_NAME]"
+  },
+  "papathemes": {
+    "on_sale": "En solde",
+    "top_nav": {
+      "welcome_text": "Bienvenue chez {store_name} !",
+      "text1": "{address}",
+      "text2": "{phone_number}",
+      "url1": "#",
+      "url2": "#"
+    },
+    "categories_grid": {
+      "heading": "Cat\u00e9gories",
+      "products_count": "{count, plural, =0{Aucun produit} one {1 produit} other {# produits}}"
+    },
+    "pbcst": {
+      "bestselling": "Meilleures ventes",
+      "featured": "En vedette",
+      "new": "Nouveaut\u00e9s",
+      "reviews": "Les mieux not\u00e9s",
+      "view_all": "Voir tous les produits",
+      "shop_category": "Acheter {name}",
+      "load_more": "Afficher plus",
+      "collapse": "R\u00e9duire",
+      "subcategory_title": "Cat\u00e9gories :"
+    },
+    "product_cartsuggested": {
+      "load_more": "Charger plus",
+      "collapse": "R\u00e9duire"
+    },
+    "new_products": {
+      "image": "https://tvlgiao.github.io/bigcommerce-themes/supermarket/demo/images/new-products-img.jpg"
+    },
+    "categories_list": {
+      "heading": "Top cat\u00e9gories",
+      "see_all": "Voir tout",
+      "cat_id_1": "55",
+      "cat_id_2": "23",
+      "cat_id_3": "18",
+      "cat_id_4": "19",
+      "cat_id_5": "58",
+      "cat_id_6": "60",
+      "banner_1": "https://tvlgiao.github.io/bigcommerce-themes/supermarket/demo/images/cat-list-01.jpg",
+      "banner_2": "https://tvlgiao.github.io/bigcommerce-themes/supermarket/demo/images/cat-list-02.jpg",
+      "banner_3": "https://tvlgiao.github.io/bigcommerce-themes/supermarket/demo/images/cat-list-03.jpg",
+      "banner_4": "https://tvlgiao.github.io/bigcommerce-themes/supermarket/demo/images/cat-list-04.jpg",
+      "banner_5": "https://tvlgiao.github.io/bigcommerce-themes/supermarket/demo/images/cat-list-05.jpg",
+      "banner_6": "https://tvlgiao.github.io/bigcommerce-themes/supermarket/demo/images/cat-list-06.jpg"
+    }
+  },
+  "bulk_order": {
+    "icon_title": "Commande en gros",
+    "product": "Produit",
+    "qty_in_cart": "Qt\u00e9 dans le panier",
+    "qty_in_cart_mobile": "(<span data-bulkorder-cart-qty-id='{id}'></span> dans le panier)",
+    "qty": "Quantit\u00e9",
+    "price": "Prix",
+    "subtotal": "Sous-total",
+    "total": "Total :",
+    "items": "articles",
+    "add_all": "Ajouter tout au panier",
+    "progress_heading": "Ajout de vos produits au panier",
+    "view_cart": "Voir le panier",
+    "countinue_shopping": "Continuer vos achats",
+    "validate": {
+      "enter_qty": "Veuillez entrer une quantit\u00e9",
+      "choose_options": "Veuillez choisir des options"
+    },
+    "title": "Mise en page de la commande en gros"
+  },
+  "also_bought": {
+    "heading": "Acheter ensemble fr\u00e9quemment :",
+    "add_all": "S\u00e9lectionner tout",
+    "add_selected_to_cart_backup": "Ajouter %str% au panier",
+    "add_selected_to_cart": "Ajouter au panier",
+    "added_to_cart": "Ajout\u00e9 \u00e0 votre panier !",
+    "all": "tout",
+    "number_array": ",les deux,trois,quatre,cinq,six,sept,huit,neuf,dix",
+    "all_number_array": "tout,tout les deux,tout les trois,tout les quatre,tout les cinq,tout les six,tout les sept,tout les huit,tout les neuf,tout les dix"
+  },
+  "shipping_countdown": {
+    "hour": "h",
+    "hours": "h",
+    "minute": "min",
+    "minutes": "min",
+    "today_hm": "Commandez dans les prochaines <strong>%HOUR%</strong> et <strong>%MINUTE%</strong> pour exp\u00e9dition aujourd'hui.",
+    "today_h": "Commandez dans les prochaines <strong>%MINUTE%</strong> pour exp\u00e9dition aujourd'hui.",
+    "tomorrow_hm": "Commandez dans les prochaines <strong>%HOUR%</strong> et <strong>%MINUTE%</strong> pour exp\u00e9dition demain.",
+    "tomorrow_m": "Commandez dans les prochaines <strong>%MINUTE%</strong> pour exp\u00e9dition demain.",
+    "monday": "Commandez maintenant pour exp\u00e9dition lundi."
+  },
+  "form_contact": {
+    "docs": "Pour afficher le formulaire de contact, vous devez configurer l'URL de demande de question pour qu'elle renvoie vers une page de formulaire de contact dans les param\u00e8tres du th\u00e8me. Pour d\u00e9sactiver cette fen\u00eatre contextuelle, veuillez laisser l'URL de demande de question vide dans les param\u00e8tres du th\u00e8me. Vous pouvez trouver des instructions d\u00e9taill\u00e9es dans notre documentation \u00e0 l'adresse suivante : <a href=\"http: //bc-mooncat-docs.papathemes.com/usage.html#ask-question\" target=\"_blank\">Configurer la demande de question</a>."
+  }
+}

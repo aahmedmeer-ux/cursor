@@ -1,0 +1,13 @@
+{{#if category.subcategories}}
+    <fieldset class="form-fieldset actionBar-section actionBar-section--subcategory">
+        <div class="form-field">
+            <label class="form-label" for="sub-category-filter">{{lang 'category.label'}}:</label>
+            <select class="form-select" name="sub-category-filter" id="sub-category-filter">
+                <option value="">{{category.name}}</option>
+                {{#each category.subcategories}}
+                 <option value="{{url}}">{{name}}</option>
+                {{/each}}
+            </select>
+        </div>
+    </fieldset>
+{{/if}}

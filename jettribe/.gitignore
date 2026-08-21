@@ -1,0 +1,10 @@
+node_modules/
+.DS_Store
+config.stencil.json
+.stencil
+parsed/
+
+# Local stencil bundles & maps
+Dinosaur-*.zip
+assets/dist/*.map
+package-lock.json

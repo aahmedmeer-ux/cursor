@@ -1,0 +1,95 @@
+$_include_countdown_css: if(stencilColor("card_show_countdown"), true, false);
+
+@mixin _sr-only {
+    // sr-only
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+@mixin _card-countdown {
+    .sale-flag-side {
+        display: flex;
+        flex-wrap: wrap;
+
+        &:has(.card-countdown._active) {
+            max-width: 100%;
+            flex-wrap: nowrap;
+            overflow: hidden;
+            gap: spacing("quarter");
+            padding-right: spacing("quarter");
+        }
+
+        // &:has(.card-countdown._saleEnded) {
+        //     display: none;
+        // }
+    }
+
+    .card-countdown {
+        display: inline;
+        height: 0;
+
+        &._active {
+            display: inline-flex;
+            height: auto;
+            gap: spacing("eighth");
+            align-items: center;
+            text-transform: uppercase;
+        }
+
+        &._saleEnded {
+            display: none;
+        }
+
+        .icon {
+            @include square(fontSize("smallest"));
+            fill: stencilColor("card-countdown-color");
+        }
+
+        ._end {
+            @include _sr-only;
+        }
+
+        ._day,
+        ._hour,
+        ._minute,
+        ._second {
+            color: stencilColor("card-countdown-color");
+            background-color: stencilColor("card-countdown-backgroundColor");
+            // min-width: remCalc(18px);
+            text-align: center;
+            font-size: fontSize("smallest");
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 1px;
+            line-height: 1;
+            padding: 0 2px;
+
+            font-weight: fontWeight("bold");
+
+            @include breakpoint("medium") {
+                padding: 2px 4px;
+            }
+
+            ._label {
+                // @include _sr-only;
+                font-size: 80%;
+                font-weight: fontWeight("normal");
+            }
+        }
+
+        ._hide {
+            display: none;
+        }
+    }
+}
+
+@if $_include_countdown_css {
+    @include _card-countdown;
+}

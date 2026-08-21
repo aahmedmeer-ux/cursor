@@ -1,0 +1,34 @@
+{{#if theme_settings.card_show_qty}}
+    {{assignVar 'qtyBoxRand' (random 0 1000000)}}
+    <div class="form-field form-field--increments">
+        <label class="is-srOnly" for="qty_{{id}}_{{incrementVar 'qtyBoxUID'}}_{{getVar 'qtyBoxRand'}}">{{lang 'products.quantity'}}</label>
+        <div class="form-increment" data-card-quantity-change>
+            <button class="button button--icon" data-action="dec">
+                <span class="is-srOnly">{{lang 'products.quantity_decrease' name=name}}</span>
+                <i class="icon" aria-hidden="true">
+                    <svg>
+                        <use href="#icon-minus"/>
+                    </svg>
+                </i>
+            </button>
+            <input class="form-input form-input--incrementTotal"
+                id="qty_{{id}}_{{getVar 'qtyBoxUID'}}_{{getVar 'qtyBoxRand'}}"
+                name="qty_{{id}}"
+                type="tel"
+                value="{{#if min_purchase_quantity}}{{min_purchase_quantity}}{{else}}1{{/if}}"
+                data-quantity-min="{{min_purchase_quantity}}"
+                data-quantity-max="{{max_purchase_quantity}}"
+                min="1"
+                pattern="[0-9]*"
+                aria-live="polite">
+            <button class="button button--icon" data-action="inc">
+                <span class="is-srOnly">{{lang 'products.quantity_increase' name=name}}</span>
+                <i class="icon" aria-hidden="true">
+                    <svg>
+                        <use href="#icon-add"/>
+                    </svg>
+                </i>
+            </button>
+        </div>
+    </div>
+{{/if}}

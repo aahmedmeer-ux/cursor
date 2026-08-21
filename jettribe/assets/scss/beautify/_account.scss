@@ -1,0 +1,138 @@
+.supermarket-pageType--account .body {
+    @media (max-width: screenSize("medium") - 1px) {
+        margin-bottom: spacing("double");
+    }
+    @include breakpoint("medium") {
+        margin-bottom: spacing("single") * 3;
+        
+    }
+}
+
+.account {
+    @media (max-width: screenSize("medium") - 1px) {
+        margin-bottom: spacing("double");
+    }
+    @include breakpoint("medium") {
+        margin-bottom: spacing("single") * 3;
+        
+    }
+
+    .supermarket-pageType--account & {
+        margin-bottom: 0;
+    }
+}
+
+.account .form-row {
+    overflow: hidden;
+
+    .form-row {
+        margin-left: -(spacing("half"));
+        margin-right: -(spacing("half"));
+    }
+}
+
+.beautify__orderDetails {
+    @include breakpoint("medium") {
+        display: grid;
+        grid-template-columns: 66.6666% 33.3333%;
+    }
+}
+
+.beautify__orderDetails-main {
+    @include breakpoint("medium") {
+        grid-column: 1;
+        padding-right: spacing("single");
+    }
+
+    .account-orderTotal {
+        float: none;
+        width: 100%;
+    }
+}
+
+.beautify__orderDetails-sidebar {
+    @include breakpoint("medium") {
+        grid-column: 2;
+        padding-left: spacing("single");
+    }   
+}
+
+.account-orderTotal {
+    font-weight: fontWeight("bold");
+}
+
+.account-orderTotal-key,
+.account-orderTotal-value {
+    padding: spacing("half") 0;
+}
+
+.navBar--sub {
+    border: container("border");
+    border-radius: $input-border-radius;
+    // background-color: container("fill", "dark");
+    // padding: 0 spacing("half");
+
+    .navBar-section {
+        display: flex;
+        overflow-x: auto;
+        
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    .navBar-item {
+        border-right: container("border");
+        margin: 0;
+
+        &.is-active {
+            padding: spacing("half");
+            border-bottom: 0;
+            min-width: max-content;
+
+            .navBar-action {
+                padding: 0;
+            }
+        }
+    }
+
+    .navBar-action {
+        padding: spacing("half");
+        width: max-content;
+    }
+
+    @media (max-width: screenSize("medium") - 1px) {
+        margin-bottom: spacing("base");
+    }
+}
+
+.account-orderStatus-label {
+    font-weight: fontWeight("bold");
+    text-transform: uppercase;
+}
+
+.account-message {
+    .is-read {
+        color: stencilColor("color-textBase");
+    }
+}
+
+.account-product-title {
+    font-size: fontSize("base");
+    font-family: $body-font-family;
+
+    a:focus {
+        outline-offset: -($outline-width) !important;
+    }
+}
+
+.gift_certificate_redeem {
+    > ol {
+        margin-left: spacing("double");
+        text-align: justify;
+
+        @media (max-width: screenSize("small") - 1px) {
+            margin-left: spacing("half");
+        }
+    }
+}

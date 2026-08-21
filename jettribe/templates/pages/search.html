@@ -1,0 +1,248 @@
+---
+product_results:
+    limit: {{theme_settings.searchpage_products_per_page}}
+blog:
+    recent_posts:
+        limit: {{theme_settings.homepage_blog_posts_count}}
+shop_by_brand:
+    limit: {{theme_settings.sidebar_shop_by_brand}}
+---
+{{inject 'categoryTree' forms.search.category_options}}
+{{inject 'searchProductsPerPage' theme_settings.searchpage_products_per_page}}
+{{#partial "head"}}
+    {{#if pagination.product_results.previous}}
+        <link rel="prev" href="{{pagination.product_results.previous}}">
+    {{/if}}
+    {{#if pagination.product_results.next}}
+        <link rel="next" href="{{pagination.product_results.next}}">
+    {{/if}}
+{{/partial}}
+
+{{#partial "page-sidebar"}}
+    {{#if product_results.faceted_search_enabled}}
+        {{#if product_results.products}}
+            <div class="beautify__filters-overlay"></div>
+            {{#if theme_settings.categorypage_layout '!==' 'fullwidth'}}
+                <div class="page-sidebar page-sidebar--top beautify__filters" id="sidebar-top">
+                    <div class="_header">
+                        <h2 class="_heading">{{lang 'search.faceted.filter_by'}}</h2>
+                        <a href="#" class="_close" data-toggle="sidebar-top"><svg class="icon"><use href="#icon-close"></use></svg><span class="sr-only">{{lang 'common.close'}}</span></a>
+                    </div>
+
+                    <div class="_body">
+                        {{{region name="search_sidebar_top--global"}}}
+                        {{{region name="search_sidebar_top"}}}
+                        <div id="faceted-search-container" class="faceted-search-container">
+                            {{> components/faceted-search/index
+                                product_results
+                                layout=theme_settings.categorypage_layout
+                                currency_token=settings.money.currency_token
+                                show_price_slider=(if theme_settings.show_shop_by_price '==' 'slider')
+                            }}
+                        </div>
+                        <div class="faceted-region">
+                            {{{region name="search_sidebar_bottom--global"}}}
+                            {{{region name="search_sidebar_bottom"}}}
+                        </div>
+                    </div>
+                </div>
+            {{/if}}
+        {{/if}}
+    {{else}}
+        <div class="beautify__filters-overlay"></div>
+        <div class="page-sidebar page-sidebar--top page-sidebar--advancedSearch beautify__filters" id="sidebar-top">
+            <div class="_header">
+                <h2 class="_heading">{{lang 'search.faceted.filters'}}</h2>
+                <a href="#" class="_close" data-toggle="sidebar-top"><svg class="icon"><use href="#icon-close"></use></svg><span class="sr-only">{{lang 'common.close'}}</span></a>
+            </div>
+            <div class="_body">
+                {{{region name="search_sidebar_top--global"}}}
+                {{{region name="search_sidebar_top"}}}
+                {{>components/search/advanced-search}}
+                <div class="faceted-region">
+                    {{{region name="search_sidebar_bottom--global"}}}
+                    {{{region name="search_sidebar_bottom"}}}
+                </div>
+            </div>
+        </div>
+    {{/if}}
+{{/partial}}
+
+{{#partial "page"}}
+{{{stylesheet '/assets/css/jstree.css'}}}
+
+{{> components/common/breadcrumbs}}
+{{#if forms.search.query}}
+    <div id="search-results-heading">
+        {{>components/search/heading}}
+    </div>
+{{/if}}
+
+<section class="page">
+
+    {{#if theme_settings.layout '==' 'fullwidth'}}
+        {{#block "page-sidebar"}} {{/block}}
+    {{/if}}
+
+    <main class="page-content">
+        {{{snippet 'search'}}}
+        {{{region name="search_before_nav--global"}}}
+        {{{region name="search_before_nav"}}}
+        <section class="nav">
+            <nav class="navBar navBar--sub">
+                <ul class="navBar-section account-navigation">
+                    <li class="navBar-item">
+                        <a id="search-results-product-count" class="navBar-action" href="{{forms.search.product_url}}" data-product-results-toggle>
+                            {{>components/search/product-count}}
+                        </a>
+                    </li>
+                    <li class="navBar-item">
+                        <a class="navBar-action" href="{{forms.search.content_url}}" data-content-results-toggle>
+                            {{lang 'search.results.content_count' count=pagination.content_results.total}}
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </section>
+
+        {{#if forms.search.has_suggestions}}
+            <h2 class="is-srOnly">{{lang 'forms.search.suggestions.title'}}</h2>
+            <div class="panel panel--large">
+                <div class="panel-body panel-body--searchSuggestions">
+                    <h2 class="is-srOnly">{{lang 'forms.search.refine'}}</h2>
+                    {{#if forms.search.suggested_query}}
+                        <div class="search-suggestion search-suggestion--query">
+                            {{lang 'forms.search.did_you_mean'}} <strong>{{forms.search.suggested_query.query}}</strong>
+                            <a href="{{forms.search.suggested_query.url}}" class="search-refine">{{lang 'forms.search.refine'}}</a>
+                        </div>
+
+                        {{#if result_count '===' 0}}
+                            <div class="search-suggestion search-suggestion--query">
+                                <p>
+                                    {{lang 'forms.search.your_search_for'}}
+                                    "<strong>{{{sanitize forms.search.query}}}</strong>"
+                                    {{lang 'forms.search.no_match'}}
+                                </p>
+                            </div>
+                        {{/if}}
+                    {{/if}}
+
+                    {{#if category_results.length}}
+                        <div class="search-suggestion search-suggestion--categories">
+                            <h3 class="suggestion-title">{{lang 'forms.search.categories'}}</h3>
+                            <ul class="category-suggestion-list">
+
+                                {{#each category_results}}
+                                <li class="category-suggestion">
+
+                                    {{#each this}}
+                                        <a href="{{url}}">{{name}}</a>
+                                        {{#unless @last}} > {{/unless}}
+                                    {{/each}}
+
+                                </li>
+                                {{/each}}
+                            </ul>
+                        </div>
+                    {{/if}}
+
+                    {{#if brand_results.length}}
+                        <div class="search-suggestion search-suggestion--brands">
+                            <h3 class="suggestion-title">{{lang 'forms.search.brand'}}</h3>
+                            {{#each brand_results}}
+                                <a href="{{url}}">{{name}}</a>
+                                {{#unless @last}}, {{/unless}}
+                            {{/each}}
+                        </div>
+                    {{/if}}
+
+                    {{#if result_count '===' 0}}
+                        <div class="search-suggestion search-suggestion--tips">
+                            <h3 class="suggestion-title">{{lang 'forms.search.suggestions.title'}}</h3>
+                            <ul>
+                                <li>{{lang 'forms.search.suggestions.line1'}}</li>
+                                <li>{{lang 'forms.search.suggestions.line2'}}</li>
+                                <li>{{lang 'forms.search.suggestions.line3'}}</li>
+                            </ul>
+                        </div>
+                    {{/if}}
+                </div>
+            </div>
+        {{/if}}
+
+        {{{region name="search_before_content--global"}}}
+        {{{region name="search_before_content"}}}
+
+        {{#if content_results}}
+            <div id="search-results-content" {{#if forms.search.section '!=' 'content'}}class="u-hiddenVisually"{{/if}}>
+                <h2 class="is-srOnly">{{lang 'search.results.content_count' count=pagination.content_results.total}}</h2>
+                {{> components/search/content-sort-box sort=pagination.content_results.sort}}
+                <div>
+                    {{#each content_results}}
+                        <a href="{{url}}">{{{title}}}</a> ({{type}})
+                        <p class="_results-content">{{{content}}}</p>
+                    {{/each}}
+                </div>
+                {{> components/common/paginator pagination.content_results reload=true instantload=true}}
+            </div>
+
+        {{/if}}
+
+        {{#if product_results}}
+            {{#if theme_settings.categorypage_layout '===' 'fullwidth'}}
+                <div class="beautify__hozFilters _horizontal" id="faceted-search-container">
+                    <h2 class="_heading">{{lang 'search.faceted.filter_by'}}</h2>
+                    {{> components/search/sidebar collapsed=true}}
+                </div>
+
+                {{{region name="search_below_filters--global"}}}
+                {{{region name="search_below_filters"}}}
+            {{/if}}
+        {{/if}}
+
+        <h2 class="is-srOnly">{{lang 'common.products_list_heading'}}</h2>
+        <div id="product-listing-container" class="
+            {{#if theme_settings.product_list_display_mode '===' 'grid2'}}mode-2
+            {{else if theme_settings.product_list_display_mode '===' 'grid3'}}mode-3
+            {{else if theme_settings.product_list_display_mode '===' 'grid5'}}mode-5
+            {{else if theme_settings.product_list_display_mode '===' 'list'}}mode-1
+            {{else if theme_settings.product_list_display_mode '===' 'listbo'}}mode-bo{{/if}}
+            {{#if theme_settings.categorypage_layout '===' 'fullwidth'}}_fullwidth{{/if}}
+            {{#if theme_settings.infiniteScroll '!==' 'no'}}infiniteScroll{{/if}}"
+            {{#if theme_settings.infiniteScroll '!==' 'no'}}data-search-infinite-scroll="{{theme_settings.infiniteScroll}}"{{/if}}>
+
+            <h2 class="is-srOnly">{{lang 'search.results.product_count' count=pagination.product_results.total}}</h2>
+            {{> components/search/product-listing}}
+        </div>
+
+        {{{region name="search_below_content--global"}}}
+        {{{region name="search_below_content"}}}
+        
+        {{#if result_count '===' 0}}
+            {{#if products.new}}
+                <div class="papathemes-section papathemes-section--newProducts papathemes-section--displayType-carousel">
+                    <div class="papathemes-section-inner">
+                        <h2 class="beautify__page-heading">{{lang 'products.new'}}</h2>
+                        {{> components/products/carousel products=products.new list="New Products"}}
+                    </div>
+                </div>
+            {{/if}}
+        {{/if}}
+
+        {{{region name="search_below_new_products--global"}}}
+
+        {{#if products.featured}}
+            <div class="papathemes-section papathemes-section--featuredProducts papathemes-section--displayType-carousel">
+                <div class="papathemes-section-inner">
+                    <h2 class="beautify__page-heading">{{lang 'products.featured'}}</h2>
+                    {{> components/products/carousel products=products.featured list="Featured Products"}}
+                </div>
+            </div>
+        {{/if}}
+
+        {{{region name="search_below_featured_products--global"}}}
+    </main>
+</section>
+
+{{/partial}}
+{{> layout/base}}

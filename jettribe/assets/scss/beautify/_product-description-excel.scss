@@ -1,0 +1,454 @@
+// Jettribe PDP description — DESCRIPTION on top + full-width horizontal line + content
+.productView-description.productView-description--excel {
+    padding: remCalc(40px) 0 remCalc(24px);
+
+    @include breakpoint("medium") {
+        // Override default centered / colored tab bar from beautify/_product.scss
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-items: flex-end;
+            position: static;
+            top: auto;
+            z-index: auto;
+            margin: 0 0 remCalc(28px);
+            padding: 0;
+            border: 0;
+            border-bottom: 1px solid #cfcfcf;
+            background: transparent;
+            background-color: transparent;
+
+            &::before,
+            &::after {
+                display: none;
+            }
+        }
+
+        .tab {
+            float: none;
+            display: block;
+            margin: 0 remCalc(32px) 0 0;
+            margin-bottom: -1px;
+            border: 0;
+            border-bottom-width: 0;
+            border-color: transparent;
+            background: transparent;
+
+            &:first-child {
+                margin-left: 0;
+            }
+
+            &:last-child {
+                margin-right: 0;
+            }
+
+            &:not(.is-active) .tab-title:focus {
+                color: #666;
+            }
+        }
+
+        .tab-title {
+            display: inline-block;
+            margin: 0;
+            padding: 0 0 remCalc(14px);
+            border: 0;
+            border-bottom: 3px solid transparent;
+            background: transparent;
+            color: #666;
+            font-size: remCalc(16px);
+            font-weight: fontWeight("bold");
+            letter-spacing: 0.08em;
+            line-height: 1.2;
+            text-transform: uppercase;
+            text-decoration: none;
+            writing-mode: horizontal-tb;
+            transform: none;
+            white-space: nowrap;
+
+            &:hover,
+            &:focus {
+                color: #111;
+            }
+        }
+
+        .tab.is-active {
+            background: transparent;
+
+            .tab-title {
+                border-bottom-color: #e53d42;
+                color: #e53d42;
+                background: transparent;
+            }
+        }
+
+        .tabs-contents {
+            margin-bottom: 0;
+        }
+
+        .tab-content {
+            padding: 0;
+            border-top: 0;
+        }
+    }
+}
+
+.productDescExcel {
+    display: block;
+    width: 100%;
+    background: #fff;
+}
+
+// Horizontal tab row (desktop) — title on top, rule below
+.productDescExcel-tabs.tabs--excel {
+    float: none;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: flex-start;
+    width: 100%;
+    margin: 0 0 remCalc(28px);
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid #cfcfcf;
+    background: transparent;
+    list-style: none;
+
+    &::before,
+    &::after {
+        display: none;
+    }
+
+    @media (max-width: (screenSize("medium") - 1px)) {
+        display: none; // mobile uses accordion headings
+    }
+
+    .tab {
+        float: none;
+        display: block;
+        margin: 0 remCalc(32px) 0 0;
+        margin-bottom: -1px;
+        border: 0;
+        background: transparent;
+
+        &:last-child {
+            margin-right: 0;
+        }
+
+        .tab-title {
+            display: inline-block;
+            margin: 0;
+            padding: 0 0 remCalc(14px);
+            border: 0;
+            border-bottom: 3px solid transparent;
+            background: transparent;
+            color: #666;
+            font-size: remCalc(16px);
+            font-weight: fontWeight("bold");
+            letter-spacing: 0.08em;
+            line-height: 1.2;
+            text-transform: uppercase;
+            text-decoration: none;
+            writing-mode: horizontal-tb;
+            transform: none;
+            white-space: nowrap;
+
+            &:hover,
+            &:focus {
+                color: #111;
+            }
+        }
+
+        &.is-active {
+            background: transparent;
+
+            .tab-title {
+                border-bottom-color: #e53d42;
+                color: #e53d42;
+                background: transparent;
+            }
+        }
+    }
+}
+
+.productDescExcel-panels {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+
+    > .tab-content {
+        display: none;
+
+        &.is-active {
+            display: block;
+        }
+    }
+}
+
+// FBT sits full-width under description
+.productView-additionalInfo--afterDescription {
+    width: 100% !important;
+    max-width: none !important;
+    float: none !important;
+    clear: both;
+    margin-top: remCalc(40px);
+    padding-right: 0;
+
+    @media (max-width: (screenSize("medium") - 1px)) {
+        order: 6;
+        margin-top: spacing("single");
+    }
+}
+
+// Spreadsheet-style Other Details table
+.productDescExcel-sheet {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #cfcfcf;
+
+    th,
+    td {
+        border: 1px solid #cfcfcf;
+        padding: remCalc(10px) remCalc(12px);
+        vertical-align: top;
+        text-align: left;
+    }
+
+    th {
+        width: 32%;
+        background: #f5f5f5;
+        font-weight: fontWeight("bold");
+        color: #222;
+    }
+
+    td {
+        background: #fff;
+    }
+
+    tr:nth-child(even) td {
+        background: #fafafa;
+    }
+}
+
+// ---- jettribe.com description content (flex image + text rows) ----
+.productDescExcel-body,
+.productView-description-tabContent {
+    .flex_two_col_main {
+        margin-bottom: remCalc(40px);
+
+        h2 {
+            margin: 0 0 remCalc(20px);
+            font-size: remCalc(28px);
+            font-weight: fontWeight("bold");
+            color: #000;
+        }
+    }
+
+    .flex_row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: remCalc(20px);
+        background: #f5f5f5;
+
+        @media (max-width: 767px) {
+            flex-wrap: wrap;
+        }
+    }
+
+    .img_col {
+        position: relative;
+        display: block;
+        width: 50%;
+
+        @media (max-width: 767px) {
+            width: 100%;
+        }
+
+        img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+
+            @media (max-width: 767px) {
+                height: auto;
+            }
+        }
+
+        &::before,
+        &::after {
+            content: "";
+            position: absolute;
+            z-index: 2;
+            top: 20px;
+            right: 20px;
+            bottom: 20px;
+            left: 20px;
+            margin: auto;
+            border: solid #fff;
+            transition: all 0.5s ease;
+        }
+
+        &::before {
+            width: 0;
+            border-width: 1px 0;
+        }
+
+        &::after {
+            height: 0;
+            border-width: 0 1px;
+        }
+
+        &:hover::before {
+            width: calc(100% - 10px);
+            transform: translate(-15px, 0);
+        }
+
+        &:hover::after {
+            height: calc(100% - 10px);
+        }
+    }
+
+    .ctn_col {
+        display: flex;
+        align-items: center;
+        width: 50%;
+
+        @media (max-width: 767px) {
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .inner_ctn {
+            padding: remCalc(30px);
+
+            @media (max-width: 767px) {
+                padding: remCalc(20px);
+            }
+        }
+
+        h4 {
+            margin: 0 0 remCalc(15px);
+            color: #e53d42;
+            font-size: remCalc(20px);
+            font-weight: fontWeight("bold");
+            line-height: 1.4;
+        }
+
+        h5 {
+            margin: 0 0 remCalc(5px);
+            color: #e53d42;
+            font-size: remCalc(16px);
+            font-weight: fontWeight("bold");
+        }
+
+        p {
+            margin: 0 0 remCalc(20px);
+            color: #000;
+            font-size: remCalc(16px);
+            line-height: 1.6;
+        }
+
+        ul {
+            margin: remCalc(5px) 0;
+            padding: 0 0 0 remCalc(20px);
+
+            li {
+                margin-bottom: remCalc(2px);
+                font-size: remCalc(16px);
+            }
+        }
+
+        p a,
+        li a {
+            color: #e53d42;
+            font-weight: fontWeight("bold");
+            text-decoration: none;
+
+            &:hover {
+                color: #4153eb;
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .flex_row:nth-child(2n) {
+        .img_col {
+            order: 2;
+
+            @media (max-width: 767px) {
+                order: 1;
+            }
+        }
+
+        .ctn_col {
+            order: 1;
+
+            @media (max-width: 767px) {
+                order: 2;
+            }
+        }
+    }
+
+    .flex_row strong {
+        font-weight: fontWeight("bold");
+    }
+
+    .three_col_img {
+        display: flex;
+        margin: remCalc(30px) 0;
+        background: #f5f5f5;
+
+        @media (max-width: 767px) {
+            flex-wrap: wrap;
+        }
+    }
+
+    .img_box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        text-align: center;
+
+        @media (max-width: 767px) {
+            width: 100% !important;
+            padding: remCalc(10px);
+        }
+
+        &:first-child,
+        &:last-child {
+            width: 25%;
+        }
+
+        &:nth-child(2) {
+            border-left: 20px solid #fff;
+            border-right: 20px solid #fff;
+
+            @media (max-width: 767px) {
+                border-left: 0;
+                border-right: 0;
+            }
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    }
+}
+
+// Full-width description wrapper under gallery
+.productView-descriptionWrapper._tabs-fullwidth {
+    @include breakpoint("medium") {
+        .productView-description--excel {
+            .tab-content {
+                padding: 0;
+                border-top: 0;
+            }
+        }
+    }
+}

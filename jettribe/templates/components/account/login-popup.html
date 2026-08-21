@@ -1,0 +1,82 @@
+<a href="#" class="button-close u-hideDesktop" id="close-popup-login" data-toggle="login-popup">
+    <svg class="icon"><use href="#icon-close"/></svg>
+    <span class="sr-only">{{lang 'common.close'}}</span>
+</a>
+{{#if customer}}
+    <div class="navUser-item navUser-item--account">
+        <a class="navUser-action" href="{{urls.account.index}}">{{lang 'common.account'}}</a>
+    </div>
+    {{#if customer.store_credit.value '>' 0}}
+        <div class="navUser-item navUser-item--storeCredit">
+            <a class="navUser-action navUser-action--storeCredit"
+                data-dropdown="storeCredit-dropdown"
+                data-options="align:bottom"
+                href="{{urls.cart}}"
+                title="{{lang 'common.store_credit_overview' credit=customer.store_credit.formatted}}">
+                {{lang 'common.store_credit_overview' credit=customer.store_credit.formatted}}
+            </a>
+            <div class="dropdown-menu" id="storeCredit-dropdown" data-dropdown-content aria-hidden="true">
+                {{{lang 'common.store_credit' store_credit=customer.store_credit.formatted}}}
+            </div>
+        </div>
+    {{/if}}
+    <div class="navUser-item navUser-item--orders">
+        <a class="navUser-action" href="{{urls.account.orders.all}}">{{lang 'account.nav.orders'}}</a>
+    </div>
+    {{#if settings.returns_enabled}}
+        <div class="navUser-item navUser-item--returns">
+            <a class="navUser-action" href="{{urls.account.returns}}">{{lang 'account.nav.returns'}}</a>
+        </div>
+    {{/if}}
+        <div class="navUser-item navUser-item--messages">
+            <a class="navUser-action" href="{{urls.account.inbox}}">{{#if customer.num_new_messages}}{{lang 'account.nav.messages' num_new_messages=customer.num_new_messages}}{{else}}{{lang 'account.mobile_nav.messages'}}{{/if}}</a>
+        </div>
+        <div class="navUser-item navUser-item--addresses">
+            <a class="navUser-action" href="{{urls.account.addresses}}">{{lang 'account.nav.addresses'}}</a>
+        </div>
+    {{#if settings.show_payment_methods}}
+        <div class="navUser-item navUser-item--paymentMethods">
+            <a class="navUser-action" href="{{urls.account.payment_methods.all}}">{{lang 'account.nav.payment_methods'}}</a>
+        </div>
+    {{/if}}
+    {{#if settings.show_wishlist}}
+        <div class="navUser-item navUser-item--wishlist">
+            <a class="navUser-action" href="{{urls.account.wishlists.all}}">{{#if customer.num_wishlists}}{{lang 'account.nav.wishlists' num_wishlists=customer.num_wishlists}}{{else}}{{lang 'account.mobile_nav.wishlists'}}{{/if}}</a>
+        </div>
+    {{/if}}
+    <div class="navUser-item navUser-item--recentlyViewed">
+        <a class="navUser-action" href="{{urls.account.recent_items}}">{{lang 'account.nav.recently_viewed2'}}</a>
+    </div>
+    <div class="navUser-item navUser-item--settings">
+        <a class="navUser-action" href="{{urls.account.details}}">{{lang 'account.nav.settings'}}</a>
+    </div>
+    <div class="navUser-item navUser-item--logout">
+        <a class="navUser-action" href="{{urls.auth.logout}}">{{lang 'common.logout'}}</a>
+    </div>
+{{else}}
+    {{#if settings.account_creation_enabled}}
+        <a href="{{urls.auth.create_account}}" class="button-login button button--default">
+            {{lang 'login.new_customer.create_account' }}
+        </a>
+        <div class="border-or">
+            <span>{{lang 'login.or'}}</span>
+        </div>
+    {{/if}}
+    <h4 class="heading">{{lang 'login.heading' }}</h4>
+    <form class="account-form form" action="{{urls.auth.check_login}}" method="post" data-login-form>
+        {{inject 'useValidEmail' (lang 'forms.validate.common.email_address')}}
+        {{inject 'enterPass' (lang 'forms.validate.common.password')}}
+        <div class="form-field">
+            <label class="form-label is-srOnly" for="login_email_popup">{{lang 'login.field_email'}}</label>
+            <input class="form-input" name="login_email" id="login_email_popup" type="email" placeholder="{{lang 'login.email_placeholder'}}">
+        </div>
+        <div class="form-field">
+            <label class="form-label is-srOnly" for="login_pass_popup">{{lang 'login.field_password'}}</label>
+            <input class="form-input" name="login_pass" id="login_pass_popup" type="password" autocomplete="off" placeholder="{{lang 'login.password_placeholder'}}">
+        </div>
+        <div class="form-actions">
+            <input type="submit" class="button button--small button--default button--submit" value="{{lang 'login.submit_value' }}">
+            <a class="forgot-password" href="{{urls.auth.forgot_password}}">{{lang 'login.forgot_password' }}</a>
+        </div>
+    </form>
+{{/if}}

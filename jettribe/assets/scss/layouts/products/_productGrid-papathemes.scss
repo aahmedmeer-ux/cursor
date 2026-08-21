@@ -1,0 +1,663 @@
+.productGrid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    margin-bottom: 0;
+
+    &::before,
+    &::after {
+        display: none;
+    }
+
+    .product {
+        flex: 0 1 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        padding-left: 0;
+        padding-right: 0;
+
+        @include breakpoint("medium") {
+            flex-basis: 25%;
+        }
+
+        @include ie-only() {
+            display: block;
+        }
+    }
+}
+
+.beautify__productsFeed {
+    .productCarousel {
+        .slick-prev {
+            left: -(spacing("eighth"));
+        }
+
+        .slick-next {
+            right: -(spacing("eighth"));
+        }
+        @media (min-width: 1750px) {
+            .slick-prev {
+                left: -(spacing("single") * 2.75);
+            }
+
+            .slick-next {
+                right: -(spacing("single") * 2.75);
+            }
+        }
+    }
+}
+
+.productCarousel,
+.productGrid {
+    .card {
+        padding: spacing("third");
+        border: container("border");
+        border-color: transparent;
+        flex: 1;
+        position: relative;
+        width: 100%;
+
+        // papathemes-beautify commented out
+        // @include breakpoint("small") {
+        //     padding-bottom: spacing("quarter") + spacing("base") + buttonSize("small", "verticalPadding") * 2 + spacing("quarter");
+        // }
+
+        @media (max-width: (screenSize("small") - 1px)) {
+            padding: (spacing("third") * 0.5) spacing("quarter");
+        }
+
+        @include breakpoint("medium") {
+            padding: spacing("half");
+
+            &:hover .card-buttons {
+                visibility: visible;
+                clip: auto;
+                opacity: 1;
+                padding-top: 0;
+                z-index: zIndex("lower"); // equal badge's z-index
+            }
+        }
+
+        .dropdown--quickSearch & {
+            background-color: container("fill");
+        }
+    }
+
+    .card-buttons {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: spacing("half");
+        display: none;
+
+        @include breakpoint("small") {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        @include breakpoint("medium") {
+            visibility: hidden;
+            clip: rect(0, 0, 0, 0);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        @mixin hideText() {
+            font-size: 0 !important;
+            text-indent: -9999px;
+
+            &::before {
+                padding-right: 0;
+            }
+        }
+
+        .card-figcaption-button {
+            flex: 1;
+            font-size: fontSize("smaller");
+            letter-spacing: 0;
+
+            &:first-child {
+                margin-left: 0;
+            }
+        }
+    }
+
+
+    .card-buttons--alt {
+        position: absolute;
+        bottom: spacing("half");
+        top: auto;
+        left: 0;
+        right: 0;
+        width: auto;
+        padding: 0;
+        justify-content: center;
+
+        // hide by default
+        visibility: hidden;
+        clip: rect(0, 0, 0, 0);
+        opacity: 0;
+        transition: opacity 0.5s ease;
+
+        @at-root .card:hover .card-buttons--alt {
+            visibility: visible;
+            clip: auto;
+            opacity: 1;
+        }
+
+        .card-figcaption-button {
+            flex: 0 1 auto;
+        }
+    }
+}
+
+.productGrid--responsiveCol {
+    .product {
+        width: 100% / stencilNumber("product_col_sm", "");
+        flex-basis: 100% / stencilNumber("product_col_sm", "");
+        @include breakpoint("small") {
+            width: 100% / stencilNumber("product_col_md", "");
+            flex-basis: 100% / stencilNumber("product_col_md", "");
+        }
+        @include breakpoint("medium") {
+            width: 100% / stencilNumber("product_col", "");
+            flex-basis: 100% / stencilNumber("product_col", "");
+        }
+    }
+}
+
+// Product when sidebar is present
+// -----------------------------------------------------------------------------
+//
+// 1. When the sidebar is visible, still show 4 products per row
+//
+// -----------------------------------------------------------------------------
+
+.page-sidebar + .page-content {
+    .productGrid {
+        // scss-lint:disable SelectorDepth, NestingDepth
+        .product { // 1
+            @include breakpoint("small") {
+                width: grid-calc(3, $total-columns);
+            }
+        }
+    }
+
+    .productGrid--maxCol5 {
+        // scss-lint:disable SelectorDepth, NestingDepth
+        .product { // 1
+            @include breakpoint("medium") {
+                width: 20%;
+            }
+        }
+    }
+
+    .productGrid--maxCol6 {
+        // scss-lint:disable SelectorDepth, NestingDepth
+        .product { // 1
+            @include breakpoint("medium") {
+                width: grid-calc(2, $total-columns);
+            }
+        }
+    }
+
+    .productGrid--maxCol8 {
+        // scss-lint:disable SelectorDepth, NestingDepth
+        .product { // 1
+            @include breakpoint("medium") {
+                width: grid-calc(1.5, $total-columns);
+            }
+        }
+    }
+
+    .productGrid--maxCol3 {
+        // scss-lint:disable SelectorDepth, NestingDepth
+        .product { // 1
+            @include breakpoint("medium") {
+                width: grid-calc(4, $total-columns);
+            }
+        }
+    }
+
+    .productGrid--maxCol2 {
+        // scss-lint:disable SelectorDepth, NestingDepth
+        .product { // 1
+            @include breakpoint("medium") {
+                width: grid-calc(6, $total-columns);
+            }
+        }
+    }
+}
+
+
+
+
+// ============================================================================
+// VARIATIONS
+// ============================================================================
+
+// .productGrid--maxCol5,
+// .productGrid--maxCol6 {
+//     @include breakpoint("medium") {
+//         .card {
+//             padding-bottom: spacing("half");
+
+//             &:hover .card-buttons {
+//                 visibility: visible;
+//                 clip: auto;
+//                 opacity: 1;
+//             }
+//         }
+
+//         .card-buttons {
+//             visibility: hidden;
+//             clip: rect(0, 0, 0, 0);
+//             opacity: 0;
+//             transition: opacity 0.5s ease;
+//         }
+//     }
+// }
+
+.mode-2 .productGrid,
+.productGrid--maxCol2 {
+    .no-csscolumns & {
+        // scss-lint:disable SelectorDepth, NestingDepth
+        .product {
+            @include breakpoint("medium") {
+                width: grid-calc(1, 2);
+                flex-basis: 50%;
+            }
+        }
+    }
+
+    .csscolumns & {
+        @include breakpoint("medium") {
+            width: auto;
+            padding: 0;
+            float: none;
+
+            // scss-lint:disable SelectorDepth, NestingDepth
+            .product {
+                width: grid-calc(1, 2);
+                flex-basis: 50%;
+            }
+        }
+    }
+}
+
+.mode-3 .productGrid,
+.productGrid--maxCol3 {
+    .no-csscolumns & {
+        // scss-lint:disable SelectorDepth, NestingDepth
+        .product {
+            width: grid-calc(1, 2);
+            flex-basis: width("6/12");
+
+            @include breakpoint("large") {
+                width: grid-calc(1, 3);
+                flex-basis: width("4/12");
+            }
+        }
+    }
+
+    .csscolumns & {
+        .product {
+            width: grid-calc(1, 2);
+            flex-basis: width("6/12");
+        }
+
+        @include breakpoint("large") {
+            width: auto;
+            padding: 0;
+            float: none;
+
+            // scss-lint:disable SelectorDepth, NestingDepth
+            .product {
+                width: grid-calc(1, 3);
+                flex-basis: width("4/12");
+            }
+        }
+    }
+}
+
+.mode-4 .productGrid,
+.productGrid--maxCol4 {
+    .no-csscolumns & {
+        // scss-lint:disable SelectorDepth, NestingDepth
+        .product {
+            flex-basis: grid-calc(1, 2);
+
+            @include breakpoint("large") {
+                flex-basis: grid-calc(1, 4);
+            }
+        }
+    }
+
+    .csscolumns & {
+        .product {
+            flex-basis: grid-calc(1, 2);
+        }
+
+        @include breakpoint("large") {
+            width: auto;
+            padding: 0;
+            float: none;
+
+            // scss-lint:disable SelectorDepth, NestingDepth
+            .product {
+                flex-basis: grid-calc(1, 4);
+            }
+        }
+    }
+}
+
+.mode-5 .productGrid,
+.productGrid--maxCol5 {
+    .no-csscolumns & {
+        // scss-lint:disable SelectorDepth, NestingDepth
+        .product {
+            flex-basis: grid-calc(1, 2);
+
+            @include breakpoint("large") {
+                width: grid-calc(1, 5);
+                flex-basis: 20%;
+            }
+        }
+    }
+
+    .csscolumns & {
+        .product {
+            flex-basis: grid-calc(1, 2);
+        }
+
+        @include breakpoint("large") {
+            width: auto;
+            padding: 0;
+            float: none;
+
+            // scss-lint:disable SelectorDepth, NestingDepth
+            .product {
+                width: grid-calc(1, 5);
+                flex-basis: 20%;
+            }
+        }
+    }
+}
+
+.mode-6 .productGrid,
+.productGrid--maxCol6 {
+    .no-csscolumns & {
+        // scss-lint:disable SelectorDepth, NestingDepth
+        .product {
+            flex-basis: grid-calc(1, 2);
+            @include breakpoint("large") {
+                flex-basis: grid-calc(1, 6);
+            }
+        }
+    }
+
+    .csscolumns & {
+        .product {
+            flex-basis: grid-calc(1, 2);
+        }
+        @include breakpoint("large") {
+            padding: 0;
+            width: auto;
+            float: none;
+
+            // scss-lint:disable SelectorDepth, NestingDepth
+            .product {
+                flex-basis: grid-calc(1, 6);
+            }
+        }
+    }
+}
+
+.mode-8 .productGrid,
+.productGrid--maxCol8 {
+    .no-csscolumns & {
+        // scss-lint:disable SelectorDepth, NestingDepth
+        .product {
+            @include breakpoint("medium") {
+                flex-basis: grid-calc(1, 8);
+            }
+        }
+    }
+
+    .csscolumns & {
+        @include breakpoint("medium") {
+            padding: 0;
+            width: auto;
+            float: none;
+
+            // scss-lint:disable SelectorDepth, NestingDepth
+            .product {
+                flex-basis: grid-calc(1, 8);
+            }
+        }
+    }
+}
+
+.mode-1 .productGrid {
+    .no-csscolumns & {
+        // scss-lint:disable SelectorDepth, NestingDepth
+        .product {
+            @media (max-width: 500px) {
+                flex-basis: grid-calc(1, 1);
+            }
+        }
+    }
+
+    .csscolumns & {
+        @media (max-width: 500px) {
+            padding: 0;
+            width: auto;
+            float: none;
+
+            // scss-lint:disable SelectorDepth, NestingDepth
+            .product {
+                flex-basis: grid-calc(1, 1);
+            }
+        }
+    }
+
+    .card-buttons .card-figcaption-button {
+        max-width: none;
+    }
+}
+
+.mode-2 .productGrid {
+    .no-csscolumns & {
+        // scss-lint:disable SelectorDepth, NestingDepth
+        .product {
+            @media (max-width: 500px) {
+                flex-basis: grid-calc(1, 2);
+            }
+        }
+    }
+
+    .csscolumns & {
+        @media (max-width: 500px) {
+            padding: 0;
+            width: auto;
+            float: none;
+
+            // scss-lint:disable SelectorDepth, NestingDepth
+            .product {
+                flex-basis: grid-calc(1, 2);
+            }
+        }
+    }
+}
+
+.mode-4 .productGrid {
+    .no-csscolumns & {
+        // scss-lint:disable SelectorDepth, NestingDepth
+        .product {
+            @media (max-width: 800px) and (min-width: 551px) {
+                flex-basis: grid-calc(1, 4);
+            }
+        }
+    }
+
+    .csscolumns & {
+        @media (max-width: 800px) and (min-width: 551px) {
+            float: none;
+            width: 100%;
+            padding: 0 spacing("half");
+        }
+    }
+}
+
+.mode-5 .productGrid {
+    .no-csscolumns & {
+        // scss-lint:disable SelectorDepth, NestingDepth
+        .product {
+            @media (max-width: 800px) and (min-width: 551px) {
+                flex-basis: grid-calc(1, 5);
+            }
+        }
+    }
+
+    .csscolumns & {
+        @media (max-width: 800px) and (min-width: 551px) {
+            float: none;
+            width: 100%;
+            padding: 0 spacing("half");
+        }
+    }
+}
+
+.card-figure {
+    .sale-flag-side {
+        + .sale-flag-side {
+            @media (max-width: (screenSize("medium") - 1px)) {
+                margin-top: 0;
+            }
+        }
+    }
+}
+
+// papathemes-beautify deleted .mode-1
+.productList.productGrid {
+    flex-direction: column;
+
+    .product {
+        width: 100%;
+        overflow: visible;
+
+        .card._border {
+            display: flex;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .card-title > a {
+            color: stencilColor("navPages-subMenu-color");
+
+            &:hover {
+                color: stencilColor("navPages-subMenu-color-hover");
+            }
+        }
+
+        .card._border {
+            background-color: transparent;
+            border: unset;
+            box-shadow: unset;
+            width: 100%;
+            margin: 0;
+            padding-bottom: 0;
+        }
+
+        .card-body .card-text,
+        .card-body .price {
+            color: stencilColor("navPages-subMenu-color");
+        }
+
+        .card-body {
+            padding-left: spacing("half");
+            padding-top: 0;
+            width: calc(65% - 12px);
+            grid-template-rows: minmax(min-content, max-content) minmax(min-content, max-content) minmax(min-content, max-content) minmax(min-content, max-content);
+        }
+
+        .card-figure {
+            border-radius: $global-radius;
+            width: 35%;
+            flex-shrink: 0;
+            height: 100%;
+        }
+
+        .sale-flag-side._percent {
+            margin: 0;
+            padding: spacing("third");
+        }
+
+        .card-footer {
+            display: none;
+        }
+
+        .card-image {
+            border-radius: $global-radius;
+        }
+
+        .card-figcaption-button.quickview {
+            display: none;
+        }
+    }
+
+    .product + .product {
+        margin-top: spacing("half");
+    }
+
+    &::-webkit-scrollbar {
+        width: 0.375rem;
+    }
+
+    &::-webkit-scrollbar-track {
+        box-shadow: inset 0 0 3px rgba(transparent, 0.3);
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: rgba(stencilColor("navPages-subMenu-color"), 0.3);
+        border-radius: $container-border-radius;
+    }
+}
+
+.mode-6 {
+    @media (max-width: 1375px) and (min-width: (screenSize("medium") - 1px)) {
+        .card-buttons .card-figcaption-button,
+        .productGrid .card-buttons .card-figcaption-button._compare2 {
+            font-size: beautify__fontSize(10);
+        }
+    }
+
+    .sale-flag-side {
+        margin: 0;
+        padding: spacing("quarter") spacing("third");
+        font-size: beautify__fontSize(10);
+
+        + .sale-flag-side {
+            margin-top: 0;
+            top: spacing("base") * 2;
+
+            + .sale-flag-side {
+                top: spacing("base") * 4;
+
+                + .sale-flag-side {
+                    top: spacing("base") * 5.8;
+                }
+            }
+        }
+    }
+}
+
+.mode-bo {
+    .product-listing-form:has(.card._border) {
+        @media (max-width: (screenSize("medium") - 1px)) {
+            margin-top: spacing("half") * 0.75;
+        }
+    }
+}

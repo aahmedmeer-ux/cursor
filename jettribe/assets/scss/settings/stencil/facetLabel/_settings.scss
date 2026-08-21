@@ -1,0 +1,11 @@
+// =============================================================================
+// FACET LABEL (Settings)
+// =============================================================================
+
+$facetLabel-color:                          $buttonStyle-primary-color; // papathemes-inhealth added
+$facetLabel-backgroundColor:                stencilColor("container-fill-dark"); // papathemes-inhealth edited
+$facetLabel-border:                         1px solid stencilColor("container-fill-dark"); // papathemes-inhealth added
+$facetLabel-borderRadius:                   4px;
+$facetLabel-removeIcon-width:               14px;
+$facetLabel-removeIcon-height:              14px;
+$facetLabel-removeIcon-color:               $buttonStyle-primary-color; // papathemes-inhealth edited

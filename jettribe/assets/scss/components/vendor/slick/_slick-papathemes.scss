@@ -1,0 +1,53 @@
+// papathemes-beautify
+.slick-slider {
+    margin: 0;
+}
+
+.slick-slide .card-image {
+    @include object-fit(contain);
+}
+
+.slick-next {
+    right: 0;
+}
+
+.slick-prev {
+    left: 0;
+}
+
+// papathemes-beautify deleted .slick-dots
+
+.slick-vertical {
+    .slick-prev {
+        left: 50%;
+        top: 0;
+        transform: translateX(-50%);
+
+        &::before {
+            transform: rotate(90deg); // papathemes-inhealth
+        }
+    }
+
+    .slick-next {
+        left: 50%;
+        top: auto;
+        bottom: 0;
+        transform: translateX(-50%);
+
+        &::before {
+            transform: rotate(90deg); // papathemes-inhealth
+        }
+    }
+
+    .slick-prev,
+    .slick-next {
+        width: remCalc(58px);
+        height: remCalc(40px);
+        margin-top: 0;
+
+        &::before {
+            width: remCalc(40px);
+            height: remCalc(21px);
+        }
+    }
+}

@@ -1,0 +1,177 @@
+<div class="previewCart" data-cart-quantity="{{cart.quantity}}" data-cart-price="{{cart.grand_total.value}}" data-cart-formatted="{{cart.grand_total.formatted}}" data-cart-coupons="{{pluck cart.coupons 'code'}}">
+    <div class="loadingOverlay"></div>
+    <div class="_header">
+        <a href="#" class="_close is-open" data-toggle="cart-preview-dropdown"><svg class="icon"><use href="#icon-close"></use></svg><span class="sr-only">{{lang 'common.close'}}</span></a>
+        {{> components/papathemes/cart-popup/page-title}}
+    </div>
+    <div class="_body">
+        <div data-papathemes-cart-popup-status>
+            {{> components/papathemes/cart-popup/status-messages}}
+        </div>
+        {{#if cart.items.length}}
+            <div data-papathemes-cart-popup-content>
+                {{> components/papathemes/cart-popup/content}}
+            </div>
+            <div class="_cart-totalsWrapper">
+                <div data-papathemes-cart-popup-totals>
+                    {{> components/papathemes/cart-popup/totals}}
+                </div>
+                <div class="_cart-payment-widget">
+                    {{{cart.preview_payment_widget}}}
+                </div>
+                <div class="cart-actions-wrapper">
+                    {{#or customer (unless settings.hide_price_from_guests)}}
+                        {{#if cart.show_primary_checkout_button}}
+                            <div class="cart-actions">
+                                <a href="{{urls.checkout.single_address}}" class="button button--primary">{{lang 'cart.preview.checkout_now'}}</a>
+                                {{#if cart.show_multiple_address_shipping}}
+                                    <a class="button _checkoutMultiple" href="{{urls.checkout.multiple_address}}">
+                                        {{lang 'cart.preview.checkout_multiple'}}
+                                    </a>
+                                {{/if}}
+                            </div>
+                        {{else}}
+                            <div class="cart-actions">
+                                <a class="button" href="{{urls.home}}" title="{{lang 'cart.continue_shopping'}}">{{lang 'cart.continue_shopping'}}</a>
+                            </div>
+                        {{/if}}
+                    {{else}}
+                        <div class="cart-actions">
+                            <a class="button" href="{{urls.home}}" title="{{lang 'cart.continue_shopping'}}">{{lang 'cart.continue_shopping'}}</a>
+                        </div>
+                    {{/or}}
+                </div>
+
+                <div data-cart-additional-checkout-buttons class="cart-additionalCheckoutButtons _themed">
+                    {{> components/cart/additional-checkout-buttons}}
+                </div>
+                <div class="cart-payment">
+                    <h3 class="cart-payment-heading">{{lang 'footer.accepted_payments'}}</h3>
+                    {{> components/common/payment-icons}}
+                </div>
+            </div>
+            <div class="_cartSuggested" data-cart-suggested-products="4">
+                <h3 class="_subheading">{{theme_settings.product_cartsuggested_heading}}</h3>
+                <section class="productGrid"
+                    data-list-name="Cart Suggested Products"
+                >
+                    {{#for 1 4}}
+                        <div class="productCarousel-slide">
+                            {{> components/products/card-placeholder settings=../settings show_rating=../settings.show_product_rating theme_settings=../theme_settings customer=../customer event="list" position=(add @index 1)}}
+                        </div>
+                    {{/for}}
+                </section>
+                <div class="actionGroup">
+                    <a href="#"
+                        class="button button--small button--link loadMore"
+                        style="display: none;">
+                        {{lang 'papathemes.product_cartsuggested.load_more'}}
+                    </a>
+                    <a href="#"
+                        class="button button--small button--link collapse"
+                        style="display: none;">
+                        {{lang 'papathemes.product_cartsuggested.collapse'}}
+                    </a>
+                </div>
+            </div>
+            <div class="_recentlyViewed" data-recently-viewed-products-section>
+                <h3 class="_subheading">{{theme_settings.product_recentviewed_heading}}</h3>
+                <section class="productCarousel blaze-slider"
+                    data-list-name="Recently Viewed Products"
+                    data-blaze-slider='{
+                        "all": {
+                            "enableAutoplay": false,
+                            "autoplayInterval": 7000,
+                            "transitionDuration": 500,
+                            "slidesToShow": 2,
+                            "slidesToScroll": 2,
+                            "slideGap": "0px",
+                            "loop": true
+                        },
+                        "(max-width: 800px)": {
+                            "slideGap": "0px"
+                        }
+                    }'
+                >
+                    <div class="blaze-container">
+                        <div class="blaze-track-container">
+                            <div class="blaze-track">
+                                {{#for 1 2}}
+                                    <div class="productCarousel-slide">
+                                        {{> components/products/card-placeholder settings=../settings show_rating=../settings.show_product_rating theme_settings=../theme_settings customer=../customer event="list" position=(add @index 1)}}
+                                    </div>
+                                {{/for}}
+                            </div>
+                        </div>
+                        <div class="blaze-pagination"></div>
+                    </div>
+                </section>
+            </div>
+        {{else}}
+            {{> components/papathemes/cart-popup/empty }}
+            <div class="_recentlyViewed" data-recently-viewed-products-section>
+                <h3 class="_subheading">{{theme_settings.product_recentviewed_heading}}</h3>
+                <section class="productCarousel blaze-slider"
+                    data-list-name="Recently Viewed Products"
+                    data-blaze-slider='{
+                        "all": {
+                            "enableAutoplay": false,
+                            "autoplayInterval": 7000,
+                            "transitionDuration": 500,
+                            "slidesToShow": 2,
+                            "slidesToScroll": 2,
+                            "slideGap": "0px",
+                            "loop": true
+                        },
+                        "(max-width: 800px)": {
+                            "slideGap": "0px"
+                        }
+                    }'
+                >
+                    <div class="blaze-container">
+                        <div class="blaze-track-container">
+                            <div class="blaze-track">
+                                {{#for 1 2}}
+                                    <div class="productCarousel-slide">
+                                        {{> components/products/card-placeholder settings=../settings show_rating=../settings.show_product_rating theme_settings=../theme_settings customer=../customer event="list" position=(add @index 1)}}
+                                    </div>
+                                {{/for}}
+                            </div>
+                        </div>
+                        <div class="blaze-pagination"></div>
+                    </div>
+                </section>
+            </div>
+        {{/if}}
+    </div>
+    {{#if cart.items.length}}
+        <div class="_footer">
+            <div class="previewCartAction">
+                {{#if cart.show_primary_checkout_button}}
+                    <div class="previewCartAction-checkout">
+                        <a href="{{urls.checkout.single_address}}" class="button button--primary" data-primary-checkout-now-action>
+                            {{lang 'cart.preview.checkout_now'}}
+                            <span class="_wrapper-quantity">
+                                {{#if cart.quantity '>' 0}}
+                                    {{{lang 'cart.preview.quantity_button' quantity=cart.quantity}}}
+                                {{/if}}
+                                -
+                                {{#or customer (unless settings.hide_price_from_guests)}}
+                                    <span class="_price">{{cart.grand_total.formatted}}</span>
+                                {{/or}}
+                            </span>
+                        </a>
+                    </div>
+                {{/if}}
+
+                {{#if cart.show_multiple_address_shipping}}
+                    <div class="previewCartAction-checkoutMultiple">
+                        <a href="{{urls.checkout.multiple_address}}">
+                            {{lang 'cart.preview.checkout_multiple'}}
+                        </a>
+                    </div>
+                {{/if}}
+            </div>
+        </div>
+    {{/if}}
+</div>

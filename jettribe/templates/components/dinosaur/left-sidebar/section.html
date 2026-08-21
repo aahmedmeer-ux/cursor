@@ -1,0 +1,37 @@
+{{#if sb '===' 'popular_products'}}
+    {{#if products.top_sellers}}
+        <div class="dinosaur-left-sidebar">
+            {{> components/dinosaur/products/top
+                products=(limit products.top_sellers theme_settings.product_top_count)
+                hide_heading=false
+                show_categories=true
+                region_name="home_left_sidebar_above_best_sellers"
+                show_badges=true}}
+            {{{region name="home_left_sidebar_below_best_sellers"}}}
+        </div>
+    {{/if}}
+{{else if sb '===' 'new_products'}}
+    {{#if products.new}}
+        <div class="dinosaur-left-sidebar">
+            {{> components/dinosaur/products/new
+                products=(limit products.new theme_settings.product_new_count)
+                hide_heading=false
+                show_categories=true
+                region_name="home_left_sidebar_above_new_products"
+                show_badges=true}}
+            {{{region name="home_left_sidebar_below_new_products"}}}
+        </div>
+    {{/if}}
+{{else if sb '===' 'featured_products'}}
+    {{#if products.featured}}
+        <div class="dinosaur-left-sidebar">
+            {{> components/dinosaur/products/featured
+                products=(limit products.featured theme_settings.product_featured_count)
+                hide_heading=false
+                show_categories=true
+                region_name="home_left_sidebar_above_featured_products"
+                show_badges=true}}
+            {{{region name="home_left_sidebar_below_featured_products"}}}
+        </div>
+    {{/if}}
+{{/if}}

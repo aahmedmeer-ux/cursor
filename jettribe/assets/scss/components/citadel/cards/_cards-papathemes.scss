@@ -1,0 +1,599 @@
+.card-body {
+    text-align: stencilString("card-textAlign");
+
+    .card-text--colorswatches {
+        max-width: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+
+    @if (stencilString("card-textAlign") == "center") {
+        justify-items: center;
+
+        .productSwatches-attributes {
+            align-items: center;
+        }
+
+        .productSwatches-swatches {
+            justify-content: center;
+        }
+    }
+
+
+    .price {
+        font-weight: $fontWeight-normal; // papathemes-kitchenary modified
+    }
+
+    .price-section {
+        display: inline-block;
+
+        + .price-section {
+            margin-left: spacing("quarter");
+        }
+    }
+
+    .rrp-price--withTax,
+    .rrp-price--withoutTax {
+        + .price-section {
+            margin-left: 0;
+        }
+    }
+
+    .card-text--summary {
+        color: $color-textBase;
+        // margin-top: spacing("half"); // papathemes-beautify commeted
+		
+        @if $theme-style == "compact" {
+            font-size: fontSize("smallest");
+        }
+        @else if $theme-style == "modern" {
+            font-size: fontSize("smaller");
+        }
+    }
+
+    > :last-child {
+        margin-bottom: spacing("base") * 1.25;
+
+        @media (max-width: (screenSize("medium") - 1px)) {
+            margin-bottom: spacing("half") * 1.25;
+        }
+    }
+
+    .card-actions {
+        display: none;
+        gap: spacing("third") * 0.625;
+
+        ._qtyAdd {
+            display: flex;
+
+            .form-field--increments {
+                margin: 0;
+                @include square(40);
+                border: 2px solid stencilColor("button--primary-backgroundColor");
+                border-radius: $button-radius 0 0 $button-radius;
+                background: $color-secondary;
+
+                .form-label {
+                    display: none;
+                }
+
+                .form-increment {
+                    .button {
+                        display: none;
+                    }
+
+                    .form-input--incrementTotal {
+                        @include square(36);
+                        font-weight: fontWeight("bold");
+                    }
+                }
+            }
+
+            .card-figcaption-button {
+                margin: 0;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: fontWeight("bold");
+                background: stencilColor("button--primary-backgroundColor");
+                height: spacing("base") * 2.5;
+
+                &:not(:only-child) {
+                    border-top-left-radius: 0;
+                    border-bottom-left-radius: 0;
+                }
+
+                span {
+                    padding: 0 spacing("single");
+                    color: stencilColor("button--primary-color");
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                }
+
+                i {
+                    display: none;
+
+                    .icon {
+                        margin: 0;
+                        @include square(20);
+                        fill: stencilColor("button--primary-color");
+                    }
+                }
+            }
+
+            &:hover {
+                .form-field--increments {
+                    border-color: stencilColor("button--primary-backgroundColorHover");
+                }
+
+                .card-figcaption-button {
+                    background: stencilColor("button--primary-backgroundColorHover");
+
+                    span {
+                        color: stencilColor("button--primary-colorHover");
+                    }
+
+                    .icon {
+                        fill: stencilColor("button--primary-colorHover");
+                    }
+                }
+            }
+        }
+
+        ._quickViewAndCompare {
+            display: flex;
+            gap: spacing("third") * 0.625;
+
+            .card-figcaption-button {
+                margin: 0;
+                padding: 0;
+                @include square(40);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: $card-figcaption-button-background;
+
+                .icon {
+                    margin: 0;
+                    @include square(20);
+                    fill: $card-figcaption-button-color;
+                }
+
+                &:hover {
+                    background: $card-figcaption-button-backgroundHover;
+
+                    .icon {
+                        fill: $card-figcaption-button-colorHover;
+                    }
+                }
+            }
+        }
+
+        &:has(.button--outstock) {
+            width: 100%;
+
+            .button--outstock {
+                height: spacing("base") * 2.5;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 0;
+                width: fit-content;
+                margin: 0;
+                background-color: stencilColor("button--disabled-backgroundColor");
+                color: stencilColor("button--disabled-color");
+
+                span {
+                    white-space: nowrap;
+                    padding: 0 spacing("single");
+                }
+            }
+        }
+    }
+}
+
+.card-figcaption-body {
+    display: inline;
+    transform: none;
+    position: static;
+}
+
+.card {
+    overflow: hidden;
+    margin-bottom: spacing("half");
+
+    .card-figure {
+        position: relative;
+
+        > [href]:focus-visible {
+            outline-offset: 0 !important;
+        }
+
+        .card-figure--button {
+            position: absolute;
+            width: 100%;
+            display: flex;
+            gap: spacing("third");
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+            bottom: remCalc(10);
+
+            ._qtyAdd,
+            .button--outstock,
+            ._quickViewAndCompare .card-figcaption-button {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+
+            @media (max-width: (screenSize("medium") - 1px)) {
+                display: none;
+            }
+
+            .button--icon {
+                display: none;
+            }
+
+            ._quickViewAndCompare {
+                display: flex;
+                align-items: center;
+                gap: spacing("third");
+
+                .card-figcaption-button {
+                    margin: 0;
+                    background-color: $container-fill-base;
+                    box-shadow: 0 4px 4px rgba(color("blacks"), 0.25);
+                }
+            }
+
+            .card-figcaption-button {
+                @include square(40);
+                padding: spacing("third");
+                border-radius: $container-border-radius;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+                color: stencilColor("button--white-color");
+                background-color: $container-fill-base;
+                border-radius: $button-radius;
+
+                i {
+                    pointer-events: none;
+                }
+
+                .icon {
+                    @include square(24);
+                    margin: 0;
+                    fill: $card-figcaption-button-color;
+                }
+
+                &:hover,
+                &:active {
+                    background-color: $card-figcaption-button-backgroundHover;
+
+                    .icon {
+                        fill: $card-figcaption-button-colorHover;
+                    }
+                }
+            }
+
+            .form-field {
+                margin: 0;
+
+                .form-increment {
+                    border-radius: $container-border-radius;
+                    overflow: visible;
+
+                    .form-input--incrementTotal {
+                        @include square(40);
+                        border: 0;
+                        background: $container-fill-base;
+                        font-weight: 700;
+                        color: $buttonStyle-primary-backgroundColor;
+                    }
+                }
+            }
+
+            ._qtyAdd {
+                box-shadow: 0 4px 4px rgba(color("blacks"), 0.25);
+                display: flex;
+                border-radius: $button-radius;
+                background: $container-fill-base;
+
+                .form-field--increments {
+                    @include square(40);
+                    box-sizing: border-box;
+                    border: 2px solid $container-fill-base;
+                    border-radius: $button-radius 0 0 $button-radius;
+                    overflow: hidden;
+
+                    .form-input--incrementTotal {
+                        @include square(36);
+                    }
+                }
+
+                .card-figcaption-button {
+                    background-color: $container-fill-base;
+                }
+
+                &:has(.form-field--increments) {
+                    .card-figcaption-button {
+                        box-shadow: unset;
+                        border-radius: 0 $button-radius $button-radius 0;
+
+                        span {
+                            display: none;
+                        }
+                    }
+                }
+
+                &:hover {
+                    background: $card-figcaption-button-backgroundHover;
+
+                    .form-field--increments {
+                        border-color: $card-figcaption-button-backgroundHover;
+                    }
+
+                    .card-figcaption-button {
+                        background: $card-figcaption-button-backgroundHover !important;
+
+                        span {
+                            color: $card-figcaption-button-colorHover;
+                        }
+
+                        .icon {
+                            fill: $card-figcaption-button-colorHover;
+                        }
+                    }
+                }
+            }
+
+            .button--outstock {
+                text-wrap: nowrap;
+                pointer-events: none;
+                font-size: $fontSize-smaller;
+                align-content: center;
+                background-color: stencilColor("button--disabled-backgroundColor");
+                color: stencilColor("button--disabled-color");
+
+                @include breakpoint("large") {
+                    width: fit-content;
+                }
+
+                @media (max-width: (screenSize("large") - 1px)) {
+                    flex: 1;
+                    width: 0;
+                }
+
+                span {
+                    padding: 0 spacing("half");
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                }
+            }
+
+            &:has(.button--outstock) {
+                ._qtyAdd {
+                    display: none;
+                }
+            }
+        }
+    }
+
+    &:has(.card-figure--button) {
+        &:hover {
+            .card-figure {
+                ._qtyAdd,
+                .button--outstock,
+                ._quickViewAndCompare .card-figcaption-button {
+                    opacity: 1;
+                    transform: translateY(0);
+                    transition: transform 0.3s ease-in, opacity 1s ease-out;
+                }
+
+                ._qtyAdd,
+                .button--outstock {
+                    transition-delay: 0s !important;
+                }
+
+                .compare {
+                    transition-delay: 0.1s !important;
+                }
+
+                .quickview {
+                    transition-delay: 0.2s !important;
+                }
+            }
+        }
+    }
+
+    &:has(.card-figure--button._focus) {
+        .card-figcaption-button,
+        ._qtyAdd {
+            transform: translateY(0) !important;
+            opacity: 1 !important;
+        }
+    }
+
+    &._hideBtn {
+        @include breakpoint("medium") {
+            .card-footer {
+                display: none;
+            }
+        }
+    }
+
+    .card-footer {
+        width: 100%;
+
+        .card-buttons {
+            align-items: center;
+            width: 100%;
+
+            @if (stencilString("card-textAlign") == "left") {
+                justify-content: flex-start;
+            } @else {
+                justify-content: center;
+            }
+
+            .button--outstock {
+                flex: 1;
+                width: 0;
+                pointer-events: none;
+            }
+
+            @media (max-width: (screenSize("medium")) - 1px) {
+                &:has(.button--outstock) {
+                    ._quickViewAndCompare {
+                        display: none;
+                    }
+                }
+            }
+        }
+
+        ._quickViewAndCompare {
+            .card-figcaption-button {
+                margin: 0 !important;
+            }
+        }
+
+        ._qtyAdd {
+            .form-input--incrementTotal {
+                color: $buttonStyle-primary-backgroundColor;
+            }
+        }
+    }
+
+    &:not(._border) {
+        .card-body {
+            padding-bottom: $spacing-third;
+        }
+
+        .card-figure {
+            border-top-left-radius: $container-border-radius;
+            border-top-right-radius: $container-border-radius;
+        }
+
+        &._hideBtn {
+            .card-body {
+                @include breakpoint("medium") {
+                    border-bottom-left-radius: $container-border-radius;
+                    border-bottom-right-radius: $container-border-radius;
+                }
+            }
+        }
+
+        .card-footer {
+            border-bottom-left-radius: $container-border-radius;
+            border-bottom-right-radius: $container-border-radius;
+        }
+
+        .productSwatches-swatches-item--rectangle {
+            ~ button {
+                margin-left: 3px;
+            }
+        }
+
+        .productSwatches-swatches {
+            flex-wrap: wrap;
+            row-gap: spacing("third") * 1.25;
+        }
+    }
+
+    &._border {
+        .productSwatches-attributes {
+            display: flex;
+            flex-direction: row;
+            -webkit-overflow-scrolling: touch;
+            gap: 0 $spacing-third;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+
+            .productSwatches-swatches {
+                overflow: unset;
+                flex-wrap: nowrap;
+                justify-content: flex-start;
+
+                .productSwatches-swatches-more,
+                .productSwatches-swatches-more {
+                    margin-left: 0;
+                }
+
+                .productSwatches-swatches-item--swatch {
+                    @include square(20);
+
+                    .form-option-variant--color {
+                        width: 100%;
+                        height: 100%;
+                    }
+                }
+
+                .productSwatches-swatches-item--rectangle {
+                    position: relative;
+                    align-items: center;
+                    font-size: $fontSize-smallest;
+                    font-weight: $fontWeight-bold;
+                    background-color: unset;
+                    padding: 0 $spacing-eighth;
+                    height: fit-content;
+                    width: fit-content;
+                    min-width: unset;
+
+                    &::before {
+                        content: "/";
+                        color: $color-textSecondary;
+                        position: absolute;
+                        left: -5px;
+                        color: rgba($color-textSecondary, 0.5);
+                    }
+
+                    &:first-child {
+                        &::before {
+                            display: none;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+.card-image ~ .card-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    height: 100%;
+    background-color: container("fill");
+}
+
+.card:hover,
+.card:focus,
+.card:active {
+    .card-image ~ .card-image {
+        opacity: 1;
+    }
+}
+
+// papathemes-beautify deleted .card-figcaption-button.button--primary
+
+// papathemes-beatyfeature deleted .card-aside
+
+.card-text--summary {
+    display: none;
+}
+
+.card-title {
+    @if $theme-style == "compact" {
+        font-weight: inherit;
+    }
+}

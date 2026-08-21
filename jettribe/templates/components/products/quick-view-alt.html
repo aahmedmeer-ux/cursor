@@ -1,0 +1,157 @@
+<div class="modal-body quickView quickView--alt productView-scope">
+    <div class="productView" {{#if settings.data_tag_enabled}} data-event-type="product" data-entity-id="{{product.id}}" data-name="{{product.title}}" data-product-category="{{#each product.category}}{{#if @last}}{{this}}{{else}}{{this}}, {{/if}}{{/each}}" data-product-brand="{{product.brand.name}}" data-product-price="{{#or customer (unless settings.hide_price_from_guests)}}{{#if product.price.with_tax}}{{product.price.with_tax.value}}{{else}}{{product.price.without_tax.value}}{{/if}}{{/or}}" data-product-variant="single-product-option"{{/if}}>
+        <div class="productView-detailsWrapper">
+            <div data-also-bought-parent-scope class="productView-beforeAlsoBought">
+                <div class="productView-upper">
+                    <section class="productView-images" data-image-gallery>
+                        {{#if product.images}}
+                            <div class="productView-imageCarousel-main" id="productView-imageCarousel-main-{{product.id}}" data-image-gallery-main>
+                                <div class="productView-imageCarousel-main-item slick-current">
+                                    <a href="{{getImageSrcset product.main_image 'zoom_size' (cdn theme_settings.default_image_product) 1x=theme_settings.zoom_size}}&amp;imbypass=on"
+                                        data-original-zoom="{{getImageSrcset product.main_image 'zoom_size' (cdn theme_settings.default_image_product) 1x=theme_settings.zoom_size}}&amp;imbypass=on"
+                                        data-original-img="{{getImageSrcset product.main_image 'product_size' (cdn theme_settings.default_image_product) 1x=theme_settings.product_size}}"
+                                        data-original-srcset="{{getImageSrcset product.main_image use_default_sizes=true }}">
+                                        {{> components/common/responsive-img
+                                            image=product.main_image
+                                            lazyload=theme_settings.lazyload_mode
+                                            default_image=theme_settings.default_image_product
+                                        }}
+                                    </a>
+                                </div>
+                            </div>
+                        {{else}}
+                            <div class="productView-imageCarousel-main" id="productView-imageCarousel-main-{{product.id}}" data-image-gallery-main>
+                                <div class="productView-imageCarousel-main-item slick-current">
+                                    {{> components/common/responsive-img
+                                        image=product.main_image
+                                        fallback_size=theme_settings.product_size
+                                        lazyload=theme_settings.lazyload_mode
+                                        default_image=theme_settings.default_image_product
+                                    }}
+                                </div>
+                            </div>
+                        {{/if}}
+                    </section>
+                    <div class="productView-product u-hideDesktop">
+                        <h1 class="productView-title">{{product.title}}</h1>
+                        <div class="productView-price">
+                            {{#if product.call_for_price}}
+                                <span class="price--call">{{product.call_for_price}}</span>
+                            {{else}}
+                                {{#or customer (unless settings.hide_price_from_guests)}}
+                                    {{> components/products/price price=product.price}}
+                                    <div class="productView-priceSave">
+                                        {{#if page_type '===' 'product'}}
+                                            {{#and product.price.price_range (if theme_settings.price_ranges '==' true)}}
+                                                <div class="price-section price-section--saving price" {{#unless product.price.saved}}style="display: none"{{/unless}}>
+                                                    <span class="price">{{lang 'products.you_save_opening_text'}}</span>
+                                                    <span data-product-price-saved class="price price--saving">
+                                                        {{product.price.saved.formatted}}
+                                                    </span>
+                                                </div>
+                                            {{else}}
+                                                <div class="price-section price-section--saving" {{#unless product.price.saved}}style="display: none"{{/unless}}>
+                                                    <span class="price">{{lang 'products.you_save_opening_text'}}</span>
+                                                    <span data-product-price-saved class="price price--saving">{{product.price.saved.formatted}} ({{#if product.price.rrp_without_tax}}{{round (multiply (subtract 1 (divide product.price.without_tax.value product.price.rrp_without_tax.value)) 100)}}%{{else}}{{round (multiply (subtract 1 (divide product.price.with_tax.value product.price.rrp_with_tax.value)) 100)}}%{{/if}})</span>
+                                                </div>
+                                            {{/and}}
+                                        {{/if}}
+                                        <div class="productView-price-below-content">
+                                            {{{region name="price_below_content"}}}
+                                        </div>
+                                        {{{region name="price_below_content_1"}}}
+                                        {{{region name="price_below_content--global"}}}
+                                    </div>
+                                {{else}}
+                                    {{> components/common/login-for-pricing}}
+                                {{/or}}
+                            {{/if}}
+                        </div>
+                        <ul class="productView-info">
+                            <li>
+                                <span class="productView-info-name productView-info-name--sku sku-label"{{#unless product.sku}} style="display: none;"{{/unless}}>{{lang 'products.sku'}}</span>
+                                <span class="productView-info-value productView-info-value--sku" data-product-sku>{{product.sku}}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <section class="productView-details">
+                    <div class="productView-product u-hideMobile u-hideTablet">
+                        <h1 class="productView-title">{{product.title}}</h1>
+                        <div class="productView-price">
+                            {{#if product.call_for_price}}
+                                <span class="price--call">{{product.call_for_price}}</span>
+                            {{else}}
+                                {{#or customer (unless settings.hide_price_from_guests)}}
+                                    {{> components/products/price price=product.price}}
+                                    <div class="productView-priceSave">
+                                        {{#if page_type '===' 'product'}}
+                                            {{#and product.price.price_range (if theme_settings.price_ranges '==' true)}}
+                                                <div class="price-section price-section--saving price" style="display: none;">
+                                                    <span class="price">{{lang 'products.you_save_opening_text'}}</span>
+                                                    <span data-product-price-saved class="price price--saving">
+                                                        {{price.saved.formatted}}
+                                                    </span>
+                                                </div>
+                                            {{else}}
+                                                <div class="price-section price-section--saving" style="display: none;">
+                                                    <span class="price">{{lang 'products.you_save_opening_text'}}</span>
+                                                    <span data-product-price-saved class="price price--saving">{{product.price.saved.formatted}} ({{#if product.price.rrp_without_tax}}{{round (multiply (subtract 1 (divide product.price.without_tax.value product.price.rrp_without_tax.value)) 100)}}%{{else}}{{round (multiply (subtract 1 (divide product.price.with_tax.value product.price.rrp_with_tax.value)) 100)}}%{{/if}})</span>
+                                                </div>
+                                            {{/and}}
+                                        {{/if}}
+                                        <div class="productView-price-below-content">
+                                            {{{region name="price_below_content"}}}
+                                        </div>
+                                        {{{region name="price_below_content_1"}}}
+                                        {{{region name="price_below_content--global"}}}
+                                    </div>
+                                {{else}}
+                                    {{> components/common/login-for-pricing}}
+                                {{/or}}
+                            {{/if}}
+                        </div>
+                        <ul class="productView-info">
+                            <li>
+                                <span class="productView-info-name productView-info-name--sku sku-label"{{#unless product.sku}} style="display: none;"{{/unless}}>{{lang 'products.sku'}}</span>
+                                <span class="productView-info-value productView-info-value--sku" data-product-sku>{{product.sku}}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="productView-options">
+                        {{#if product.release_date }}
+                            <p>{{product.release_date}}</p>
+                        {{/if}}
+
+                        <form class="form form--addToCart" method="post" action="{{product.cart_url}}" enctype="multipart/form-data" data-cart-item-add>
+                            <input type="hidden" name="action" value="add">
+                            <input type="hidden" name="product_id" value="{{product.id}}"/>
+
+                            <div class="papathemes-productView-optionsGrid">
+                                <div data-product-option-change>
+                                    {{#each product.customizations}}
+                                        {{{dynamicComponent 'components/products/customizations'}}}
+                                    {{/each}}
+                                    {{#each product.options}}
+                                        {{{dynamicComponent 'components/products/options'}}}
+                                        {{{region name=(concat "product_below_option_" (dashcase display_name))}}}
+                                                {{{region name=(concat (concat "product_below_option_" (dashcase display_name)) "--global")}}}
+                                    {{/each}}
+                                </div>
+                            </div>
+                            <div class="alertBox--error alertBox productAttributes-message" style="display:none">
+                                <div class="alertBox-column alertBox-icon">
+                                    <icon glyph="ic-success" class="icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path></svg></icon>
+                                </div>
+                                <p class="alertBox-column alertBox-message"></p>
+                            </div>
+                            <div class="productView-qtyAddWrapper">
+                                {{> components/products/product-view-actions}}
+                            </div>
+                        </form>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>

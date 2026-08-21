@@ -1,0 +1,47 @@
+{{!--
+    Params:
+    - shouldAssignVar: boolean
+    - price: object
+    - theme_settings: object
+--}}
+{{#if shouldAssignVar}}
+    {{#if theme_settings.show_rrp}}
+        {{#if price.rrp_without_tax}}
+            {{assignVar '_salePercent' (round (multiply (subtract 1 (divide price.without_tax.value price.rrp_without_tax.value)) 100))}}
+        {{else if price.rrp_with_tax}}
+            {{assignVar '_salePercent' (round (multiply (subtract 1 (divide price.with_tax.value price.rrp_with_tax.value)) 100))}}
+        {{else if price.non_sale_price_without_tax}}
+            {{assignVar '_salePercent' (round (multiply (subtract 1 (divide price.without_tax.value price.non_sale_price_without_tax.value)) 100))}}
+        {{else if price.non_sale_price_with_tax}}
+            {{assignVar '_salePercent' (round (multiply (subtract 1 (divide price.with_tax.value price.non_sale_price_with_tax.value)) 100))}}
+        {{else}}
+            {{assignVar '_salePercent' 0}}
+        {{/if}}
+    {{else}}
+        {{#if price.non_sale_price_without_tax}}
+            {{assignVar '_salePercent' (round (multiply (subtract 1 (divide price.without_tax.value price.non_sale_price_without_tax.value)) 100))}}
+        {{else if price.non_sale_price_without_tax}}
+            {{assignVar '_salePercent' (round (multiply (subtract 1 (divide price.with_tax.value price.non_sale_price_with_tax.value)) 100))}}
+        {{else}}
+            {{assignVar '_salePercent' 0}}
+        {{/if}}
+    {{/if}}
+{{else}}
+    {{#if theme_settings.show_rrp}}
+        {{#if price.rrp_without_tax}}
+            <span>{{round (multiply (subtract 1 (divide price.without_tax.value price.rrp_without_tax.value)) 100)}}%</span>
+        {{else if price.rrp_with_tax}}
+            <span>{{round (multiply (subtract 1 (divide price.with_tax.value price.rrp_with_tax.value)) 100)}}%</span>
+        {{else if price.non_sale_price_without_tax}}
+            <span>{{round (multiply (subtract 1 (divide price.without_tax.value price.non_sale_price_without_tax.value)) 100)}}%</span>
+        {{else if price.non_sale_price_with_tax}}
+            <span>{{round (multiply (subtract 1 (divide price.with_tax.value price.non_sale_price_with_tax.value)) 100)}}%</span>
+        {{/if}}
+    {{else}}
+        {{#if price.non_sale_price_without_tax}}
+            <span>{{round (multiply (subtract 1 (divide price.without_tax.value price.non_sale_price_without_tax.value)) 100)}}%</span>
+        {{else if price.non_sale_price_with_tax}}
+            <span>{{round (multiply (subtract 1 (divide price.with_tax.value price.non_sale_price_with_tax.value)) 100)}}%</span>
+        {{/if}}
+    {{/if}}
+{{/if}}

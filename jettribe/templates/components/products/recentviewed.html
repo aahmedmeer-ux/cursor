@@ -1,0 +1,49 @@
+<div class="papathemes-recentlyViewed" data-recently-viewed-products-section>
+    {{#unless hide_heading}}
+    <h2 class="page-heading">{{theme_settings.product_recentviewed_heading}}</h2>
+    {{/unless}}
+
+    {{#if region_name}}
+        {{{region name=region_name}}}
+    {{/if}}
+
+    <div class="container">
+        <div class="loading loading-center"></div>
+        <div class="list-products-content {{#if show_more_in_screen_large}}show-more-in-screen-large{{/if}}">
+            {{#if display_type '==' 'carousel'}}
+                {{> components/products/carousel 
+                    is_placeholder=true 
+                    show_more_in_screen_large=show_more_in_screen_large
+                }}
+            {{else}}
+                <ul class="productGrid productGrid--responsiveCol" data-product-type="recently_viewed" {{#if settings.data_tag_enabled}} data-list-name="Recently Viewed Products" {{/if}}>
+                    {{assignVar 'col' theme_settings.product_col}}
+                    {{#if show_more_in_screen_large}}
+                        {{assignVar 'col' 6}}
+                    {{/if}}
+                    {{#for 1 (getVar 'col')}}
+                        <li class="product">
+                            {{> components/products/card-placeholder
+                                show_compare=../show_compare
+                                show_rating=../settings.show_product_rating
+                                settings=../settings
+                                theme_settings=../theme_settings
+                                customer=../customer
+                                event="list" position=(add @index 1)}}
+                        </li>
+                    {{/for}}
+                </ul>
+                <div class="actionGroup">
+                    <a href="#" 
+                        class="button button--small button--outline loadMore">
+                        {{lang 'papathemes.product_cartsuggested.load_more'}}
+                    </a>
+                    <a href="#" 
+                        class="button button--small button--outline collapse">
+                        {{lang 'papathemes.product_cartsuggested.collapse'}}
+                    </a>
+                </div>
+            {{/if}}
+        </div>
+    </div>
+</div>

@@ -1,0 +1,77 @@
+{{#unless (getVar 'isCrawlerAndSpeedTestMode')}}
+<section class="productView-alsoBought u-hiddenVisually" data-also-bought='{
+    {{#or customer (unless settings.hide_price_from_guests)}}
+        "samplePriceWithTax": "{{product.price.with_tax.formatted}}",
+        "samplePriceWithoutTax": "{{product.price.without_tax.formatted}}",
+    {{/or}}
+    "includeTax": {{#if product.price.with_tax}}true{{else}}false{{/if}},
+    "showTaxLabel": {{#and product.price.with_tax product.price.without_tax}}true{{else}}false{{/and}}
+}' id="productView-alsoBought-{{product.id}}">
+    <div class="productView-alsoBought-heading"><h2 class="_heading">{{lang 'also_bought.heading'}}</h2></div>
+    <div class="productView-alsoBought-list-slider">
+        <div class="productView-alsoBought-list productGrid">
+            {{#if theme_settings.alsobought_product '==' 'related'}}
+                {{#each product.related_products}}
+                    <div class="productView-alsoBought-item product" data-product-id="{{id}}">
+                        {{> components/products/card-placeholder}}
+                    </div>
+                    {{inject 'enableAlsoBought' true}}
+                    {{assignVar 'enableAlsoBought' 1}}
+                {{/each}}
+            {{else if theme_settings.alsobought_product '==' 'similar'}}
+                {{#each product.similar_by_views}}
+                    <div class="productView-alsoBought-item product" data-product-id="{{id}}">
+                        {{> components/products/card-placeholder}}
+                    </div>
+                    {{inject 'enableAlsoBought' true}}
+                    {{assignVar 'enableAlsoBought' 1}}
+                {{/each}}
+            {{else}}
+                {{#each product.custom_fields}}
+                    {{#if name '===' '__alsobought'}}
+                        <div class="productView-alsoBought-item product" data-product-id="{{value}}">
+                            {{> components/products/card-placeholder}}
+                        </div>
+                        {{inject 'enableAlsoBought' true}}
+                        {{assignVar 'enableAlsoBought' 1}}
+                    {{/if}}
+                {{/each}}
+            {{/if}}
+        </div>
+    </div>
+    {{!-- Keep hooks for JS; hide secondary ATC bar in CSS --}}
+    {{#if product.can_purchase}}
+        <div class="dinosaur__alsoBought-parentItem u-hiddenVisually" data-product-id="{{product.id}}" data-parent-product aria-hidden="true">
+            {{> components/products/card-placeholder}}
+        </div>
+    {{/if}}
+    {{#or customer (unless settings.hide_price_from_guests)}}
+        <div class="productView-alsoBought-buttons u-hiddenVisually" data-buttons aria-hidden="true">
+            <button type="button" class="button button--primary" data-add-selected>{{lang 'also_bought.add_selected_to_cart'}}</button>
+            <div class="productView-alsoBought-total">
+                {{lang 'bulk_order.total'}}
+                <div class="price-section price-section--withTax" data-total-with-tax>
+                    <span class="price price--withTax" data-price></span>
+                    <abbr title="{{lang 'products.including_tax'}}" data-tax-label>{{lang 'products.price_with_tax' tax_label=product.price.tax_label}}</abbr>
+                </div>
+                <div class="price-section price-section--withoutTax" data-total-without-tax>
+                    <span class="price price--withoutTax" data-price></span>
+                    <abbr title="{{lang 'products.excluding_tax'}}" data-tax-label>{{lang 'products.price_without_tax' tax_label=product.price.tax_label}}</abbr>
+                </div>
+            </div>
+        </div>
+    {{/or}}
+    {{#if (getVar 'enableAlsoBought')}}
+        <script nonce="{{nonce}}">
+            (function() {
+                document.getElementById('productView-alsoBought-{{product.id}}').classList.remove('u-hiddenVisually');
+                document.getElementById('productView-additionalInfo-{{product.id}}').classList.remove('u-hiddenVisually');
+            })();
+        </script>
+    {{/if}}
+</section>
+{{{region name="product_below_alsoBought--global"}}}
+{{{region name="product_below_alsoBought"}}}
+
+{{inject 'enableAlsoBought' true}}
+{{/unless}}

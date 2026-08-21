@@ -1,0 +1,64 @@
+
+// Increase sidebar width for:
+// - NO faceted (Advanced search form)
+.page-sidebar--advancedSearch {
+    @include breakpoint("medium") {
+        width: 25%;
+
+        + .page-content {
+            width: 75%;
+        }
+    }
+
+    .sidebarBlock-heading {
+        position: relative;
+    }
+
+    @media (max-width: (screenSize("medium") - 1px)) {
+        ~ .page-content #product-listing-container._fullwidth .papathemes-productsFilter {
+            margin-left: - spacing("base");
+            margin-right: - spacing("base");
+            padding: 0 spacing("base");
+            border-bottom: 1px solid stencilColor("input-border-color");
+
+            ._filters-toggle {
+                display: flex !important;
+            }
+
+            .actionBar {
+                margin-bottom: spacing("base");
+                flex-wrap: wrap;
+                row-gap: spacing("base");
+            }
+
+            ._actionBar-groupFilter {
+                display: flex;
+                gap: spacing("base");
+                flex-basis: 100%;
+                flex-shrink: 0;
+            }
+
+            .actionBar-section--sort {
+                width: 50%;
+                position: relative;
+            }
+        }
+    }
+}
+
+// papathemes-beautify commented out
+// .supermarket-page--pages-search:not(.has-faceted) .page-content .papathemes-productsFilter {
+//     @include clearfix;
+//     display: block;
+
+//     @if $theme-style == "modern" {
+//         padding: 0 spacing("quarter");
+//     }
+//     @else {
+//         padding: 0 spacing("single");
+//     }
+    
+//     @include breakpoint("medium") {
+//         padding: 0;
+//     }
+// }

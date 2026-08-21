@@ -1,0 +1,9 @@
+{{#if template_file '===' 'pages/home'}}
+<h1 class="header-logo{{#if settings.store_logo.image}} _isImg{{/if}}">
+    {{> components/common/store-logo}}
+</h1>
+{{else}}
+<div class="header-logo{{#if settings.store_logo.image}} _isImg{{/if}}">
+    {{> components/common/store-logo}}
+</div>
+{{/if}}

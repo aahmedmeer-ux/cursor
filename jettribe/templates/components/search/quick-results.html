@@ -1,0 +1,102 @@
+<div class="quickSearchResults-inner">
+    {{{region name="quick_search_top--global"}}}
+    <ul class="tabs" data-tab role="tablist">
+        <li class="tab is-active" role="presentation">
+            <a class="tab-title" href="#quickSearch-tab-products" role="tab" tabindex="0" aria-selected="true" controls="quickSearch-tab-products">Products</a>
+        </li>
+        {{#if category_results.length}}
+            <li class="tab" role="presentation">
+                <a class="tab-title" href="#quickSearch-tab-categories" role="tab" tabindex="0" aria-selected="false" controls="quickSearch-tab-categories">Categories</a>
+            </li>
+        {{/if}}
+        {{#if brand_results.length}}
+            <li class="tab" role="presentation">
+                <a class="tab-title" href="#quickSearch-tab-brands" role="tab" tabindex="0" aria-selected="false" controls="quickSearch-tab-brands">Brands</a>
+            </li>
+        {{/if}}
+    </ul>
+    <div class="container">
+        <div class="tabs-contents">
+            <div role="tabpanel" class="tab-content is-active" id="quickSearch-tab-products">
+                {{#if forms.search.suggested_query}}
+                    <div class="search-suggestion search-suggestion--query">
+                        <div class="alertBox alertBox--info">
+                            <div class="alertBox-column alertBox-icon">
+                                <svg class="icon"><use xlink:href="#icon-suggest-search"></use></svg>
+                            </div>
+                            <div class="alertBox-column alertBox-message">
+                                <p>{{lang 'forms.search.did_you_mean'}} <strong>{{forms.search.suggested_query.query}}</strong></p>
+                                <p><a href="{{forms.search.suggested_query.url}}" class="search-refine">{{lang 'forms.search.refine'}}</a></p>
+                            </div>
+                        </div>
+                    </div>
+    
+                    {{#if result_count '===' 0}}
+                        <div class="search-suggestion search-suggestion--query">
+                            <p>
+                                {{lang 'forms.search.your_search_for'}}
+                                "<strong>{{{sanitize forms.search.query}}}</strong>"
+                                {{lang 'forms.search.no_match'}}
+                            </p>
+                        </div>
+                    {{/if}}
+                {{/if}}
+                {{#if product_results.products}}
+                    {{{region name="quick_search_above_products--global"}}}
+                    <ul class="productGrid productGrid--maxCol4" {{#if settings.data_tag_enabled}} data-list-name="Quick Search Results" {{/if}}>
+    
+                        {{#each product_results.products}}
+                        <li class="product">
+                            {{> components/products/card show_compare=../product_results.show_compare theme_settings=../theme_settings customer=../customer settings=../settings event="list" position=(add @index 1)}}
+                        </li>
+                        {{/each}}
+                    </ul>
+                    <p class="quickSearchResults-more"><a href="{{forms.search.product_url}}" class="button button--primary">{{lang 'search.quick_search.show_all'}}</a></p>
+                {{else}}
+                    <p class="quickSearchMessage">
+                        {{{lang 'search.results.quick_count' count=pagination.product_results.total search_query=(sanitize forms.search.query)}}}
+                    </p>
+                    <div class="search-suggestion search-suggestion--tips">
+                        <h3 class="suggestion-title">{{lang 'forms.search.suggestions.title'}}</h3>
+                        <ul>
+                            <li>{{lang 'forms.search.suggestions.line1'}}</li>
+                            <li>{{lang 'forms.search.suggestions.line2'}}</li>
+                            <li>{{lang 'forms.search.suggestions.line3'}}</li>
+                        </ul>
+                    </div>
+                {{/if}}
+            </div>
+            {{#if category_results.length}}
+                <div role="tabpanel" class="tab-content" id="quickSearch-tab-categories">
+                    <div class="search-suggestion search-suggestion--categories">
+                        <ul class="category-suggestion-list">
+                            {{#each category_results}}
+                            <li class="category-suggestion">
+                                {{#each this}}
+                                    <a href="{{url}}">{{name}}</a>
+                                    {{#unless @last}} <svg class="icon"><use xlink:href="#icon-chevron-right"></use></svg> {{/unless}}
+                                {{/each}}
+                            </li>
+                            {{/each}}
+                        </ul>
+                    </div>
+                </div>
+            {{/if}}
+            {{#if brand_results.length}}
+                <div role="tabpanel" class="tab-content" id="quickSearch-tab-brands">
+                    <div class="search-suggestion search-suggestion--brands">
+                        <ul class="brand-suggestion-list">
+                            {{#each brand_results}}
+                            <li class="brand-suggestion">
+                                <a href="{{url}}">{{name}}</a>
+                            </li>
+                            {{/each}}
+                        </ul>
+                    </div>
+                </div>
+            {{/if}}
+        </div>
+    </div>
+    {{{region name="quick_search_bottom--global"}}}
+</div>
+

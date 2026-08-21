@@ -1,0 +1,216 @@
+body.has-activeModal--newsletter {
+    overflow: auto;
+
+    .modal-background {
+        background-color: transparent;
+        transition: none;
+        visibility: hidden;
+    }
+    @media (max-width: (screenSize("small") - 1px)) {
+        .nl-popup-overlay {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: zIndex("higher");
+            background-color: rgba(stencilColor("color-black"), 0.6);
+        }
+    }
+}
+
+.nl-popup-overlay {
+    display: none;
+}
+
+.modal--newsletter {
+    @include breakpoint("small") {
+        max-width: 700px;
+        width: calc(100% - 60px);
+    }
+
+    @media (max-width: (screenSize("small") - 1px)) {
+        min-width: 320px;
+        width: calc(100% - 30px);
+    }
+
+    @media (max-width: 340px) {
+        min-width: unset;
+        max-width: 100%;
+        width: calc(100% - 10px);
+    }
+
+    box-shadow: 0 5px 15px rgba(color("blacks"), 0.25);
+    transform: translateY(100vh);
+    transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border-radius: $container-border-radius;
+    overflow: hidden;
+
+    &.open {
+        transform: translateY(-50%);
+    }
+
+    .modal-close {
+        box-shadow: none;
+        background-color: transparent;
+        top: 3px;
+        right: 3px;
+        padding: spacing("half");
+        border-radius: 0;
+        height: fit-content;
+        width: fit-content;
+
+        .icon {
+            @include square(16px);
+        }
+    }
+
+    .newsletterPopup {
+        @include breakpoint("small") {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        border-radius: $container-border-radius;
+        position: relative;
+
+        .newsletterPopup_box {
+            p {
+                font-size: fontSize("smaller");
+                color: $color-textBase;
+                margin: 0 0 spacing("single")*1.25;
+
+                @media (max-width: (screenSize("medium") - 1px)) {
+                    margin-bottom: spacing("base")*1.25;
+                }
+            }
+        }
+    }
+
+    .newsletterPopup-image {
+        order: 2;
+        text-align: center;
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: cover;
+
+        @if str-contains(#{stencilString("nl_popup_image_url")}, "/") {
+            background-image: url(#{stencilString("nl_popup_image_url")});
+        } @else if stencilString("nl_popup_image_url") {
+            background-image: url("../img/#{stencilString("nl_popup_image_url")}");
+        }
+
+        @include breakpoint("small") {
+            display: block;
+            order: 1;
+        }
+
+        @media (max-width: (screenSize("small") - 1px)) {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+        }
+    }
+
+    .newsletterPopup-content {
+        order: 1;
+        padding: remCalc(30);
+        background-color: stencilColor("container-fill-base");
+
+        @include breakpoint("small") {
+            flex: 1;
+            order: 2;
+        }
+
+        @media (max-width: (screenSize("medium") - 1px)) {
+            background-color: rgba(stencilColor("container-fill-base"), 0.85);
+        }
+    }
+
+    .newsletterPopup-heading {
+        font-size: fontSize("base");
+        font-family: $theme-body-font-family;
+        font-weight: fontWeight("bold");
+        color: $color-textBase;
+        margin: 0 0 spacing("base");
+    }
+
+    .newsletterPopup-description {
+        text-align: center;
+        margin-bottom: spacing("single");
+
+        @include breakpoint("small") {
+            text-align: left;
+        }
+    }
+
+    .newsletterPopup-form {
+        .form {
+            margin-bottom: 0;
+        }
+
+        .form-field {
+            margin-bottom: spacing("base");
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        .form-prefixPostfix-button--postfix {
+            margin-left: 0;
+            margin-top: spacing("half");
+        }
+
+        input.button {
+            display: flex;
+            margin-top: spacing("base");
+            margin-bottom: spacing("single")*1.25;
+            padding-left: spacing("single");
+            padding-right: spacing("single");
+
+            @media (max-width: (screenSize("medium") - 1px)) {
+                margin-bottom: spacing("base")*1.25;
+            }
+        }
+
+        .form-prefixPostfix {
+            .form-input {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .button {
+                width: 100%;
+            }
+        }
+
+        .button {
+            @include buttonVariant("primary");
+        }
+
+        .form-label {
+            color: $color-textSecondary;
+            font-size: fontSize("smaller");
+            line-height: 1.8;
+        }
+
+        .form-checkbox + .form-label {
+            padding-left: remCalc(34);
+        }
+
+        .form-checkbox + .form-label::before {
+            @include square(24);
+            top: 0;
+        }
+
+        .form-checkbox + .form-label::after {
+            @include square(22);
+            top: 0;
+        }
+    }
+}

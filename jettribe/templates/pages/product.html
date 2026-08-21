@@ -1,0 +1,69 @@
+---
+product:
+    videos:
+        limit: 100
+    reviews:
+        limit: {{theme_settings.productpage_reviews_count}}
+    related_products:
+        limit: {{theme_settings.productpage_related_products_count}}
+shop_by_brand:
+    limit: {{theme_settings.sidebar_shop_by_brand}}
+blog:
+    recent_posts:
+        limit: {{theme_settings.homepage_blog_posts_count}}
+gql: "query productById($productId: Int!) {
+    site {
+        product(entityId: $productId) {
+            brand {
+                name
+                defaultImage {
+                    url(width: 90, height: 60)
+                    urlOriginal
+                    altText
+                }
+                path
+            }
+        }
+    }
+}"
+---
+{{#partial "hero"}}
+    <div class="beautify__productPage-top">
+        <div class="container">
+            {{> components/common/breadcrumbs breadcrumbs=breadcrumbs}}
+
+            {{#each product.shipping_messages}}
+                {{> components/common/alert-info message}}
+            {{/each}}
+        </div><!-- .container -->
+    </div>
+
+    <div class="productView-scope">
+        {{> components/products/product-view}}
+
+        {{{region name="product_below_content--global"}}}
+        {{{region name="product_below_content"}}}
+    </div>
+
+    {{#or product.related_products product.similar_by_views}}
+    <div class="productView-productTabs">
+        {{> components/products/tabs}}
+    </div>
+    {{/or}}
+
+    {{{region name="product_below_tabs"}}}
+    <div class="beautify__section beautify__section--recentlyViewedProducts _productPage beautify__section--displayType-{{theme_settings.product_recentviewed_type}} __recentlyViewedProducts-productPage">
+        {{> components/products/recentviewed 
+            display_type=theme_settings.product_recentviewed_type 
+            show_more_in_screen_large=true 
+        }}
+    </div>
+
+    {{> components/products/schema}}
+{{/partial}}
+{{#and theme_settings.instantload is_ajax}}
+    {{> layout/instantload-base}}
+{{else}}
+    {{> layout/base}}
+{{/and}}
+

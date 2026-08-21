@@ -1,0 +1,253 @@
+@mixin beautify__container {
+    @include papathemes-container();
+}
+
+@mixin ih__slick-arrows() {
+    // .slick-next:before {
+    //     background-image: url(data:image/svg+xml;charset=utf8,%3Csvg%20width%3D%2220px%22%20height%3D%2216px%22%20viewBox%3D%220%200%2020%2016%22%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%3E%3Cg%20id%3D%22product-page%22%20stroke%3D%22none%22%20stroke-width%3D%221%22%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20id%3D%22product_page_desktop%22%20transform%3D%22translate%28-923.000000%2C%20-943.000000%29%22%20fill%3D%22%231A1A1A%22%3E%3Cg%20id%3D%2202-Icons-%2F-24x24-%2F-ic24-arrow-left%22%20transform%3D%22translate%28933.000000%2C%20951.000000%29%20scale%28-1%2C%201%29%20translate%28-933.000000%2C%20-951.000000%29%20translate%28914.000000%2C%20932.000000%29%22%3E%3Cpath%20d%3D%22M17.7902954%2C11.3871006%20L17.7071068%2C11.2928932%20C17.3466228%2C10.9324093%2016.7793918%2C10.9046797%2016.3871006%2C11.2097046%20L16.2928932%2C11.2928932%20L9.29289322%2C18.2928932%20L9.2514958%2C18.336853%20L9.2514958%2C18.336853%20L9.19633458%2C18.4046934%20L9.19633458%2C18.4046934%20L9.12467117%2C18.5159379%20L9.12467117%2C18.5159379%20L9.07122549%2C18.628664%20L9.07122549%2C18.628664%20L9.03584514%2C18.734007%20L9.03584514%2C18.734007%20L9.00690716%2C18.8819045%20L9.00690716%2C18.8819045%20L9%2C19%20L9.00278786%2C19.0752385%20L9.00278786%2C19.0752385%20L9.02024007%2C19.2007258%20L9.02024007%2C19.2007258%20L9.04973809%2C19.3121425%20L9.04973809%2C19.3121425%20L9.09367336%2C19.4232215%20L9.09367336%2C19.4232215%20L9.14599545%2C19.5207088%20L9.14599545%2C19.5207088%20L9.21968877%2C19.625449%20L9.21968877%2C19.625449%20L9.29289322%2C19.7071068%20L16.2928932%2C26.7071068%20C16.6834175%2C27.0976311%2017.3165825%2C27.0976311%2017.7071068%2C26.7071068%20C18.0675907%2C26.3466228%2018.0953203%2C25.7793918%2017.7902954%2C25.3871006%20L17.7071068%2C25.2928932%20L12.416%2C20%20L28%2C20%20C28.5522847%2C20%2029%2C19.5522847%2029%2C19%20C29%2C18.4477153%2028.5522847%2C18%2028%2C18%20L12.414%2C18%20L17.7071068%2C12.7071068%20C18.0675907%2C12.3466228%2018.0953203%2C11.7793918%2017.7902954%2C11.3871006%20L17.7071068%2C11.2928932%20L17.7902954%2C11.3871006%20Z%22%20id%3D%22Icon-Color%22%3E%3C%2Fpath%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E);
+    // }
+    // .slick-prev:before {
+    //     background-image: url(data:image/svg+xml;charset=utf8,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%3Csvg%20width%3D%2221px%22%20height%3D%2216px%22%20viewBox%3D%220%200%2021%2016%22%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%3E%3Cg%20id%3D%22product-page%22%20stroke%3D%22none%22%20stroke-width%3D%221%22%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20id%3D%22product_page_desktop%22%20transform%3D%22translate%28-379.000000%2C%20-943.000000%29%22%20fill%3D%22%231A1A1A%22%3E%3Cg%20id%3D%2202-Icons-%2F-24x24-%2F-ic24-arrow-left%22%20transform%3D%22translate%28371.000000%2C%20932.000000%29%22%3E%3Cpath%20d%3D%22M17.2902954%2C11.3871006%20L17.2071068%2C11.2928932%20C16.8466228%2C10.9324093%2016.2793918%2C10.9046797%2015.8871006%2C11.2097046%20L15.7928932%2C11.2928932%20L8.79289322%2C18.2928932%20L8.7514958%2C18.336853%20L8.7514958%2C18.336853%20L8.69633458%2C18.4046934%20L8.69633458%2C18.4046934%20L8.62467117%2C18.5159379%20L8.62467117%2C18.5159379%20L8.57122549%2C18.628664%20L8.57122549%2C18.628664%20L8.53584514%2C18.734007%20L8.53584514%2C18.734007%20L8.50690716%2C18.8819045%20L8.50690716%2C18.8819045%20L8.5%2C19%20L8.50278786%2C19.0752385%20L8.50278786%2C19.0752385%20L8.52024007%2C19.2007258%20L8.52024007%2C19.2007258%20L8.54973809%2C19.3121425%20L8.54973809%2C19.3121425%20L8.59367336%2C19.4232215%20L8.59367336%2C19.4232215%20L8.64599545%2C19.5207088%20L8.64599545%2C19.5207088%20L8.71968877%2C19.625449%20L8.71968877%2C19.625449%20L8.79289322%2C19.7071068%20L15.7928932%2C26.7071068%20C16.1834175%2C27.0976311%2016.8165825%2C27.0976311%2017.2071068%2C26.7071068%20C17.5675907%2C26.3466228%2017.5953203%2C25.7793918%2017.2902954%2C25.3871006%20L17.2071068%2C25.2928932%20L11.916%2C20%20L27.5%2C20%20C28.0522847%2C20%2028.5%2C19.5522847%2028.5%2C19%20C28.5%2C18.4477153%2028.0522847%2C18%2027.5%2C18%20L11.914%2C18%20L17.2071068%2C12.7071068%20C17.5675907%2C12.3466228%2017.5953203%2C11.7793918%2017.2902954%2C11.3871006%20L17.2071068%2C11.2928932%20L17.2902954%2C11.3871006%20Z%22%20id%3D%22Icon-Color%22%3E%3C%2Fpath%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E);
+    // }
+    @include breakpoint("medium") {
+        .slick-prev {
+            left: (spacing("quarter"));
+        }
+
+        .slick-next {
+            right: (spacing("eighth"));
+        }
+    }
+    @include breakpoint("large") {
+        .slick-prev {
+            left: -(spacing("single") + spacing("third"));
+        }
+
+        .slick-next {
+            right: -(spacing("single") + spacing("third"));
+        }
+        @if stencilString("layout") == "left-sidebar" {
+            .slick-prev {
+                left: -(spacing("single") + spacing("half"));
+            }
+
+            .slick-next {
+                right: -(spacing("single") + spacing("base"));
+            }
+        }
+    }
+    @media (min-width: 1750px) {
+        .slick-prev {
+            left: -(spacing("base") * 3.5);
+        }
+
+        .slick-next {
+            right: -(spacing("base") * 3.5);
+        }
+    }
+}
+
+%ih__slick-arrows {
+    @include ih__slick-arrows();
+}
+
+.u-hideMobile {
+    @media (max-width: screenSize("small") - 1px) {
+        display: none !important;
+    }
+}
+
+.u-hideTablet {
+    @media (min-width: screenSize("small")) and (max-width: screenSize("medium") - 1px) {
+        display: none !important;
+    }
+}
+
+.u-hideDesktop {
+    @include breakpoint("medium") {
+        display: none !important;
+    }
+}
+
+@mixin beautify__fixFontBaselineShift() {
+    @if ($theme-body-font-baseline-shift) {
+        &::before {
+            content: "";
+            display: block;
+            height: $theme-body-font-baseline-shift;
+        }
+    }
+}
+
+@mixin beautify__sectionPageHeading() {
+    color: stencilColor("section-heading-color");
+    text-transform: stencilString("section-heading-transform");
+    text-align: stencilString("section-heading-align");
+    @media (max-width: screenSize("medium") - 1px) {
+        font-size: stencilNumber("section-heading-fontSize-mobile");
+        margin-bottom: spacing("single");
+    }
+    @include breakpoint("medium") {
+        font-size: stencilNumber("section-heading-fontSize");
+    }
+}
+
+@mixin beautify__borderFocus() {
+    &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border: $outline-width * 1.5 $outline-style $outline-color;
+        border-radius: $container-border-radius;
+    }
+}
+
+@mixin beautify__cardBodyGridTemplate {
+    $fontSize: remCalc(fontSize("smaller"));
+    $lineHeight: lineHeight("base");
+    $defaultRowheight: $fontSize * $lineHeight + $card-text-marginBottom;
+
+    @if (stencilString("badge_position") == "bottom") {
+        --product-card-badges-grid-size: minmax(#{remCalc(fontSize("base") * $lineHeight) + $card-text-marginBottom}, max-content);
+    }
+    @else {
+        --product-card-badges-grid-size: 0;
+    }
+
+    --product-card-title-grid-size: auto;
+    --product-card-brand-grid-size: 0;
+    --product-card-sku-grid-size: 0;
+    --product-card-custom-field-grid-size: 0;
+    --product-card-swatches-grid-size: 0;
+    --product-card-price-grid-size: minmax(#{remCalc(fontSize("small") * $lineHeight) + $card-text-marginBottom}, max-content);
+    --product-card-rating-grid-size: 0;
+
+    ._product-card-has-brand & {
+        --product-card-brand-grid-size: minmax(#{$defaultRowheight}, max-content);
+    }
+
+    ._product-card-has-sku & {
+        --product-card-sku-grid-size: minmax(#{$defaultRowheight}, max-content);
+    }
+
+    ._product-card-has-custom-field & {
+        --product-card-custom-field-grid-size: minmax(min-content, max-content);
+    }
+
+    ._product-card-has-swatches & {
+        $h: remCalc(to-number(get-height(stencilString("card_swatch_option_size"))) + 4px) // + 4px is border + padding
+            + $card-text-marginBottom; // margin bottom
+        --product-card-swatches-grid-size: minmax(#{$h}, max-content);
+    }
+
+    ._product-card-has-rating & {
+        --product-card-rating-grid-size: minmax(#{remCalc(15) + $card-text-marginBottom}, max-content);
+    }
+
+    grid-template-rows:
+        var(--product-card-badges-grid-size) // badge
+        var(--product-card-title-grid-size) // title
+        var(--product-card-brand-grid-size) // brand
+        var(--product-card-sku-grid-size) // sku
+        var(--product-card-swatches-grid-size) // swatches
+        var(--product-card-price-grid-size) // price
+        var(--product-card-custom-field-grid-size) //customField
+        var(--product-card-rating-grid-size); // rating
+
+    .card-badges {
+        grid-row: 1;
+    }
+
+    .card-title {
+        grid-row: 2;
+    }
+
+    .card-text--brand {
+        grid-row: 3;
+    }
+
+    .card-text--sku {
+        grid-row: 4;
+    }
+
+    .card-text--colorswatches {
+        grid-row: 5;
+    }
+
+    .card-text--price {
+        grid-row: 6;
+    }
+
+    .card-text--info { // customField
+        grid-row: 7;
+    }
+
+    .card-text--rating {
+        grid-row: 8;
+    }
+
+    .card-actions {
+        grid-row: 9;
+    }
+}
+
+// Featured Products - Top Products - New Products background image
+@mixin dinosaur__productView-background($bg) {
+    @if $bg != "" {
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+
+        @if str-contains($bg, "/") {
+            background-image: url($bg) !important;
+        } @else if $bg {
+            background-image: url("../img/#{$bg}") !important;
+        }
+
+        .page-heading,
+        .navProducts-rootMenu-list .navProducts-list .navProducts-item a {
+            color: $color-secondary;
+        }
+
+        .card {
+            &:not(._border) {
+                .card-figure,
+                .card-body,
+                .card-footer {
+                    background-color: $container-fill-base;
+                }
+
+                .card-body,
+                .card-footer {
+                    padding-left: $spacing-half;
+                    padding-right: $spacing-half;
+                }
+
+                .card-footer {
+                    padding-bottom: $spacing-half * 1.5;
+                }
+            }
+        }
+    }
+}
+
+@mixin dinosaur__line-mobileOnly {
+    content: "";
+    position: absolute;
+    top: 0;
+    border-top: (spacing("third") * 1.25) solid rgba(stencilColor("container-border-global-color-base"), 0.5);
+    width: calc(100% + 32px);
+    margin-left: - spacing("base");
+    margin-right: - spacing("base");
+}
+
+@mixin dinosaur__line-mobileOnly2 {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-top: (spacing("third") * 1.25) solid rgba(stencilColor("container-border-global-color-base"), 0.5);
+}

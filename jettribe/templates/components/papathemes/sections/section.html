@@ -1,0 +1,172 @@
+{{#if section '===' '-'}}
+
+{{else if section '===' 'slideshow'}}
+    {{#if carousel}}
+        {{> components/carousel}}
+    {{/if}}
+
+{{else if section '===' 'blog_recent'}}
+    {{!-- Explore Popular Articles / recent blog removed from homepage --}}
+
+{{else if section '===' 'top_categories'}}
+    {{> components/beautify/top-categories index=index}}
+
+{{else if section '===' 'new_products'}}
+    {{#if products.new}}
+        <div class="beautify__section dinosaur__productView {{#if index}}beautify__section--index{{index}}{{/if}} beautify__section--newProducts beautify__section--displayType-{{theme_settings.product_new_type}}">
+        <div class="container">
+        {{> components/products/new
+            products=products.new
+            show_categories=theme_settings.product_new_cats
+            region_name="home_above_new_products"
+            display_type=theme_settings.product_new_type}}
+        </div>
+        </div>
+    {{/if}}
+
+{{else if section '===' 'featured_products'}}
+    {{#if products.featured}}
+        <div class="beautify__section dinosaur__productView {{#if index}}beautify__section--index{{index}}{{/if}} beautify__section--featuredProducts beautify__section--displayType-{{theme_settings.product_featured_type}}">
+        <div class="container">
+        {{> components/products/featured
+            products=products.featured
+            region_name="home_above_featured_products"
+            display_type=theme_settings.product_featured_type}}
+        </div>
+        </div>
+    {{/if}}
+{{else if section '===' 'popular_products'}}
+    {{#if products.top_sellers}}
+        <div class="beautify__section dinosaur__productView {{#if index}}beautify__section--index{{index}}{{/if}} beautify__section--topProducts beautify__section--displayType-{{theme_settings.product_top_type}}">
+        <div class="container">
+        {{> components/products/top
+            products=products.top_sellers
+            show_categories=theme_settings.product_top_cats
+            region_name="home_above_top_products"
+            display_type=theme_settings.product_top_type}}
+        </div>
+        </div>
+    {{/if}}
+
+{{else if section '===' 'recentviewed'}}
+    <div class="beautify__section dinosaur__productView {{#if index}}beautify__section--index{{index}}{{/if}} beautify__section--recentlyViewedProducts beautify__section--displayType-{{theme_settings.product_recentviewed_type}}">
+    <div class="container">
+    {{> components/products/recentviewed
+        index=index
+        region_name="home_above_recentviewed_products"
+        display_type=theme_settings.product_recentviewed_type}}
+    </div>
+    </div>
+
+{{else if section '===' 'spt'}}
+    {{#or theme_settings.spt_show_featured theme_settings.spt_show_top theme_settings.spt_show_new}}
+        {{#or theme_settings.spt_init_count theme_settings.spt_lazy_count}}
+            <div class="beautify__section {{#if index}}beautify__section--index{{index}}{{/if}} beautify__section--specialProductsTabs">
+            <div class="container">
+                {{> components/papathemes/special-products-tabs/section}}
+            </div>
+            </div>
+        {{/or}}
+    {{/or}}
+
+{{else if section '===' 'pbcst'}}
+    {{#if theme_settings.pbcst_catIDs}}
+        {{inject 'haspbcst' true}}
+        <div class="beautify__section {{#if index}}beautify__section--index{{index}}{{/if}} beautify__section--pbcst">
+            <div class="container">
+                <div class="papathemes-pbcst"
+                    data-pbcst-group="{{theme_settings.pbcst_catIDs}}"
+                    data-sort="{{theme_settings.pbcst_active}}"
+                    data-limit="{{theme_settings.pbcst_products}}"
+                    {{#if theme_settings.pbcst_lazy}}data-lazy{{/if}}>
+                    {{#if theme_settings.pbcst_showBanner}}
+                        {{#each (split theme_settings.pbcst_catIDs ',')}}
+                            <div data-pbcst-widget-region="{{@index}}">{{{region name=(concat "pbcst_" @index)}}}</div>
+                        {{/each}}
+                    {{/if}}
+                    {{#each (split theme_settings.pbcst_catIDs ',')}}
+                        <div data-pbcst-widget-region="below_{{@index}}">{{{region name=(concat "pbcst_below_" @index)}}}</div>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+    {{else if theme_settings.pbcst_count '>' 0}}
+        {{inject 'haspbcst' true}}
+        <div class="beautify__section {{#if index}}beautify__section--index{{index}}{{/if}} beautify__section--pbcst">
+            <div class="container">
+                <div class="papathemes-pbcst"
+                    data-pbcst-group="{{join (pluck (limit categories theme_settings.pbcst_count) 'id') ','}}"
+                    data-sort="{{theme_settings.pbcst_active}}"
+                    data-limit="{{theme_settings.pbcst_products}}"
+                    {{#if theme_settings.pbcst_lazy}}data-lazy{{/if}}>
+                    {{#if theme_settings.pbcst_showBanner}}
+                        {{#each (limit categories theme_settings.pbcst_count)}}
+                            <div data-pbcst-widget-region="{{@index}}">{{{region name=(concat "pbcst_" @index)}}}</div>
+                        {{/each}}
+                    {{/if}}
+                    {{#each (limit categories theme_settings.pbcst_count)}}
+                        <div data-pbcst-widget-region="below_{{@index}}">{{{region name=(concat "pbcst_below_" @index)}}}</div>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+    {{/if}}
+{{else if section '===' 'featured_brands'}}
+    {{#if shop_by_brand.length '>' 0}}
+            <div id="dinosaur__featuredBrands" class="beautify__section dinosaur__featuredBrands {{#if index}}beautify__section--index{{index}}{{/if}} productCarousel--responsiveCol blaze-slider"
+                {{#if settings.data_tag_enabled}} data-list-name="{{list}}"{{/if}}
+                data-blaze-slider='{
+                    "all": {
+                        "autoplayInterval": 5000,
+                        "stopAutoplayOnInteraction": true,
+                        "transitionDuration": 500,
+                        "slidesToShow": 6,
+                        "slidesToScroll": 6,
+                        "slideGap": "15px",
+                        "loop": true
+                    },
+                    "(max-width: 1260px)": {
+                        "slidesToShow": 5,
+                        "slidesToScroll": 5
+                    },
+                    "(max-width: 800px)": {
+                        "slidesToShow": 3.2,
+                        "slidesToScroll": 3,
+                        "slideGap": "10px"
+                    },
+                    "(max-width: 550px)": {
+                        "slidesToShow": 2.2,
+                        "slidesToScroll": 2
+                    }
+                }'
+            >
+                <div class="container">
+                    {{#if theme_settings.featured_brands_heading}}
+                        <h2 class="page-heading">{{theme_settings.featured_brands_heading}}</h2>
+                    {{/if}}
+                        <div class="blaze-container">
+                            <div class="blaze-track-container">
+                                <div class="blaze-track">
+                                    {{#each shop_by_brand}}
+                                        <a href="{{url}}" class='_brand-item' aria-label="{{name}}">
+                                            <div class="_brand-img-wrapper" data-brand-id="{{id}}">
+                                                <img  class='_brand-logo' alt="{{name}}">
+                                                <div class='_brand-text'>
+                                                    <span>{{name}}</span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    {{/each}}
+                                </div>
+                            </div>
+                            <div class="blaze-pagination"></div>
+                        </div>
+                    </div>
+            </div>
+    {{/if}}
+
+{{else if section '===' 'newsletter'}}
+    {{#if settings.show_newsletter_box}}
+        {{> components/beautify/section-home-newsletter}}
+    {{/if}}
+{{/if}}

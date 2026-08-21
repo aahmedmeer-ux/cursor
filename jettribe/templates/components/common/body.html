@@ -1,0 +1,61 @@
+<div class="body" data-currency-code="{{currency_selector.active_currency_code}}">
+    {{#if (getVar 'hasHomePageSidebar')}}
+        {{{region name="home_below_menu"}}}
+
+        <div class="container">
+            {{#each shipping_messages}}
+                {{> components/common/alert-info message}}
+            {{/each}}
+        </div>
+        <div class="heroCarousel-container-bg">
+            <div class="container container--papathemes-section1-{{theme_settings.homepage_carousel_style}}" id="papathemes-section1-container">
+                <div class="papathemes-section1 papathemes-section1--{{theme_settings.homepage_carousel_style}}">
+                    {{> components/papathemes/sections/section section="slideshow"}}
+                </div>
+            </div>
+        </div>
+        {{{snippet 'home_content'}}}
+        {{{region name="home_below_carousel"}}}
+
+        <div class="container body-container">
+            <div class="body-sidebar">
+                {{> components/dinosaur/left-sidebar/section sb=theme_settings.sb1}}
+                {{> components/dinosaur/left-sidebar/section sb=theme_settings.sb2}}
+                {{> components/dinosaur/left-sidebar/section sb=theme_settings.sb3}}
+                {{{region name="dinosaur_left_sidebar"}}}
+                {{{region name="dinosaur_left_sidebar--global"}}}
+            </div>
+            <div class="body-content">
+                {{#block "hero"}} {{/block}}
+                {{#block "page"}} {{/block}}
+                {{#block "page_bottom"}} {{/block}}
+            </div>
+        </div>
+        {{inject 'enableHomePageSidebar' true}}
+    {{else}}
+        {{#block "hero"}} {{/block}}
+        <div class="container">
+            {{#block "page"}} {{/block}}
+        </div>
+        {{#block "page_bottom"}} {{/block}}
+    {{/if}}
+
+    {{#if page_type '==' 'category'}}
+        <div class="container">
+            <div class="beautify__section beautify__section--recentlyViewedProducts _categoryPage beautify__section--displayType-{{theme_settings.product_recentviewed_type}}">
+                {{> components/products/recentviewed
+                    display_type=theme_settings.product_recentviewed_type
+                    show_more_in_screen_large=true}}
+            </div>
+        </div>
+    {{/if}}
+
+    {{> components/common/modal}}
+    {{> components/common/alert-modal}}
+</div>
+
+<div class="scrollToTop">
+    <a href="#topOfPage" class="button button--white u-hiddenVisually" id="scrollToTopFloatingButton" title="{{lang 'common.top_of_page'}}">
+        <svg class="icon"><use href="#icon-keyboard-arrow-up"></use></svg>
+    </a>
+</div>

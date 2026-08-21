@@ -1,0 +1,44 @@
+
+<div class="kitchenary__navUser-account" id="dinosaur_nav_user_1">
+    {{#if theme_settings.logo_position '!=' 'center'}}
+        <div class="_wrapper-navUser">
+            <div class="_announce _announce-title">
+                {{{region name="header_top_title--global"}}}
+            </div>
+        </div>
+    {{/if}}
+    {{#if settings.phone_number}}
+        {{#if theme_settings.navUser-phone '===' 'show'}}
+            <div class="_phone">
+                <a href="tel:{{settings.phone_number}}" title="{{lang 'header.call_us' phone_number=settings.phone_number}}">
+                    <svg class="icon"><use href="#icon-phone2" /></svg>
+                    <span class="_label">{{settings.phone_number}}</span>
+                </a>
+            </div>
+        {{/if}}
+    {{/if}}
+    {{#or customer (unless settings.hide_price_from_guests)}}
+    {{#if currency_selector.currencies.length '>' 1}}
+        <div class="_currency">
+            <a href="#" data-dropdown="topHeader-currency" aria-controls="topHeader-currency" aria-expanded="false">
+                {{{currency_selector.active_currency_flag}}}{{{lang 'common.currency' code=currency_selector.active_currency_code}}} <svg class="icon"><use href="#icon-caret-down"></use></svg>
+            </a>
+            <div class="dropdown-menu" id="topHeader-currency" data-dropdown-content aria-hidden="true" tabindex="-1">
+                <ul>
+                    {{#each currency_selector.currencies}}
+                    <li>
+                        <a href="{{{switch_url}}}">
+                            {{#if is_active}}
+                                <strong>{{{flag}}} {{name}} ({{code}})</strong>
+                            {{else}}
+                            {{{flag}}} {{name}} ({{code}})
+                            {{/if}}
+                        </a>
+                    </li>
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+    {{/if}}
+    {{/or}}
+</div>

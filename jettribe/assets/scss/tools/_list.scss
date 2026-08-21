@@ -1,0 +1,7 @@
+@function contains($list, $var) {
+    @return index($list, $var) != null;
+}
+
+@function str-contains($string, $substring) {
+    @return str-index($string, $substring) != null;
+}

@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkpapathemes_dinosaur=self.webpackChunkpapathemes_dinosaur||[]).push([[96],{9096(t,n,a){var s=a(63350),e=a.n(s);new WeakMap;const u=e().mixin({buttonsStyling:!1,customClass:{confirmButton:"button",cancelButton:"button"}});a.d(n,["default",0,u])}}]);
+//# sourceMappingURL=theme-bundle.chunk.96.js.map

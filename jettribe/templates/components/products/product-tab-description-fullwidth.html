@@ -1,0 +1,161 @@
+{{!--
+  Full-width product description below gallery.
+  DESCRIPTION (and other tabs) sit horizontally on top with a full-width
+  horizontal line under the tab row, then full-width content below.
+--}}
+<article class="productView-description productView-description--excel" data-product-tab>
+    {{#unless in_quickview}}<div class="container">{{/unless}}
+    <div class="productDescExcel">
+        <ul class="productDescExcel-tabs tabs tabs--excel" data-tab role="tablist">
+            <li class="tab tab--description is-active" role="presentation">
+                <a class="tab-title" href="#tab-description-{{product.id}}" aria-selected="true" role="tab" id="productView-tab-description-{{product.id}}">{{lang 'products.description'}}</a>
+            </li>
+
+            {{#if (merge this specialCustomFields=0)}}{{/if}}
+            {{#if theme_settings.productpage_custom_fields_hide_special}}
+                {{#each product.custom_fields}}
+                    {{#startsWith '__' name}}
+                        {{#if (merge ../../this specialCustomFields=(add ../../specialCustomFields 1))}}{{/if}}
+                    {{/startsWith}}
+                {{/each}}
+            {{/if}}
+
+            {{#all product.custom_fields.length theme_settings.productpage_custom_fields_tab}}
+                {{#any (unless theme_settings.productpage_custom_fields_hide_special) (if product.custom_fields.length '>' specialCustomFields )}}
+                    <li class="tab tab--addition" role="presentation">
+                        <a class="tab-title" href="#tab-addition-{{product.id}}" aria-selected="false" role="tab" id="productView-tab-addition-{{product.id}}">{{theme_settings.productpage_custom_fields_tab_title}}</a>
+                    </li>
+                {{/any}}
+            {{/all}}
+
+            {{#if theme_settings.productpage_videos_position '===' 'tab'}}
+                {{#if product.videos.list.length}}
+                    <li class="tab tab--videos" role="presentation">
+                        <a class="tab-title" href="#tab-videos-{{product.id}}" aria-selected="false" role="tab" id="productView-tab-videos-{{product.id}}">{{lang 'products.videos.header'}}</a>
+                    </li>
+                {{/if}}
+            {{/if}}
+
+            {{#if product.warranty}}
+                <li class="tab tab--warranty" role="presentation">
+                    <a class="tab-title" href="#tab-warranty-{{product.id}}" aria-selected="false" role="tab" id="productView-tab-warranty-{{product.id}}">{{lang 'products.warranty'}}</a>
+                </li>
+            {{/if}}
+
+            {{#or in_development theme_settings.productpage_delivery_tab}}
+                <li class="tab tab--return" role="presentation">
+                    <a class="tab-title" href="#tab-return-{{product.id}}" aria-selected="false" role="tab" id="productView-tab-return-{{product.id}}">{{theme_settings.productpage_delivery_tab_title}}</a>
+                </li>
+            {{/or}}
+        </ul>
+
+        <div class="productDescExcel-panels tabs-contents">
+            <div class="tab-content is-active" id="tab-description-{{product.id}}" aria-hidden="false" role="tabpanel" aria-labelledby="productView-tab-description-{{product.id}}">
+                <a class="productView-description-tabHeading is-open" data-tab-mobile href="#tab-description-{{product.id}}">{{lang 'products.description'}}</a>
+                <div class="productView-description-tabContent is-open productDescExcel-body" {{#if settings.data_tag_enabled}} data-event-type="product" {{/if}}>
+                    {{{product.description}}}
+                    {{{snippet 'product_description'}}}
+                    {{{region name="product_description_tab_content--global"}}}
+                    {{{region name="product_description_tab_content"}}}
+                </div>
+            </div>
+
+            {{#all product.custom_fields.length theme_settings.productpage_custom_fields_tab}}
+                {{#any (unless theme_settings.productpage_custom_fields_hide_special) (if product.custom_fields.length '>' specialCustomFields )}}
+                    <div class="tab-content" id="tab-addition-{{product.id}}" aria-hidden="true" role="tabpanel" aria-labelledby="productView-tab-addition-{{product.id}}">
+                        <a class="productView-description-tabHeading" data-tab-mobile href="#tab-addition-{{product.id}}">{{theme_settings.productpage_custom_fields_tab_title}}</a>
+                        <div class="productView-description-tabContent productView-addition-tabContent">
+                            <table class="productView-addition-table table productDescExcel-sheet">
+                                <tbody class="table-tbody">
+                                    {{#if theme_settings.productpage_custom_fields_hide_special}}
+                                        {{#each product.custom_fields}}
+                                            {{#startsWith '__' name}}
+                                            {{else}}
+                                                <tr class="productView-info-row--cf{{pascalcase name}}">
+                                                    <th scope="row"><div class="productView-info-name productView-info-name--cf{{pascalcase name}}">{{name}}</div></th>
+                                                    <td><div class="productView-info-value productView-info-value--cf{{pascalcase name}}">{{{value}}}</div></td>
+                                                </tr>
+                                            {{/startsWith}}
+                                        {{/each}}
+                                    {{else}}
+                                        {{#each product.custom_fields}}
+                                            <tr class="productView-info-row--cf{{pascalcase name}}">
+                                                <th scope="row"><div class="productView-info-name productView-info-name--cf{{pascalcase name}}">{{name}}</div></th>
+                                                <td><div class="productView-info-value productView-info-value--cf{{pascalcase name}}">{{{value}}}</div></td>
+                                            </tr>
+                                        {{/each}}
+                                    {{/if}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {{/any}}
+            {{/all}}
+
+            {{#if theme_settings.productpage_videos_position '===' 'tab'}}
+                {{#if product.videos.list.length}}
+                    <div class="tab-content" id="tab-videos-{{product.id}}" aria-hidden="true" role="tabpanel" aria-labelledby="productView-tab-videos-{{product.id}}">
+                        <a class="productView-description-tabHeading" data-tab-mobile href="#tab-videos-{{product.id}}">{{lang 'products.videos.header'}}</a>
+                        <div class="productView-description-tabContent">
+                            <section class="videoGallery videoGallery--inTab" data-video-gallery>
+                                <div class="videoGallery-main">
+                                    <iframe
+                                        id="player"
+                                        class="lazyload"
+                                        type="text/html"
+                                        width="640"
+                                        height="390"
+                                        frameborder="0"
+                                        webkitAllowFullScreen
+                                        mozallowfullscreen
+                                        allowFullScreen
+                                        src="//www.youtube.com/embed/{{product.videos.featured.id}}?rel=0"
+                                        loading="lazy"
+                                        data-video-player
+                                        title="{{product.videos.list.0.title_long}}"
+                                    >
+                                    </iframe>
+                                </div>
+                                <ul class="videoGallery-list">
+                                {{#each product.videos.list}}
+                                    <li class="videoGallery-item">
+                                        <a href="#" class="video {{#if @first}}is-active{{/if}}" data-video-item data-video-id="{{id}}">
+                                            <div class="video-figure">
+                                                <img class="lazyload" data-sizes="auto" src="{{cdn 'img/loading.svg'}}" data-src="//i.ytimg.com/vi/{{id}}/default.jpg" alt="{{title_long}}"/>
+                                            </div>
+                                            <div class="video-body">
+                                                <h3 class="video-title">{{title_long}}</h3>
+                                                <p class="video-description">{{description_short}}</p>
+                                            </div>
+                                        </a>
+                                    </li>
+                                {{/each}}
+                                </ul>
+                            </section>
+                        </div>
+                    </div>
+                {{/if}}
+            {{/if}}
+
+            {{#if product.warranty}}
+                <div class="tab-content" id="tab-warranty-{{product.id}}" aria-hidden="true" role="tabpanel" aria-labelledby="productView-tab-warranty-{{product.id}}">
+                    <a class="productView-description-tabHeading" data-tab-mobile href="#tab-warranty-{{product.id}}">{{lang 'products.warranty'}}</a>
+                    <div class="productView-description-tabContent">
+                        {{{product.warranty}}}
+                    </div>
+                </div>
+            {{/if}}
+
+            {{#or in_development theme_settings.productpage_delivery_tab}}
+                <div class="tab-content" id="tab-return-{{product.id}}" aria-hidden="true" role="tabpanel" aria-labelledby="productView-tab-return-{{product.id}}">
+                    <a class="productView-description-tabHeading" data-tab-mobile href="#tab-return-{{product.id}}">{{theme_settings.productpage_delivery_tab_title}}</a>
+                    <div class="productView-description-tabContent">
+                        {{{region name="product_shipping_tab_content--global"}}}
+                        {{{region name="product_shipping_tab_content"}}}
+                    </div>
+                </div>
+            {{/or}}
+        </div>
+    </div>
+    {{#unless in_quickview}}</div>{{/unless}}
+</article>

@@ -6,8 +6,8 @@
   },
   "footer": {
     "sr_heading": "Bunntekst",
-    "footer_start": "Start på bunnteksten",
-    "brands": "Populære merker",
+    "footer_start": "Start p\u00e5 bunnteksten",
+    "brands": "Popul\u00e6re merker",
     "navigate": "Naviger",
     "info": "Info",
     "categories": "Kategorier",
@@ -33,15 +33,15 @@
   },
   "unavailable": {
     "hibernation_title": "Vi kommer tilbake",
-    "hibernation_message": "Takk for besøket. Butikken vår er for øyeblikket utilgjengelig. Vi beklager eventuelle ulemper dette har medført.",
+    "hibernation_message": "Takk for bes\u00f8ket. Butikken v\u00e5r er for \u00f8yeblikket utilgjengelig. Vi beklager eventuelle ulemper dette har medf\u00f8rt.",
     "maintenance_title": "Nede for vedlikehold",
-    "maintenance_message": "Denne butikken er for øyeblikket utilgjengelig grunnet vedlikehold. Den vil snart være tilgjengelig igjen. Vi beklager eventuelle ulemper dette har medført."
+    "maintenance_message": "Denne butikken er for \u00f8yeblikket utilgjengelig grunnet vedlikehold. Den vil snart v\u00e6re tilgjengelig igjen. Vi beklager eventuelle ulemper dette har medf\u00f8rt."
   },
   "brands": {
-    "no_products": "Det er ingen produkter oppført under dette merket."
+    "no_products": "Det er ingen produkter oppf\u00f8rt under dette merket."
   },
   "categories": {
-    "no_products": "Det er ingen produkter oppført under denne kategorien."
+    "no_products": "Det er ingen produkter oppf\u00f8rt under denne kategorien."
   },
   "checkout": {
     "title": "Betaling"
@@ -54,8 +54,8 @@
     "whatsapp": "WhatsApp"
   },
   "cart": {
-    "continue_shopping": "Klikk her for å fortsette å handle",
-    "login_to_checkout": "Logg på for å gå videre til kassen",
+    "continue_shopping": "Klikk her for \u00e5 fortsette \u00e5 handle",
+    "login_to_checkout": "Logg p\u00e5 for \u00e5 g\u00e5 videre til kassen",
     "items": "{NUM, plural, =0{(0 elementer)} one {(# vare)} other {(# varer)}}",
     "checkout": {
       "address": {
@@ -64,12 +64,12 @@
       },
       "button": "Betaling",
       "empty_cart": "Handlekurven din er tom",
-      "notification": "Logg inn for å se handlekurven din og starte shoppingen!",
-      "title": "Klikk her for å gå videre til betaling",
+      "notification": "Logg inn for \u00e5 se handlekurven din og starte shoppingen!",
+      "title": "Klikk her for \u00e5 g\u00e5 videre til betaling",
       "item": "Vare",
       "price": "Pris",
       "quantity": "Mengde",
-      "total": "Totalbeløp",
+      "total": "Totalbel\u00f8p",
       "change": "Endre",
       "subtotal": "Delsum",
       "enter_code": "Kupongkode/gavekort",
@@ -81,7 +81,7 @@
       "or": "Eller rask utsjekking"
     },
     "preview": {
-      "checkout_now": "Betal nå",
+      "checkout_now": "Betal n\u00e5",
       "checkout_multiple": "eller betal med flere adresser",
       "view_cart": "Se handlekurv",
       "edit_cart": "Rediger handlekurv",
@@ -94,7 +94,7 @@
     "plural_item": "varer",
     "label": "Handlevognen din ({quantity, plural, one {# vare} other {# varer}})",
     "is_empty": "Handlekurven din er tom",
-    "invalid_entry_message": "[ENTRY] er ikke en gyldig oppføring",
+    "invalid_entry_message": "[ENTRY] er ikke en gyldig oppf\u00f8ring",
     "coupon_code": "Kupongkode",
     "discount": "Rabatt",
     "gift_certificate": "Gavekort",
@@ -102,16 +102,16 @@
     "freeshipping": "Gratis frakt",
     "reconfigure_product": "Konfigurer '{name}'",
     "shipping_peritem": "Frakt per vare",
-    "confirm_delete": "Er du sikker på at du vil slette denne varen?",
+    "confirm_delete": "Er du sikker p\u00e5 at du vil slette denne varen?",
     "remove": "Fjern",
     "remove_selected": "Fjern valgte varer",
     "save": "Lagre til senere",
-    "saved_wishlist": "Produktet er lagret på din %WISHLIST%-ønskeliste for senere og fjernet fra handlekurven",
+    "saved_wishlist": "Produktet er lagret p\u00e5 din %WISHLIST%-\u00f8nskeliste for senere og fjernet fra handlekurven",
     "coupons": {
       "coupon_msg": "Har du en kupongkode? Du kan bruke den i kassen!",
       "empty_error": "Skriv inn kupongkoden din.",
       "cancel": "Avbryt",
-      "add_title": "Har du en kupongkode? <button class='coupon-code-add'>Skriv den inn nå <i><svg class='icon'><use href='#icon-chervon-right-thin'></use></svg></i></button>",
+      "add_title": "Har du en kupongkode? <button class='coupon-code-add'>Skriv den inn n\u00e5 <i><svg class='icon'><use href='#icon-chervon-right-thin'></use></svg></i></button>",
       "add_code": "Legg til kode",
       "add_coupon": "Legg til kupong",
       "button": "Bruk",
@@ -139,8 +139,8 @@
       "free_shipping": "Gratis frakt",
       "hide_ups_rates": "Skjul UPS-priser",
       "show_ups_rates": "Vis UPS-priser",
-      "empty_country_error": "«Land»-feltet kan ikke stå tomt.",
-      "empty_province_error": "«Stat/provins»-feltet kan ikke stå tomt."
+      "empty_country_error": "\u00abLand\u00bb-feltet kan ikke st\u00e5 tomt.",
+      "empty_province_error": "\u00abStat/provins\u00bb-feltet kan ikke st\u00e5 tomt."
     },
     "gift_wrapping": {
       "title": "Gaveinnpakning",
@@ -154,27 +154,27 @@
       "option_different": "Jeg vil gjerne pakke inn hver vare separat",
       "choose_type": "Velg en type gaveinnpakning",
       "gift_message": "Gavemelding",
-      "remove_confirm": "Er du sikker på at du vil fjerne gaveinnpakning for denne varen?",
-      "preview": "Forhåndsvis"
+      "remove_confirm": "Er du sikker p\u00e5 at du vil fjerne gaveinnpakning for denne varen?",
+      "preview": "Forh\u00e5ndsvis"
     },
     "added_to_cart": {
-      "what_next": "Ok, {num_products, plural, one {1 vare ble} other {# varer ble}} lagt til i handlekurven din. Hva nå?",
+      "what_next": "Ok, {num_products, plural, one {1 vare ble} other {# varer ble}} lagt til i handlekurven din. Hva n\u00e5?",
       "your_cart_contains": "Handlevognen din inneholder {num_products, plural, one {1 item} other {# items}}",
       "proceed_to_checkout": "Fortsett til kassen",
       "order_subtotal": "Bestillingens delsum",
-      "continue_shopping": "Fortsett å handle",
+      "continue_shopping": "Fortsett \u00e5 handle",
       "view_or_edit_cart": "Se eller rediger handlekurven din",
-      "you_might_also_like": "Du vil kanskje også like",
+      "you_might_also_like": "Du vil kanskje ogs\u00e5 like",
       "auto_close": "Lukkes automatisk etter <span class='count'></span>s"
     }
   },
   "common": {
-    "store_credit": "Du har <strong>{store_credit}</strong> i butikkkreditt. For å bruke den legger du inn bestillingen din kan du velge butikkreditt som betalingsmåte når du kommer til kassen.",
+    "store_credit": "Du har <strong>{store_credit}</strong> i butikkkreditt. For \u00e5 bruke den legger du inn bestillingen din kan du velge butikkreditt som betalingsm\u00e5te n\u00e5r du kommer til kassen.",
     "store_credit_overview": "Butikkkreditt: {credit}",
     "generic_error": "Oi! Noe gikk galt.",
     "currency": "Velg valuta: {code}",
-    "currency_switch_promotion": "Kampanjer og gavekort som ikke er i den nye valutaen, fjernes fra handlekurven din. Er du sikker på at du vil fortsette?",
-    "newsletter_signup": "Registrer deg for nyhetsbrevet vårt",
+    "currency_switch_promotion": "Kampanjer og gavekort som ikke er i den nye valutaen, fjernes fra handlekurven din. Er du sikker p\u00e5 at du vil fortsette?",
+    "newsletter_signup": "Registrer deg for nyhetsbrevet v\u00e5rt",
     "form_submit": "Send inn",
     "no_preference": "Ingen preferanse",
     "other_details": "Andre detaljer",
@@ -190,7 +190,7 @@
     "to": "Til",
     "cancel": "Avbryt",
     "close": "Lukk",
-    "open": "Åpne",
+    "open": "\u00c5pne",
     "or": "eller",
     "and": "og",
     "compare": "Sammenlign",
@@ -201,7 +201,7 @@
     "account": "Konto",
     "viewed_products": "Viste",
     "cart": "Handlekurv",
-    "search": "Søk",
+    "search": "S\u00f8k",
     "gift_cert": "Gavekort",
     "gift_cert2": "<span class='firstword'>Gave-</span>sertifikater",
     "save": "Lagre",
@@ -210,7 +210,7 @@
     "public": "Offentlig",
     "private": "Privat",
     "view_all": "Se alle",
-    "wishlist": "Ønskelister",
+    "wishlist": "\u00d8nskelister",
     "view_all_products": "Se alle produkter",
     "all": "Alle",
     "paginator": {
@@ -226,8 +226,8 @@
       "featured": "Utvalgte varer",
       "top_sellers": "Bestselger",
       "newest": "Nyeste varer",
-      "alpha_asc": "A til Å",
-      "alpha_desc": "Å til A",
+      "alpha_asc": "A til \u00c5",
+      "alpha_desc": "\u00c5 til A",
       "reviews": "Etter anmeldelse",
       "price_asc2": "Pris: <span class='is-srOnly'>Stigende</span>",
       "price_desc2": "Pris: <span class='is-srOnly'>Synkende</span> ",
@@ -239,9 +239,9 @@
       "display_type": "Visningstype"
     },
     "loading": "Laster inn",
-    "month": "Måned",
+    "month": "M\u00e5ned",
     "day": "Dag",
-    "year": "År",
+    "year": "\u00c5r",
     "short_months": {
       "1": "Jan",
       "2": "Feb",
@@ -264,7 +264,7 @@
     "show": "Vis",
     "hide": "Skjul",
     "menu": "Meny",
-    "ask_question": "Still spørsmål",
+    "ask_question": "Still sp\u00f8rsm\u00e5l",
     "load_more": "Last inn mer",
     "collapse": "Skjul",
     "sidebar_heading": "Sidemenynavigasjon",
@@ -275,8 +275,8 @@
     "button": "Sammenlign produkter",
     "header": "Sammenligner {products, plural, one {# produkt} other {# produkter}}",
     "remove": "Fjern",
-    "clear_all": "Tøm alle",
-    "no_remove": "Minst 2 produkter er nødvendig for å gjøre en gyldig sammenligning.",
+    "clear_all": "T\u00f8m alle",
+    "no_remove": "Minst 2 produkter er n\u00f8dvendig for \u00e5 gj\u00f8re en gyldig sammenligning.",
     "add_to_cart": "Legg i handlekurv",
     "notification_compare": "Produkt lagt til for sammenligning."
   },
@@ -298,19 +298,19 @@
   "gift_certificate": {
     "heading": "Gavekort",
     "purchase": {
-      "heading": "Kjøp gavekort"
+      "heading": "Kj\u00f8p gavekort"
     },
     "redeem": {
-      "heading": "Løs inn gavekort",
-      "intro": "Følg de enkle trinnene nedenfor for å løse inn et gavekort hos {store_name}.",
-      "item1": "Du trenger din unike gavekortkode, som er en del av gavekortet som ble sendt til deg på e-post som vedlegg. Det vil se omtrent slikt ut: Z50-Y6K-COS-402.",
+      "heading": "L\u00f8s inn gavekort",
+      "intro": "F\u00f8lg de enkle trinnene nedenfor for \u00e5 l\u00f8se inn et gavekort hos {store_name}.",
+      "item1": "Du trenger din unike gavekortkode, som er en del av gavekortet som ble sendt til deg p\u00e5 e-post som vedlegg. Det vil se omtrent slikt ut: Z50-Y6K-COS-402.",
       "item2": "Se gjennom butikken og legg til varer i handlekurven din, som du normalt ville gjort.",
-      "item3": "Klikk på «<a href=\"{cart_url}\">Vis handlekurv</a>»-lenken for å vise inneholdet i handlekurven.",
-      "item4": "Skriv inn gavekortkoden i «Løs inn gavekort»-boksen og klikk på «Gå»."
+      "item3": "Klikk p\u00e5 \u00ab<a href=\"{cart_url}\">Vis handlekurv</a>\u00bb-lenken for \u00e5 vise inneholdet i handlekurven.",
+      "item4": "Skriv inn gavekortkoden i \u00abL\u00f8s inn gavekort\u00bb-boksen og klikk p\u00e5 \u00abG\u00e5\u00bb."
     },
     "balance": {
       "heading": "Sjekk gavekortsaldoen",
-      "intro": "Du kan sjekke saldoen til et gavekort ved å skrive inn koden i boksen nedenfor."
+      "intro": "Du kan sjekke saldoen til et gavekort ved \u00e5 skrive inn koden i boksen nedenfor."
     }
   },
   "create_account": {
@@ -318,7 +318,7 @@
     "created": {
       "heading": "Kontoen din er opprettet",
       "intro": "Takk for at du opprettet en konto hos {store_name}. Kontodetaljene dine er sendt til <strong>{email}</strong>",
-      "continue": "Fortsett å handle"
+      "continue": "Fortsett \u00e5 handle"
     },
     "recaptcha_title": "Google recaptcha"
   },
@@ -333,18 +333,18 @@
     "or": "Eller",
     "new_customer": {
       "heading": "Ny kunde?",
-      "intro": "Opprett en konto hos oss, så kan du:",
+      "intro": "Opprett en konto hos oss, s\u00e5 kan du:",
       "fact1": "Betale raskere",
       "fact2": "Lagre flere leveringsadresser",
-      "fact3": "Få tilgang til bestillingshistorikken din",
+      "fact3": "F\u00e5 tilgang til bestillingshistorikken din",
       "fact4": "Spore nye bestillinger",
-      "fact5": "Legge til varer på ønskelisten din",
+      "fact5": "Legge til varer p\u00e5 \u00f8nskelisten din",
       "create_account": "Opprett konto"
     }
   },
   "reset_password": {
     "heading": "Tilbakestill passord",
-    "intro": "Fyll inn e-posten din nedenfor for å be om et nytt passord. En e-post vil bli sendt til adressen nedenfor, og denne e-posten inneholder en lenke som lar deg bekrefte e-postadressen din."
+    "intro": "Fyll inn e-posten din nedenfor for \u00e5 be om et nytt passord. En e-post vil bli sendt til adressen nedenfor, og denne e-posten inneholder en lenke som lar deg bekrefte e-postadressen din."
   },
   "account": {
     "breadcrumb": "Kontoen din",
@@ -353,24 +353,24 @@
       "orders": "Bestillinger",
       "returns": "Returer",
       "messages": "Meldinger ({num_new_messages})",
-      "wishlists": "Ønskelister",
+      "wishlists": "\u00d8nskelister",
       "recently_viewed": "Nylig sett",
       "recently_viewed2": "Nylig sett",
       "settings": "Kontoinnstillinger",
       "addresses": "Adresser",
-      "payment_methods": "Betalingsmåter"
+      "payment_methods": "Betalingsm\u00e5ter"
     },
     "mobile_nav": {
       "messages": "Meldinger",
-      "wishlists": "Ønskelister"
+      "wishlists": "\u00d8nskelister"
     },
     "addresses": {
       "heading": "Adresser",
       "add_heading": "Legg til ny adresse",
-      "primary": "Primær",
+      "primary": "Prim\u00e6r",
       "phone": "Telefon:",
       "new_address": "Ny adresse",
-      "no_addresses": "Du har for øyeblikket ingen adresser lagt til profilen din"
+      "no_addresses": "Du har for \u00f8yeblikket ingen adresser lagt til profilen din"
     },
     "messages": {
       "heading": "Meldinger",
@@ -379,15 +379,15 @@
     },
     "orders": {
       "heading": "Bestillinger",
-      "none": "Du har ikke lagt inn noen bestillinger hos oss. Når du gjør det, vil statusen til disse vises på denne siden.",
+      "none": "Du har ikke lagt inn noen bestillinger hos oss. N\u00e5r du gj\u00f8r det, vil statusen til disse vises p\u00e5 denne siden.",
       "return": {
         "already_returned": "Denne bestillingen inneholder ingen produkter som kan returneres. Har du allerede returnert alle varene i denne bestillingen?",
-        "back_button": "Gå tilbake",
+        "back_button": "G\u00e5 tilbake",
         "order_item": "Vare",
         "item_price": "Pris",
-        "quantity": "Antall å returnere",
+        "quantity": "Antall \u00e5 returnere",
         "why": "Hvorfor returnerer du disse varene?",
-        "reason": "Årsak til retur",
+        "reason": "\u00c5rsak til retur",
         "action": "Returhandling",
         "comments": "Kommentarer"
       },
@@ -412,13 +412,13 @@
         "bill_to": "Fakturer til",
         "how_to_pay": "Slik betaler du for bestillingen din:",
         "order_details": "Bestillingsdetaljer",
-        "order_total": "Totalbeløp for bestillings:",
+        "order_total": "Totalbel\u00f8p for bestillings:",
         "order_status": "Bestillingsstatus:",
         "payment_date": "Bestillingsdato:",
-        "payment_method": "Betalingsmåte:",
+        "payment_method": "Betalingsm\u00e5te:",
         "comments": "Kommentarer til bestilling",
         "download_items": "Last ned varer",
-        "card_ending": "slutter på {card}",
+        "card_ending": "slutter p\u00e5 {card}",
         "shipments": {
           "date": "Dato sendt",
           "method": "Forsendelsesmetode",
@@ -426,38 +426,38 @@
           "header": "Fraktdetaljer"
         },
         "actions": "Handlinger",
-        "reorder": "Bestill på nytt",
+        "reorder": "Bestill p\u00e5 nytt",
         "return": "Retur",
         "pickup": "Hentedetaljer",
-        "pickup_method": "Hentemåte",
+        "pickup_method": "Hentem\u00e5te",
         "in_store_pickup": "Henting i butikk",
         "print_invoice": "Skriv ut faktura",
         "phone": "Telefon",
         "email": "E-post",
-        "opening_hours": "Åpningstider"
+        "opening_hours": "\u00c5pningstider"
       },
       "downloads": {
         "heading": "Bestillingsnummer {number} Nedlastinger",
         "download_files_below": "Nedenfor kan du laste ned filene til",
-        "expired_content": "Fil har utløpt",
+        "expired_content": "Fil har utl\u00f8pt",
         "days_remaining": "{number, plural, one {1 dag} other {# dager}}",
-        "downloads_remaining": "{number, plural, one {1 nedlasting} other {# nedlastinger}} gjenstår",
+        "downloads_remaining": "{number, plural, one {1 nedlasting} other {# nedlastinger}} gjenst\u00e5r",
         "days_or_downloads": "eller {number} nedlastinger",
-        "remaining": "gjenstående"
+        "remaining": "gjenst\u00e5ende"
       }
     },
     "payment_methods": {
-      "heading": "Betalingsmåter",
-      "payment_method": "Betalingsmåte",
+      "heading": "Betalingsm\u00e5ter",
+      "payment_method": "Betalingsm\u00e5te",
       "bank_account": "Bankkonto",
       "billing_address": "Fakturaadresse",
-      "card_ending_in": "slutter på {last_four}",
+      "card_ending_in": "slutter p\u00e5 {last_four}",
       "card_expiry": "{month}/{year}",
-      "new_payment_method": "Legg til ny betalingsmåte",
-      "no_methods": "Du har for øyeblikket ingen betalingsmåter lagt til på kontoen din",
-      "name_on_card": "Navn på kort",
+      "new_payment_method": "Legg til ny betalingsm\u00e5te",
+      "no_methods": "Du har for \u00f8yeblikket ingen betalingsm\u00e5ter lagt til p\u00e5 kontoen din",
+      "name_on_card": "Navn p\u00e5 kort",
       "credit_card_number": "Kredittkortnummer",
-      "expiration": "Utløp",
+      "expiration": "Utl\u00f8p",
       "cvv": "CVV",
       "card_types": {
         "american_express": "American Express",
@@ -487,19 +487,19 @@
     "returns": {
       "heading": "Returer",
       "instructions": "Returinstruksjoner",
-      "error_no_qty": "Velg én eller flere varer du vil returnere",
-      "none": "Du har ikke lagt inn noen returer hos oss. Når du gjør det, vil de vises på denne siden.",
+      "error_no_qty": "Velg \u00e9n eller flere varer du vil returnere",
+      "none": "Du har ikke lagt inn noen returer hos oss. N\u00e5r du gj\u00f8r det, vil de vises p\u00e5 denne siden.",
       "new_return": "Ny retur",
       "from_order": "Returner varer fra bestilling nr. {id}",
       "date_requested": "Retur forespurt",
-      "successful_heading": "Forespørsel om retur sendt inn",
-      "successful": "Returen ble sendt inn. Vi svarer så fort vi kan.",
+      "successful_heading": "Foresp\u00f8rsel om retur sendt inn",
+      "successful": "Returen ble sendt inn. Vi svarer s\u00e5 fort vi kan.",
       "return": "Tilbake til bestillinger",
       "last_update": "Sist oppdatert",
-      "reason": "Årsak til retur",
+      "reason": "\u00c5rsak til retur",
       "action": "Returhandling",
       "comments": "Dine kommentarer",
-      "submit_request": "Send inn returforespørsel",
+      "submit_request": "Send inn returforesp\u00f8rsel",
       "list": {
         "return_number": "Returner nr. {id}",
         "product_details": "Returnerer {num_products}"
@@ -528,42 +528,42 @@
     },
     "recent_items": {
       "heading": "Nylig sett",
-      "no_items": "Varene du nylig har sett på siden vår vil vises nedenfor."
+      "no_items": "Varene du nylig har sett p\u00e5 siden v\u00e5r vil vises nedenfor."
     },
     "wishlists": {
-      "heading": "Ønskelister",
-      "tag_line": "Fyll ut skjemaet nedenfor for å lage en ny ønskeliste. Klikk på «Opprett ønskeliste»-knappen når du er ferdig.",
-      "new": "Ny ønskeliste",
-      "you_have_none": "Du har ingen ønskeliste, legg til en nå.",
-      "empty_wishlist": "Ønskelisten din er tom. Når du legger til varer på ønskelisten din, vises de her.",
+      "heading": "\u00d8nskelister",
+      "tag_line": "Fyll ut skjemaet nedenfor for \u00e5 lage en ny \u00f8nskeliste. Klikk p\u00e5 \u00abOpprett \u00f8nskeliste\u00bb-knappen n\u00e5r du er ferdig.",
+      "new": "Ny \u00f8nskeliste",
+      "you_have_none": "Du har ingen \u00f8nskeliste, legg til en n\u00e5.",
+      "empty_wishlist": "\u00d8nskelisten din er tom. N\u00e5r du legger til varer p\u00e5 \u00f8nskelisten din, vises de her.",
       "num_items": "Varer",
-      "add_item": "Legg til på ønskeliste",
+      "add_item": "Legg til p\u00e5 \u00f8nskeliste",
       "remove_item": "Fjern vare",
-      "name": "Navn på ønskeliste",
+      "name": "Navn p\u00e5 \u00f8nskeliste",
       "shared": "Delt",
       "action": "Handling",
-      "add": "Legg til ønskeliste",
+      "add": "Legg til \u00f8nskeliste",
       "delete_all": "Slett alle",
-      "edit": "Rediger ønskeliste",
-      "view_heading": "Ønskeliste: {name}",
-      "share_intro": "Del denne ønskeliste med venner:",
+      "edit": "Rediger \u00f8nskeliste",
+      "view_heading": "\u00d8nskeliste: {name}",
+      "share_intro": "Del denne \u00f8nskeliste med venner:",
       "num_products": "{num_products, plural, one {1 produkt} other {# produkter}}",
-      "create": "Opprett ønskeliste",
-      "save": "Lagre ønskeliste",
-      "delete_alert": "Er du sikker på at du vil slette ønskelisten(e) din(e)? Denne handlingen kan ikke angres.",
-      "create_new": "Opprett ny ønskeliste",
-      "add_to_default": "Legg til på min ønskeliste",
-      "enter_wishlist_name_error": "Du må skrive inn et navn for ønskelisten."
+      "create": "Opprett \u00f8nskeliste",
+      "save": "Lagre \u00f8nskeliste",
+      "delete_alert": "Er du sikker p\u00e5 at du vil slette \u00f8nskelisten(e) din(e)? Denne handlingen kan ikke angres.",
+      "create_new": "Opprett ny \u00f8nskeliste",
+      "add_to_default": "Legg til p\u00e5 min \u00f8nskeliste",
+      "enter_wishlist_name_error": "Du m\u00e5 skrive inn et navn for \u00f8nskelisten."
     }
   },
   "page": {
     "label": "Hurtiglenker",
     "rss": {
-      "intro": "RSS-feeder brukes til å syndikere innhold som endrer seg regelmessig på et nettsted, inkludert dette. Du kan åpne en RSS-feed ved å bruke en RSS-leser, og du vil da kunne se om det er noe nytt innhold på denne siden. Du kan også sette opp et serversideskript for å analysere feeden og vise den på nettstedet ditt.",
+      "intro": "RSS-feeder brukes til \u00e5 syndikere innhold som endrer seg regelmessig p\u00e5 et nettsted, inkludert dette. Du kan \u00e5pne en RSS-feed ved \u00e5 bruke en RSS-leser, og du vil da kunne se om det er noe nytt innhold p\u00e5 denne siden. Du kan ogs\u00e5 sette opp et serversideskript for \u00e5 analysere feeden og vise den p\u00e5 nettstedet ditt.",
       "heading": "RSS-syndikering",
       "blog": {
         "heading": "Nylige blogginnlegg",
-        "intro": "Den siste innleggsfeeden inneholder de siste {limit} blogginnleggene publisert på {store}.",
+        "intro": "Den siste innleggsfeeden inneholder de siste {limit} blogginnleggene publisert p\u00e5 {store}.",
         "rss": "Siste {limit} blogginnlegg (RSS)",
         "rss_atom": "Siste {limit} blogginnlegg (Atom)"
       },
@@ -575,28 +575,28 @@
           "rss_atom": "Siste {limit} nye produkter (Atom)"
         },
         "popular": {
-          "heading": "Populære produkter",
-          "intro": "Den populære produktfeeden inneholder de {limit} mest populære produktene på {store}, vurdert av brukere.",
-          "rss": "Siste {limit} populære produkter (RSS)",
-          "rss_atom": "Siste {limit} populære produkter (Atom)"
+          "heading": "Popul\u00e6re produkter",
+          "intro": "Den popul\u00e6re produktfeeden inneholder de {limit} mest popul\u00e6re produktene p\u00e5 {store}, vurdert av brukere.",
+          "rss": "Siste {limit} popul\u00e6re produkter (RSS)",
+          "rss_atom": "Siste {limit} popul\u00e6re produkter (Atom)"
         },
         "featured": {
           "heading": "Utvalgt produkter",
-          "intro": "Feeden for fremhevede produkter inneholder de siste {limit} fremhevede produktene på {store}.",
+          "intro": "Feeden for fremhevede produkter inneholder de siste {limit} fremhevede produktene p\u00e5 {store}.",
           "rss": "Siste {limit} fremhevede produkter (RSS)",
           "rss_atom": "Siste {limit} fremhevede produkter (Atom)"
         }
       },
       "search": {
-        "heading": "Produktsøk",
-        "intro1": "Produktsøk-feeder lar deg lagre tilpassede produktsøk som en syndikeringsfeed, som alltid oppdateres når det kommer nye resultater.",
-        "intro2": "For å opprette en feed for produktsøk utfører du et standardsøk på {store} og klikker på ett av syndikeringsalternativene nederst på siden."
+        "heading": "Produkts\u00f8k",
+        "intro1": "Produkts\u00f8k-feeder lar deg lagre tilpassede produkts\u00f8k som en syndikeringsfeed, som alltid oppdateres n\u00e5r det kommer nye resultater.",
+        "intro2": "For \u00e5 opprette en feed for produkts\u00f8k utf\u00f8rer du et standards\u00f8k p\u00e5 {store} og klikker p\u00e5 ett av syndikeringsalternativene nederst p\u00e5 siden."
       }
     },
     "subpages": "Underseksjoner"
   },
   "forms": {
-    "range": "Du trenger kun å angi tall mellom: {limitTo} og {limitFrom}",
+    "range": "Du trenger kun \u00e5 angi tall mellom: {limitTo} og {limitFrom}",
     "contact_us": {
       "form_heading": "Kontakt oss",
       "full_name": "Fullt navn",
@@ -605,10 +605,10 @@
       "phone": "Telefonnummer",
       "order": "Bestillingsnummer",
       "rma": "RMA-nummer",
-      "question": "Kommentarer/spørsmål",
+      "question": "Kommentarer/sp\u00f8rsm\u00e5l",
       "submit": "Send inn skjema",
-      "successful": "Vi har mottatt tilbakemeldingen din og vil svare snart om nødvendig. <a href=\"{shopPath}\">Fortsett</a>.",
-      "manual_captcha_instruction": "Vennligst svar på spørsmålet nedenfor for ekstra verifisering."
+      "successful": "Vi har mottatt tilbakemeldingen din og vil svare snart om n\u00f8dvendig. <a href=\"{shopPath}\">Fortsett</a>.",
+      "manual_captcha_instruction": "Vennligst svar p\u00e5 sp\u00f8rsm\u00e5let nedenfor for ekstra verifisering."
     },
     "create_account": {
       "submit_value": "Opprett konto"
@@ -622,23 +622,23 @@
     "address": {
       "add": {
         "heading": "Legg til ny adresse",
-        "description": "Bruk skjemaet nedenfor for å endre alle detaljer om leveringsadressen din. Klikk på «Lagre adresse»-knappen når du er ferdig."
+        "description": "Bruk skjemaet nedenfor for \u00e5 endre alle detaljer om leveringsadressen din. Klikk p\u00e5 \u00abLagre adresse\u00bb-knappen n\u00e5r du er ferdig."
       },
       "edit": {
         "heading": "Oppdater adressen"
       },
-      "confirm_delete": "Er du sikker på at du vil slette denne adressen?",
+      "confirm_delete": "Er du sikker p\u00e5 at du vil slette denne adressen?",
       "submit_value": "Lagre adresse"
     },
     "payment_methods": {
       "add": {
-        "heading": "Legg til betalingsmåte"
+        "heading": "Legg til betalingsm\u00e5te"
       },
       "edit": {
-        "heading": "Oppdater betalingsmåte"
+        "heading": "Oppdater betalingsm\u00e5te"
       },
-      "confirm_delete": "Er du sikker på at du vil slette denne betalingsmåten?",
-      "submit_value": "Lagre betalingsmåte",
+      "confirm_delete": "Er du sikker p\u00e5 at du vil slette denne betalingsm\u00e5ten?",
+      "submit_value": "Lagre betalingsm\u00e5te",
       "first_name": "Fornavn",
       "last_name": "Etternavn",
       "company": "Firmanavn",
@@ -650,7 +650,7 @@
       "state": "Delstat/provins",
       "postal_code": "Postnummer",
       "choose_country": "Velg et land",
-      "default_instrument": "Standard betalingsmåte"
+      "default_instrument": "Standard betalingsm\u00e5te"
     },
     "gift_certificate": {
       "purchase": {
@@ -659,13 +659,13 @@
         "from_name": "Navnet ditt",
         "from_email": "E-postadressen din",
         "message": "Valgfri melding",
-        "amount": "Beløp",
-        "theme": "Tema på gavekort",
-        "custom_range": "(Verdien må være mellom {min} og {max})",
-        "agree": "Jeg forstår at gavekort utløper etter {days, plural, one {1 dag} other {# dager}}",
+        "amount": "Bel\u00f8p",
+        "theme": "Tema p\u00e5 gavekort",
+        "custom_range": "(Verdien m\u00e5 v\u00e6re mellom {min} og {max})",
+        "agree": "Jeg forst\u00e5r at gavekort utl\u00f8per etter {days, plural, one {1 dag} other {# dager}}",
         "agree2": "Jeg godtar at gavekort ikke kan refunderes",
-        "preview": "Forhåndsvis",
-        "preview_error": "Det oppsto et problem med å laste inn forhåndsvisningen. Prøv igjen senere.",
+        "preview": "Forh\u00e5ndsvis",
+        "preview_error": "Det oppsto et problem med \u00e5 laste inn forh\u00e5ndsvisningen. Pr\u00f8v igjen senere.",
         "submit_value": "Legg gavekort i handlekurven"
       },
       "balance": {
@@ -675,23 +675,23 @@
     },
     "inbox": {
       "order": "Bestilling:",
-      "order_display": "Bestilling nr. {id} – Lagt inn {date} for {total}",
+      "order_display": "Bestilling nr. {id} \u2013 Lagt inn {date} for {total}",
       "subject": "Emne",
       "message": "Melding",
       "submit_value": "Send melding",
       "send_message": "Send en melding",
-      "clear_value": "Tøm",
-      "no_orders": "Når du har lagt inn en bestilling, har du full tilgang til å sende meldinger fra denne siden."
+      "clear_value": "T\u00f8m",
+      "no_orders": "N\u00e5r du har lagt inn en bestilling, har du full tilgang til \u00e5 sende meldinger fra denne siden."
     },
     "search": {
-      "query": "Søkeord",
-      "show": "Vis søkeskjema",
-      "hide": "Skjul søkeskjema",
-      "title": "Avansert søk",
+      "query": "S\u00f8keord",
+      "show": "Vis s\u00f8keskjema",
+      "hide": "Skjul s\u00f8keskjema",
+      "title": "Avansert s\u00f8k",
       "price_range": "Prisklasse",
-      "by_price": "Søk etter pris",
-      "by_setting": "Søk etter innstilling",
-      "search": "Søk",
+      "by_price": "S\u00f8k etter pris",
+      "by_setting": "S\u00f8k etter innstilling",
+      "search": "S\u00f8k",
       "free_shipping": {
         "title": "Gratis frakt",
         "free": "Kun gratis frakt",
@@ -704,86 +704,86 @@
       },
       "categories": "Kategorier",
       "did_you_mean": "Mente du:",
-      "your_search_for": "Ditt søk etter",
+      "your_search_for": "Ditt s\u00f8k etter",
       "no_match": "samsvarte ikke med noen produkter eller noe informasjon.",
       "suggestions": {
         "title": "Forslag:",
         "line1": "Sjekk at alle ordene er stavet riktig.",
-        "line2": "Prøv forskjellige søkeord.",
-        "line3": "Prøv mer generelle søkeord."
+        "line2": "Pr\u00f8v forskjellige s\u00f8keord.",
+        "line3": "Pr\u00f8v mer generelle s\u00f8keord."
       },
-      "refine": "Avgrens søket",
+      "refine": "Avgrens s\u00f8ket",
       "brand": "merker",
-      "searchsubs": "Søk automatisk i underkategorier"
+      "searchsubs": "S\u00f8k automatisk i underkategorier"
     },
     "wishlist": {
-      "name": "Navn på ønskeliste:",
-      "public": "Vil du dele ønskelisten?"
+      "name": "Navn p\u00e5 \u00f8nskeliste:",
+      "public": "Vil du dele \u00f8nskelisten?"
     },
     "validate": {
       "account": {
         "edit": {
-          "password": "Du må skrive inn ditt nåværende passord.",
-          "first_name": "Du må skrive inn et fornavn.",
-          "last_name": "Du må skrive inn et etternavn.",
-          "phone": "Du må skrive inn et telefonnummer."
+          "password": "Du m\u00e5 skrive inn ditt n\u00e5v\u00e6rende passord.",
+          "first_name": "Du m\u00e5 skrive inn et fornavn.",
+          "last_name": "Du m\u00e5 skrive inn et etternavn.",
+          "phone": "Du m\u00e5 skrive inn et telefonnummer."
         },
         "reorder": {
-          "select_item": "Velg én eller flere varer du vil bestille igjen."
+          "select_item": "Velg \u00e9n eller flere varer du vil bestille igjen."
         },
         "inbox": {
-          "order": "Du må velge en bestilling.",
-          "subject": "Du må velge et emne.",
-          "message": "Du må skrive inn en melding."
+          "order": "Du m\u00e5 velge en bestilling.",
+          "subject": "Du m\u00e5 velge et emne.",
+          "message": "Du m\u00e5 skrive inn en melding."
         }
       },
       "common": {
-        "name": "Du må skrive inn navnet ditt.",
-        "password": "Du må skrive inn et passord.",
+        "name": "Du m\u00e5 skrive inn navnet ditt.",
+        "password": "Du m\u00e5 skrive inn et passord.",
         "password_match": "Passordene dine er ikke like.",
         "email_address": "Bruk en gyldig e-postadresse, for eksempel bruker@eksempel.com."
       },
       "contact": {
         "email_address": "Bruk en gyldig e-postadresse, for eksempel bruker@eksempel.com.",
-        "question": "Du må skrive inn spørsmålet ditt."
+        "question": "Du m\u00e5 skrive inn sp\u00f8rsm\u00e5let ditt."
       },
       "gift": {
-        "to_name": "Du må skrive inn et gyldig mottakernavn.",
-        "to_email": "Du må skrive inn en gyldig e-postadresse for mottaker.",
-        "from_name": "Du må skrive inn navnet ditt.",
-        "from_email": "Du må skrive inn en gyldig e-postadresse.",
-        "cert_theme": "Du må velge et tema for gavekort.",
-        "agree_terms": "Du må godta disse vilkårene."
+        "to_name": "Du m\u00e5 skrive inn et gyldig mottakernavn.",
+        "to_email": "Du m\u00e5 skrive inn en gyldig e-postadresse for mottaker.",
+        "from_name": "Du m\u00e5 skrive inn navnet ditt.",
+        "from_email": "Du m\u00e5 skrive inn en gyldig e-postadresse.",
+        "cert_theme": "Du m\u00e5 velge et tema for gavekort.",
+        "agree_terms": "Du m\u00e5 godta disse vilk\u00e5rene."
       },
       "payment_method": {
-        "credit_card_number": "Du må skrive inn et gyldig kredittkortnummer.",
-        "expiration": "Du må skrive inn en gyldig utløpsdato.",
-        "name_on_card": "Du må skrive inn et navn.",
-        "cvv": "Du må skriv inn en gyldig CVV."
+        "credit_card_number": "Du m\u00e5 skrive inn et gyldig kredittkortnummer.",
+        "expiration": "Du m\u00e5 skrive inn en gyldig utl\u00f8psdato.",
+        "name_on_card": "Du m\u00e5 skrive inn et navn.",
+        "cvv": "Du m\u00e5 skriv inn en gyldig CVV."
       },
       "reviews": {
-        "rating": "«Vurdering»-feltet kan ikke stå tomt.",
-        "title": "«Emne på anmeldelse»-feltet kan ikke stå tomt.",
-        "comment": "«Kommentarer»-feltet kan ikke stå tomt."
+        "rating": "\u00abVurdering\u00bb-feltet kan ikke st\u00e5 tomt.",
+        "title": "\u00abEmne p\u00e5 anmeldelse\u00bb-feltet kan ikke st\u00e5 tomt.",
+        "comment": "\u00abKommentarer\u00bb-feltet kan ikke st\u00e5 tomt."
       }
     }
   },
   "products": {
-    "current_stock": "Nåværende lager:",
+    "current_stock": "N\u00e5v\u00e6rende lager:",
     "low_stock": "Kun {left} igjen:",
     "quantity": "Antall:",
     "qty": "ANTALL",
     "change_product_options": "Endre alternativer for {name}",
     "quantity_decrease": "Reduser mengde av {name}",
-    "quantity_increase": "Øk antallet av {name}",
+    "quantity_increase": "\u00d8k antallet av {name}",
     "purchase_units": "{quantity, plural, =0{0 units} one {# enhet} other {# enheter}}",
-    "max_purchase_quantity": "Maksimalt kjøp:",
-    "min_purchase_quantity": "Minimumskjøp:",
+    "max_purchase_quantity": "Maksimalt kj\u00f8p:",
+    "min_purchase_quantity": "Minimumskj\u00f8p:",
     "related_products": "Relaterte produkter",
-    "top": "Mest populære produkter",
-    "similar_by_views": "Kunder har også sett på",
+    "top": "Mest popul\u00e6re produkter",
+    "similar_by_views": "Kunder har ogs\u00e5 sett p\u00e5",
     "featured": "Utvalgt produkter",
-    "file_option_set": "For øyeblikket: <a href=\"{url}\" target=\"_blank\">{name}</a>",
+    "file_option_set": "For \u00f8yeblikket: <a href=\"{url}\" target=\"_blank\">{name}</a>",
     "new": "Nye produkter",
     "warranty": "Garantiinformasjon",
     "addition": "Tilleggsinformasjon",
@@ -793,13 +793,13 @@
       "show": "Vis anmeldelser",
       "title": "Produktanmeldelser",
       "header": "{total, plural, =0{0 anmeldelser} one {# anmeldelse} other {# anmeldelser}}",
-      "link_to_review": "({total, plural, =0{Ingen anmeldelser ennå} one {# anmeldelse} other {# anmeldelser}})",
+      "link_to_review": "({total, plural, =0{Ingen anmeldelser enn\u00e5} one {# anmeldelse} other {# anmeldelser}})",
       "post_on_by": "Lagt ut av { name } { date }",
       "rating_label": "Vurdering",
       "select_rating": "Velg vurdering",
       "anonymous_poster": "ukjent",
       "rating": {
-        "1": "1 stjerne (dårligst)",
+        "1": "1 stjerne (d\u00e5rligst)",
         "2": "2 stjerner",
         "3": "3 stjerner (gjennomsnittlig)",
         "4": "4 stjerner",
@@ -821,7 +821,7 @@
       "show": "Vis videoer"
     },
     "add_to_cart": "Legg i handlekurv",
-    "adding_to_cart": "Legger i handlekurven …",
+    "adding_to_cart": "Legger i handlekurven \u2026",
     "add_to_cart_later": "Legg til i handlekurven senere",
     "options": "Alternativer",
     "none": "Ingen",
@@ -837,16 +837,16 @@
     "unavailable": "Utilgjengelig",
     "sold_out": "Utsolgt",
     "out_of_stock_default_message": "Utsolgt",
-    "instock": "På lager og klar til å sendes!",
-    "instock2": "På lager!",
-    "pre_order": "Forhåndsbestill nå",
-    "buy_now": "Kjøp nå",
+    "instock": "P\u00e5 lager og klar til \u00e5 sendes!",
+    "instock2": "P\u00e5 lager!",
+    "pre_order": "Forh\u00e5ndsbestill n\u00e5",
+    "buy_now": "Kj\u00f8p n\u00e5",
     "choose_options": "Velg alternativer",
-    "hide_options": "På lager!",
+    "hide_options": "P\u00e5 lager!",
     "done": "Ferdig",
     "quick_view": "Hurtigvisning",
     "compare": "Sammenlign",
-    "max_filesize": "Maksimal filstørrelse er",
+    "max_filesize": "Maksimal filst\u00f8rrelse er",
     "filetypes": "filtyper er",
     "upload": "Last opp",
     "choose_an_option": "Velg et alternativ",
@@ -858,7 +858,7 @@
     "excluding_tax": "Ekskludert avgifter",
     "weight": "Vekt:",
     "width": "Bredde:",
-    "height": "Høyde:",
+    "height": "H\u00f8yde:",
     "depth": "Dybde:",
     "measurement": {
       "metric": "cm",
@@ -868,15 +868,15 @@
     "you_save_closing_bracket": ".",
     "gift_wrapping": "Gaveinnpakning:",
     "gift_wrapping_available": "Alternativer tilgjengelig",
-    "quantity_min": "Minste kjøpsantall er {quantity}",
-    "quantity_max": "Maksimal kjøpsantall er {quantity}",
+    "quantity_min": "Minste kj\u00f8psantall er {quantity}",
+    "quantity_max": "Maksimal kj\u00f8psantall er {quantity}",
     "bulk_pricing": {
       "title": "Masseprising:",
-      "view": "Kjøp mange og spar",
+      "view": "Kj\u00f8p mange og spar",
       "modal_title": "Satser for masserabatt",
-      "instructions": "Nedenfor er de tilgjengelige satser for masserabatt for hver enkelt vare når du kjøper et bestemt antall",
-      "range": "<strong>Storkjøpspriser:</strong> Kjøp <strong>{min}</strong>{max, plural, =0{<strong>+</strong>} other {&nbsp;~ <strong>#</strong>}} til <strong class='_bulkPricing-discount' data-bulk-pricing-slider-discount></strong>",
-      "range_single": "<strong>Storkjøpspriser:</strong> Kjøp <strong>{min}</strong> til <strong class='_bulkPricing-discount' data-bulk-pricing-slider-discount></strong>",
+      "instructions": "Nedenfor er de tilgjengelige satser for masserabatt for hver enkelt vare n\u00e5r du kj\u00f8per et bestemt antall",
+      "range": "<strong>Storkj\u00f8pspriser:</strong> Kj\u00f8p <strong>{min}</strong>{max, plural, =0{<strong>+</strong>} other {&nbsp;~ <strong>#</strong>}} til <strong class='_bulkPricing-discount' data-bulk-pricing-slider-discount></strong>",
+      "range_single": "<strong>Storkj\u00f8pspriser:</strong> Kj\u00f8p <strong>{min}</strong> til <strong class='_bulkPricing-discount' data-bulk-pricing-slider-discount></strong>",
       "percent": "<strong>{discount, plural, =0{&nbsp;} other {<strong>(-{discount})</strong>}}</strong>",
       "price": "<strong data-price-discount>(-{discount})</strong>",
       "fixed": "<strong data-fixed-discount>{discount}</strong>"
@@ -886,7 +886,7 @@
       "region_cannot_active": "Kan ikke aktiveres i:",
       "check_region": "Sjekk regionrestriksjoner.",
       "platform": "Plattform",
-      "language": "Språk :",
+      "language": "Spr\u00e5k :",
       "show_more": "mer",
       "show_less": "mindre",
       "global": "Global",
@@ -895,46 +895,22 @@
       "restricted_label": "Produktregionen er begrenset til:",
       "your_country": "Ditt land:",
       "search_label": "Liste over tillatte land for denne produktversjonen:",
-      "search_placeholder": "Søk land"
+      "search_placeholder": "S\u00f8k land"
     },
-    "size_title": "Størrelseshjelp",
-    "size_title_alt": "Størrelseshjelp?",
-    "size_to_get": "Usikker fortsatt på hvilken størrelse du skal velge?",
-    "link_guide_popup": "<a href=\"{href}\" data-papathemes-popup>{value}</a> eller sjekk ut vår størrelsesguide.",
-    "tryon": {
-      "title": "Virtual Try-On",
-      "intro": "Upload a standing photo and your height. Nano Banana AI edits you into this exact product on a clean white background using the product gallery as references.",
-      "product_heading": "Selected product",
-      "upload_heading": "Your photo",
-      "upload_hint": "Click or drag a full-body photo here",
-      "upload_note": "Standing full-body works best · JPG/PNG/WebP · max 8MB",
-      "change_photo": "Change photo",
-      "submit": "Try Now",
-      "loading": "Nano Banana is creating your try-on… usually 15–45 seconds.",
-      "result_heading": "Your Nano Banana try-on",
-      "result_alt": "Nano Banana virtual try-on result",
-      "download": "Download image",
-      "try_again": "Try another photo",
-      "error_generic": "Sorry — Nano Banana could not generate the try-on. Try another photo, or check fal.ai credits / API key.",
-      "error_need_photo": "Upload a full-body photo first.",
-      "error_no_product": "Could not load the product image.",
-      "error_file_type": "Please upload a JPG, PNG, or WebP photo.",
-      "error_file_size": "Photo must be under 8MB.",
-      "garment_picker": "Choose product photo for exact match",
-      "height_label": "Your height (for full-body scaling)",
-      "height_hint": "Example: 175 (cm). Used so the final image is a complete person on white.",
-      "error_not_configured": "Virtual Try-On needs Nano Banana. Add a fal.ai API key (nano-banana-2/edit) or a proxy URL in Theme Editor → Virtual Try-On."
-    }
+    "size_title": "St\u00f8rrelseshjelp",
+    "size_title_alt": "St\u00f8rrelseshjelp?",
+    "size_to_get": "Usikker fortsatt p\u00e5 hvilken st\u00f8rrelse du skal velge?",
+    "link_guide_popup": "<a href=\"{href}\" data-papathemes-popup>{value}</a> eller sjekk ut v\u00e5r st\u00f8rrelsesguide."
   },
   "design_tool": {
-    "button_open": "åpne designverktøy"
+    "button_open": "\u00e5pne designverkt\u00f8y"
   },
   "invoice": {
     "for_order": "{name} Faktura for bestilling nr. {id}",
     "phone": "Telefon: {number}",
     "email": "E-post: {email}",
     "order": "Bestilling:",
-    "payment_method": "Betalingsmåte:",
+    "payment_method": "Betalingsm\u00e5te:",
     "order_date": "Bestillingsdato:",
     "shipping_method": "Fraktmetode:",
     "order_items": "Bestillingsvarer",
@@ -947,45 +923,45 @@
     "pickup": "Henting",
     "product_name": "Produktnavn",
     "price": "Pris",
-    "total": "Totalbeløp",
+    "total": "Totalbel\u00f8p",
     "comments": "Kommentarer"
   },
   "newsletter": {
-    "subscribe": "Abonner på nyhetsbrevet vårt",
+    "subscribe": "Abonner p\u00e5 nyhetsbrevet v\u00e5rt",
     "subscribe_submit": "Abonner",
     "email_placeholder": "E-postadressen din",
     "name_placeholder": "Ditt navn",
     "subscribed_heading": "Takk for at du abonnerer!",
-    "subscribed_heading_error": "Oi …",
-    "subscribed_message": "Takk for at du ble med på e-postlisten vår. Du vil snart få tilsendt neste utgave av nyhetsbrevet vårt.",
+    "subscribed_heading_error": "Oi \u2026",
+    "subscribed_message": "Takk for at du ble med p\u00e5 e-postlisten v\u00e5r. Du vil snart f\u00e5 tilsendt neste utgave av nyhetsbrevet v\u00e5rt.",
     "unsubscribed_heading": "Avmeldt!",
-    "unsubscribed_message": "Du mottar ikke lenger markedsførings-e-poster fra <b>{store_name}</b>",
+    "unsubscribed_message": "Du mottar ikke lenger markedsf\u00f8rings-e-poster fra <b>{store_name}</b>",
     "hide_popup_msg": "Ikke vis denne popupen igjen"
   },
   "social": {
     "connect": "Ta kontakt med oss"
   },
   "errors": {
-    "shipping_quote_failure": "Det oppsto et problem med å hente frakttilbudet ditt",
-    "state_error": "Det oppsto et problem med å hente delstater/provinser"
+    "shipping_quote_failure": "Det oppsto et problem med \u00e5 hente frakttilbudet ditt",
+    "state_error": "Det oppsto et problem med \u00e5 hente delstater/provinser"
   },
   "search": {
     "quick_search": {
-      "input_label": "Søk",
-      "input_placeholder": "Søk i butikken",
-      "show_all": "Vis alle søkeresultater",
-      "popular_search": "Populære søk",
-      "search_history": "Søkehistorikk"
+      "input_label": "S\u00f8k",
+      "input_placeholder": "S\u00f8k i butikken",
+      "show_all": "Vis alle s\u00f8keresultater",
+      "popular_search": "Popul\u00e6re s\u00f8k",
+      "search_history": "S\u00f8kehistorikk"
     },
     "actionbar": {
-      "input_label": "Søk",
+      "input_label": "S\u00f8k",
       "input_placeholder": "Filtrer produkter etter navn, SKU, attributter...",
       "input_placeholder_fullwidth": "Filtrer etter navn, SKU...",
-      "clear_all": "Tøm alle"
+      "clear_all": "T\u00f8m alle"
     },
     "results": {
-      "form_label": "Søkeord:",
-      "form_button_text": "Søk",
+      "form_label": "S\u00f8keord:",
+      "form_button_text": "S\u00f8k",
       "count": "{ count, plural, one {# resultat} other {# resultater} } for '{ search_query }'",
       "quick_count": "{ count, plural, one {# produktresultat} other {# produktresultater} } for '{ search_query }'",
       "product_count": "Produkter ({count})",
@@ -1006,7 +982,7 @@
       "rating": {
         "and-up": "og opp"
       },
-      "clear": "Tøm",
+      "clear": "T\u00f8m",
       "more": "Mer",
       "show-more": "Vis mer",
       "show-less": "Vis mindre",
@@ -1018,24 +994,24 @@
       "browse-by": "Bla etter"
     },
     "error": {
-      "empty_field": "Søkefeltet kan ikke være tomt."
+      "empty_field": "S\u00f8kefeltet kan ikke v\u00e6re tomt."
     },
     "product_results": "Produktresultater"
   },
   "page_not_found": {
-    "page_heading": "Feil 404 – side ikke funnet",
+    "page_heading": "Feil 404 \u2013 side ikke funnet",
     "message": "Oi, det ser ut til at siden du leter etter har flyttet eller ikke lenger eksisterer."
   },
   "server_error": {
-    "page_heading": "Noe gikk galt …",
-    "message": "Butikken er i øyeblikket utilgjengelig, prøv igjen om noen minutter"
+    "page_heading": "Noe gikk galt \u2026",
+    "message": "Butikken er i \u00f8yeblikket utilgjengelig, pr\u00f8v igjen om noen minutter"
   },
   "forbidden": {
-    "page_heading": "Beklager! Logg på for å fortsette",
-    "message": "Du har ikke tillatelse til å få tilgang til denne siden.",
-    "if_you_were_signed_in": "Hvis du var pålogget,",
-    "sign_in": "vennligst logg på igjen",
-    "to_continue": ", for å gjenoppta arbeidet i en ny økt."
+    "page_heading": "Beklager! Logg p\u00e5 for \u00e5 fortsette",
+    "message": "Du har ikke tillatelse til \u00e5 f\u00e5 tilgang til denne siden.",
+    "if_you_were_signed_in": "Hvis du var p\u00e5logget,",
+    "sign_in": "vennligst logg p\u00e5 igjen",
+    "to_continue": ", for \u00e5 gjenoppta arbeidet i en ny \u00f8kt."
   },
   "sitemap": {
     "page_title": "Sidekart",
@@ -1052,95 +1028,95 @@
     "down": "Nede for vedlikehold"
   },
   "validation_messages": {
-    "valid_email": "Du må skrive inn en gyldig e-postadresse.",
-    "password": "Du må skrive inn et passord.",
+    "valid_email": "Du m\u00e5 skrive inn en gyldig e-postadresse.",
+    "password": "Du m\u00e5 skrive inn et passord.",
     "password_match": "Passordene dine er ikke like.",
-    "invalid_password": "Passord må være på minst 7 tegn og inneholde både alfabetiske og numeriske tegn.",
-    "field_not_blank": " feltet kan ikke være tomt.",
-    "certificate_amount": "Du må angi et gavekortbeløp.",
-    "certificate_amount_range": "Du må angi et gavkortbeløp mellom [MIN] og [MAX]",
-    "price_min_evaluation": "Minimumsprisen må være mindre enn maksimumsprisen.",
-    "price_max_evaluation": "Minimumsprisen må være mindre enn maksimumsprisen.",
+    "invalid_password": "Passord m\u00e5 v\u00e6re p\u00e5 minst 7 tegn og inneholde b\u00e5de alfabetiske og numeriske tegn.",
+    "field_not_blank": " feltet kan ikke v\u00e6re tomt.",
+    "certificate_amount": "Du m\u00e5 angi et gavekortbel\u00f8p.",
+    "certificate_amount_range": "Du m\u00e5 angi et gavkortbel\u00f8p mellom [MIN] og [MAX]",
+    "price_min_evaluation": "Minimumsprisen m\u00e5 v\u00e6re mindre enn maksimumsprisen.",
+    "price_max_evaluation": "Minimumsprisen m\u00e5 v\u00e6re mindre enn maksimumsprisen.",
     "price_min_not_entered": "Minimumspris kreves.",
     "price_max_not_entered": "Maksimumspris kreves.",
-    "price_invalid_value": "Inndata må være større enn 0.",
+    "price_invalid_value": "Inndata m\u00e5 v\u00e6re st\u00f8rre enn 0.",
     "invalid_gift_certificate": "Skriv inn din gyldige gavekortkode."
   },
   "validation_fallback_messages": {
-    "valid_email": "Du må skrive inn en gyldig e-postadresse.",
-    "password": "Du må skrive inn et passord.",
+    "valid_email": "Du m\u00e5 skrive inn en gyldig e-postadresse.",
+    "password": "Du m\u00e5 skrive inn et passord.",
     "password_match": "Passordene dine er ikke like.",
-    "invalid_password": "Passord må være på minst 7 tegn og inneholde både alfabetiske og numeriske tegn.",
-    "field_not_blank": " feltet kan ikke være tomt.",
-    "certificate_amount": "Du må angi et gavekortbeløp.",
-    "certificate_amount_range": "Du må angi et gavkortbeløp mellom [MIN] og [MAX]",
-    "price_min_evaluation": "Minimumsprisen må være mindre enn maksimumsprisen.",
-    "price_max_evaluation": "Minimumsprisen må være mindre enn maksimumsprisen.",
+    "invalid_password": "Passord m\u00e5 v\u00e6re p\u00e5 minst 7 tegn og inneholde b\u00e5de alfabetiske og numeriske tegn.",
+    "field_not_blank": " feltet kan ikke v\u00e6re tomt.",
+    "certificate_amount": "Du m\u00e5 angi et gavekortbel\u00f8p.",
+    "certificate_amount_range": "Du m\u00e5 angi et gavkortbel\u00f8p mellom [MIN] og [MAX]",
+    "price_min_evaluation": "Minimumsprisen m\u00e5 v\u00e6re mindre enn maksimumsprisen.",
+    "price_max_evaluation": "Minimumsprisen m\u00e5 v\u00e6re mindre enn maksimumsprisen.",
     "price_min_not_entered": "Minimumspris kreves.",
     "price_max_not_entered": "Maksimumspris kreves.",
-    "price_invalid_value": "Inndata må være større enn 0.",
+    "price_invalid_value": "Inndata m\u00e5 v\u00e6re st\u00f8rre enn 0.",
     "invalid_gift_certificate": "Skriv inn din gyldige gavekortkode."
   },
   "validation_default_messages": {
-    "valid_email": "Du må skrive inn en gyldig e-postadresse.",
-    "password": "Du må skrive inn et passord.",
+    "valid_email": "Du m\u00e5 skrive inn en gyldig e-postadresse.",
+    "password": "Du m\u00e5 skrive inn et passord.",
     "password_match": "Passordene dine er ikke like.",
-    "invalid_password": "Passord må være på minst 7 tegn og inneholde både alfabetiske og numeriske tegn.",
-    "field_not_blank": "Feltet kan ikke være tomt.",
-    "certificate_amount": "Du må angi et gavekortbeløp.",
-    "certificate_amount_range": "Du må angi et gavkortbeløp mellom [MIN] og [MAX]",
-    "price_min_evaluation": "Minimumsprisen må være mindre enn maksimumsprisen.",
-    "price_max_evaluation": "Minimumsprisen må være mindre enn maksimumsprisen.",
+    "invalid_password": "Passord m\u00e5 v\u00e6re p\u00e5 minst 7 tegn og inneholde b\u00e5de alfabetiske og numeriske tegn.",
+    "field_not_blank": "Feltet kan ikke v\u00e6re tomt.",
+    "certificate_amount": "Du m\u00e5 angi et gavekortbel\u00f8p.",
+    "certificate_amount_range": "Du m\u00e5 angi et gavkortbel\u00f8p mellom [MIN] og [MAX]",
+    "price_min_evaluation": "Minimumsprisen m\u00e5 v\u00e6re mindre enn maksimumsprisen.",
+    "price_max_evaluation": "Minimumsprisen m\u00e5 v\u00e6re mindre enn maksimumsprisen.",
     "price_min_not_entered": "Minimumspris kreves.",
     "price_max_not_entered": "Maksimumspris kreves.",
-    "price_invalid_value": "Inndata må være større enn 0.",
+    "price_invalid_value": "Inndata m\u00e5 v\u00e6re st\u00f8rre enn 0.",
     "invalid_gift_certificate": "Skriv inn din gyldige gavekortkode."
   },
   "page_builder": {
-    "pdp_sale_badge_label": "På salg!",
+    "pdp_sale_badge_label": "P\u00e5 salg!",
     "pdp_sold_out_label": "Utsolgt",
-    "pdp-sale-price-label": "Nå:",
-    "pdp-non-sale-price-label": "Før:",
+    "pdp-sale-price-label": "N\u00e5:",
+    "pdp-non-sale-price-label": "F\u00f8r:",
     "pdp-retail-price-label": "Veiledende utsalgspris",
     "pdp-custom-fields-tab-label": "Mer informasjon"
   },
   "consent_manager": {
-    "data_collection_warning": "Vi bruker informasjonskapsler (og andre lignende teknologier) til å samle inn data for å forbedre handleopplevelsen din.",
+    "data_collection_warning": "Vi bruker informasjonskapsler (og andre lignende teknologier) til \u00e5 samle inn data for \u00e5 forbedre handleopplevelsen din.",
     "accept_all_cookies": "Godta alle informasjonskapsler",
     "gdpr_settings": "Innstillinger",
     "data_collection_preferences": "Innstillinger for innsamling av nettstedsdata",
     "manage_data_collection_preferences": "Innstillinger for innsamling av nettstedsdata",
-    "use_data_by_cookies": " bruker data samlet inn av informasjonskapsler og JavaScript-biblioteker til å forbedre handleopplevelsen din.",
-    "data_categories_table": "Tabellen nedenfor viser hvordan vi bruker disse dataene etter kategori. For å velge bort en kategori for datainnsamling velger du «Nei» og lagrer innstillingene.",
+    "use_data_by_cookies": " bruker data samlet inn av informasjonskapsler og JavaScript-biblioteker til \u00e5 forbedre handleopplevelsen din.",
+    "data_categories_table": "Tabellen nedenfor viser hvordan vi bruker disse dataene etter kategori. For \u00e5 velge bort en kategori for datainnsamling velger du \u00abNei\u00bb og lagrer innstillingene.",
     "allow": "Tillat",
     "accept": "Godta",
     "deny": "Avvis",
     "dismiss": "Avvis",
     "reject_all": "Avvis alle",
     "category": "Kategori",
-    "purpose": "Formål",
+    "purpose": "Form\u00e5l",
     "functional_category": "Funksjonell",
     "functional_purpose": "Aktiverer forbedret funksjonalitet, som videoer og livechat. Hvis du ikke tillater disse, kan det hende at noen eller alle disse funksjonene ikke fungerer som de skal.",
     "analytics_category": "Analyse",
     "analytics_purpose": "Gi statistisk informasjon om bruk av nettstedet, f.eks. nettanalyse, slik at vi kan forbedre denne nettsiden over tid.",
-    "targeting_category": "Målretting",
+    "targeting_category": "M\u00e5lretting",
     "advertising_category": "Annonsering",
-    "advertising_purpose": "Brukes til å lage profiler eller tilpasse innhold for å forbedre handleopplevelsen din.",
+    "advertising_purpose": "Brukes til \u00e5 lage profiler eller tilpasse innhold for \u00e5 forbedre handleopplevelsen din.",
     "essential_category": "Essensiell",
-    "esential_purpose": "Essensielle for at nettstedet og eventuelle forespurte tjenester skal fungere, men utfører ikke noen tilleggsfunksjon eller sekundær funksjon.",
+    "esential_purpose": "Essensielle for at nettstedet og eventuelle forespurte tjenester skal fungere, men utf\u00f8rer ikke noen tilleggsfunksjon eller sekund\u00e6r funksjon.",
     "yes": "Ja",
     "no": "Nei",
     "not_available": "N/A",
     "cancel": "Avbryt",
     "save": "Lagre",
     "back_to_preferences": "Tilbake til innstillinger",
-    "close_without_changes": "Du har endringer i innstillingene for datainnsamling som ikke er lagret. Er du sikker på at du vil lukke uten å lagre?",
+    "close_without_changes": "Du har endringer i innstillingene for datainnsamling som ikke er lagret. Er du sikker p\u00e5 at du vil lukke uten \u00e5 lagre?",
     "unsaved_changes": "Du har endringer som ikke er lagret",
-    "by_using": "Ved å bruke nettstedet vårt godtar du våre",
-    "agree_on_data_collection": "Ved å bruke nettstedet vårt godtar du innsamlingen av data som beskrevet i våre ",
-    "change_preferences": "Du kan endre innstillingene dine når som helst",
-    "cancel_dialog_title": "Er du sikker på at du vil avbryte?",
-    "privacy_policy": "Personvernerklæring",
+    "by_using": "Ved \u00e5 bruke nettstedet v\u00e5rt godtar du v\u00e5re",
+    "agree_on_data_collection": "Ved \u00e5 bruke nettstedet v\u00e5rt godtar du innsamlingen av data som beskrevet i v\u00e5re ",
+    "change_preferences": "Du kan endre innstillingene dine n\u00e5r som helst",
+    "cancel_dialog_title": "Er du sikker p\u00e5 at du vil avbryte?",
+    "privacy_policy": "Personvernerkl\u00e6ring",
     "allow_category_tracking": "Tillat sporing av [CATEGORY_NAME]",
     "disallow_category_tracking": "Ikke tillat sporing av [CATEGORY_NAME]"
   },
@@ -1205,7 +1181,7 @@
     "add_all": "Legg alle i handlekurven",
     "progress_heading": "Legger til produktene i handlekurven din",
     "view_cart": "Se handlekurven",
-    "countinue_shopping": "Fortsett å handle",
+    "countinue_shopping": "Fortsett \u00e5 handle",
     "validate": {
       "enter_qty": "Vennligst skriv inn antall",
       "choose_options": "Vennligst velg alternativer"
@@ -1213,27 +1189,27 @@
     "title": "Oppsett for stor bestilling"
   },
   "also_bought": {
-    "heading": "Ofte kjøpt sammen:",
+    "heading": "Ofte kj\u00f8pt sammen:",
     "add_all": "Velg alle",
     "add_selected_to_cart_backup": "Legg til %str% i handlekurven",
     "add_selected_to_cart": "Legg til i handlekurven",
     "added_to_cart": "Lagt til i handlekurven din!",
     "all": "alle",
-    "number_array": ",både,tre,fire,fem,seks,sju,åtte,ni,ti",
-    "all_number_array": "alle,alle to,alle tre,alle fire,alle fem,alle seks,alle sju,alle åtte,alle ni,alle ti"
+    "number_array": ",b\u00e5de,tre,fire,fem,seks,sju,\u00e5tte,ni,ti",
+    "all_number_array": "alle,alle to,alle tre,alle fire,alle fem,alle seks,alle sju,alle \u00e5tte,alle ni,alle ti"
   },
   "shipping_countdown": {
     "hour": "T",
     "hours": "T",
     "minute": "min",
     "minutes": "min",
-    "today_hm": "Bestill innen <strong>%HOUR%</strong> og <strong>%MINUTE%</strong> for å få varen sendt i dag.",
-    "today_h": "Bestill innen <strong>%MINUTE%</strong> for å få varen sendt i dag.",
-    "tomorrow_hm": "Bestill innen <strong>%HOUR%</strong> og <strong>%MINUTE%</strong> for å få varen sendt i morgen.",
-    "tomorrow_m": "Bestill innen <strong>%MINUTE%</strong> for å få varen sendt i morgen.",
-    "monday": "Bestill nå for å få varen sendt mandag."
+    "today_hm": "Bestill innen <strong>%HOUR%</strong> og <strong>%MINUTE%</strong> for \u00e5 f\u00e5 varen sendt i dag.",
+    "today_h": "Bestill innen <strong>%MINUTE%</strong> for \u00e5 f\u00e5 varen sendt i dag.",
+    "tomorrow_hm": "Bestill innen <strong>%HOUR%</strong> og <strong>%MINUTE%</strong> for \u00e5 f\u00e5 varen sendt i morgen.",
+    "tomorrow_m": "Bestill innen <strong>%MINUTE%</strong> for \u00e5 f\u00e5 varen sendt i morgen.",
+    "monday": "Bestill n\u00e5 for \u00e5 f\u00e5 varen sendt mandag."
   },
   "form_contact": {
-    "docs": "For å vise kontaktskjemaet må du sette opp URL-en for å spørre om spørsmål til en kontaktskjemapside i temaets innstillinger. For å slå av denne popupen, må du sette URL-en for å spørre om spørsmål til tom i temaets innstillinger. Du finner detaljerte instruksjoner i dokumentasjonen vår på <a href=\"http: //bc-mooncat-docs.papathemes.com/usage.html#ask-question\" target=\"_blank\">Konfigurer spørsmål</a>."
+    "docs": "For \u00e5 vise kontaktskjemaet m\u00e5 du sette opp URL-en for \u00e5 sp\u00f8rre om sp\u00f8rsm\u00e5l til en kontaktskjemapside i temaets innstillinger. For \u00e5 sl\u00e5 av denne popupen, m\u00e5 du sette URL-en for \u00e5 sp\u00f8rre om sp\u00f8rsm\u00e5l til tom i temaets innstillinger. Du finner detaljerte instruksjoner i dokumentasjonen v\u00e5r p\u00e5 <a href=\"http: //bc-mooncat-docs.papathemes.com/usage.html#ask-question\" target=\"_blank\">Konfigurer sp\u00f8rsm\u00e5l</a>."
   }
 }

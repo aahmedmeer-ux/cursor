@@ -4540,39 +4540,5 @@
         ]
       }
     ]
-  },
-  {
-    "name": "Virtual Try-On",
-    "settings": [
-      {
-        "type": "paragraph",
-        "content": "Free Virtual Try-On via Hugging Face IDM-VTON (ZeroGPU Space). Optional free HF token improves rate limits. Paste token from huggingface.co/settings/tokens."
-      },
-      {
-        "type": "checkbox",
-        "label": "Enable Try it On AI button",
-        "id": "tryon_enable"
-      },
-      {
-        "type": "text",
-        "label": "Button label",
-        "id": "tryon_button_label"
-      },
-      {
-        "type": "text",
-        "label": "Hugging Face token (free, optional)",
-        "id": "tryon_hf_token"
-      },
-      {
-        "type": "text",
-        "label": "Proxy URL (optional)",
-        "id": "tryon_proxy_url"
-      },
-      {
-        "type": "text",
-        "label": "Paid API key fallback (Gemini / fal — optional)",
-        "id": "tryon_api_key"
-      }
-    ]
   }
 ]

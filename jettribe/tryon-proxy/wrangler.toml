@@ -1,6 +1,0 @@
-name = "jettribe-virtual-tryon"
-main = "worker.js"
-compatibility_date = "2024-09-01"
-
-# Set secret: wrangler secret put FAL_KEY
-# Optional: FAL_ENDPOINT override via wrangler.toml [vars]

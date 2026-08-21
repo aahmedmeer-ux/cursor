@@ -43,8 +43,7 @@
                                 {{lang 'design_tool.button_open'}}
                             </button>
                         </div>
-                        {{> components/products/try-on-button}}
-                        <div class="form-action form-action--addToCart">
+                                                <div class="form-action form-action--addToCart">
                             <button id="form-action-addToCart" {{#unless product.can_purchase}}disabled{{/unless}} data-wait-message="{{lang 'products.adding_to_cart'}}" class="button button--primary" type="submit">
                                 {{#if product.pre_order}}{{lang 'products.pre_order'}}{{else}}{{lang 'products.add_to_cart'}}{{/if}}
                             </button>
@@ -52,8 +51,7 @@
                     </div>
                 {{else}}
                     <div class="formView-action _designTools">
-                        {{> components/products/try-on-button}}
-                        <div class="form-action form-action--addToCart">
+                                                <div class="form-action form-action--addToCart">
                             <button id="form-action-addToCart" {{#unless product.can_purchase}}disabled{{/unless}} data-wait-message="{{lang 'products.adding_to_cart'}}" class="button button--primary" type="submit">
                                 {{#if product.pre_order}}{{lang 'products.pre_order'}}{{else}}{{lang 'products.add_to_cart'}}{{/if}}
                             </button>
@@ -72,8 +70,7 @@
                             </button>
                         </div>
                     {{/if}}
-                    {{> components/products/try-on-button}}
-                    <div class="form-action form-action--addToCart">
+                                        <div class="form-action form-action--addToCart">
                         <button id="form-action-addToCart" {{#unless product.can_purchase}}disabled{{/unless}} data-wait-message="{{lang 'products.adding_to_cart'}}" class="button button--primary" type="submit">
                             {{#if product.pre_order}}{{lang 'products.pre_order'}}{{else}}{{lang 'products.add_to_cart'}}{{/if}}
                         </button>
@@ -89,8 +86,7 @@
                         </button>
                     </div>
                 {{/if}}
-                {{> components/products/try-on-button}}
-                <div class="form-action form-action--addToCart">
+                                <div class="form-action form-action--addToCart">
                     <button id="form-action-addToCart" {{#unless product.can_purchase}}disabled{{/unless}} data-wait-message="{{lang 'products.adding_to_cart'}}" class="button button--primary" type="submit">
                         {{#if product.pre_order}}{{lang 'products.pre_order'}}{{else}}{{lang 'products.add_to_cart'}}{{/if}}
                     </button>

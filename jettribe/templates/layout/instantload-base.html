@@ -90,18 +90,6 @@
         {{~inject 'customerRecentlyViewedProductIds' (pluck customer.recently_viewed_products.items 'id')}}
         {{~inject 'customerId' customer.id}}
         {{~inject 'graphQLToken' settings.storefront_api.token}}
-        {{~inject 'tryonEnable' theme_settings.tryon_enable}}
-        {{~inject 'tryonButtonLabel' theme_settings.tryon_button_label}}
-        {{~inject 'tryonProxyUrl' theme_settings.tryon_proxy_url}}
-        {{~inject 'tryonApiKey' theme_settings.tryon_api_key}}
-        {{~inject 'tryonHfToken' theme_settings.tryon_hf_token}}
-        {{~inject 'tryonLoading' (lang 'products.tryon.loading')}}
-        {{~inject 'tryonErrorGeneric' (lang 'products.tryon.error_generic')}}
-        {{~inject 'tryonErrorNotConfigured' (lang 'products.tryon.error_not_configured')}}
-        {{~inject 'tryonErrorNeedPhoto' (lang 'products.tryon.error_need_photo')}}
-        {{~inject 'tryonErrorNoProduct' (lang 'products.tryon.error_no_product')}}
-        {{~inject 'tryonErrorFileType' (lang 'products.tryon.error_file_type')}}
-        {{~inject 'tryonErrorFileSize' (lang 'products.tryon.error_file_size')}}
         {{~inject 'currencyCode' currency_selector.active_currency_code}}
         {{~inject 'hidePriceFromGuests' settings.hide_price_from_guests}}
         {{~inject 'isCrawlerAndSpeedTestMode' (getVar 'isCrawlerAndSpeedTestMode')}}
@@ -150,7 +138,6 @@
                 {{#block "page"}} {{/block}}
             </div>
             {{> components/common/modal}}
-            {{> components/products/try-on-modal}}
             {{> components/common/alert-modal}}
         </div>
 

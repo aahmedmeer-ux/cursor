@@ -10,7 +10,7 @@
     "brands": "Populaire merken",
     "navigate": "Navigeren",
     "info": "Info",
-    "categories": "Categorieën",
+    "categories": "Categorie\u00ebn",
     "whatsapp": "WhatsApp: {whatsapp}",
     "powered_by": "Mogelijk gemaakt door",
     "phone": "Telefoon",
@@ -158,7 +158,7 @@
       "preview": "Voorbeeld"
     },
     "added_to_cart": {
-      "what_next": "Oké, {num_products, plural, one {1er is 1 item} other {#er zijn # items}} toegevoegd aan uw winkelmandje. Wat nu?",
+      "what_next": "Ok\u00e9, {num_products, plural, one {1er is 1 item} other {#er zijn # items}} toegevoegd aan uw winkelmandje. Wat nu?",
       "your_cart_contains": "Uw winkelmandje bevat {num_products, plural, one {1 artikel} other {# artikelen}}",
       "proceed_to_checkout": "Doorgaan naar betaalomgeving",
       "order_subtotal": "Subtotaal bestelling",
@@ -208,7 +208,7 @@
     "share": "Delen",
     "delete": "Verwijderen",
     "public": "Openbaar",
-    "private": "Privé",
+    "private": "Priv\u00e9",
     "view_all": "Alles weergeven",
     "wishlist": "Verlanglijsten",
     "view_all_products": "Alle producten bekijken",
@@ -281,7 +281,7 @@
     "notification_compare": "Product toegevoegd voor vergelijking."
   },
   "category": {
-    "label": "Categorieën",
+    "label": "Categorie\u00ebn",
     "shop_by_price": "Winkelen op prijs",
     "shop_by_price_range_aria": "Prijsklasse van {from} tot {to}",
     "reset": "Opnieuw instellen",
@@ -344,7 +344,7 @@
   },
   "reset_password": {
     "heading": "Wachtwoord opnieuw instellen",
-    "intro": "Voer hieronder uw e-mailadres in om een nieuw wachtwoord aan te vragen. Er wordt een e-mail naar onderstaand adres gestuurd met een link om uw e-mailadres te verifiëren."
+    "intro": "Voer hieronder uw e-mailadres in om een nieuw wachtwoord aan te vragen. Er wordt een e-mail naar onderstaand adres gestuurd met een link om uw e-mailadres te verifi\u00ebren."
   },
   "account": {
     "breadcrumb": "Uw account",
@@ -702,7 +702,7 @@
         "enabled": "Alleen uitgelichte producten",
         "disabled": "Alleen niet-uitgelichte producten"
       },
-      "categories": "Categorieën",
+      "categories": "Categorie\u00ebn",
       "did_you_mean": "Bedoelde u:",
       "your_search_for": "Uw zoekopdracht naar",
       "no_match": "heeft geen producten of informatie opgeleverd.",
@@ -714,7 +714,7 @@
       },
       "refine": "Zoekopdracht verfijnen",
       "brand": "Merken",
-      "searchsubs": "Automatisch subcategorieën doorzoeken"
+      "searchsubs": "Automatisch subcategorie\u00ebn doorzoeken"
     },
     "wishlist": {
       "name": "Naam verlanglijstje:",
@@ -729,7 +729,7 @@
           "phone": "U moet een telefoonnummer invoeren."
         },
         "reorder": {
-          "select_item": "Selecteer één of meer artikelen om opnieuw te bestellen."
+          "select_item": "Selecteer \u00e9\u00e9n of meer artikelen om opnieuw te bestellen."
         },
         "inbox": {
           "order": "U moet een bestelling selecteren.",
@@ -850,7 +850,7 @@
     "filetypes": "bestandstypen zijn",
     "upload": "Uploaden",
     "choose_an_option": "Kies een optie",
-    "select_one": "Selecteer er één",
+    "select_one": "Selecteer er \u00e9\u00e9n",
     "description": "Description",
     "price_with_tax": "(Incl. {tax_label})",
     "price_without_tax": "(Excl. {tax_label})",
@@ -900,31 +900,7 @@
     "size_title": "Maatadvies",
     "size_title_alt": "Maatadvies?",
     "size_to_get": "Nog steeds onzeker over welke maat je moet kiezen?",
-    "link_guide_popup": "<a href=\"{href}\" data-papathemes-popup>{value}</a> of bekijk onze maattabel.",
-    "tryon": {
-      "title": "Virtual Try-On",
-      "intro": "Upload a standing photo and your height. Nano Banana AI edits you into this exact product on a clean white background using the product gallery as references.",
-      "product_heading": "Selected product",
-      "upload_heading": "Your photo",
-      "upload_hint": "Click or drag a full-body photo here",
-      "upload_note": "Standing full-body works best · JPG/PNG/WebP · max 8MB",
-      "change_photo": "Change photo",
-      "submit": "Try Now",
-      "loading": "Nano Banana is creating your try-on… usually 15–45 seconds.",
-      "result_heading": "Your Nano Banana try-on",
-      "result_alt": "Nano Banana virtual try-on result",
-      "download": "Download image",
-      "try_again": "Try another photo",
-      "error_generic": "Sorry — Nano Banana could not generate the try-on. Try another photo, or check fal.ai credits / API key.",
-      "error_need_photo": "Upload a full-body photo first.",
-      "error_no_product": "Could not load the product image.",
-      "error_file_type": "Please upload a JPG, PNG, or WebP photo.",
-      "error_file_size": "Photo must be under 8MB.",
-      "garment_picker": "Choose product photo for exact match",
-      "height_label": "Your height (for full-body scaling)",
-      "height_hint": "Example: 175 (cm). Used so the final image is a complete person on white.",
-      "error_not_configured": "Virtual Try-On needs Nano Banana. Add a fal.ai API key (nano-banana-2/edit) or a proxy URL in Theme Editor → Virtual Try-On."
-    }
+    "link_guide_popup": "<a href=\"{href}\" data-papathemes-popup>{value}</a> of bekijk onze maattabel."
   },
   "design_tool": {
     "button_open": "ontwerp tool openen"
@@ -1105,7 +1081,7 @@
     "pdp-custom-fields-tab-label": "Aanvullende informatie"
   },
   "consent_manager": {
-    "data_collection_warning": "Wij gebruiken cookies (en andere soortgelijke technologieën) om gegevens te verzamelen en zo uw winkelervaring te verbeteren.",
+    "data_collection_warning": "Wij gebruiken cookies (en andere soortgelijke technologie\u00ebn) om gegevens te verzamelen en zo uw winkelervaring te verbeteren.",
     "accept_all_cookies": "Alle cookies aanvaarden",
     "gdpr_settings": "Instellingen",
     "data_collection_preferences": "Voorkeuren voor het verzamelen van gegevens op de website",
@@ -1154,7 +1130,7 @@
       "url2": "#"
     },
     "categories_grid": {
-      "heading": "Categorieën",
+      "heading": "Categorie\u00ebn",
       "products_count": "{count, plural, =0{Geen producten} one {1 product} other {# producten}}"
     },
     "pbcst": {
@@ -1166,7 +1142,7 @@
       "shop_category": "Winkel {name}",
       "load_more": "Meer tonen",
       "collapse": "Inklappen",
-      "subcategory_title": "Categorieën:"
+      "subcategory_title": "Categorie\u00ebn:"
     },
     "product_cartsuggested": {
       "load_more": "Meer laden",
@@ -1176,7 +1152,7 @@
       "image": "https://tvlgiao.github.io/bigcommerce-themes/supermarket/demo/images/new-products-img.jpg"
     },
     "categories_list": {
-      "heading": "Topcategorieën",
+      "heading": "Topcategorie\u00ebn",
       "see_all": "Alles bekijken",
       "cat_id_1": "55",
       "cat_id_2": "23",

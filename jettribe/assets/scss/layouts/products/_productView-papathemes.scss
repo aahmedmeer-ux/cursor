@@ -454,8 +454,16 @@
         max-width: unset;
         float: unset;
         margin-left: 0;
-        margin-top: spacing("quarter");
+        margin-top: spacing("single");
         margin-bottom: 0;
+
+        // Excel vertical tabs handle their own chrome
+        .productView-description--excel {
+            .tab-content {
+                padding: 0;
+                border-top: 0;
+            }
+        }
 
         .tab-title {
             text-transform: uppercase;

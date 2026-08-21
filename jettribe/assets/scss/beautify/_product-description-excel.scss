@@ -1,32 +1,27 @@
-// Jettribe PDP description — vertical spine label + full-width content
+// Jettribe PDP description — horizontal title on top + line + full-width content
 .productView-description--excel {
     padding: remCalc(40px) 0 remCalc(24px);
 }
 
 .productDescExcel {
-    display: flex;
-    align-items: stretch;
-    gap: 0;
+    display: block;
     width: 100%;
     background: #fff;
-
-    @media (max-width: (screenSize("medium") - 1px)) {
-        flex-direction: column;
-    }
 }
 
-// Narrow left column — title written vertically
+// Horizontal tab row on top with underline
 .productDescExcel-tabs.tabs--excel {
     float: none;
     display: flex;
-    flex-direction: column;
-    flex: 0 0 remCalc(44px);
-    width: remCalc(44px);
-    margin: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    width: 100%;
+    margin: 0 0 remCalc(28px);
     padding: 0;
     border: 0;
-    border-right: 1px solid #dcdcdc;
-    background: #f7f7f7;
+    border-bottom: 1px solid #d0d0d0;
+    background: transparent;
     list-style: none;
 
     &::before,
@@ -40,72 +35,58 @@
 
     .tab {
         float: none;
-        display: flex;
-        flex: 1 1 auto;
-        align-items: stretch;
-        justify-content: center;
-        margin: 0;
-        min-height: remCalc(140px);
+        display: block;
+        margin: 0 remCalc(28px) 0 0;
         border: 0;
-        border-bottom: 1px solid #dcdcdc;
-        background: #f7f7f7;
+        background: transparent;
 
         &:last-child {
-            border-bottom: 0;
+            margin-right: 0;
         }
 
         .tab-title {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
+            display: inline-block;
             margin: 0;
-            padding: remCalc(16px) 0;
+            padding: 0 0 remCalc(12px);
             border: 0;
-            border-left: 3px solid transparent;
+            border-bottom: 3px solid transparent;
             background: transparent;
             color: #666;
-            font-size: remCalc(12px);
+            font-size: remCalc(16px);
             font-weight: fontWeight("bold");
-            letter-spacing: 0.12em;
-            line-height: 1;
+            letter-spacing: 0.06em;
+            line-height: 1.2;
             text-transform: uppercase;
             text-decoration: none;
-            writing-mode: vertical-rl;
-            transform: rotate(180deg);
+            writing-mode: horizontal-tb;
+            transform: none;
             white-space: nowrap;
 
             &:hover,
             &:focus {
-                background: #eee;
                 color: #111;
             }
         }
 
         &.is-active {
-            background: #fff;
+            background: transparent;
 
             .tab-title {
-                border-left-color: transparent;
-                border-right: 3px solid #e53d42; // reads as left accent after rotate
+                margin-bottom: -1px;
+                border-bottom-color: #e53d42;
                 color: #e53d42;
-                background: #fff;
+                background: transparent;
             }
         }
     }
 }
 
 .productDescExcel-panels {
-    flex: 1 1 auto;
-    min-width: 0;
+    display: block;
     width: 100%;
     margin: 0;
-    padding: remCalc(8px) 0 remCalc(8px) remCalc(28px);
+    padding: 0;
     background: #fff;
-
-    @media (max-width: (screenSize("medium") - 1px)) {
-        padding: 0;
-    }
 
     > .tab-content {
         display: none;

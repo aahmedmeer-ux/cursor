@@ -2326,10 +2326,34 @@ div#papainstagram-render {
 //////Top Categories Section//////
 .dinosaur__topCategories {
     overflow: hidden;
-    padding-bottom: spacing("single") * 1.25;
+    // Solid black catalog/menu bar (no lifestyle collage behind)
+    background-color: #000 !important;
+    background-image: none !important;
+    padding-top: spacing("double") * 1.25;
+    padding-bottom: spacing("double") * 1.25;
 
     @include breakpoint("medium") {
-        padding-bottom: remCalc(stencilNumber("section-spacing"));
+        padding-bottom: spacing("double") * 1.25;
+    }
+
+    @media (max-width: screenSize("medium") - 1px) {
+        padding-top: spacing("single") * 1.25;
+        padding-bottom: spacing("single") * 1.25;
+    }
+
+    .page-heading {
+        color: #fff;
+        display: none;
+    }
+
+    .topCategories-item-name {
+        color: #fff;
+    }
+
+    .topCategories-list .topCategories-item {
+        .topCategories-item-name {
+            color: #fff;
+        }
     }
 
     &._hasThumb {
@@ -2344,13 +2368,8 @@ div#papainstagram-render {
         background-repeat: no-repeat;
         background-size: cover;
         background-position: center;
-        background-color: unset;
-
-        @if str-contains(#{stencilString("top_categories_bgImg")}, "/") {
-            background-image: url(#{stencilString("top_categories_bgImg")});
-        } @else if stencilString("top_categories_bgImg") {
-            background-image: url("../img/#{stencilString("top_categories_bgImg")}");
-        }
+        background-color: #000 !important;
+        background-image: none !important;
 
         padding-top: spacing("double") * 1.25;
         padding-bottom: spacing("double") * 1.25;
@@ -2361,17 +2380,17 @@ div#papainstagram-render {
         }
 
         .page-heading {
-            color: $color-secondary;
+            color: #fff;
             display: none;
         }
 
         .topCategories-item-name {
-            color: $color-secondary;
+            color: #fff;
         }
 
         .topCategories-list .topCategories-item {
             .topCategories-item-name {
-                color: $color-secondary;
+                color: #fff;
             }
         }
     }

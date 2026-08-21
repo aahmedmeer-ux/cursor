@@ -77,7 +77,7 @@
     "product_col_md": "3",
     "product_col_sm": "2",
     "top_categories_heading": "Top Categories",
-    "top_categories_bgImg": "top-categories-jettribe.jpg",
+    "top_categories_bgImg": "",
     "top_categories_buttonColor": "",
     "product_featured_heading": "Featured",
     "product_featured_count": "8",
@@ -641,7 +641,7 @@
         "newsletter_heading": "VIP Promotions Sign-Up",
         "nl_popup_image_url": "nl-popup-jettribe.jpg",
         "form-label-font-color": "#000000",
-        "top_categories_bgImg": "top-categories-jettribe.jpg",
+        "top_categories_bgImg": "",
         "product_featured_bgImage": "featured-products-jettribe.jpg"
       }
     },

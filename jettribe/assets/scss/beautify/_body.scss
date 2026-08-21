@@ -1319,12 +1319,26 @@ $mobileSpacing: remCalc(30);
     @include dinosaur__productView-background(#{stencilString("product_featured_bgImage")});
 }
 
-.beautify__section--topProducts {
-    @include dinosaur__productView-background(#{stencilString("product_top_bgImage")});
-}
-
+// Best Seller / New Arrivals: solid black only (no promo text / collage behind)
+.beautify__section--topProducts,
 .beautify__section--newProducts {
-    @include dinosaur__productView-background(#{stencilString("product_new_bgImage")});
+    background-color: #000 !important;
+    background-image: none !important;
+
+    .page-heading,
+    .navProducts-rootMenu-list .navProducts-list .navProducts-item a {
+        color: #fff;
+    }
+
+    .card {
+        &:not(._border) {
+            .card-figure,
+            .card-body,
+            .card-footer {
+                background-color: $container-fill-base;
+            }
+        }
+    }
 }
 
 

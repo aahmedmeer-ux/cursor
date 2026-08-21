@@ -791,8 +791,13 @@
                             {{/or}}
                         </div>
                     </section>
+                    {{#if theme_settings.productpage_tabs_desc_fullwidth}}
+                        <div data-also-bought-parent-scope class="productView-descriptionWrapper {{#if theme_settings.productpage_tabs_desc_fullwidth}}_tabs-fullwidth{{/if}}">
+                            {{> components/products/product-tab-description-fullwidth}}
+                        </div>
+                    {{/if}}
                     {{#unless in_quickview}}
-                        <div class="productView-additionalInfo u-hiddenVisually" id="productView-additionalInfo-{{product.id}}">
+                        <div class="productView-additionalInfo productView-additionalInfo--afterDescription u-hiddenVisually" id="productView-additionalInfo-{{product.id}}">
                             <div class="productView-alsoBought-wrapper">
                                 {{#if theme_settings.alsobought_position '!==' 'disable'}}
                                     {{> components/papathemes/also-bought/also-bought}}
@@ -800,11 +805,6 @@
                             </div>
                         </div>
                     {{/unless}}
-                    {{#if theme_settings.productpage_tabs_desc_fullwidth}}
-                        <div data-also-bought-parent-scope class="productView-descriptionWrapper {{#if theme_settings.productpage_tabs_desc_fullwidth}}_tabs-fullwidth{{/if}}">
-                            {{> components/products/product-tab-description-fullwidth}}
-                        </div>
-                    {{/if}}
                 </div>
         {{#unless in_quickview}}
             </div><!-- .container -->

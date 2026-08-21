@@ -139,24 +139,11 @@
 }
 
 .productView-alsoBought-buttons {
-    display: none;
-    text-align: left;
-    margin-top: spacing("half");
+    display: none !important;
+}
 
-    @include breakpoint("medium") {
-        margin: spacing("single") 0;
-    }
-
-    &.show {
-        display: flex;
-        align-items: center;
-    }
-
-    .button {
-        margin: 0;
-        padding-left: spacing("base");
-        padding-right: spacing("base");
-    }
+.productView-alsoBought {
+    margin-top: 0;
 }
 
 .productView-alsoBought-total {
@@ -193,6 +180,7 @@
 }
 
 .dinosaur__alsoBought-parentItem {
+    display: none !important;
     width: 100%;
     padding-top: spacing("quarter");
 

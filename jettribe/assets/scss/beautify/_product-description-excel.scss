@@ -1,4 +1,4 @@
-// Jettribe PDP description — vertical Excel-sheet tabs + live-site description layout
+// Jettribe PDP description — vertical spine label + full-width content
 .productView-description--excel {
     padding: remCalc(40px) 0 remCalc(24px);
 }
@@ -7,25 +7,26 @@
     display: flex;
     align-items: stretch;
     gap: 0;
-    border: 1px solid #d0d0d0;
+    width: 100%;
     background: #fff;
 
     @media (max-width: (screenSize("medium") - 1px)) {
         flex-direction: column;
-        border: 0;
     }
 }
 
+// Narrow left column — title written vertically
 .productDescExcel-tabs.tabs--excel {
     float: none;
     display: flex;
     flex-direction: column;
-    flex: 0 0 remCalc(180px);
+    flex: 0 0 remCalc(44px);
+    width: remCalc(44px);
     margin: 0;
     padding: 0;
     border: 0;
-    border-right: 1px solid #d0d0d0;
-    background: #f3f3f3;
+    border-right: 1px solid #dcdcdc;
+    background: #f7f7f7;
     list-style: none;
 
     &::before,
@@ -39,46 +40,54 @@
 
     .tab {
         float: none;
-        display: block;
+        display: flex;
+        flex: 1 1 auto;
+        align-items: stretch;
+        justify-content: center;
         margin: 0;
+        min-height: remCalc(140px);
         border: 0;
-        border-bottom: 1px solid #d0d0d0;
-        background: #f3f3f3;
+        border-bottom: 1px solid #dcdcdc;
+        background: #f7f7f7;
 
         &:last-child {
             border-bottom: 0;
         }
 
         .tab-title {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             width: 100%;
             margin: 0;
-            padding: remCalc(14px) remCalc(16px);
+            padding: remCalc(16px) 0;
             border: 0;
             border-left: 3px solid transparent;
             background: transparent;
-            color: #333;
-            font-size: remCalc(13px);
+            color: #666;
+            font-size: remCalc(12px);
             font-weight: fontWeight("bold");
-            letter-spacing: 0.04em;
-            line-height: 1.3;
+            letter-spacing: 0.12em;
+            line-height: 1;
             text-transform: uppercase;
-            text-align: left;
             text-decoration: none;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            white-space: nowrap;
 
             &:hover,
             &:focus {
-                background: #ebebeb;
+                background: #eee;
                 color: #111;
             }
         }
 
         &.is-active {
             background: #fff;
-            box-shadow: inset -1px 0 0 #fff;
 
             .tab-title {
-                border-left-color: #e53d42;
+                border-left-color: transparent;
+                border-right: 3px solid #e53d42; // reads as left accent after rotate
                 color: #e53d42;
                 background: #fff;
             }
@@ -89,8 +98,9 @@
 .productDescExcel-panels {
     flex: 1 1 auto;
     min-width: 0;
+    width: 100%;
     margin: 0;
-    padding: remCalc(20px) remCalc(24px);
+    padding: remCalc(8px) 0 remCalc(8px) remCalc(28px);
     background: #fff;
 
     @media (max-width: (screenSize("medium") - 1px)) {
@@ -103,6 +113,21 @@
         &.is-active {
             display: block;
         }
+    }
+}
+
+// FBT sits full-width under description
+.productView-additionalInfo--afterDescription {
+    width: 100% !important;
+    max-width: none !important;
+    float: none !important;
+    clear: both;
+    margin-top: remCalc(40px);
+    padding-right: 0;
+
+    @media (max-width: (screenSize("medium") - 1px)) {
+        order: 6;
+        margin-top: spacing("single");
     }
 }
 

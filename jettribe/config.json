@@ -112,7 +112,7 @@
     "productpage_vertical_thumbnails": false,
     "productpage_thumbnails_count": "4",
     "productpage_videos_position": "tab",
-    "productpage_sticky_addtocart": true,
+    "productpage_sticky_addtocart": false,
     "productpage_show_compare": true,
     "productpage_custom_fields_tab": true,
     "productpage_custom_fields_tab_title": "Other Details",
